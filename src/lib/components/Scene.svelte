@@ -1,6 +1,5 @@
 <script lang="ts">
-  import { SceneManager } from '$lib/managers/SceneManager';
-  import { loadTexture } from '$lib/managers/TextureManager';
+  import { SceneManager } from '$lib/components/managers/SceneManager';
   import { T, useThrelte, type ThrelteContext } from '@threlte/core'
   import { ContactShadows, Float, Grid, OrbitControls } from '@threlte/extras'
 

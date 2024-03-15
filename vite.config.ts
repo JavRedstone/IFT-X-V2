@@ -6,5 +6,8 @@ export default defineConfig({
 	plugins: [mkcert(), sveltekit()],
 	ssr: {
 		noExternal: ['three']
+	},
+	server: {
+		hmr: false
 	}
 });
