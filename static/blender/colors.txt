@@ -1,0 +1,3 @@
+Emission: 00AFFF
+Usual: Black
+Concrete: 6C777F

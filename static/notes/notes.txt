@@ -1,0 +1,11 @@
+Make earth:
+
+https://franky-arkon-digital.medium.com/make-your-own-earth-in-three-js-8b875e281b1e
+
+Any planet loader:
+
+https://observablehq.com/@mourner/3d-planets-with-three-js
+
+Textures:
+
+https://planetpixelemporium.com/earth8081.html
