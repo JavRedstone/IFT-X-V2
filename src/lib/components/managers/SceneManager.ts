@@ -9,15 +9,21 @@ export class SceneManager {
     public sun: DirectionalLight = new DirectionalLight();
     public group: Group = new Group();
     public earth: Mesh = new Mesh();
+    public clouds: Mesh = new Mesh();
     
     public interval: number = 0;
 
     constructor(tc: ThrelteContext) {
         this.tc = tc;
-        this.setBackground();
+        this.setupScene();
+        
+    }
+
+    public async setupScene() {
+        await this.setBackground();
         this.createSun();
-        this.createEarth();
-        this.createClouds();
+        await this.createEarth();
+        await this.createClouds();
         this.tc.scene.add(this.group);
         this.interval = setInterval(() => {
             this.update(SceneConstants.DELTA);
@@ -53,8 +59,6 @@ export class SceneManager {
         });
         this.earth = new Mesh(geometry, material);
         this.group.add(this.earth);
-
-        this.earth.rotateY(-0.3);
     }
 
     public async createClouds() {
@@ -64,14 +68,15 @@ export class SceneManager {
         let geometry = new SphereGeometry(CelestialConstants.CLOUDS_RADIUS, 64, 64);
         let material = new MeshStandardMaterial({
             alphaMap: clouds,
-            transparent: true,
+            transparent: true
         });
-        let cloudsMesh = new Mesh(geometry, material);
-        this.group.add(cloudsMesh);
+        this.clouds = new Mesh(geometry, material);
+        this.group.add(this.clouds);
     }
 
     public update(delta: number) {
         this.earth.rotateY(delta * CelestialConstants.ROTATION_SPEED);
+        this.clouds.rotateY(delta * CelestialConstants.CLOUDS_ROTATION_SPEED);
     }
 
     public loadTexture = (url: string) => {
