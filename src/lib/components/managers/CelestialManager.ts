@@ -1,0 +1,245 @@
+import { type ThrelteContext } from "@threlte/core";
+import { AdditiveBlending, BackSide, DirectionalLight, EquirectangularReflectionMapping, Group, Mesh, MeshStandardMaterial, RepeatWrapping, SRGBColorSpace, ShaderMaterial, SphereGeometry, Vector3 } from "three";
+import { TextureConstants } from "$lib/components/constants/TextureConstants.js";
+import { CelestialConstants } from "../constants/CelestialConstants";
+import { loadTexture } from "../helpers/TextureHelper";
+
+export class CelestialManager {
+    public tc: ThrelteContext;
+
+    public sun: DirectionalLight = new DirectionalLight();
+    public earth_group: Group = new Group();
+    public earth: Mesh = new Mesh();
+    public earthMaterial: MeshStandardMaterial = new MeshStandardMaterial();
+    public clouds: Mesh = new Mesh();
+    public moon: Mesh = new Mesh();
+    public atmosphere: Mesh = new Mesh();
+
+    constructor(tc: ThrelteContext) {
+        this.tc = tc;
+        this.setup();
+    }
+
+    public async setup(): Promise<void> {
+        await this.setBackground();
+        this.createSun();
+        await this.createEarth();
+        this.tc.scene.add(this.earth_group);
+    }
+
+    public async setBackground(): Promise<void> {
+        let envMap = await loadTexture(TextureConstants.TEXTURE_URL + "stars.jpg");
+        envMap.mapping = EquirectangularReflectionMapping;
+        this.tc.scene.background = envMap;
+    }
+
+    public createSun() {
+        this.sun = new DirectionalLight(0xffffff, CelestialConstants.SUN_INTENSITY);
+        this.sun.position.set(-50, 0, 30);
+        this.sun.castShadow = true;
+        this.tc.scene.add(this.sun);
+    }
+
+    public async createEarth(): Promise<void> {
+        let map = await loadTexture(TextureConstants.TEXTURE_URL + "map.jpg");
+        map.colorSpace = SRGBColorSpace;
+
+        let bump = await loadTexture(TextureConstants.TEXTURE_URL + "bump.jpg");
+
+        let spec = await loadTexture(TextureConstants.TEXTURE_URL + "spec.jpg");
+
+        let lights = await loadTexture(TextureConstants.TEXTURE_URL + "lights2.gif");
+
+        this.earth_group = new Group();
+        this.earth_group.rotation.z = 23.5 / 360 * 2 * Math.PI
+
+        let Egeometry = new SphereGeometry(CelestialConstants.EARTH_RADIUS, TextureConstants.EARTH_VERTICES, TextureConstants.EARTH_VERTICES);
+        let Ematerial = new MeshStandardMaterial({
+            map: map,
+            bumpMap: bump,
+            bumpScale: TextureConstants.EARTH_BUMP_SCALE,
+            roughnessMap: spec,
+            roughness: TextureConstants.EARTH_ROUGHNESS,
+            metalnessMap: spec,
+            metalness: TextureConstants.EARTH_METALNESS,
+            emissiveMap: lights,
+            emissive: TextureConstants.EARTH_EMISSIVE,
+            emissiveIntensity: TextureConstants.EARTH_EMISSIVE_INTENSITY,
+        });
+        this.earth = new Mesh(Egeometry, Ematerial);
+        this.earth_group.add(this.earth);
+        
+        let clouds = await loadTexture(TextureConstants.TEXTURE_URL + "clouds.jpg");
+        clouds.colorSpace = SRGBColorSpace;
+
+        let Cgeometry = new SphereGeometry(CelestialConstants.CLOUDS_RADIUS, TextureConstants.EARTH_VERTICES, TextureConstants.EARTH_VERTICES);
+        let Cmaterial = new MeshStandardMaterial({
+            alphaMap: clouds,
+            transparent: true
+        });
+        this.clouds = new Mesh(Cgeometry, Cmaterial);
+        this.earth_group.add(this.clouds);
+
+        let Ageometry = new SphereGeometry(CelestialConstants.ATMOSPHERE_RADIUS, TextureConstants.EARTH_VERTICES, TextureConstants.EARTH_VERTICES);
+        let Amaterial = new ShaderMaterial({
+            vertexShader: `varying vec3 vNormal;
+            varying vec3 eyeVector;
+            
+            void main() {
+                // modelMatrix transforms the coordinates local to the model into world space
+                vec4 mvPos = modelViewMatrix * vec4( position, 1.0 );
+            
+                // normalMatrix is a matrix that is used to transform normals from object space to view space.
+                vNormal = normalize( normalMatrix * normal );
+            
+                // vector pointing from camera to vertex in view space
+                eyeVector = normalize(mvPos.xyz);
+            
+                gl_Position = projectionMatrix * mvPos;
+            }`,
+            fragmentShader: `varying vec3 vNormal;
+            varying vec3 eyeVector;
+            uniform float atmOpacity;
+            uniform float atmPowFactor;
+            uniform float atmMultiplier;
+            
+            void main() {
+                // Starting from the atmosphere edge, dotP would increase from 0 to 1
+                float dotP = dot( vNormal, eyeVector );
+                // This factor is to create the effect of a realistic thickening of the atmosphere coloring
+                float factor = pow(dotP, atmPowFactor) * atmMultiplier;
+                // Adding in a bit of dotP to the color to make it whiter while thickening
+                vec3 atmColor = vec3(0.35 + dotP/4.5, 0.35 + dotP/4.5, 1.0);
+                // use atmOpacity to control the overall intensity of the atmospheric color
+                gl_FragColor = vec4(atmColor, atmOpacity) * factor;
+            
+                // (optional) colorSpace conversion for output
+                // gl_FragColor = linearToOutputTexel( gl_FragColor );
+            }`,
+            uniforms: {
+                atmOpacity: { value: TextureConstants.ATMOSPHERIC_OPACITY },
+                atmPowFactor: { value: TextureConstants.ATMOSPHERIC_POW_FACTOR },
+                atmMultiplier: { value: TextureConstants.ATMOSPHERIC_MULTIPLIER }
+            },
+            blending: AdditiveBlending,
+            side: BackSide
+        });
+        this.atmosphere = new Mesh(Ageometry, Amaterial);
+        this.earth_group.add(this.atmosphere);
+
+        let Mgeometry = new SphereGeometry(CelestialConstants.MOON_RADIUS, 32, 32);
+        let Mmaterial = new MeshStandardMaterial();
+        this.moon = new Mesh(Mgeometry, Mmaterial);
+        this.moon.position.set(0, 0, CelestialConstants.MOON_DISTANCE);
+        this.tc.scene.add(this.moon);
+
+        Ematerial.onBeforeCompile = (shader) => {
+            shader.uniforms.tClouds = { value: clouds };
+            shader.uniforms.tClouds.value.wrapS = RepeatWrapping;
+            shader.uniforms.uv_xOffset = { value: 0 };
+            shader.fragmentShader = shader.fragmentShader.replace('#include <common>', `
+                #include <common>
+                uniform sampler2D tClouds;
+                uniform float uv_xOffset;
+            `);
+
+            // Adding cloud shadows to the Earth
+            shader.fragmentShader = shader.fragmentShader.replace('#include <emissivemap_fragment>', `
+                #ifdef USE_EMISSIVEMAP
+
+                    vec4 emissiveColor = texture2D( emissiveMap, vEmissiveMapUv );
+
+                    // Methodology of showing night lights only:
+                    //
+                    // going through the shader calculations in the meshphysical shader chunks (mostly on the vertex side),
+                    // we can confirm that geometryNormal is the normalized normal in view space,
+                    // for the night side of the earth, the dot product between geometryNormal and the directional light would be negative
+                    // since the direction vector actually points from target to position of the DirectionalLight,
+                    // for lit side of the earth, the reverse happens thus emissiveColor would be multiplied with 0.
+                    // The smoothstep is to smoothen the change between night and day
+
+                    emissiveColor *= 1.0 - smoothstep(-0.02, 0.0, dot(vNormal, directionalLights[0].direction));
+                    
+                    totalEmissiveRadiance *= emissiveColor.rgb;
+
+                #endif
+
+                // Methodology explanation:
+                //
+                // Our goal here is to use a “negative light map” approach to cast cloud shadows,
+                // the idea is on any uv point on earth map(Point X),
+                // we find the corresponding uv point(Point Y) on clouds map that is directly above Point X,
+                // then we extract color value at Point Y.
+                // We then darken the color value at Point X depending on the color value at Point Y,
+                // that is the intensity of the clouds at Point Y.
+                //
+                // Since the clouds are made to spin twice as fast as the earth,
+                // in order to get the correct shadows(clouds) position in this earth's fragment shader
+                // we need to minus earth's UV.x coordinate by uv_xOffset,
+                // which is calculated and explained in the updateScene()
+                // after minus by uv_xOffset, the result would be in the range of -1 to 1,
+                // we need to set RepeatWrapping for wrapS of the clouds texture so that texture2D still works for -1 to 0
+
+                float cloudsMapValue = texture2D(tClouds, vec2(vMapUv.x - uv_xOffset, vMapUv.y)).r;
+                
+                // The shadow should be more intense where the clouds are more intense,
+                // thus we do 1.0 minus cloudsMapValue to obtain the shadowValue, which is multiplied to diffuseColor
+                // we also clamp the shadowValue to a minimum of 0.2 so it doesn't get too dark
+                
+                diffuseColor.rgb *= max(1.0 - cloudsMapValue, 0.2 );
+
+                // adding a small amount of atmospheric fresnel effect to make it more realistic
+                // fine tune the first constant below for stronger or weaker effect
+                float intensity = 1.4 - dot(vNormal, vec3( 0.0, 0.0, 1.0 ) );
+                vec3 atmosphere = vec3( 0.3, 0.6, 1.0 ) * pow(intensity, 5.0);
+            
+                diffuseColor.rgb += atmosphere;
+            `);
+
+            // Reversing the roughness map because we provide the ocean map
+            shader.fragmentShader = shader.fragmentShader.replace('#include <roughnessmap_fragment>', `
+                float roughnessFactor = roughness;
+
+                #ifdef USE_ROUGHNESSMAP
+
+                vec4 texelRoughness = texture2D( roughnessMap, vRoughnessMapUv );
+                // reversing the black and white values because we provide the ocean map
+                texelRoughness = vec4(1.0) - texelRoughness;
+
+                // reads channel G, compatible with a combined OcclusionRoughnessMetallic (RGB) texture
+                roughnessFactor *= clamp(texelRoughness.g, 0.5, 1.0);
+
+                #endif
+            `);
+
+            Ematerial.userData.shader = shader;
+        }
+
+        this.earthMaterial = Ematerial;
+    }
+
+    public updateScene(delta: number): void {
+        this.updateRotation(delta);        
+        this.updateShader(delta);
+    }
+
+    public updateRotation(delta: number): void {
+        this.earth.rotateY(delta * CelestialConstants.EARTH_ROTATION_SPEED);
+        this.clouds.rotateY(delta * CelestialConstants.CLOUDS_ROTATION_SPEED);
+    }
+
+    public updateShader(delta: number): void {
+        // 3. calculate uv_xOffset and pass it into the shader used by Earth's MeshStandardMaterial
+        // As for each n radians Point X has rotated, Point Y would have rotated 2n radians.
+        // Thus uv.x of Point Y would always be = uv.x of Point X - n / 2π.
+        // Dividing n by 2π is to convert from radians(i.e. 0 to 2π) into the uv space(i.e. 0 to 1).
+        // The offset n / 2π would be passed into the shader program via the uniform variable: uv_xOffset.
+        // We do offset % 1 because the value of 1 for uv.x means full circle,
+        // whenever uv_xOffset is larger than one, offsetting 2π radians is like no offset at all.
+        let shader = this.earthMaterial.userData.shader;
+        if (shader) {
+            let offset = (delta * CelestialConstants.CLOUDS_ROTATION_SPEED) / (2 * Math.PI)
+            shader.uniforms.uv_xOffset.value += offset % 1;
+        }
+    }
+}
