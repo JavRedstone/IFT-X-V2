@@ -24,6 +24,7 @@ export class CelestialManager {
         await this.setBackground();
         this.createSun();
         await this.createEarth();
+        await this.createMoon();
         this.tc.scene.add(this.earth_group);
     }
 
@@ -127,12 +128,6 @@ export class CelestialManager {
         this.atmosphere = new Mesh(Ageometry, Amaterial);
         this.earth_group.add(this.atmosphere);
 
-        let Mgeometry = new SphereGeometry(CelestialConstants.MOON_RADIUS, 32, 32);
-        let Mmaterial = new MeshStandardMaterial();
-        this.moon = new Mesh(Mgeometry, Mmaterial);
-        this.moon.position.set(0, 0, CelestialConstants.MOON_DISTANCE);
-        this.tc.scene.add(this.moon);
-
         Ematerial.onBeforeCompile = (shader) => {
             shader.uniforms.tClouds = { value: clouds };
             shader.uniforms.tClouds.value.wrapS = RepeatWrapping;
@@ -218,6 +213,19 @@ export class CelestialManager {
         this.earthMaterial = Ematerial;
     }
 
+    public async createMoon(): Promise<void> {
+        let map = await loadTexture(TextureConstants.TEXTURE_URL + "moon_map.jpg");
+        map.colorSpace = SRGBColorSpace;
+
+        let bump = await loadTexture(TextureConstants.TEXTURE_URL + "moon_bump.jpg");
+
+        let Mgeometry = new SphereGeometry(CelestialConstants.MOON_RADIUS, 32, 32);
+        let Mmaterial = new MeshStandardMaterial();
+        this.moon = new Mesh(Mgeometry, Mmaterial);
+        this.moon.position.set(0, 0, CelestialConstants.MOON_DISTANCE);
+        this.tc.scene.add(this.moon);
+    }
+    
     public updateScene(delta: number): void {
         this.updateRotation(delta);        
         this.updateShader(delta);
