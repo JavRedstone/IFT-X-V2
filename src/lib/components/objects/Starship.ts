@@ -18,10 +18,39 @@ export class Starship {
     public group: Group = new Group();
 
     constructor() {
-        this.setup();
+        this.setupMultiple();
     }
 
-    public setup(): void {
-        let rSeaPositions = MathHelper.getCircularPositions(this.numRSeas, StarshipConstants.STARSHIP_RADIUS);
+    public setupMultiple(): void {
+        this.setupRSeas();
+        this.setupRVacs();
+    }
+
+    public setupRSeas(): void {
+        let rSeaPositions = MathHelper.getCircularPositions(this.numRSeas, StarshipConstants.R_SEA_RADIUS);
+        let rSeaRotations = MathHelper.getCircularRotations(this.numRSeas);
+
+        for (let i = 0; i < this.numRSeas; i++) {
+            let rSea = new Object3D();
+            rSea.position.copy(rSeaPositions[i]);
+            rSea.rotation.copy(rSeaRotations[i]);
+            this.rSeas.push(rSea);
+        }
+    }
+
+    public setupRVacs(): void {
+        let rVacPositions = MathHelper.getCircularPositions(this.numRVacs, StarshipConstants.R_VAC_RADIUS);
+        let rVacRotations = MathHelper.getCircularRotations(this.numRVacs);
+
+        for (let i = 0; i < this.numRVacs; i++) {
+            let rVac = new Object3D();
+            rVac.position.copy(rVacPositions[i]);
+            rVac.rotation.copy(rVacRotations[i]);
+            this.rVacs.push(rVac);
+        }
+    }
+
+    public setupSingle(): void {
+
     }
 }

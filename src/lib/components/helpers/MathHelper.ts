@@ -1,4 +1,4 @@
-import { Box3, Vector3 } from "three";
+import { Box3, Euler, Vector3 } from "three";
 
 export class MathHelper {
     public static getGroupDimensions(group): Vector3 {
@@ -30,13 +30,13 @@ export class MathHelper {
         return positions;
     }
     
-    public static getCircularRotations(n: number): Vector3[] {
+    public static getCircularRotations(n: number): Euler[] {
         let rotations = [];
         for (let i = 0; i < n; i++) {
             let x = 0;
             let y = 2 * Math.PI * i / n;
             let z = 0;
-            rotations.push(new Vector3(x, y, z));
+            rotations.push(new Euler(x, y, z));
         }
         return rotations;
     }
