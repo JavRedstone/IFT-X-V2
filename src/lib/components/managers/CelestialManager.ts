@@ -1,19 +1,24 @@
 import { type ThrelteContext } from "@threlte/core";
 import { AdditiveBlending, BackSide, DirectionalLight, EquirectangularReflectionMapping, Group, Mesh, MeshStandardMaterial, RepeatWrapping, SRGBColorSpace, ShaderMaterial, SphereGeometry, Vector3 } from "three";
-import { TextureConstants } from "$lib/components/constants/TextureConstants.js";
+import { TextureHelper } from "../helpers/TextureHelper";
 import { CelestialConstants } from "../constants/CelestialConstants";
-import { loadTexture } from "../helpers/TextureHelper";
+import { TextureConstants } from "../constants/TextureConstants";
 
 export class CelestialManager {
     public tc: ThrelteContext;
 
     public sun: DirectionalLight = new DirectionalLight();
-    public earth_group: Group = new Group();
+    public earthGroup: Group = new Group();
     public earth: Mesh = new Mesh();
     public earthMaterial: MeshStandardMaterial = new MeshStandardMaterial();
     public clouds: Mesh = new Mesh();
-    public moon: Mesh = new Mesh();
     public atmosphere: Mesh = new Mesh();
+    
+    public moon: Mesh = new Mesh();
+
+    public sunPosition: Vector3 = new Vector3();
+    public earthPosition: Vector3 = new Vector3();
+    public moonPosition: Vector3 = new Vector3();
 
     constructor(tc: ThrelteContext) {
         this.tc = tc;
@@ -25,63 +30,63 @@ export class CelestialManager {
         this.createSun();
         await this.createEarth();
         await this.createMoon();
-        this.tc.scene.add(this.earth_group);
+        this.tc.scene.add(this.earthGroup);
     }
 
     public async setBackground(): Promise<void> {
-        let envMap = await loadTexture(TextureConstants.TEXTURE_URL + "stars.jpg");
+        let envMap = await TextureHelper.loadTexture(TextureConstants.TEXTURE_URL + "stars.jpg");
         envMap.mapping = EquirectangularReflectionMapping;
         this.tc.scene.background = envMap;
     }
 
     public createSun() {
-        this.sun = new DirectionalLight(0xffffff, CelestialConstants.SUN_INTENSITY);
+        this.sun = new DirectionalLight(CelestialConstants.SUN_COLOR, CelestialConstants.SUN_INTENSITY);
         this.sun.position.set(-50, 0, 30);
         this.sun.castShadow = true;
         this.tc.scene.add(this.sun);
     }
 
     public async createEarth(): Promise<void> {
-        let map = await loadTexture(TextureConstants.TEXTURE_URL + "map.jpg");
+        let map = await TextureHelper.loadTexture(TextureConstants.TEXTURE_URL + "map.jpg");
         map.colorSpace = SRGBColorSpace;
 
-        let bump = await loadTexture(TextureConstants.TEXTURE_URL + "bump.jpg");
+        let bump = await TextureHelper.loadTexture(TextureConstants.TEXTURE_URL + "bump.jpg");
 
-        let spec = await loadTexture(TextureConstants.TEXTURE_URL + "spec.jpg");
+        let spec = await TextureHelper.loadTexture(TextureConstants.TEXTURE_URL + "spec.jpg");
 
-        let lights = await loadTexture(TextureConstants.TEXTURE_URL + "lights2.gif");
+        let lights = await TextureHelper.loadTexture(TextureConstants.TEXTURE_URL + "lights2.gif");
 
-        this.earth_group = new Group();
-        this.earth_group.rotation.z = 23.5 / 360 * 2 * Math.PI
+        this.earthGroup = new Group();
+        // this.earthGroup.rotation.z = 23.5 / 360 * 2 * Math.PI;
 
-        let Egeometry = new SphereGeometry(CelestialConstants.EARTH_RADIUS, TextureConstants.EARTH_VERTICES, TextureConstants.EARTH_VERTICES);
+        let Egeometry = new SphereGeometry(CelestialConstants.EARTH_RADIUS, CelestialConstants.EARTH_VERTICES, CelestialConstants.EARTH_VERTICES);
         let Ematerial = new MeshStandardMaterial({
             map: map,
             bumpMap: bump,
-            bumpScale: TextureConstants.EARTH_BUMP_SCALE,
+            bumpScale: CelestialConstants.EARTH_BUMP_SCALE,
             roughnessMap: spec,
-            roughness: TextureConstants.EARTH_ROUGHNESS,
+            roughness: CelestialConstants.EARTH_ROUGHNESS,
             metalnessMap: spec,
-            metalness: TextureConstants.EARTH_METALNESS,
+            metalness: CelestialConstants.EARTH_METALNESS,
             emissiveMap: lights,
-            emissive: TextureConstants.EARTH_EMISSIVE,
-            emissiveIntensity: TextureConstants.EARTH_EMISSIVE_INTENSITY,
+            emissive: CelestialConstants.EARTH_EMISSIVE,
+            emissiveIntensity: CelestialConstants.EARTH_EMISSIVE_INTENSITY,
         });
         this.earth = new Mesh(Egeometry, Ematerial);
-        this.earth_group.add(this.earth);
+        this.earthGroup.add(this.earth);
         
-        let clouds = await loadTexture(TextureConstants.TEXTURE_URL + "clouds.jpg");
+        let clouds = await TextureHelper.loadTexture(TextureConstants.TEXTURE_URL + "clouds.jpg");
         clouds.colorSpace = SRGBColorSpace;
 
-        let Cgeometry = new SphereGeometry(CelestialConstants.CLOUDS_RADIUS, TextureConstants.EARTH_VERTICES, TextureConstants.EARTH_VERTICES);
+        let Cgeometry = new SphereGeometry(CelestialConstants.CLOUDS_RADIUS, CelestialConstants.EARTH_VERTICES, CelestialConstants.EARTH_VERTICES);
         let Cmaterial = new MeshStandardMaterial({
             alphaMap: clouds,
             transparent: true
         });
         this.clouds = new Mesh(Cgeometry, Cmaterial);
-        this.earth_group.add(this.clouds);
+        this.earthGroup.add(this.clouds);
 
-        let Ageometry = new SphereGeometry(CelestialConstants.ATMOSPHERE_RADIUS, TextureConstants.EARTH_VERTICES, TextureConstants.EARTH_VERTICES);
+        let Ageometry = new SphereGeometry(CelestialConstants.ATMOSPHERE_RADIUS, CelestialConstants.EARTH_VERTICES, CelestialConstants.EARTH_VERTICES);
         let Amaterial = new ShaderMaterial({
             vertexShader: `varying vec3 vNormal;
             varying vec3 eyeVector;
@@ -118,15 +123,15 @@ export class CelestialManager {
                 // gl_FragColor = linearToOutputTexel( gl_FragColor );
             }`,
             uniforms: {
-                atmOpacity: { value: TextureConstants.ATMOSPHERIC_OPACITY },
-                atmPowFactor: { value: TextureConstants.ATMOSPHERIC_POW_FACTOR },
-                atmMultiplier: { value: TextureConstants.ATMOSPHERIC_MULTIPLIER }
+                atmOpacity: { value: CelestialConstants.ATMOSPHERIC_OPACITY },
+                atmPowFactor: { value: CelestialConstants.ATMOSPHERIC_POW_FACTOR },
+                atmMultiplier: { value: CelestialConstants.ATMOSPHERIC_MULTIPLIER }
             },
             blending: AdditiveBlending,
             side: BackSide
         });
         this.atmosphere = new Mesh(Ageometry, Amaterial);
-        this.earth_group.add(this.atmosphere);
+        // this.earth_group.add(this.atmosphere);
 
         Ematerial.onBeforeCompile = (shader) => {
             shader.uniforms.tClouds = { value: clouds };
@@ -185,10 +190,10 @@ export class CelestialManager {
 
                 // adding a small amount of atmospheric fresnel effect to make it more realistic
                 // fine tune the first constant below for stronger or weaker effect
-                float intensity = 1.4 - dot(vNormal, vec3( 0.0, 0.0, 1.0 ) );
-                vec3 atmosphere = vec3( 0.3, 0.6, 1.0 ) * pow(intensity, 5.0);
+                // float intensity = 1.4 - dot(vNormal, vec3( 0.0, 0.0, 1.0 ) );
+                // vec3 atmosphere = vec3( 0.3, 0.6, 1.0 ) * pow(intensity, 5.0);
             
-                diffuseColor.rgb += atmosphere;
+                // diffuseColor.rgb += atmosphere;
             `);
 
             // Reversing the roughness map because we provide the ocean map
@@ -214,26 +219,37 @@ export class CelestialManager {
     }
 
     public async createMoon(): Promise<void> {
-        let map = await loadTexture(TextureConstants.TEXTURE_URL + "moon_map.jpg");
+        let map = await TextureHelper.loadTexture(TextureConstants.TEXTURE_URL + "moon_map.jpg");
         map.colorSpace = SRGBColorSpace;
 
-        let bump = await loadTexture(TextureConstants.TEXTURE_URL + "moon_bump.jpg");
+        let bump = await TextureHelper.loadTexture(TextureConstants.TEXTURE_URL + "moon_bump.jpg");
 
-        let Mgeometry = new SphereGeometry(CelestialConstants.MOON_RADIUS, 32, 32);
-        let Mmaterial = new MeshStandardMaterial();
+        let Mgeometry = new SphereGeometry(CelestialConstants.MOON_RADIUS, CelestialConstants.MOON_VERTICES, CelestialConstants.MOON_VERTICES);
+        let Mmaterial = new MeshStandardMaterial({
+            map: map,
+            bumpMap: bump,
+            bumpScale: CelestialConstants.MOON_BUMP_SCALE,
+            metalness: CelestialConstants.MOON_METALNESS,
+            roughness: CelestialConstants.MOON_ROUGHNESS
+        });
         this.moon = new Mesh(Mgeometry, Mmaterial);
         this.moon.position.set(0, 0, CelestialConstants.MOON_DISTANCE);
         this.tc.scene.add(this.moon);
     }
     
     public updateScene(delta: number): void {
-        this.updateRotation(delta);        
+        this.updateRotation(delta);
+        this.updateOrbit(delta);
         this.updateShader(delta);
     }
 
     public updateRotation(delta: number): void {
         this.earth.rotateY(delta * CelestialConstants.EARTH_ROTATION_SPEED);
         this.clouds.rotateY(delta * CelestialConstants.CLOUDS_ROTATION_SPEED);
+    }
+
+    public updateOrbit(delta: number): void {
+        this.moon.position.applyAxisAngle(new Vector3(0, 1, 0), delta * CelestialConstants.MOON_ORBIT_SPEED);
     }
 
     public updateShader(delta: number): void {

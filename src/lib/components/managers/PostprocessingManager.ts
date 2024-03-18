@@ -1,13 +1,13 @@
 import { useTask, type ThrelteContext, type Size } from "@threlte/core";
 import { BlendFunction, BloomEffect, EffectComposer, EffectPass, KernelSize, RenderPass } from 'postprocessing';
 import { PerspectiveCamera, type Camera } from "three";
-import { EffectConstants } from "../constants/EffectConstants";
+import { Postprocessing } from "../constants/PostprocessingConstants";
 
-export class EffectManager {
+export class PostprocessingManager {
     public tc: ThrelteContext;
     public camera: PerspectiveCamera;
     public effectComposer: EffectComposer;
-    public isOn: boolean = false;
+    public isBloomEnabled: boolean = false;
 
     constructor(tc: ThrelteContext, camera: PerspectiveCamera) {
         this.tc = tc;
@@ -41,20 +41,19 @@ export class EffectManager {
 
     public updateEffects(camera: Camera): void {
         let renderPass: RenderPass = new RenderPass(this.tc.scene, camera);
-        const bloomEffect: BloomEffect = new BloomEffect({
-            blendFunction: BlendFunction.SCREEN,
-            luminanceThreshold: EffectConstants.LUMINANCE_THRESHOLD,
-            luminanceSmoothing: EffectConstants.LUMINANCE_SMOOTHING,
-            intensity: EffectConstants.INTENSITY,
-            kernelSize: KernelSize.SMALL,
-        });
-        let bloomEffectPass: EffectPass = new EffectPass(camera, bloomEffect);
-        bloomEffectPass.renderToScreen = true;
-
         this.effectComposer.removeAllPasses();
         this.effectComposer.setSize(window.innerWidth, window.innerHeight);
         this.effectComposer.addPass(renderPass);
-        if (this.isOn) {
+        if (this.isBloomEnabled) {
+            const bloomEffect: BloomEffect = new BloomEffect({
+                blendFunction: BlendFunction.SCREEN,
+                luminanceThreshold: Postprocessing.BLOOM_LUMINANCE_THRESHOLD,
+                luminanceSmoothing: Postprocessing.BLOOM_LUMINANCE_SMOOTHING,
+                intensity: Postprocessing.BLOOM_INTENSITY,
+                kernelSize: KernelSize.SMALL,
+            });
+            let bloomEffectPass: EffectPass = new EffectPass(camera, bloomEffect);
+            bloomEffectPass.renderToScreen = true;
             this.effectComposer.addPass(bloomEffectPass);
         }
     }

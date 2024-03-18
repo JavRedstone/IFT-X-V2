@@ -1,3 +1,5 @@
+Credits
+
 Make earth:
 
 https://franky-arkon-digital.medium.com/make-your-own-earth-in-three-js-8b875e281b1e
@@ -9,3 +11,10 @@ https://observablehq.com/@mourner/3d-planets-with-three-js
 Textures:
 
 https://planetpixelemporium.com/earth8081.html
+
+Sky shader reference:
+
+https://github.com/mrdoob/three.js/blob/master/examples/webgl_shaders_sky.html
+
+Camera rotation reference (similar to ksp):
+https://wiki.kerbalspaceprogram.com/wiki/Camera_view
