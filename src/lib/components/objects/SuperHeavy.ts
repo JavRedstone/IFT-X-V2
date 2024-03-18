@@ -9,10 +9,6 @@ export class SuperHeavy {
     public chines: Object3D[] = [];
     public rSeas: Object3D[] = [];
 
-    public numGridFins: number = 4;
-    public numChines: number = 4;
-    public numRSeas: number = 33;
-
     public group: Group = new Group();
 
     constructor() {
@@ -26,10 +22,10 @@ export class SuperHeavy {
     }
 
     public setupGridFins(): void {
-        let gridFinPositions = MathHelper.getCircularPositions(this.numGridFins, SuperHeavyConstants.GRID_FIN_RADIUS);
-        let gridFinRotations = MathHelper.getCircularRotations(this.numGridFins);
+        let gridFinPositions = MathHelper.getCircularPositions(SuperHeavyConstants.NUM_GRID_FINS, SuperHeavyConstants.GRID_FIN_RADIUS);
+        let gridFinRotations = MathHelper.getCircularRotations(SuperHeavyConstants.NUM_GRID_FINS);
 
-        for (let i = 0; i < this.numGridFins; i++) {
+        for (let i = 0; i < SuperHeavyConstants.NUM_GRID_FINS; i++) {
             let gridFin = new Object3D();
             gridFin.position.copy(gridFinPositions[i]);
             gridFin.rotation.copy(gridFinRotations[i]);
@@ -38,14 +34,46 @@ export class SuperHeavy {
     }
 
     public setupChines(): void {
-        let chinePositions = MathHelper.getCircularPositions(this.numChines, SuperHeavyConstants.CHINES_RADIUS);
-        let chineRotations = MathHelper.getCircularRotations(this.numChines);
+        let chinePositions = MathHelper.getCircularPositions(SuperHeavyConstants.NUM_CHINES, SuperHeavyConstants.CHINE_RADIUS);
+        let chineRotations = MathHelper.getCircularRotations(SuperHeavyConstants.NUM_CHINES);
 
-        for (let i = 0; i < this.numChines; i++) {
+        for (let i = 0; i < SuperHeavyConstants.NUM_CHINES; i++) {
             let chine = new Object3D();
             chine.position.copy(chinePositions[i]);
             chine.rotation.copy(chineRotations[i]);
             this.chines.push(chine);
+        }
+    }
+
+    public setupRSeas(): void {
+        let rSeaPositions1 = MathHelper.getCircularPositions(SuperHeavyConstants.NUM_R_SEAS_1, SuperHeavyConstants.R_SEA_RADIUS_1);
+        let rSeaRotations1 = MathHelper.getCircularRotations(SuperHeavyConstants.NUM_R_SEAS_1);
+
+        for (let i = 0; i < SuperHeavyConstants.NUM_R_SEAS_1; i++) {
+            let rSea = new Object3D();
+            rSea.position.copy(rSeaPositions1[i]);
+            rSea.rotation.copy(rSeaRotations1[i]);
+            this.rSeas.push(rSea);
+        }
+
+        let rSeaPositions2 = MathHelper.getCircularPositions(SuperHeavyConstants.NUM_R_SEAS_2, SuperHeavyConstants.R_SEA_RADIUS_2);
+        let rSeaRotations2 = MathHelper.getCircularRotations(SuperHeavyConstants.NUM_R_SEAS_2);
+
+        for (let i = 0; i < SuperHeavyConstants.NUM_R_SEAS_2; i++) {
+            let rSea = new Object3D();
+            rSea.position.copy(rSeaPositions2[i]);
+            rSea.rotation.copy(rSeaRotations2[i]);
+            this.rSeas.push(rSea);
+        }
+
+        let rSeaPositions3 = MathHelper.getCircularPositions(SuperHeavyConstants.NUM_R_SEAS_3, SuperHeavyConstants.R_SEA_RADIUS_3);
+        let rSeaRotations3 = MathHelper.getCircularRotations(SuperHeavyConstants.NUM_R_SEAS_3);
+
+        for (let i = 0; i < SuperHeavyConstants.NUM_R_SEAS_3; i++) {
+            let rSea = new Object3D();
+            rSea.position.copy(rSeaPositions3[i]);
+            rSea.rotation.copy(rSeaRotations3[i]);
+            this.rSeas.push(rSea);
         }
     }
 }

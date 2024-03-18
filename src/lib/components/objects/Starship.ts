@@ -11,10 +11,7 @@ export class Starship {
     public aftR: Group = new Group();
     public rSeas: Object3D[] = [];
     public rVacs: Object3D[] = [];
-
-    public numRSeas: number = 3;
-    public numRVacs: number = 3;
-
+    
     public group: Group = new Group();
 
     constructor() {
@@ -27,10 +24,10 @@ export class Starship {
     }
 
     public setupRSeas(): void {
-        let rSeaPositions = MathHelper.getCircularPositions(this.numRSeas, StarshipConstants.R_SEA_RADIUS);
-        let rSeaRotations = MathHelper.getCircularRotations(this.numRSeas);
+        let rSeaPositions = MathHelper.getCircularPositions(StarshipConstants.NUM_R_SEAS, StarshipConstants.R_SEA_RADIUS);
+        let rSeaRotations = MathHelper.getCircularRotations(StarshipConstants.NUM_R_SEAS);
 
-        for (let i = 0; i < this.numRSeas; i++) {
+        for (let i = 0; i < StarshipConstants.NUM_R_SEAS; i++) {
             let rSea = new Object3D();
             rSea.position.copy(rSeaPositions[i]);
             rSea.rotation.copy(rSeaRotations[i]);
@@ -39,10 +36,10 @@ export class Starship {
     }
 
     public setupRVacs(): void {
-        let rVacPositions = MathHelper.getCircularPositions(this.numRVacs, StarshipConstants.R_VAC_RADIUS);
-        let rVacRotations = MathHelper.getCircularRotations(this.numRVacs);
+        let rVacPositions = MathHelper.getCircularPositions(StarshipConstants.NUM_R_VACS, StarshipConstants.R_VAC_RADIUS);
+        let rVacRotations = MathHelper.getCircularRotations(StarshipConstants.NUM_R_VACS);
 
-        for (let i = 0; i < this.numRVacs; i++) {
+        for (let i = 0; i < StarshipConstants.NUM_R_VACS; i++) {
             let rVac = new Object3D();
             rVac.position.copy(rVacPositions[i]);
             rVac.rotation.copy(rVacRotations[i]);
