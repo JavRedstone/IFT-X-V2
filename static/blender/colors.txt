@@ -1,3 +1,4 @@
 Emission: 00AFFF
 Usual: Black
 Concrete: 6C777F
+Silver: C0C0C0

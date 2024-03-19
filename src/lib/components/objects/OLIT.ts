@@ -14,4 +14,8 @@ export class OLIT {
     constructor() {
         
     }
+
+    public updateScene(delta: number): void {
+
+    }
 }

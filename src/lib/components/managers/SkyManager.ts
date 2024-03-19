@@ -9,8 +9,8 @@ export class SkyManager {
     public sun: DirectionalLight;
 
     public options: any = {
-        enabled: false,
-        setEnvironment: false,
+        enabled: true,
+        setEnvironment: true,
         turbidity: 10,
         rayleigh: 2,
         mieCoefficient: 0.005,

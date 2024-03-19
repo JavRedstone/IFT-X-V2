@@ -28,4 +28,10 @@ export class LaunchManager {
         this.starship = new Starship();
         this.superHeavy = new SuperHeavy();
     }
+
+    public updateScene(delta: number): void {
+        this.OLIT.updateScene(delta);
+        this.starship.updateScene(delta);
+        this.superHeavy.updateScene(delta);
+    }
 }

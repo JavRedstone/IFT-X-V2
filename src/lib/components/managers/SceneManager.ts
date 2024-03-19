@@ -42,5 +42,6 @@ export class SceneManager {
 
     public updateScene(delta: number): void {
         this.celestialManager.updateScene(delta);
+        this.launchManager.updateScene(delta);
     }
 }
