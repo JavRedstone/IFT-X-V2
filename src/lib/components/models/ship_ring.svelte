@@ -17,12 +17,12 @@ Command: npx @threlte/gltf@2.0.3 C:\DuDu\Olympiads_School\Computer\Websites\IFT-
 
   type GLTFResult = {
     nodes: {
-      Cylinder001_1: THREE.Mesh
-      Cylinder001_2: THREE.Mesh
+      Cylinder_1: THREE.Mesh
+      Cylinder_2: THREE.Mesh
     }
     materials: {
-      ['Heatshield Tiles']: THREE.MeshStandardMaterial
       Material: THREE.MeshStandardMaterial
+      ['Heatshield Tiles']: THREE.MeshStandardMaterial
     }
   }
 
@@ -35,8 +35,10 @@ Command: npx @threlte/gltf@2.0.3 C:\DuDu\Olympiads_School\Computer\Websites\IFT-
   {#await gltf}
     <slot name="fallback" />
   {:then gltf}
-    <T.Mesh geometry={gltf.nodes.Cylinder001_1.geometry} material={gltf.materials['Heatshield Tiles']} />
-    <T.Mesh geometry={gltf.nodes.Cylinder001_2.geometry} material={gltf.materials.Material} />
+    <T.Group position={[0, 0.5, 0]}>
+      <T.Mesh geometry={gltf.nodes.Cylinder_1.geometry} material={gltf.materials.Material} />
+      <T.Mesh geometry={gltf.nodes.Cylinder_2.geometry} material={gltf.materials['Heatshield Tiles']} />
+    </T.Group>
   {:catch error}
     <slot name="error" {error} />
   {/await}

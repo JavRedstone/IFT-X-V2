@@ -4,13 +4,13 @@
   import { OrbitControls, Sky } from '@threlte/extras'
   import { onMount } from 'svelte';
   import { CameraConstants } from './constants/CameraConstants';
-  import { Group, Mesh } from 'three';
   import ForwardL from './models/forward_L.svelte';
   import ForwardR from './models/forward_R.svelte';
   import AftL from './models/aft_L.svelte';
   import AftR from './models/aft_R.svelte';
   import Nosecone from './models/nosecone.svelte';
   import ShipRing from './models/ship_ring.svelte';
+	import ThrustPuck from './models/thrust_puck.svelte';
   import Rsea from './models/rsea.svelte';
   import Rvac from './models/rvac.svelte';
   import Hsr from './models/hsr.svelte';
@@ -22,6 +22,7 @@
   import Arms from './models/arms.svelte';
   import Qd from './models/qd.svelte';
   import Olm from './models/olm.svelte';
+  import { LaunchManager } from './managers/LaunchManager';
 
   const TC: ThrelteContext = useThrelte();  
   let sceneManager: SceneManager = new SceneManager(TC);
@@ -86,47 +87,53 @@
   <ForwardR bind:ref={sceneManager.launchManager.starship.forwardR}/>
   <AftL bind:ref={sceneManager.launchManager.starship.aftL}/>
   <AftR bind:ref={sceneManager.launchManager.starship.aftR}/>
-  {#each sceneManager.launchManager.starship.rSeas as rSea}
+  <ThrustPuck bind:ref={sceneManager.launchManager.starship.thrustPuck}/>
+  {#each sceneManager.launchManager.starship.rSeas as rSea, i}
     <Rsea
       position={[rSea.position.x, rSea.position.y, rSea.position.z]}
       rotation={[rSea.rotation.x, rSea.rotation.y, rSea.rotation.z]}
       scale={[rSea.scale.x, rSea.scale.y, rSea.scale.z]}
+      bind:ref={sceneManager.launchManager.starship.rSeaObjs[i]}
     />
   {/each}
-  {#each sceneManager.launchManager.starship.rVacs as rVac}
+  {#each sceneManager.launchManager.starship.rVacs as rVac, i}
     <Rvac
       position={[rVac.position.x, rVac.position.y, rVac.position.z]}
       rotation={[rVac.rotation.x, rVac.rotation.y, rVac.rotation.z]}
       scale={[rVac.scale.x, rVac.scale.y, rVac.scale.z]}
+      bind:ref={sceneManager.launchManager.starship.rVacObjs[i]}
     />
   {/each}
 </T.Group>
 
-<!-- <T.Group bind:ref={sceneManager.launchManager.superHeavy.group}>
+<T.Group bind:ref={sceneManager.launchManager.superHeavy.group}>
   <Hsr bind:ref={sceneManager.launchManager.superHeavy.hsr}/>
   <BoosterRing bind:ref={sceneManager.launchManager.superHeavy.boosterRing}/>
-  {#each sceneManager.launchManager.superHeavy.gridFins as gridFin}
+  {#each sceneManager.launchManager.superHeavy.gridFins as gridFin, i}
     <GridFin
       position={[gridFin.position.x, gridFin.position.y, gridFin.position.z]}
       rotation={[gridFin.rotation.x, gridFin.rotation.y, gridFin.rotation.z]}
       scale={[gridFin.scale.x, gridFin.scale.y, gridFin.scale.z]}
+      bind:ref={sceneManager.launchManager.superHeavy.gridFinObjs[i]}
     />
   {/each}
-  {#each sceneManager.launchManager.superHeavy.chines as chine}
+  {#each sceneManager.launchManager.superHeavy.chines as chine, i}
     <Chine
       position={[chine.position.x, chine.position.y, chine.position.z]}
       rotation={[chine.rotation.x, chine.rotation.y, chine.rotation.z]}
       scale={[chine.scale.x, chine.scale.y, chine.scale.z]}
+      bind:ref={sceneManager.launchManager.superHeavy.chineObjs[i]}
     />
   {/each}
-  {#each sceneManager.launchManager.superHeavy.rSeas as rSea}
+  {#each sceneManager.launchManager.superHeavy.rSeas as rSea, i}
     <Rsea
       position={[rSea.position.x, rSea.position.y, rSea.position.z]}
       rotation={[rSea.rotation.x, rSea.rotation.y, rSea.rotation.z]}
       scale={[rSea.scale.x, rSea.scale.y, rSea.scale.z]}
+      bind:ref={sceneManager.launchManager.superHeavy.rSeaObjs[i]}
     />
   {/each}
-</T.Group> -->
+</T.Group>
 
 <!-- <T.Group bind:ref={sceneManager.launchManager.OLIT.group}>
   <Top bind:ref={sceneManager.launchManager.OLIT.top}/>

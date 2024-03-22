@@ -19,14 +19,10 @@ Command: npx @threlte/gltf@2.0.3 C:\DuDu\Olympiads_School\Computer\Websites\IFT-
     nodes: {
       Cylinder005: THREE.Mesh
       Cylinder005_1: THREE.Mesh
-      Cylinder005_2: THREE.Mesh
-      Cylinder005_3: THREE.Mesh
     }
     materials: {
       ['Material.002']: THREE.MeshStandardMaterial
-      ['Material.021']: THREE.MeshStandardMaterial
-      ['Material.022']: THREE.MeshStandardMaterial
-      ['Material.087']: THREE.MeshStandardMaterial
+      HSR: THREE.MeshStandardMaterial
     }
   }
 
@@ -41,9 +37,7 @@ Command: npx @threlte/gltf@2.0.3 C:\DuDu\Olympiads_School\Computer\Websites\IFT-
   {:then gltf}
     <T.Group position={[0, 0.17, 0]}>
       <T.Mesh geometry={gltf.nodes.Cylinder005.geometry} material={gltf.materials['Material.002']} />
-      <T.Mesh geometry={gltf.nodes.Cylinder005_1.geometry} material={gltf.materials['Material.021']} />
-      <T.Mesh geometry={gltf.nodes.Cylinder005_2.geometry} material={gltf.materials['Material.022']} />
-      <T.Mesh geometry={gltf.nodes.Cylinder005_3.geometry} material={gltf.materials['Material.087']} />
+      <T.Mesh geometry={gltf.nodes.Cylinder005_1.geometry} material={gltf.materials.HSR} />
     </T.Group>
   {:catch error}
     <slot name="error" {error} />

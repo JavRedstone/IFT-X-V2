@@ -1,15 +1,21 @@
 import { Box3, Euler, Group, Object3D, Quaternion, Vector3 } from "three";
 import { MathHelper } from "../helpers/MathHelper";
 import { SuperHeavyConstants } from "../constants/objects/SuperHeavyConstants";
+import { ObjectHelper } from "../helpers/ObjectHelper";
 
 export class SuperHeavy {
     public hsr: Group = new Group();
     public boosterRing: Group = new Group();
     public gridFins: Object3D[] = [];
+    public gridFinObjs: Group[] = [];
     public chines: Object3D[] = [];
+    public chineObjs: Group[] = [];
     public rSeas: Object3D[] = [];
+    public rSeaObjs: Group[] = [];
 
     public group: Group = new Group();
+
+    public hasSetupSingle: boolean = false;
 
     public options: any = {
         gridFinAngularOffset: SuperHeavyConstants.GRID_FIN_ANGULAR_OFFSET,
@@ -30,67 +36,91 @@ export class SuperHeavy {
     }
 
     public setupGridFins(): void {
-        let gridFinPositions = MathHelper.getCircularPositions(SuperHeavyConstants.NUM_GRID_FINS, SuperHeavyConstants.GRID_FIN_RADIUS, this.options.gridFinAngularOffset);
+        let gridFinPositions = MathHelper.getCircularPositions(SuperHeavyConstants.NUM_GRID_FINS, SuperHeavyConstants.GRID_FIN_RADIUS * SuperHeavyConstants.SUPER_HEAVY_SCALE.x, this.options.gridFinAngularOffset);
         let gridFinRotations = MathHelper.getCircularRotations(SuperHeavyConstants.NUM_GRID_FINS, this.options.gridFinAngularOffset);
 
         for (let i = 0; i < SuperHeavyConstants.NUM_GRID_FINS; i++) {
             let gridFin = new Object3D();
             gridFin.position.copy(gridFinPositions[i]);
-            gridFin.rotation.copy(new Euler().setFromQuaternion(new Quaternion().setFromEuler(gridFinRotations[i]).multiply(new Quaternion().setFromEuler(SuperHeavyConstants.GRID_FIN_ROTATION))));
-            gridFin.scale.copy(SuperHeavyConstants.GRID_FIN_SCALE);
+            gridFinRotations[i] = new Euler(gridFinRotations[i].x + SuperHeavyConstants.GRID_FIN_ROTATION.x, gridFinRotations[i].z, -gridFinRotations[i].y);
+            gridFin.rotation.copy(gridFinRotations[i]);
+            let scaleRef: Vector3 = SuperHeavyConstants.GRID_FIN_SCALE.clone().multiply(SuperHeavyConstants.SUPER_HEAVY_SCALE);
+            gridFin.scale.copy(new Vector3(scaleRef.x, scaleRef.z, scaleRef.y));
             this.gridFins = [...this.gridFins, gridFin];
         }
     }
 
     public setupChines(): void {
-        let chinePositions = MathHelper.getCircularPositions(SuperHeavyConstants.NUM_CHINES, SuperHeavyConstants.CHINE_RADIUS, this.options.chineAngularOffset);
+        let chinePositions = MathHelper.getCircularPositions(SuperHeavyConstants.NUM_CHINES, SuperHeavyConstants.CHINE_RADIUS * SuperHeavyConstants.SUPER_HEAVY_SCALE.x, this.options.chineAngularOffset);
         let chineRotations = MathHelper.getCircularRotations(SuperHeavyConstants.NUM_CHINES, this.options.chineAngularOffset);
 
         for (let i = 0; i < SuperHeavyConstants.NUM_CHINES; i++) {
             let chine = new Object3D();
             chine.position.copy(chinePositions[i]);
-            chine.rotation.copy(new Euler().setFromQuaternion(new Quaternion().setFromEuler(chineRotations[i]).multiply(new Quaternion().setFromEuler(SuperHeavyConstants.CHINE_ROTATION))));
-            chine.scale.copy(SuperHeavyConstants.CHINE_SCALE);
+            chineRotations[i] = new Euler(chineRotations[i].x, chineRotations[i].y + SuperHeavyConstants.CHINE_ROTATION.y, chineRotations[i].z);
+            chine.rotation.copy(chineRotations[i]);
+            chine.scale.copy(SuperHeavyConstants.CHINE_SCALE.clone().multiply(SuperHeavyConstants.SUPER_HEAVY_SCALE));
             this.chines = [...this.chines, chine];
         }
     }
 
     public setupRSeas(): void {
-        let rSeaPositions1 = MathHelper.getCircularPositions(SuperHeavyConstants.NUM_R_SEAS_1, SuperHeavyConstants.R_SEA_RADIUS_1, this.options.rSeaAngularOffset1);
+        let rSeaPositions1 = MathHelper.getCircularPositions(SuperHeavyConstants.NUM_R_SEAS_1, SuperHeavyConstants.R_SEA_RADIUS_1 * SuperHeavyConstants.SUPER_HEAVY_SCALE.x, this.options.rSeaAngularOffset1);
         let rSeaRotations1 = MathHelper.getCircularRotations(SuperHeavyConstants.NUM_R_SEAS_1, this.options.rSeaAngularOffset1);
 
         for (let i = 0; i < SuperHeavyConstants.NUM_R_SEAS_1; i++) {
             let rSea = new Object3D();
-            rSea.position.copy(rSeaPositions1[i]);
+            rSea.position.copy(rSeaPositions1[i].clone().add(new Vector3(0, SuperHeavyConstants.R_SEA_HEIGHT_1 * SuperHeavyConstants.SUPER_HEAVY_SCALE.y, 0)));
             rSea.rotation.copy(rSeaRotations1[i]);
-            rSea.scale.copy(SuperHeavyConstants.R_SEA_SCALE);
+            rSea.scale.copy(SuperHeavyConstants.R_SEA_SCALE.clone().multiply(SuperHeavyConstants.SUPER_HEAVY_SCALE));
             this.rSeas = [...this.rSeas, rSea];
         }
 
-        let rSeaPositions2 = MathHelper.getCircularPositions(SuperHeavyConstants.NUM_R_SEAS_2, SuperHeavyConstants.R_SEA_RADIUS_2, this.options.rSeaAngularOffset2);
+        let rSeaPositions2 = MathHelper.getCircularPositions(SuperHeavyConstants.NUM_R_SEAS_2, SuperHeavyConstants.R_SEA_RADIUS_2 * SuperHeavyConstants.SUPER_HEAVY_SCALE.x, this.options.rSeaAngularOffset2);
         let rSeaRotations2 = MathHelper.getCircularRotations(SuperHeavyConstants.NUM_R_SEAS_2, this.options.rSeaAngularOffset2);
 
         for (let i = 0; i < SuperHeavyConstants.NUM_R_SEAS_2; i++) {
             let rSea = new Object3D();
-            rSea.position.copy(rSeaPositions2[i]);
+            rSea.position.copy(rSeaPositions2[i].clone().add(new Vector3(0, SuperHeavyConstants.R_SEA_HEIGHT_2 * SuperHeavyConstants.SUPER_HEAVY_SCALE.y, 0)));
             rSea.rotation.copy(rSeaRotations2[i]);
-            rSea.scale.copy(SuperHeavyConstants.R_SEA_SCALE);
+            rSea.scale.copy(SuperHeavyConstants.R_SEA_SCALE.clone().multiply(SuperHeavyConstants.SUPER_HEAVY_SCALE));
             this.rSeas = [...this.rSeas, rSea];
         }
 
-        let rSeaPositions3 = MathHelper.getCircularPositions(SuperHeavyConstants.NUM_R_SEAS_3, SuperHeavyConstants.R_SEA_RADIUS_3, this.options.rSeaAngularOffset3);
+        let rSeaPositions3 = MathHelper.getCircularPositions(SuperHeavyConstants.NUM_R_SEAS_3, SuperHeavyConstants.R_SEA_RADIUS_3 * SuperHeavyConstants.SUPER_HEAVY_SCALE.x, this.options.rSeaAngularOffset3);
         let rSeaRotations3 = MathHelper.getCircularRotations(SuperHeavyConstants.NUM_R_SEAS_3, this.options.rSeaAngularOffset3);
 
         for (let i = 0; i < SuperHeavyConstants.NUM_R_SEAS_3; i++) {
             let rSea = new Object3D();
-            rSea.position.copy(rSeaPositions3[i]);
+            rSea.position.copy(rSeaPositions3[i].clone().add(new Vector3(0, SuperHeavyConstants.R_SEA_HEIGHT_3 * SuperHeavyConstants.SUPER_HEAVY_SCALE.y, 0)));
             rSea.rotation.copy(rSeaRotations3[i]);
-            rSea.scale.copy(SuperHeavyConstants.R_SEA_SCALE);
+            rSea.scale.copy(SuperHeavyConstants.R_SEA_SCALE.clone().multiply(SuperHeavyConstants.SUPER_HEAVY_SCALE));
             this.rSeas = [...this.rSeas, rSea];
         }
     }
 
+    public setupSingle(): void {
+        if (this.hsr != null && this.boosterRing != null) {
+            this.hsr.scale.copy(SuperHeavyConstants.HSR_SCALE.clone().multiply(SuperHeavyConstants.SUPER_HEAVY_SCALE));
+            this.boosterRing.scale.copy(SuperHeavyConstants.BOOSTER_RING_SCALE.clone().multiply(SuperHeavyConstants.SUPER_HEAVY_SCALE));
+            this.hasSetupSingle = true;
+        }
+    }
+
+    public updateObjects(): void {
+        this.hsr.position.copy(this.boosterRing.position.clone().add(new Vector3(0, ObjectHelper.getObjectDimensions(this.boosterRing).y, 0)));
+        for (let gridFinObj of this.gridFinObjs) {
+            gridFinObj.position.copy(new Vector3(gridFinObj.position.x, this.boosterRing.position.y + ObjectHelper.getObjectDimensions(this.boosterRing).y - SuperHeavyConstants.GRID_FIN_TOP_OFFSET, gridFinObj.position.z));
+        }
+        console.log(ObjectHelper.getObjectDimensions(this.group).y);
+    }
+
     public updateScene(delta: number): void {
-        
+        if (!this.hasSetupSingle) {
+            this.setupSingle();
+        }
+        else {
+            this.updateObjects();
+        }
     }
 }

@@ -17,14 +17,14 @@ Command: npx @threlte/gltf@2.0.3 C:\DuDu\Olympiads_School\Computer\Websites\IFT-
 
   type GLTFResult = {
     nodes: {
-      Cylinder022: THREE.Mesh
-      Cylinder022_1: THREE.Mesh
-      Cylinder022_2: THREE.Mesh
+      Cylinder002: THREE.Mesh
+      Cylinder002_1: THREE.Mesh
+      Cylinder002_2: THREE.Mesh
     }
     materials: {
-      ['Material.008']: THREE.MeshStandardMaterial
-      ['Material.023']: THREE.MeshStandardMaterial
-      ['Heatshield Tiles']: THREE.MeshStandardMaterial
+      ['Material.001']: THREE.MeshStandardMaterial
+      ['Material.002']: THREE.MeshStandardMaterial
+      ['Heatshield Tiles.001']: THREE.MeshStandardMaterial
     }
   }
 
@@ -37,9 +37,9 @@ Command: npx @threlte/gltf@2.0.3 C:\DuDu\Olympiads_School\Computer\Websites\IFT-
   {#await gltf}
     <slot name="fallback" />
   {:then gltf}
-    <T.Mesh geometry={gltf.nodes.Cylinder022.geometry} material={gltf.materials['Material.008']} />
-    <T.Mesh geometry={gltf.nodes.Cylinder022_1.geometry} material={gltf.materials['Material.023']} />
-    <T.Mesh geometry={gltf.nodes.Cylinder022_2.geometry} material={gltf.materials['Heatshield Tiles']} />
+    <T.Mesh geometry={gltf.nodes.Cylinder002.geometry} material={gltf.materials['Material.001']} />
+    <T.Mesh geometry={gltf.nodes.Cylinder002_1.geometry} material={gltf.materials['Material.002']} />
+    <T.Mesh geometry={gltf.nodes.Cylinder002_2.geometry} material={gltf.materials['Heatshield Tiles.001']} />
   {:catch error}
     <slot name="error" {error} />
   {/await}

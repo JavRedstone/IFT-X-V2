@@ -26,7 +26,7 @@ export class MathHelper {
         let rotations = [];
         for (let i = 0; i < n; i++) {
             let x = 0;
-            let y = 2 * Math.PI * i / n + angularOffset;
+            let y = 2 * Math.PI * (n-i) / n + angularOffset;
             let z = 0;
             rotations.push(new Euler(x, y, z));
         }

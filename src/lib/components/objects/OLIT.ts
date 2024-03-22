@@ -11,6 +11,8 @@ export class OLIT {
 
     public group: Group = new Group();
 
+    public hasSetupSingle: boolean = false;
+
     constructor() {
         
     }

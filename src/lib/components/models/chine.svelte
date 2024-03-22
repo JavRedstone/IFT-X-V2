@@ -20,7 +20,7 @@ Command: npx @threlte/gltf@2.0.3 C:\DuDu\Olympiads_School\Computer\Websites\IFT-
       chine: THREE.Mesh
     }
     materials: {
-      ['Material.003']: THREE.MeshStandardMaterial
+      ['Material.002']: THREE.MeshStandardMaterial
     }
   }
 
@@ -33,7 +33,7 @@ Command: npx @threlte/gltf@2.0.3 C:\DuDu\Olympiads_School\Computer\Websites\IFT-
   {#await gltf}
     <slot name="fallback" />
   {:then gltf}
-    <T.Mesh geometry={gltf.nodes.chine.geometry} material={gltf.materials['Material.003']} />
+    <T.Mesh geometry={gltf.nodes.chine.geometry} material={gltf.materials['Material.002']} />
   {:catch error}
     <slot name="error" {error} />
   {/await}

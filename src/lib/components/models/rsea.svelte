@@ -55,18 +55,20 @@ Command: npx @threlte/gltf@2.0.3 C:\DuDu\Olympiads_School\Computer\Websites\IFT-
   {#await gltf}
     <slot name="fallback" />
   {:then gltf}
-    <T.Mesh geometry={gltf.nodes.Cylinder.geometry} material={gltf.materials['Material.001']} />
-    <T.Mesh geometry={gltf.nodes.Cylinder_1.geometry} material={gltf.materials['Material.033']} />
-    <T.Mesh geometry={gltf.nodes.Cylinder_2.geometry} material={gltf.materials['Material.034']} />
-    <T.Mesh geometry={gltf.nodes.Cylinder_3.geometry} material={gltf.materials['Material.036']} />
-    <T.Mesh geometry={gltf.nodes.Cylinder_4.geometry} material={gltf.materials['Material.037']} />
-    <T.Mesh geometry={gltf.nodes.Cylinder_5.geometry} material={gltf.materials['Material.030']} />
-    <T.Mesh geometry={gltf.nodes.Cylinder_6.geometry} material={gltf.materials['Material.038']} />
-    <T.Mesh geometry={gltf.nodes.Cylinder_7.geometry} material={gltf.materials['Material.039']} />
-    <T.Mesh geometry={gltf.nodes.Cylinder_8.geometry} material={gltf.materials['Material.040']} />
-    <T.Mesh geometry={gltf.nodes.Cylinder_9.geometry} material={gltf.materials['Material.041']} />
-    <T.Mesh geometry={gltf.nodes.Cylinder_10.geometry} material={gltf.materials.Material} />
-    <T.Mesh geometry={gltf.nodes.Cylinder_11.geometry} material={gltf.materials['Material.021']} />
+    <T.Group position={[0, -15.29, 0]}>
+      <T.Mesh geometry={gltf.nodes.Cylinder.geometry} material={gltf.materials['Material.001']} />
+      <T.Mesh geometry={gltf.nodes.Cylinder_1.geometry} material={gltf.materials['Material.033']} />
+      <T.Mesh geometry={gltf.nodes.Cylinder_2.geometry} material={gltf.materials['Material.034']} />
+      <T.Mesh geometry={gltf.nodes.Cylinder_3.geometry} material={gltf.materials['Material.036']} />
+      <T.Mesh geometry={gltf.nodes.Cylinder_4.geometry} material={gltf.materials['Material.037']} />
+      <T.Mesh geometry={gltf.nodes.Cylinder_5.geometry} material={gltf.materials['Material.030']} />
+      <T.Mesh geometry={gltf.nodes.Cylinder_6.geometry} material={gltf.materials['Material.038']} />
+      <T.Mesh geometry={gltf.nodes.Cylinder_7.geometry} material={gltf.materials['Material.039']} />
+      <T.Mesh geometry={gltf.nodes.Cylinder_8.geometry} material={gltf.materials['Material.040']} />
+      <T.Mesh geometry={gltf.nodes.Cylinder_9.geometry} material={gltf.materials['Material.041']} />
+      <T.Mesh geometry={gltf.nodes.Cylinder_10.geometry} material={gltf.materials.Material} />
+      <T.Mesh geometry={gltf.nodes.Cylinder_11.geometry} material={gltf.materials['Material.021']} />
+    </T.Group>
   {:catch error}
     <slot name="error" {error} />
   {/await}
