@@ -17,15 +17,12 @@ Command: npx @threlte/gltf@2.0.3 C:\DuDu\Olympiads_School\Computer\Websites\IFT-
 
   type GLTFResult = {
     nodes: {
-      Cube: THREE.Mesh
-      Cube001: THREE.Mesh
-      Cube002: THREE.Mesh
-      Cube003: THREE.Mesh
-      Cube004: THREE.Mesh
+      Cube006: THREE.Mesh
+      Cube006_1: THREE.Mesh
     }
     materials: {
-      ['Material.002']: THREE.MeshStandardMaterial
       Emissive: THREE.MeshStandardMaterial
+      ['Material.002']: THREE.MeshStandardMaterial
     }
   }
 
@@ -38,31 +35,10 @@ Command: npx @threlte/gltf@2.0.3 C:\DuDu\Olympiads_School\Computer\Websites\IFT-
   {#await gltf}
     <slot name="fallback" />
   {:then gltf}
-    <T.Mesh geometry={gltf.nodes.Cube.geometry} material={gltf.materials['Material.002']} scale={[0.5, 1, 1]} />
-    <T.Mesh
-      geometry={gltf.nodes.Cube001.geometry}
-      material={gltf.materials.Emissive}
-      position={[0.5, 1, 0]}
-      scale={[0.05, 0.05, 1]}
-    />
-    <T.Mesh
-      geometry={gltf.nodes.Cube002.geometry}
-      material={gltf.materials.Emissive}
-      position={[0, -1, 0]}
-      scale={[0.05, 0.05, 1]}
-    />
-    <T.Mesh
-      geometry={gltf.nodes.Cube003.geometry}
-      material={gltf.materials.Emissive}
-      position={[-0.5, 1, 0]}
-      scale={[0.05, 0.05, 1]}
-    />
-    <T.Mesh
-      geometry={gltf.nodes.Cube004.geometry}
-      material={gltf.materials.Emissive}
-      position={[-0.5, -1, 0]}
-      scale={[0.05, 0.05, 1]}
-    />
+    <T.Group scale={[0.05, 0.05, 1]}>
+      <T.Mesh geometry={gltf.nodes.Cube006.geometry} material={gltf.materials.Emissive} />
+      <T.Mesh geometry={gltf.nodes.Cube006_1.geometry} material={gltf.materials['Material.002']} />
+    </T.Group>
   {:catch error}
     <slot name="error" {error} />
   {/await}

@@ -39,6 +39,7 @@ Command: npx @threlte/gltf@2.0.3 C:\DuDu\Olympiads_School\Computer\Websites\IFT-
     <T.Mesh
       geometry={gltf.nodes.Cylinder.geometry}
       material={gltf.materials['Material.001']}
+      position={[0, -3, 0]}
       scale={[1.6, 0.25, 1.6]}
     />
     <T.Mesh geometry={gltf.nodes.Cylinder001.geometry} material={gltf.materials['Material.001']} scale={[1, 0.25, 1]} />

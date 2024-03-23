@@ -82,7 +82,7 @@
   ></Sky>
 {/if}
 
-<T.Group bind:ref={sceneManager.launchManager.starship.group}>
+<!-- <T.Group bind:ref={sceneManager.launchManager.starship.group}>
   <Nosecone bind:ref={sceneManager.launchManager.starship.nosecone}/>
   <ShipRing bind:ref={sceneManager.launchManager.starship.shipRing}/>
   <ForwardL bind:ref={sceneManager.launchManager.starship.forwardL}/>
@@ -143,7 +143,7 @@
     bind:ref={sceneManager.launchManager.superHeavy.outerCylinderObjs[i]}
   />
 {/each}
-</T.Group>
+</T.Group> -->
 
 <T.Group bind:ref={sceneManager.launchManager.OLIT.group}>
   <Top bind:ref={sceneManager.launchManager.OLIT.top}/>

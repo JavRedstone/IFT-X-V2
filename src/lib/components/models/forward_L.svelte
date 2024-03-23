@@ -35,7 +35,7 @@ Command: npx @threlte/gltf@2.0.3 C:\DuDu\Olympiads_School\Computer\Websites\IFT-
   {#await gltf}
     <slot name="fallback" />
   {:then gltf}
-    <T.Group rotation={[0, 0, -Math.PI]} scale={-1}>
+    <T.Group rotation={[0.22, 0, -Math.PI]} scale={-1}>
       <T.Mesh geometry={gltf.nodes.Cylinder032.geometry} material={gltf.materials['Material.017']} />
       <T.Mesh geometry={gltf.nodes.Cylinder032_1.geometry} material={gltf.materials['Heatshield Tiles']} />
     </T.Group>

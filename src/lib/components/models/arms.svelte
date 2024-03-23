@@ -35,7 +35,7 @@ Command: npx @threlte/gltf@2.0.3 C:\DuDu\Olympiads_School\Computer\Websites\IFT-
   {#await gltf}
     <slot name="fallback" />
   {:then gltf}
-    <T.Group position={[0, -2, 0]} rotation={[-Math.PI / 2, Math.PI / 2, 0]} scale={[0.05, 1, 0.05]}>
+    <T.Group rotation={[-Math.PI / 2, Math.PI / 2, 0]} scale={[0.05, 1, 0.05]}>
       <T.Mesh geometry={gltf.nodes.Cube004.geometry} material={gltf.materials.Emissive} />
       <T.Mesh geometry={gltf.nodes.Cube004_1.geometry} material={gltf.materials['Material.002']} />
     </T.Group>
