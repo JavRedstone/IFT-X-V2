@@ -5,6 +5,7 @@ import { OLIT } from "../objects/OLIT";
 import { Starship } from "../objects/Starship";
 import { SuperHeavy } from "../objects/SuperHeavy";
 import { ObjectHelper } from "../helpers/ObjectHelper";
+import { OLIT_CONSTANTS } from "../constants/objects/OLITConstants";
 
 export class LaunchManager {
     public tc: ThrelteContext;
@@ -31,7 +32,10 @@ export class LaunchManager {
     }
 
     public updateObjects(): void {
+        this.superHeavy.group.position.copy(this.OLIT.olm.position.clone().add(new Vector3(0, ObjectHelper.getObjectDimensions(this.OLIT.olm).y - OLIT_CONSTANTS.OLM_RING_HEIGHT * OLIT_CONSTANTS.OLM_SCALE.y * OLIT_CONSTANTS.OLIT_SCALE.y, 0)));
         this.starship.group.position.copy(this.superHeavy.group.position.clone().add(new Vector3(0, ObjectHelper.getObjectDimensions(this.superHeavy.boosterRing).y + ObjectHelper.getObjectDimensions(this.superHeavy.hsr).y, 0)));
+        this.superHeavy.group.rotation.copy(OLIT_CONSTANTS.STARSHIP_ROTATION);
+        this.starship.group.rotation.copy(OLIT_CONSTANTS.STARSHIP_ROTATION);
     }
 
     public updateScene(delta: number): void {

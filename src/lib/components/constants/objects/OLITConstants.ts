@@ -18,4 +18,7 @@ export class OLIT_CONSTANTS {
     public static readonly OLM_SCALE: Vector3 = new Vector3(1/OLIT_CONSTANTS.OLIT_HORIZONTAL_MULTIPLIER, 1, 1/OLIT_CONSTANTS.OLIT_HORIZONTAL_MULTIPLIER);
     public static readonly OLM_ROTATION: Euler = new Euler(0, -Math.PI / 4, 0);
     public static readonly OLM_OFFSET: Vector3 = new Vector3(3, 0, 3);
+    public static readonly OLM_RING_HEIGHT: number = 0.5;
+
+    public static readonly STARSHIP_ROTATION: Euler = new Euler(0, 135*Math.PI/180, 0);
 }
