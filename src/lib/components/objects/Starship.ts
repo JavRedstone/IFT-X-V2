@@ -32,6 +32,9 @@ export class Starship {
         aftLWidthScale: 1,
         aftRHeightScale: 1,
         aftRWidthScale: 1,
+
+        rSeaRadius: StarshipConstants.R_SEA_RADIUS,
+        rVacRadius: StarshipConstants.R_VAC_RADIUS
     };
 
     constructor() {
@@ -86,11 +89,13 @@ export class Starship {
     }
 
     public updateObjects(): void {
-        this.nosecone.position.copy(this.shipRing.position.clone().add(new Vector3(0, ObjectHelper.getObjectDimensions(this.shipRing).y, 0)));
-        this.forwardL.position.copy(this.shipRing.position.clone().add(new Vector3(0, ObjectHelper.getObjectDimensions(this.shipRing).y, -StarshipConstants.STARSHIP_SCALE.z)));
-        this.forwardR.position.copy(this.shipRing.position.clone().add(new Vector3(0, ObjectHelper.getObjectDimensions(this.shipRing).y, StarshipConstants.STARSHIP_SCALE.z)));
-        this.aftL.position.copy(this.shipRing.position.clone().add(new Vector3(0, 0, -StarshipConstants.STARSHIP_SCALE.z)));
-        this.aftR.position.copy(this.shipRing.position.clone().add(new Vector3(0, 0, StarshipConstants.STARSHIP_SCALE.z)));
+        if (this.nosecone != null && this.shipRing != null && this.forwardL != null && this.forwardR != null && this.aftL != null && this.aftR != null) {
+            this.nosecone.position.copy(this.shipRing.position.clone().add(new Vector3(0, ObjectHelper.getObjectDimensions(this.shipRing).y, 0)));
+            this.forwardL.position.copy(this.shipRing.position.clone().add(new Vector3(0, ObjectHelper.getObjectDimensions(this.shipRing).y, -StarshipConstants.STARSHIP_SCALE.z)));
+            this.forwardR.position.copy(this.shipRing.position.clone().add(new Vector3(0, ObjectHelper.getObjectDimensions(this.shipRing).y, StarshipConstants.STARSHIP_SCALE.z)));
+            this.aftL.position.copy(this.shipRing.position.clone().add(new Vector3(0, 0, -StarshipConstants.STARSHIP_SCALE.z)));
+            this.aftR.position.copy(this.shipRing.position.clone().add(new Vector3(0, 0, StarshipConstants.STARSHIP_SCALE.z)));
+        }
     }
 
     public updateScene(delta: number): void {

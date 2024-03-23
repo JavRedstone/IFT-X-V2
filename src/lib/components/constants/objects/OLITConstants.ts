@@ -1,7 +1,7 @@
 import { Vector3 } from "three";
 
 export class OLIT_CONSTANTS {
-    public static readonly OLIT_RADIUS = 1;
+    public static readonly OLIT_SCALE: Vector3 = new Vector3(0.01, 0.01, 0.01);
 
     public static readonly TOP_SCALE: Vector3 = new Vector3(1, 0.25, 1);
     public static readonly BODY_SCALE: Vector3 = new Vector3(1, 15, 1);

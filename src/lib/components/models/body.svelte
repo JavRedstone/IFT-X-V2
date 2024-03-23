@@ -22,6 +22,14 @@ Command: npx @threlte/gltf@2.0.3 C:\DuDu\Olympiads_School\Computer\Websites\IFT-
       Cube002: THREE.Mesh
       Cube003: THREE.Mesh
       Cube004: THREE.Mesh
+      Cube005: THREE.Mesh
+      Cube006: THREE.Mesh
+      Cube007: THREE.Mesh
+      Cube008: THREE.Mesh
+      Cube009: THREE.Mesh
+      Cube010: THREE.Mesh
+      Cube011: THREE.Mesh
+      Cube012: THREE.Mesh
     }
     materials: {
       Material: THREE.MeshStandardMaterial
@@ -29,6 +37,11 @@ Command: npx @threlte/gltf@2.0.3 C:\DuDu\Olympiads_School\Computer\Websites\IFT-
       ['Emissive.001']: THREE.MeshStandardMaterial
       ['Emissive.002']: THREE.MeshStandardMaterial
       ['Emissive.003']: THREE.MeshStandardMaterial
+      ['Emissive.004']: THREE.MeshStandardMaterial
+      ['Emissive.005']: THREE.MeshStandardMaterial
+      ['Emissive.006']: THREE.MeshStandardMaterial
+      ['Emissive.007']: THREE.MeshStandardMaterial
+      ['Material.007']: THREE.MeshStandardMaterial
     }
   }
 
@@ -45,26 +58,74 @@ Command: npx @threlte/gltf@2.0.3 C:\DuDu\Olympiads_School\Computer\Websites\IFT-
     <T.Mesh
       geometry={gltf.nodes.Cube001.geometry}
       material={gltf.materials.Emissive}
-      position={[1, 0, -1]}
+      position={[1.05, 0, -0.75]}
       scale={[0.05, 1, 0.05]}
     />
     <T.Mesh
       geometry={gltf.nodes.Cube002.geometry}
       material={gltf.materials['Emissive.001']}
-      position={[-1, 0, -1]}
+      position={[-1.05, 0, -0.75]}
       scale={[0.05, 1, 0.05]}
     />
     <T.Mesh
       geometry={gltf.nodes.Cube003.geometry}
       material={gltf.materials['Emissive.002']}
-      position={[1, 0, 1]}
+      position={[1.05, 0, 0.75]}
       scale={[0.05, 1, 0.05]}
     />
     <T.Mesh
       geometry={gltf.nodes.Cube004.geometry}
       material={gltf.materials['Emissive.003']}
-      position={[-1, 0, 1]}
+      position={[-1.05, 0, 0.75]}
       scale={[0.05, 1, 0.05]}
+    />
+    <T.Mesh
+      geometry={gltf.nodes.Cube005.geometry}
+      material={gltf.materials['Emissive.004']}
+      position={[0.75, 0, -1.05]}
+      scale={[0.05, 1, 0.05]}
+    />
+    <T.Mesh
+      geometry={gltf.nodes.Cube006.geometry}
+      material={gltf.materials['Emissive.005']}
+      position={[0.75, 0, 1.05]}
+      scale={[0.05, 1, 0.05]}
+    />
+    <T.Mesh
+      geometry={gltf.nodes.Cube007.geometry}
+      material={gltf.materials['Emissive.006']}
+      position={[-0.75, 0, -1.05]}
+      scale={[0.05, 1, 0.05]}
+    />
+    <T.Mesh
+      geometry={gltf.nodes.Cube008.geometry}
+      material={gltf.materials['Emissive.007']}
+      position={[-0.75, 0, 1.05]}
+      scale={[0.05, 1, 0.05]}
+    />
+    <T.Mesh
+      geometry={gltf.nodes.Cube009.geometry}
+      material={gltf.materials['Material.007']}
+      position={[0.95, 0, -0.95]}
+      scale={[0.15, 1, 0.15]}
+    />
+    <T.Mesh
+      geometry={gltf.nodes.Cube010.geometry}
+      material={gltf.materials['Material.007']}
+      position={[0.95, 0, 0.95]}
+      scale={[0.15, 1, 0.15]}
+    />
+    <T.Mesh
+      geometry={gltf.nodes.Cube011.geometry}
+      material={gltf.materials['Material.007']}
+      position={[-0.95, 0, 0.95]}
+      scale={[0.15, 1, 0.15]}
+    />
+    <T.Mesh
+      geometry={gltf.nodes.Cube012.geometry}
+      material={gltf.materials['Material.007']}
+      position={[-0.95, 0, -0.95]}
+      scale={[0.15, 1, 0.15]}
     />
   {:catch error}
     <slot name="error" {error} />

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import Carriage from './models/carriage.svelte';
   import { SceneManager } from '$lib/components/managers/SceneManager';
   import { T, useThrelte, type ThrelteContext } from '@threlte/core'
   import { OrbitControls, Sky } from '@threlte/extras'
@@ -23,6 +24,7 @@
   import Qd from './models/qd.svelte';
   import Olm from './models/olm.svelte';
   import { LaunchManager } from './managers/LaunchManager';
+  import OuterCylinder from './models/outer_cylinder.svelte';
 
   const TC: ThrelteContext = useThrelte();  
   let sceneManager: SceneManager = new SceneManager(TC);
@@ -133,13 +135,23 @@
       bind:ref={sceneManager.launchManager.superHeavy.rSeaObjs[i]}
     />
   {/each}
+  {#each sceneManager.launchManager.superHeavy.outerCylinders as outerCylinder, i}
+  <OuterCylinder
+    position={[outerCylinder.position.x, outerCylinder.position.y, outerCylinder.position.z]}
+    rotation={[outerCylinder.rotation.x, outerCylinder.rotation.y, outerCylinder.rotation.z]}
+    scale={[outerCylinder.scale.x, outerCylinder.scale.y, outerCylinder.scale.z]}
+    bind:ref={sceneManager.launchManager.superHeavy.outerCylinderObjs[i]}
+  />
+{/each}
 </T.Group>
 
-<!-- <T.Group bind:ref={sceneManager.launchManager.OLIT.group}>
+<T.Group bind:ref={sceneManager.launchManager.OLIT.group}>
   <Top bind:ref={sceneManager.launchManager.OLIT.top}/>
   <Body bind:ref={sceneManager.launchManager.OLIT.body}/>
   <Arms bind:ref={sceneManager.launchManager.OLIT.arm1}/>
   <Arms bind:ref={sceneManager.launchManager.OLIT.arm2}/>
+  <Carriage bind:ref={sceneManager.launchManager.OLIT.carriageArms}/>
   <Qd bind:ref={sceneManager.launchManager.OLIT.qd}/>
+  <Carriage bind:ref={sceneManager.launchManager.OLIT.carriageQd}/>
   <Olm bind:ref={sceneManager.launchManager.OLIT.olm}/>
-</T.Group> -->
+</T.Group>

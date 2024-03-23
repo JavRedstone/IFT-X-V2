@@ -12,6 +12,8 @@ export class SuperHeavy {
     public chineObjs: Group[] = [];
     public rSeas: Object3D[] = [];
     public rSeaObjs: Group[] = [];
+    public outerCylinders: Object3D[] = [];
+    public outerCylinderObjs: Group[] = [];
 
     public group: Group = new Group();
 
@@ -23,6 +25,10 @@ export class SuperHeavy {
         rSeaAngularOffset1: SuperHeavyConstants.R_SEA_ANGULAR_OFFSET_1,
         rSeaAngularOffset2: SuperHeavyConstants.R_SEA_ANGULAR_OFFSET_2,
         rSeaAngularOffset3: SuperHeavyConstants.R_SEA_ANGULAR_OFFSET_3,
+
+        rSeaRadius1: SuperHeavyConstants.R_SEA_RADIUS_1,
+        rSeaRadius2: SuperHeavyConstants.R_SEA_RADIUS_2,
+        rSeaRadius3: SuperHeavyConstants.R_SEA_RADIUS_3
     };
 
     constructor() {
@@ -33,6 +39,7 @@ export class SuperHeavy {
         this.setupGridFins();
         this.setupChines();
         this.setupRSeas();
+        this.setupOuterCylinders();
     }
 
     public setupGridFins(): void {
@@ -56,7 +63,7 @@ export class SuperHeavy {
 
         for (let i = 0; i < SuperHeavyConstants.NUM_CHINES; i++) {
             let chine = new Object3D();
-            chine.position.copy(chinePositions[i]);
+            chine.position.copy(chinePositions[i].clone().add(new Vector3(0, SuperHeavyConstants.CHINE_BOTTOM_OFFSET * SuperHeavyConstants.SUPER_HEAVY_SCALE.y, 0)));
             chineRotations[i] = new Euler(chineRotations[i].x, chineRotations[i].y + SuperHeavyConstants.CHINE_ROTATION.y, chineRotations[i].z);
             chine.rotation.copy(chineRotations[i]);
             chine.scale.copy(SuperHeavyConstants.CHINE_SCALE.clone().multiply(SuperHeavyConstants.SUPER_HEAVY_SCALE));
@@ -99,6 +106,19 @@ export class SuperHeavy {
         }
     }
 
+    public setupOuterCylinders(): void {
+        let outerCylinderPositions = MathHelper.getCircularPositions(SuperHeavyConstants.NUM_R_SEAS_3, SuperHeavyConstants.OUTER_CYLINDER_RADIUS * SuperHeavyConstants.SUPER_HEAVY_SCALE.x, this.options.rSeaAngularOffset3);
+        let outerCylinderRotations = MathHelper.getCircularRotations(SuperHeavyConstants.NUM_R_SEAS_3, this.options.rSeaAngularOffset3);
+        
+        for (let i = 0; i < SuperHeavyConstants.NUM_R_SEAS_3; i++) {
+            let outerCylinder = new Object3D();
+            outerCylinder.position.copy(outerCylinderPositions[i].clone().add(new Vector3(0, SuperHeavyConstants.R_SEA_HEIGHT_3 * SuperHeavyConstants.SUPER_HEAVY_SCALE.y, 0)));
+            outerCylinder.rotation.copy(outerCylinderRotations[i]);
+            outerCylinder.scale.copy(SuperHeavyConstants.OUTER_CYLINDER_SCALE.clone().multiply(SuperHeavyConstants.SUPER_HEAVY_SCALE));
+            this.outerCylinders = [...this.outerCylinders, outerCylinder];
+        }
+    }
+
     public setupSingle(): void {
         if (this.hsr != null && this.boosterRing != null) {
             this.hsr.scale.copy(SuperHeavyConstants.HSR_SCALE.clone().multiply(SuperHeavyConstants.SUPER_HEAVY_SCALE));
@@ -108,11 +128,12 @@ export class SuperHeavy {
     }
 
     public updateObjects(): void {
-        this.hsr.position.copy(this.boosterRing.position.clone().add(new Vector3(0, ObjectHelper.getObjectDimensions(this.boosterRing).y, 0)));
-        for (let gridFinObj of this.gridFinObjs) {
-            gridFinObj.position.copy(new Vector3(gridFinObj.position.x, this.boosterRing.position.y + ObjectHelper.getObjectDimensions(this.boosterRing).y - SuperHeavyConstants.GRID_FIN_TOP_OFFSET, gridFinObj.position.z));
+        if (this.hsr != null && this.boosterRing != null) {
+            this.hsr.position.copy(this.boosterRing.position.clone().add(new Vector3(0, ObjectHelper.getObjectDimensions(this.boosterRing).y, 0)));
+            for (let gridFinObj of this.gridFinObjs) {
+                gridFinObj.position.copy(new Vector3(gridFinObj.position.x, this.boosterRing.position.y + ObjectHelper.getObjectDimensions(this.boosterRing).y - SuperHeavyConstants.GRID_FIN_TOP_OFFSET * SuperHeavyConstants.SUPER_HEAVY_SCALE.y, gridFinObj.position.z));
+            }
         }
-        console.log(ObjectHelper.getObjectDimensions(this.group).y);
     }
 
     public updateScene(delta: number): void {

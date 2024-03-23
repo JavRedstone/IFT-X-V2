@@ -18,18 +18,29 @@ Command: npx @threlte/gltf@2.0.3 C:\DuDu\Olympiads_School\Computer\Websites\IFT-
   type GLTFResult = {
     nodes: {
       Cube: THREE.Mesh
-      Cube001: THREE.Mesh
-      Cube002: THREE.Mesh
-      Cube003: THREE.Mesh
       Cube004: THREE.Mesh
-      Cube005: THREE.Mesh
-      Cube006: THREE.Mesh
-      Cube007: THREE.Mesh
-      Cube008: THREE.Mesh
+      Cube010_1: THREE.Mesh
+      Cube010_2: THREE.Mesh
+      Cube010_3: THREE.Mesh
+      Cube014: THREE.Mesh
+      Cube014_1: THREE.Mesh
+      Cube014_2: THREE.Mesh
+      Cube017: THREE.Mesh
+      Cube017_1: THREE.Mesh
+      Cube017_2: THREE.Mesh
     }
     materials: {
       Material: THREE.MeshStandardMaterial
       E: THREE.MeshStandardMaterial
+      ['Emissive.003']: THREE.MeshStandardMaterial
+      ['Material.007']: THREE.MeshStandardMaterial
+      ['Emissive.007']: THREE.MeshStandardMaterial
+      ['Emissive.001']: THREE.MeshStandardMaterial
+      ['Material.001']: THREE.MeshStandardMaterial
+      ['Emissive.006']: THREE.MeshStandardMaterial
+      Emissive: THREE.MeshStandardMaterial
+      ['Material.002']: THREE.MeshStandardMaterial
+      ['Emissive.004']: THREE.MeshStandardMaterial
     }
   }
 
@@ -42,57 +53,28 @@ Command: npx @threlte/gltf@2.0.3 C:\DuDu\Olympiads_School\Computer\Websites\IFT-
   {#await gltf}
     <slot name="fallback" />
   {:then gltf}
-    <T.Mesh geometry={gltf.nodes.Cube.geometry} material={gltf.materials.Material} scale={[1, 0.5, 1]} />
-    <T.Mesh
-      geometry={gltf.nodes.Cube001.geometry}
-      material={gltf.materials.E}
-      position={[-1, 0, -1]}
-      scale={[0.05, 0.5, 0.05]}
-    />
-    <T.Mesh
-      geometry={gltf.nodes.Cube002.geometry}
-      material={gltf.materials.E}
-      position={[-1, 0, 1]}
-      scale={[0.05, 0.5, 0.05]}
-    />
-    <T.Mesh
-      geometry={gltf.nodes.Cube003.geometry}
-      material={gltf.materials.E}
-      position={[1, 0, -1]}
-      scale={[0.05, 0.5, 0.05]}
-    />
+    <T.Mesh geometry={gltf.nodes.Cube.geometry} material={gltf.materials.Material} />
     <T.Mesh
       geometry={gltf.nodes.Cube004.geometry}
       material={gltf.materials.E}
       position={[1.5, 0, 1.5]}
-      scale={[0.05, 0.5, 0.05]}
+      scale={[0.05, 1, 0.05]}
     />
-    <T.Mesh
-      geometry={gltf.nodes.Cube005.geometry}
-      material={gltf.materials.E}
-      position={[0, 0.5, -1]}
-      rotation={[0, Math.PI / 2, 0]}
-      scale={[0.05, 0.05, 1.05]}
-    />
-    <T.Mesh
-      geometry={gltf.nodes.Cube006.geometry}
-      material={gltf.materials.E}
-      position={[0, -0.5, -1]}
-      rotation={[0, Math.PI / 2, 0]}
-      scale={[0.05, 0.05, 1.05]}
-    />
-    <T.Mesh
-      geometry={gltf.nodes.Cube007.geometry}
-      material={gltf.materials.E}
-      position={[-1, -0.5, 0]}
-      scale={[0.05, 0.05, 1.05]}
-    />
-    <T.Mesh
-      geometry={gltf.nodes.Cube008.geometry}
-      material={gltf.materials.E}
-      position={[-1, 0.5, 0]}
-      scale={[0.05, 0.05, 1.05]}
-    />
+    <T.Group position={[-1.05, 0, 0.75]} scale={[0.05, 1, 0.05]}>
+      <T.Mesh geometry={gltf.nodes.Cube010_1.geometry} material={gltf.materials['Emissive.003']} />
+      <T.Mesh geometry={gltf.nodes.Cube010_2.geometry} material={gltf.materials['Material.007']} />
+      <T.Mesh geometry={gltf.nodes.Cube010_3.geometry} material={gltf.materials['Emissive.007']} />
+    </T.Group>
+    <T.Group position={[-1.05, 0, -0.75]} scale={[0.05, 1, 0.05]}>
+      <T.Mesh geometry={gltf.nodes.Cube014.geometry} material={gltf.materials['Emissive.001']} />
+      <T.Mesh geometry={gltf.nodes.Cube014_1.geometry} material={gltf.materials['Material.001']} />
+      <T.Mesh geometry={gltf.nodes.Cube014_2.geometry} material={gltf.materials['Emissive.006']} />
+    </T.Group>
+    <T.Group position={[1.05, 0, -0.75]} scale={[0.05, 1, 0.05]}>
+      <T.Mesh geometry={gltf.nodes.Cube017.geometry} material={gltf.materials.Emissive} />
+      <T.Mesh geometry={gltf.nodes.Cube017_1.geometry} material={gltf.materials['Material.002']} />
+      <T.Mesh geometry={gltf.nodes.Cube017_2.geometry} material={gltf.materials['Emissive.004']} />
+    </T.Group>
   {:catch error}
     <slot name="error" {error} />
   {/await}
