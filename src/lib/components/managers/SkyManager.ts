@@ -1,31 +1,27 @@
 import { type ThrelteContext } from "@threlte/core";
-import { Sky } from "@threlte/extras";
-import { DirectionalLight, PerspectiveCamera } from "three";
+import { Spherical } from "three";
+import { MathHelper } from "../helpers/MathHelper";
+import { CelestialConstants } from "../constants/CelestialConstants";
 
 export class SkyManager {
     public tc: ThrelteContext;
 
-    public camera: PerspectiveCamera;
-    public sun: DirectionalLight;
+    public enabled: boolean = true;
+    public setEnvironment: boolean = true;
+    public turbidity: number = 10;
+    public rayleigh: number = 1.5;
+    public mieCoefficient: number = 0.005;
+    public mieDirectionalG: number = 0.8;
+    public elevation: number = 0;
+    public azimuth: number = 0;
 
-    public options: any = {
-        enabled: true,
-        setEnvironment: true,
-        turbidity: 10,
-        rayleigh: 2,
-        mieCoefficient: 0.005,
-        mieDirectionalG: 0.8,
-        elevation: 2,
-        azimuth: 180,
-    }
-
-    public constructor(tc: ThrelteContext, camera: PerspectiveCamera, sun: DirectionalLight) {
+    public constructor(tc: ThrelteContext) {
         this.tc = tc;
-        this.camera = camera;
-        this.sun = sun;
     }
 
-    public setup(): void {
-
+    public updateScene(delta: number): void {
+        let { azimuth, elevation } = MathHelper.getAzimuthElevationFromPos(CelestialConstants.SUN_POSITION);
+        this.azimuth = azimuth * 180 / Math.PI;
+        this.elevation = elevation * 180 / Math.PI;
     }
 }

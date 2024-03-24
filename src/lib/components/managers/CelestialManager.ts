@@ -1,5 +1,5 @@
 import { type ThrelteContext } from "@threlte/core";
-import { AdditiveBlending, BackSide, DirectionalLight, EquirectangularReflectionMapping, Group, Mesh, MeshStandardMaterial, RepeatWrapping, SRGBColorSpace, ShaderMaterial, SphereGeometry, Vector3 } from "three";
+import { AdditiveBlending, BackSide, DirectionalLight, DoubleSide, EquirectangularReflectionMapping, Group, Mesh, MeshStandardMaterial, RepeatWrapping, SRGBColorSpace, ShaderMaterial, SphereGeometry, Vector3 } from "three";
 import { TextureHelper } from "../helpers/TextureHelper";
 import { CelestialConstants } from "../constants/CelestialConstants";
 import { TextureConstants } from "../constants/TextureConstants";
@@ -41,8 +41,7 @@ export class CelestialManager {
 
     public createSun() {
         this.sun = new DirectionalLight(CelestialConstants.SUN_COLOR, CelestialConstants.SUN_INTENSITY);
-        this.sun.position.set(-50, 0, 30);
-        this.sun.castShadow = true;
+        this.sun.position.copy(CelestialConstants.SUN_POSITION);
         this.tc.scene.add(this.sun);
     }
 
@@ -81,7 +80,8 @@ export class CelestialManager {
         let Cgeometry = new SphereGeometry(CelestialConstants.CLOUDS_RADIUS, CelestialConstants.EARTH_VERTICES, CelestialConstants.EARTH_VERTICES);
         let Cmaterial = new MeshStandardMaterial({
             alphaMap: clouds,
-            transparent: true
+            transparent: true,
+            side: DoubleSide
         });
         this.clouds = new Mesh(Cgeometry, Cmaterial);
         this.earthGroup.add(this.clouds);

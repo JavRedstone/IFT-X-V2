@@ -15,7 +15,7 @@ export class SuperHeavy {
     public outerCylinders: Object3D[] = [];
     public outerCylinderObjs: Group[] = [];
 
-    public group: Group = new Group();
+    public group: Group = null;
 
     public hasSetupSingle: boolean = false;
 
@@ -127,11 +127,42 @@ export class SuperHeavy {
         }
     }
 
-    public updateObjects(): void {
+    public updateObb(): void {
         if (this.hsr != null && this.boosterRing != null) {
-            this.hsr.position.copy(this.boosterRing.position.clone().add(new Vector3(0, ObjectHelper.getObjectDimensions(this.boosterRing).y, 0)));
+            if (this.hsr.userData.aabb == null || this.boosterRing.userData.aabb == null || this.hsr.userData.aabb.getSize(new Vector3).length() == 0 || this.boosterRing.userData.aabb.getSize(new Vector3).length() == 0) {
+                this.hsr.userData.aabb = ObjectHelper.getAabb(this.hsr);
+                this.boosterRing.userData.aabb = ObjectHelper.getAabb(this.boosterRing);
+            }
+            // this.hsr.userData.aabb.applyMatrix4(this.hsr.matrixWorld);
+            // this.boosterRing.userData.aabb.applyMatrix4(this.boosterRing.matrixWorld);
+        }
+        for (let gridFinObj of this.gridFinObjs) {
+            if (gridFinObj.userData.aabb == null || gridFinObj.userData.aabb.getSize(new Vector3).length() == 0) {
+                gridFinObj.userData.aabb = ObjectHelper.getAabb(gridFinObj);
+            }
+            // gridFinObj.userData.aabb.applyMatrix4(gridFinObj.matrixWorld);
+        }
+        for (let chineObj of this.chineObjs) {
+            if (chineObj.userData.aabb == null || chineObj.userData.aabb.getSize(new Vector3).length() == 0) {
+                chineObj.userData.aabb = ObjectHelper.getAabb(chineObj);
+            }
+            // chineObj.userData.aabb.applyMatrix4(chineObj.matrixWorld);
+        }
+        for (let rSeaObj of this.rSeaObjs) {
+            if (rSeaObj.userData.aabb == null || rSeaObj.userData.aabb.getSize(new Vector3).length() == 0) {
+                rSeaObj.userData.aabb = ObjectHelper.getAabb(rSeaObj);
+            }
+            // rSeaObj.userData.aabb.applyMatrix4(rSeaObj.matrixWorld);
+        }
+    }
+
+    public updateObjects(): void {
+        if (this.hsr != null && this.boosterRing != null && this.hsr.userData.aabb.getSize(new Vector3).length() != 0 && this.boosterRing.userData.aabb.getSize(new Vector3).length() != 0) {
+            this.hsr.position.copy(this.boosterRing.position.clone().add(new Vector3(0, this.boosterRing.userData.aabb.getSize(new Vector3).y, 0)));
             for (let gridFinObj of this.gridFinObjs) {
-                gridFinObj.position.copy(new Vector3(gridFinObj.position.x, this.boosterRing.position.y + ObjectHelper.getObjectDimensions(this.boosterRing).y - SuperHeavyConstants.GRID_FIN_TOP_OFFSET * SuperHeavyConstants.SUPER_HEAVY_SCALE.y, gridFinObj.position.z));
+                if (gridFinObj.userData.aabb.getSize(new Vector3).length() != 0) {
+                    gridFinObj.position.copy(new Vector3(gridFinObj.position.x, this.boosterRing.position.y + this.boosterRing.userData.aabb.getSize(new Vector3).y - SuperHeavyConstants.GRID_FIN_TOP_OFFSET * SuperHeavyConstants.SUPER_HEAVY_SCALE.y, gridFinObj.position.z));
+                }
             }
         }
     }
@@ -141,6 +172,7 @@ export class SuperHeavy {
             this.setupSingle();
         }
         else {
+            this.updateObb();
             this.updateObjects();
         }
     }

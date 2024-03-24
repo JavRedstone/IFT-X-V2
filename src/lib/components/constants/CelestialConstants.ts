@@ -1,14 +1,17 @@
+import { Vector3 } from "three";
+
 export class CelestialConstants {
+    public static readonly SUN_POSITION: Vector3 = new Vector3(-5, 0.5, 3);
     public static readonly SUN_COLOR: number = 0xffffff;
     public static readonly SUN_INTENSITY: number = 3;
 
-    public static readonly EARTH_RADIUS: number = 400;
-    public static readonly CLOUDS_RADIUS: number = this.EARTH_RADIUS * 1.02;
+    public static readonly EARTH_RADIUS: number = 360;
+    public static readonly CLOUDS_RADIUS: number = this.EARTH_RADIUS * 1.0025;
     public static readonly ATMOSPHERE_RADIUS: number = this.EARTH_RADIUS * 1.075;
     public static readonly EARTH_ROTATION_SPEED: number = 0;
     public static readonly CLOUDS_ROTATION_SPEED: number = this.EARTH_ROTATION_SPEED * 1.02;
 
-    public static readonly EARTH_VERTICES: number = 512;
+    public static readonly EARTH_VERTICES: number = CelestialConstants.EARTH_RADIUS / 2;
     public static readonly EARTH_BUMP_SCALE: number = 0.03;
     public static readonly EARTH_METALNESS: number = 0.25;
     public static readonly EARTH_ROUGHNESS: number = 1;

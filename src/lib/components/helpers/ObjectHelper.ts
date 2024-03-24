@@ -1,13 +1,12 @@
-import { Group, Vector3, Box3, Object3D } from 'three';
+import { Box3, Object3D, Vector3 } from 'three';
+import { OBB } from 'three/addons/math/OBB.js';
 
 export class ObjectHelper {
-    public static getObjectDimensions(object: Object3D): Vector3 {
-        let box = new Box3().setFromObject(object);
-        return box.getSize(new Vector3());
+    public static getAabb(object: Object3D): Box3 {
+        return new Box3().setFromObject(object);
     }
     
-    public static getObjectCenter(object: Object3D): Vector3 {
-        let box = new Box3().setFromObject(object);
-        return box.getCenter(new Vector3());
+    public static getObb(object: Object3D): OBB {
+        return new OBB().fromBox3(ObjectHelper.getAabb(object));
     }
 }

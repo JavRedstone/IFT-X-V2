@@ -5,13 +5,11 @@ import { Postprocessing } from "../constants/PostprocessingConstants";
 
 export class PostprocessingManager {
     public tc: ThrelteContext;
-    public camera: PerspectiveCamera;
     public effectComposer: EffectComposer;
     public isBloomEnabled: boolean = false;
 
-    constructor(tc: ThrelteContext, camera: PerspectiveCamera) {
+    constructor(tc: ThrelteContext) {
         this.tc = tc;
-        this.camera = camera;
         this.setup();
     }
 

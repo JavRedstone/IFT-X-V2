@@ -1,4 +1,4 @@
-import { Euler, Group, Vector3 } from "three";
+import { Euler, Group, Quaternion, Spherical, Vector3 } from "three";
 import { ObjectHelper } from "./ObjectHelper";
 
 export class MathHelper {    
@@ -31,5 +31,15 @@ export class MathHelper {
             rotations.push(new Euler(x, y, z));
         }
         return rotations;
+    }
+
+    public static getAzimuthElevationFromPos(position: Vector3): { azimuth: number, elevation: number } {
+        let azimuth = Math.atan2(position.x, position.z);
+        let elevation = Math.atan2(position.y, Math.sqrt(position.x * position.x + position.z * position.z));
+        return { azimuth, elevation };
+    }
+
+    public static invRot(euler: Euler): Euler {
+        return new Euler().setFromQuaternion(new Quaternion().setFromEuler(euler).invert());
     }
 }

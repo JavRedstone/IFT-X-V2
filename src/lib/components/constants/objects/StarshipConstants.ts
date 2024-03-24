@@ -1,7 +1,7 @@
 import { Euler, Vector3 } from "three";
 
 export class StarshipConstants {
-    public static readonly STARSHIP_SCALE: Vector3 = new Vector3(0.01, 0.01, 0.01);
+    public static readonly STARSHIP_SCALE: Vector3 = new Vector3(0.001, 0.001, 0.001);
     
     public static readonly NOSECONE_SCALE: Vector3 = new Vector3(1, 0.8, 1);
     public static readonly SHIP_RING_SCALE: Vector3 = new Vector3(1, 4/5*50/4.5, 1);

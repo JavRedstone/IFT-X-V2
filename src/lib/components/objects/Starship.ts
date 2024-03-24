@@ -16,7 +16,7 @@ export class Starship {
     public rVacs: Object3D[] = [];
     public rVacObjs: Group[] = [];
     
-    public group: Group = new Group();
+    public group: Group = null;
 
     public hasSetupSingle: boolean = false;
 
@@ -55,6 +55,7 @@ export class Starship {
             rSea.position.copy(rSeaPositions[i].clone().add(new Vector3(0, StarshipConstants.R_SEA_HEIGHT * StarshipConstants.STARSHIP_SCALE.y, 0)));
             rSea.rotation.copy(rSeaRotations[i]);
             rSea.scale.copy(StarshipConstants.R_SEA_SCALE.clone().multiply(StarshipConstants.STARSHIP_SCALE));
+
             this.rSeas = [...this.rSeas, rSea];
         }
     }
@@ -68,6 +69,7 @@ export class Starship {
             rVac.position.copy(rVacPositions[i].clone().add(new Vector3(0, StarshipConstants.R_VAC_HEIGHT * StarshipConstants.STARSHIP_SCALE.y, 0)));
             rVac.rotation.copy(rVacRotations[i]);
             rVac.scale.copy(StarshipConstants.R_VAC_SCALE.clone().multiply(StarshipConstants.STARSHIP_SCALE));
+
             this.rVacs = [...this.rVacs, rVac];
         }
     }
@@ -88,11 +90,45 @@ export class Starship {
         }    
     }
 
+    public updateObb(): void {
+        if (this.nosecone != null && this.shipRing != null && this.forwardL != null && this.forwardR != null && this.aftL != null && this.aftR != null && this.thrustPuck != null) {
+            if (this.nosecone.userData.aabb == null || this.shipRing.userData.aabb == null || this.forwardL.userData.aabb == null || this.forwardR.userData.aabb == null || this.aftL.userData.aabb == null || this.aftR.userData.aabb == null || this.thrustPuck.userData.aabb == null ||
+                this.nosecone.userData.aabb.getSize(new Vector3).length() == 0 || this.shipRing.userData.aabb.getSize(new Vector3).length() == 0 || this.forwardL.userData.aabb.getSize(new Vector3).length() == 0 || this.forwardR.userData.aabb.getSize(new Vector3).length() == 0 || this.aftL.userData.aabb.getSize(new Vector3).length() == 0 || this.aftR.userData.aabb.getSize(new Vector3).length() == 0 || this.thrustPuck.userData.aabb.getSize(new Vector3).length() == 0) {
+                this.nosecone.userData.aabb = ObjectHelper.getAabb(this.nosecone);
+                this.shipRing.userData.aabb = ObjectHelper.getAabb(this.shipRing);
+                this.forwardL.userData.aabb = ObjectHelper.getAabb(this.forwardL);
+                this.forwardR.userData.aabb = ObjectHelper.getAabb(this.forwardR);
+                this.aftL.userData.aabb = ObjectHelper.getAabb(this.aftL);
+                this.aftR.userData.aabb = ObjectHelper.getAabb(this.aftR);
+                this.thrustPuck.userData.aabb = ObjectHelper.getAabb(this.thrustPuck);
+            }            
+            // this.nosecone.userData.aabb.applyMatrix4(this.nosecone.matrixWorld);
+            // this.shipRing.userData.aabb.applyMatrix4(this.shipRing.matrixWorld);
+            // this.forwardL.userData.aabb.applyMatrix4(this.forwardL.matrixWorld);
+            // this.forwardR.userData.aabb.applyMatrix4(this.forwardR.matrixWorld);
+            // this.aftL.userData.aabb.applyMatrix4(this.aftL.matrixWorld);
+            // this.aftR.userData.aabb.applyMatrix4(this.aftR.matrixWorld);
+            // this.thrustPuck.userData.aabb.applyMatrix4(this.thrustPuck.matrixWorld);
+        }
+        for (let i = 0; i < this.rSeas.length; i++) {
+            if (this.rSeas[i].userData.aabb == null || this.rSeas[i].userData.aabb.getSize(new Vector3).length() == 0) {
+                this.rSeas[i].userData.aabb = ObjectHelper.getAabb(this.rSeas[i]);
+            }
+            // this.rSeas[i].userData.aabb.applyMatrix4(this.rSeas[i].matrixWorld);
+        }
+        for (let i = 0; i < this.rVacs.length; i++) {
+            if (this.rVacs[i].userData.aabb == null || this.rVacs[i].userData.aabb.getSize(new Vector3).length() == 0) {
+                this.rVacs[i].userData.aabb = ObjectHelper.getAabb(this.rVacs[i]);
+            }
+            // this.rVacs[i].userData.aabb.applyMatrix4(this.rVacs[i].matrixWorld);
+        }
+    }
+
     public updateObjects(): void {
-        if (this.nosecone != null && this.shipRing != null && this.forwardL != null && this.forwardR != null && this.aftL != null && this.aftR != null) {
-            this.nosecone.position.copy(this.shipRing.position.clone().add(new Vector3(0, ObjectHelper.getObjectDimensions(this.shipRing).y, 0)));
-            this.forwardL.position.copy(this.shipRing.position.clone().add(new Vector3(0, ObjectHelper.getObjectDimensions(this.shipRing).y, -StarshipConstants.STARSHIP_SCALE.z)));
-            this.forwardR.position.copy(this.shipRing.position.clone().add(new Vector3(0, ObjectHelper.getObjectDimensions(this.shipRing).y, StarshipConstants.STARSHIP_SCALE.z)));
+        if (this.nosecone != null && this.shipRing != null && this.forwardL != null && this.forwardR != null && this.aftL != null && this.aftR != null && this.nosecone.userData.aabb.getSize(new Vector3).length() != 0 && this.shipRing.userData.aabb.getSize(new Vector3).length() != 0 && this.forwardL.userData.aabb.getSize(new Vector3).length() != 0 && this.forwardR.userData.aabb.getSize(new Vector3).length() != 0 && this.aftL.userData.aabb.getSize(new Vector3).length() != 0 && this.aftR.userData.aabb.getSize(new Vector3).length() != 0) {
+            this.nosecone.position.copy(this.shipRing.position.clone().add(new Vector3(0, this.shipRing.userData.aabb.getSize(new Vector3).y, 0)));
+            this.forwardL.position.copy(this.shipRing.position.clone().add(new Vector3(0, this.shipRing.userData.aabb.getSize(new Vector3).y, -StarshipConstants.STARSHIP_SCALE.z)));
+            this.forwardR.position.copy(this.shipRing.position.clone().add(new Vector3(0, this.shipRing.userData.aabb.getSize(new Vector3).y, StarshipConstants.STARSHIP_SCALE.z)));
             this.aftL.position.copy(this.shipRing.position.clone().add(new Vector3(0, 0, -StarshipConstants.STARSHIP_SCALE.z)));
             this.aftR.position.copy(this.shipRing.position.clone().add(new Vector3(0, 0, StarshipConstants.STARSHIP_SCALE.z)));
         }
@@ -103,6 +139,7 @@ export class Starship {
             this.setupSingle();
         }
         else {
+            this.updateObb();
             this.updateObjects();
         }
     }
