@@ -18,6 +18,7 @@ export class SuperHeavy {
     public group: Group = null;
 
     public hasSetupSingle: boolean = false;
+    public hasUpdatedObb: boolean = false;
 
     public options: any = {
         gridFinAngularOffset: SuperHeavyConstants.GRID_FIN_ANGULAR_OFFSET,
@@ -164,6 +165,7 @@ export class SuperHeavy {
                     gridFinObj.position.copy(new Vector3(gridFinObj.position.x, this.boosterRing.position.y + this.boosterRing.userData.aabb.getSize(new Vector3).y - SuperHeavyConstants.GRID_FIN_TOP_OFFSET * SuperHeavyConstants.SUPER_HEAVY_SCALE.y, gridFinObj.position.z));
                 }
             }
+            this.hasUpdatedObb = true;
         }
     }
 

@@ -2,6 +2,10 @@ import { Euler, Group, Quaternion, Spherical, Vector3 } from "three";
 import { ObjectHelper } from "./ObjectHelper";
 
 export class MathHelper {    
+    public static clamp(value: number, min: number, max: number): number {
+        return Math.min(Math.max(value, min), max);
+    }
+
     public static getCircularPositions(n: number, r: number, angularOffset: number): Vector3[] {
         let positions = [];
         for (let i = 0; i < n; i++) {
@@ -9,15 +13,6 @@ export class MathHelper {
             let y = 0;
             let z = r * Math.sin(2 * Math.PI * i / n + angularOffset);
             positions.push(new Vector3(x, y, z));
-        }
-        return positions;
-    }
-    
-    public static getGroupCenteredPositions(n: number, r: number, group: Group, angularOffset: number): Vector3[] {
-        let positions = MathHelper.getCircularPositions(n, r, angularOffset);
-        let center = ObjectHelper.getObjectCenter(group);
-        for (let i = 0; i < n; i++) {
-            positions[i].add(center);
         }
         return positions;
     }
@@ -41,5 +36,15 @@ export class MathHelper {
 
     public static invRot(euler: Euler): Euler {
         return new Euler().setFromQuaternion(new Quaternion().setFromEuler(euler).invert());
+    }
+
+    public static isInRadiusOf(center: Vector3, radius: number, point: Vector3): boolean {
+        return center.distanceTo(point) < radius;
+    }
+    
+    public static getAngleBetweenVectors(v1: Vector3, v2: Vector3): Quaternion {
+        let angle = v1.angleTo(v2);
+        let axis = new Vector3().crossVectors(v1, v2).normalize();
+        return new Quaternion().setFromAxisAngle(axis, angle);
     }
 }

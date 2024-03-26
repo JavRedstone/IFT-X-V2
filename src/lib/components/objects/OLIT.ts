@@ -16,6 +16,7 @@ export class OLIT {
     public group: Group = null;
 
     public hasSetupSingle: boolean = false;
+    public hasUpdatedObb: boolean = false;
 
     constructor() {
         
@@ -73,6 +74,7 @@ export class OLIT {
             this.carriageArms.position.copy(this.body.position.clone().add(new Vector3(0, OLIT_CONSTANTS.ARM_BOTTOM_OFFSET * this.body.userData.aabb.getSize(new Vector3).y, 0)));
             this.qd.position.copy(this.body.position.clone().add(new Vector3(0, OLIT_CONSTANTS.QD_BOTTOM_OFFSET * this.body.userData.aabb.getSize(new Vector3).y, 0)));
             this.carriageQd.position.copy(this.body.position.clone().add(new Vector3(0, OLIT_CONSTANTS.QD_BOTTOM_OFFSET * this.body.userData.aabb.getSize(new Vector3).y, 0)));
+            this.hasUpdatedObb = true;
         }
     }
 

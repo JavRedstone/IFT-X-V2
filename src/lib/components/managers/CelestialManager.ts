@@ -3,11 +3,11 @@ import { AdditiveBlending, BackSide, DirectionalLight, DoubleSide, Equirectangul
 import { TextureHelper } from "../helpers/TextureHelper";
 import { CelestialConstants } from "../constants/CelestialConstants";
 import { TextureConstants } from "../constants/TextureConstants";
+import { PRTransients } from "../constants/transients/PRTransients";
 
 export class CelestialManager {
     public tc: ThrelteContext;
 
-    public sun: DirectionalLight = new DirectionalLight();
     public earthGroup: Group = new Group();
     public earth: Mesh = new Mesh();
     public earthMaterial: MeshStandardMaterial = new MeshStandardMaterial();
@@ -16,10 +16,6 @@ export class CelestialManager {
     
     public moon: Mesh = new Mesh();
 
-    public sunPosition: Vector3 = new Vector3();
-    public earthPosition: Vector3 = new Vector3();
-    public moonPosition: Vector3 = new Vector3();
-
     constructor(tc: ThrelteContext) {
         this.tc = tc;
         this.setup();
@@ -27,7 +23,6 @@ export class CelestialManager {
 
     public async setup(): Promise<void> {
         await this.setBackground();
-        this.createSun();
         await this.createEarth();
         await this.createMoon();
         this.tc.scene.add(this.earthGroup);
@@ -37,12 +32,6 @@ export class CelestialManager {
         let envMap = await TextureHelper.loadTexture(TextureConstants.TEXTURE_URL + "stars.jpg");
         envMap.mapping = EquirectangularReflectionMapping;
         this.tc.scene.background = envMap;
-    }
-
-    public createSun() {
-        this.sun = new DirectionalLight(CelestialConstants.SUN_COLOR, CelestialConstants.SUN_INTENSITY);
-        this.sun.position.copy(CelestialConstants.SUN_POSITION);
-        this.tc.scene.add(this.sun);
     }
 
     public async createEarth(): Promise<void> {
@@ -233,23 +222,40 @@ export class CelestialManager {
             roughness: CelestialConstants.MOON_ROUGHNESS
         });
         this.moon = new Mesh(Mgeometry, Mmaterial);
-        this.moon.position.set(0, 0, CelestialConstants.MOON_DISTANCE);
+        PRTransients.realPositions.moonPosition.copy(new Vector3(0, 0, CelestialConstants.MOON_DISTANCE));
         this.tc.scene.add(this.moon);
+    }
+
+    public updateReals(delta: number): void {
+        this.updateRealPositions(delta);
+        this.updateRealRotations(delta);
     }
     
     public updateScene(delta: number): void {
-        this.updateRotation(delta);
-        this.updateOrbit(delta);
+        this.updatePositions(delta);
+        this.updateRotations(delta);
         this.updateShader(delta);
     }
 
-    public updateRotation(delta: number): void {
-        this.earth.rotateY(delta * CelestialConstants.EARTH_ROTATION_SPEED);
-        this.clouds.rotateY(delta * CelestialConstants.CLOUDS_ROTATION_SPEED);
+    public updateRealPositions(delta: number): void {
+        PRTransients.realPositions.moonPosition.applyAxisAngle(new Vector3(0, 1, 0), delta * CelestialConstants.MOON_ORBIT_SPEED);
     }
 
-    public updateOrbit(delta: number): void {
-        this.moon.position.applyAxisAngle(new Vector3(0, 1, 0), delta * CelestialConstants.MOON_ORBIT_SPEED);
+    public updateRealRotations(delta: number): void {
+        PRTransients.realRotations.earthRotation.y += delta * CelestialConstants.EARTH_ROTATION_SPEED;
+        PRTransients.realRotations.cloudRotation.y += delta * CelestialConstants.CLOUDS_ROTATION_SPEED;
+        PRTransients.realRotations.moonRotation.y += delta * CelestialConstants.MOON_ORBIT_SPEED;
+    }
+
+    public updatePositions(delta: number): void {
+        this.earthGroup.position.copy(PRTransients.fakePositions.earthPosition);
+        this.moon.position.copy(PRTransients.fakePositions.moonPosition);
+    }
+
+    public updateRotations(delta: number): void {
+        this.earth.rotation.copy(PRTransients.fakeRotations.earthRotation);
+        this.clouds.rotation.copy(PRTransients.fakeRotations.cloudRotation);
+        this.moon.rotation.copy(PRTransients.fakeRotations.moonRotation);
     }
 
     public updateShader(delta: number): void {
@@ -262,7 +268,7 @@ export class CelestialManager {
         // whenever uv_xOffset is larger than one, offsetting 2π radians is like no offset at all.
         let shader = this.earthMaterial.userData.shader;
         if (shader) {
-            let offset = (delta * CelestialConstants.CLOUDS_ROTATION_SPEED) / (2 * Math.PI)
+            let offset = (delta * (CelestialConstants.CLOUDS_ROTATION_SPEED - CelestialConstants.EARTH_ROTATION_SPEED)) / (2 * Math.PI)
             shader.uniforms.uv_xOffset.value += offset % 1;
         }
     }

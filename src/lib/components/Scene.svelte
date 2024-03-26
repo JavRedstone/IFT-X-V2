@@ -29,7 +29,7 @@
 
   const TC: ThrelteContext = useThrelte();  
   let sceneManager: SceneManager = new SceneManager(TC);
-  let updInterval: number = setInterval(() => updateScene(SceneConstants.DELTA), 1000 / SceneConstants.FPS);
+  let updInterval: number = setInterval(() => updateAll(SceneConstants.DELTA), 1000 / SceneConstants.FPS);
 
   let skyOptions = {
     enabled: false,
@@ -42,8 +42,8 @@
     azimuth: 0
   }
 
-  function updateScene(delta: number) {
-    sceneManager.updateScene(delta);
+  function updateAll(delta: number) {
+    sceneManager.updateAll(delta);
     updateSky();
   }
   
@@ -111,84 +111,82 @@
   ></Sky>
 {/if}
 
-<T.Group bind:ref={sceneManager.launchManager.group}>
-  <T.Group bind:ref={sceneManager.launchManager.starship.group}>
-    <Nosecone bind:ref={sceneManager.launchManager.starship.nosecone}/>
-    <ShipRing bind:ref={sceneManager.launchManager.starship.shipRing}/>
-    <ForwardL bind:ref={sceneManager.launchManager.starship.forwardL}/>
-    <ForwardR bind:ref={sceneManager.launchManager.starship.forwardR}/>
-    <AftL bind:ref={sceneManager.launchManager.starship.aftL}/>
-    <AftR bind:ref={sceneManager.launchManager.starship.aftR}/>
-    <ThrustPuck bind:ref={sceneManager.launchManager.starship.thrustPuck}/>
-    {#each sceneManager.launchManager.starship.rSeas as rSea, i}
-      <Rsea
-        position={[rSea.position.x, rSea.position.y, rSea.position.z]}
-        rotation={[rSea.rotation.x, rSea.rotation.y, rSea.rotation.z]}
-        scale={[rSea.scale.x, rSea.scale.y, rSea.scale.z]}
-        userData={rSea.userData}
-        bind:ref={sceneManager.launchManager.starship.rSeaObjs[i]}
-      />
-    {/each}
-    {#each sceneManager.launchManager.starship.rVacs as rVac, i}
-      <Rvac
-        position={[rVac.position.x, rVac.position.y, rVac.position.z]}
-        rotation={[rVac.rotation.x, rVac.rotation.y, rVac.rotation.z]}
-        scale={[rVac.scale.x, rVac.scale.y, rVac.scale.z]}
-        userData={rVac.userData}
-        bind:ref={sceneManager.launchManager.starship.rVacObjs[i]}
-      />
-    {/each}
-  </T.Group>
-  
-  <T.Group bind:ref={sceneManager.launchManager.superHeavy.group}>
-    <Hsr bind:ref={sceneManager.launchManager.superHeavy.hsr}/>
-    <BoosterRing bind:ref={sceneManager.launchManager.superHeavy.boosterRing}/>
-    {#each sceneManager.launchManager.superHeavy.gridFins as gridFin, i}
-      <GridFin
-        position={[gridFin.position.x, gridFin.position.y, gridFin.position.z]}
-        rotation={[gridFin.rotation.x, gridFin.rotation.y, gridFin.rotation.z]}
-        scale={[gridFin.scale.x, gridFin.scale.y, gridFin.scale.z]}
-        userData={gridFin.userData}
-        bind:ref={sceneManager.launchManager.superHeavy.gridFinObjs[i]}
-      />
-    {/each}
-    {#each sceneManager.launchManager.superHeavy.chines as chine, i}
-      <Chine
-        position={[chine.position.x, chine.position.y, chine.position.z]}
-        rotation={[chine.rotation.x, chine.rotation.y, chine.rotation.z]}
-        scale={[chine.scale.x, chine.scale.y, chine.scale.z]}
-        userData={chine.userData}
-        bind:ref={sceneManager.launchManager.superHeavy.chineObjs[i]}
-      />
-    {/each}
-    {#each sceneManager.launchManager.superHeavy.rSeas as rSea, i}
-      <Rsea
-        position={[rSea.position.x, rSea.position.y, rSea.position.z]}
-        rotation={[rSea.rotation.x, rSea.rotation.y, rSea.rotation.z]}
-        scale={[rSea.scale.x, rSea.scale.y, rSea.scale.z]}
-        userData={rSea.userData}
-        bind:ref={sceneManager.launchManager.superHeavy.rSeaObjs[i]}
-      />
-    {/each}
-    {#each sceneManager.launchManager.superHeavy.outerCylinders as outerCylinder, i}
-    <OuterCylinder
-      position={[outerCylinder.position.x, outerCylinder.position.y, outerCylinder.position.z]}
-      rotation={[outerCylinder.rotation.x, outerCylinder.rotation.y, outerCylinder.rotation.z]}
-      scale={[outerCylinder.scale.x, outerCylinder.scale.y, outerCylinder.scale.z]}
-      userData={outerCylinder.userData}
-      bind:ref={sceneManager.launchManager.superHeavy.outerCylinderObjs[i]}
+<T.Group bind:ref={sceneManager.launchManager.starship.group}>
+  <Nosecone bind:ref={sceneManager.launchManager.starship.nosecone}/>
+  <ShipRing bind:ref={sceneManager.launchManager.starship.shipRing}/>
+  <ForwardL bind:ref={sceneManager.launchManager.starship.forwardL}/>
+  <ForwardR bind:ref={sceneManager.launchManager.starship.forwardR}/>
+  <AftL bind:ref={sceneManager.launchManager.starship.aftL}/>
+  <AftR bind:ref={sceneManager.launchManager.starship.aftR}/>
+  <ThrustPuck bind:ref={sceneManager.launchManager.starship.thrustPuck}/>
+  {#each sceneManager.launchManager.starship.rSeas as rSea, i}
+    <Rsea
+      position={[rSea.position.x, rSea.position.y, rSea.position.z]}
+      rotation={[rSea.rotation.x, rSea.rotation.y, rSea.rotation.z]}
+      scale={[rSea.scale.x, rSea.scale.y, rSea.scale.z]}
+      userData={rSea.userData}
+      bind:ref={sceneManager.launchManager.starship.rSeaObjs[i]}
     />
   {/each}
-  </T.Group>
-  
-  <T.Group bind:ref={sceneManager.launchManager.OLIT.group}>
-    <Top bind:ref={sceneManager.launchManager.OLIT.top}/>
-    <Body bind:ref={sceneManager.launchManager.OLIT.body}/>
-    <Arms bind:ref={sceneManager.launchManager.OLIT.arm1}/>
-    <Arms bind:ref={sceneManager.launchManager.OLIT.arm2}/>
-    <Carriage bind:ref={sceneManager.launchManager.OLIT.carriageArms}/>
-    <Qd bind:ref={sceneManager.launchManager.OLIT.qd}/>
-    <Carriage bind:ref={sceneManager.launchManager.OLIT.carriageQd}/>
-    <Olm bind:ref={sceneManager.launchManager.OLIT.olm}/>
-  </T.Group>
+  {#each sceneManager.launchManager.starship.rVacs as rVac, i}
+    <Rvac
+      position={[rVac.position.x, rVac.position.y, rVac.position.z]}
+      rotation={[rVac.rotation.x, rVac.rotation.y, rVac.rotation.z]}
+      scale={[rVac.scale.x, rVac.scale.y, rVac.scale.z]}
+      userData={rVac.userData}
+      bind:ref={sceneManager.launchManager.starship.rVacObjs[i]}
+    />
+  {/each}
+</T.Group>
+
+<T.Group bind:ref={sceneManager.launchManager.superHeavy.group}>
+  <Hsr bind:ref={sceneManager.launchManager.superHeavy.hsr}/>
+  <BoosterRing bind:ref={sceneManager.launchManager.superHeavy.boosterRing}/>
+  {#each sceneManager.launchManager.superHeavy.gridFins as gridFin, i}
+    <GridFin
+      position={[gridFin.position.x, gridFin.position.y, gridFin.position.z]}
+      rotation={[gridFin.rotation.x, gridFin.rotation.y, gridFin.rotation.z]}
+      scale={[gridFin.scale.x, gridFin.scale.y, gridFin.scale.z]}
+      userData={gridFin.userData}
+      bind:ref={sceneManager.launchManager.superHeavy.gridFinObjs[i]}
+    />
+  {/each}
+  {#each sceneManager.launchManager.superHeavy.chines as chine, i}
+    <Chine
+      position={[chine.position.x, chine.position.y, chine.position.z]}
+      rotation={[chine.rotation.x, chine.rotation.y, chine.rotation.z]}
+      scale={[chine.scale.x, chine.scale.y, chine.scale.z]}
+      userData={chine.userData}
+      bind:ref={sceneManager.launchManager.superHeavy.chineObjs[i]}
+    />
+  {/each}
+  {#each sceneManager.launchManager.superHeavy.rSeas as rSea, i}
+    <Rsea
+      position={[rSea.position.x, rSea.position.y, rSea.position.z]}
+      rotation={[rSea.rotation.x, rSea.rotation.y, rSea.rotation.z]}
+      scale={[rSea.scale.x, rSea.scale.y, rSea.scale.z]}
+      userData={rSea.userData}
+      bind:ref={sceneManager.launchManager.superHeavy.rSeaObjs[i]}
+    />
+  {/each}
+  {#each sceneManager.launchManager.superHeavy.outerCylinders as outerCylinder, i}
+  <OuterCylinder
+    position={[outerCylinder.position.x, outerCylinder.position.y, outerCylinder.position.z]}
+    rotation={[outerCylinder.rotation.x, outerCylinder.rotation.y, outerCylinder.rotation.z]}
+    scale={[outerCylinder.scale.x, outerCylinder.scale.y, outerCylinder.scale.z]}
+    userData={outerCylinder.userData}
+    bind:ref={sceneManager.launchManager.superHeavy.outerCylinderObjs[i]}
+  />
+{/each}
+</T.Group>
+
+<T.Group bind:ref={sceneManager.launchManager.OLIT.group}>
+  <Top bind:ref={sceneManager.launchManager.OLIT.top}/>
+  <Body bind:ref={sceneManager.launchManager.OLIT.body}/>
+  <Arms bind:ref={sceneManager.launchManager.OLIT.arm1}/>
+  <Arms bind:ref={sceneManager.launchManager.OLIT.arm2}/>
+  <Carriage bind:ref={sceneManager.launchManager.OLIT.carriageArms}/>
+  <Qd bind:ref={sceneManager.launchManager.OLIT.qd}/>
+  <Carriage bind:ref={sceneManager.launchManager.OLIT.carriageQd}/>
+  <Olm bind:ref={sceneManager.launchManager.OLIT.olm}/>
 </T.Group>

@@ -19,6 +19,7 @@ export class Starship {
     public group: Group = null;
 
     public hasSetupSingle: boolean = false;
+    public hasUpdatedObb: boolean = false;
 
     public options: any = {
         rSeaAngularOffset: StarshipConstants.R_SEA_ANGULAR_OFFSET,
@@ -131,6 +132,7 @@ export class Starship {
             this.forwardR.position.copy(this.shipRing.position.clone().add(new Vector3(0, this.shipRing.userData.aabb.getSize(new Vector3).y, StarshipConstants.STARSHIP_SCALE.z)));
             this.aftL.position.copy(this.shipRing.position.clone().add(new Vector3(0, 0, -StarshipConstants.STARSHIP_SCALE.z)));
             this.aftR.position.copy(this.shipRing.position.clone().add(new Vector3(0, 0, StarshipConstants.STARSHIP_SCALE.z)));
+            this.hasUpdatedObb = true;
         }
     }
 

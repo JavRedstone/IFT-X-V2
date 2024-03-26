@@ -26,9 +26,20 @@ export class SceneManager {
         this.postprocessingManager = new PostprocessingManager(this.tc);
     }
 
+    public updateReals(delta: number): void {
+        this.celestialManager.updateReals(delta);
+        this.launchManager.updateReals(delta);
+    }
+
     public updateScene(delta: number): void {
         this.celestialManager.updateScene(delta);
         this.skyManager.updateScene(delta);
         this.launchManager.updateScene(delta);
+    }
+
+    public updateAll(delta: number): void {
+        this.updateReals(delta);
+        this.launchManager.updateTransients(delta);
+        this.updateScene(delta);
     }
 }

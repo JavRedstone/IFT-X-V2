@@ -3,6 +3,7 @@ import { Euler, Vector3 } from "three";
 export class OLIT_CONSTANTS {
     public static readonly OLIT_HORIZONTAL_MULTIPLIER: number = 1.25;
     public static readonly OLIT_SCALE: Vector3 = new Vector3(0.001 * OLIT_CONSTANTS.OLIT_HORIZONTAL_MULTIPLIER, 0.001, 0.001 * OLIT_CONSTANTS.OLIT_HORIZONTAL_MULTIPLIER);
+    // public static readonly OLIT_SCALE: Vector3 = new Vector3(1 * OLIT_CONSTANTS.OLIT_HORIZONTAL_MULTIPLIER, 1, 1 * OLIT_CONSTANTS.OLIT_HORIZONTAL_MULTIPLIER);
 
     public static readonly TOP_SCALE: Vector3 = new Vector3(1, 0.25, 1);
     public static readonly BODY_SCALE: Vector3 = new Vector3(1, 15, 1);

@@ -2,8 +2,10 @@ import { Euler, Vector3 } from "three";
 
 export class SuperHeavyConstants {
     public static readonly SUPER_HEAVY_SCALE: Vector3 = new Vector3(0.001, 0.001, 0.001);
+    // public static readonly SUPER_HEAVY_SCALE: Vector3 = new Vector3(1, 1, 1);
     
     public static readonly HSR_SCALE: Vector3 = new Vector3(1, 1, 1);
+    public static readonly HSR_OFFSET: number = 0.05;
     public static readonly BOOSTER_RING_SCALE: Vector3 = new Vector3(1, 15.6, 1);
 
     public static readonly GRID_FIN_SCALE: Vector3 = new Vector3(0.082328, 0.082328, 0.082328);
