@@ -35,7 +35,9 @@ export class Starship {
         aftRWidthScale: 1,
 
         rSeaRadius: StarshipConstants.R_SEA_RADIUS,
-        rVacRadius: StarshipConstants.R_VAC_RADIUS
+        numRSeas: StarshipConstants.NUM_R_SEAS,
+        rVacRadius: StarshipConstants.R_VAC_RADIUS,
+        numRVacs: StarshipConstants.NUM_R_VACS
     };
 
     constructor() {

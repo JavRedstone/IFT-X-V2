@@ -69,7 +69,7 @@ export class LaunchManager {
                     this.starship.group.rotation.copy(OLIT_CONSTANTS.STARSHIP_ROTATION);
                     
                     if (!this.hasSetInitialPosition) {
-                        let rotation: Euler = new Euler(153.875 * Math.PI / 180, 96.6 * Math.PI / 180, 0);
+                        let rotation: Euler = new Euler(153.875 * Math.PI / 180, 96.65 * Math.PI / 180, 0);
                         PRTransients.realPositions.groupPosition = new Vector3(1, 0, 0).applyEuler(rotation).multiplyScalar(CelestialConstants.EARTH_RADIUS);
                         this.hasSetInitialPosition = true;
                     }
@@ -132,6 +132,7 @@ export class LaunchManager {
         }
         for (let key of Object.keys(PRTransients.realRotations)) {
             PRTransients.fakeRotations[key].setFromQuaternion(rot.clone().multiply(new Quaternion().setFromEuler(PRTransients.realRotations[key])));
+            // PRTransients.fakeRotations[key].setFromQuaternion(PRTransients.fakeRotations[key].clone().multiply(new Quaternion().setFromEuler(this.earthRot.clone())));
         }
     }
 
