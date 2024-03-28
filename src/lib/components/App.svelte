@@ -4,7 +4,7 @@
   import Launch from './ui/launch.svelte';
 </script>
 
-<!-- <Canvas>
+<Canvas>
   <Scene />
-</Canvas> -->
+</Canvas>
 <Launch />

@@ -31,7 +31,7 @@ export class LaunchManager {
 
     public earthRot: Euler = new Euler(0, 0, 0);
 
-    public isCameraOnStarship: boolean = false;
+    public isCameraOnStarship: boolean = true;
     public hasLaunched: boolean = false;
 
     constructor(tc: ThrelteContext) {

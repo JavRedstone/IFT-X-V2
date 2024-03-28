@@ -1,7 +1,8 @@
-import { Box3, Group, Object3D, Vector3 } from "three";
+import { Group, Object3D, Vector3 } from "three";
 import { StarshipConstants } from "../constants/objects/StarshipConstants";
 import { MathHelper } from "../helpers/MathHelper";
 import { ObjectHelper } from "../helpers/ObjectHelper";
+import { starshipSettings } from "../ui-stores/ui-store";
 
 export class Starship {
     public nosecone: Group = new Group();
@@ -42,11 +43,39 @@ export class Starship {
 
     constructor() {
         this.setupMultiple();
+        this.setupUpdator();
     }
 
     public setupMultiple(): void {
         this.setupRSeas();
         this.setupRVacs();
+    }
+
+    public setupUpdator(): void {
+        starshipSettings.subscribe((value) => {
+            this.options.rSeaAngularOffset = value.rSeaAngularOffset;
+            this.options.rVacAngularOffset = value.rVacAngularOffset;
+
+            this.options.forwardLHeightScale = value.forwardLHeightScale;
+            this.options.forwardLWidthScale = value.forwardLWidthScale;
+            this.options.forwardRHeightScale = value.forwardRHeightScale;
+            this.options.forwardRWidthScale = value.forwardRWidthScale;
+            this.options.aftLHeightScale = value.aftLHeightScale;
+            this.options.aftLWidthScale = value.aftLWidthScale;
+            this.options.aftRHeightScale = value.aftRHeightScale;
+            this.options.aftRWidthScale = value.aftRWidthScale;
+
+            this.options.rSeaRadius = value.rSeaRadius;
+            this.options.numRSeas = value.numRSeas;
+            this.options.rVacRadius = value.rVacRadius;
+            this.options.numRVacs = value.numRVacs;
+
+            this.rSeas = [];
+            this.rVacs = [];
+
+            this.setupMultiple();
+            this.hasSetupSingle = false;
+        });
     }
 
     public setupRSeas(): void {

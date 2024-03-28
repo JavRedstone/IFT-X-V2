@@ -24,12 +24,12 @@ export class SuperHeavyConstants {
 
     public static readonly R_SEA_SCALE: Vector3 = new Vector3(0.045206, 0.045206, 0.045206);
     public static readonly R_SEA_RADIUS_1: number = 0.175;
-    public static readonly R_SEA_ANGULAR_OFFSET_1: number = 0;
+    public static readonly R_SEA_ANGULAR_OFFSET_1: number = 60*Math.PI/180;
     public static readonly R_SEA_HEIGHT_1: number = 0.3;
     public static readonly NUM_R_SEAS_1: number = 3;
     public static readonly CAN_R_SEA_1_GIMBAL: boolean = true;
-    public static readonly R_SEA_RADIUS_2: number = 0.5;
-    public static readonly R_SEA_ANGULAR_OFFSET_2: number = 0;
+    public static readonly R_SEA_RADIUS_2: number = 0.525;
+    public static readonly R_SEA_ANGULAR_OFFSET_2: number = 45*Math.PI/180;
     public static readonly R_SEA_HEIGHT_2: number = 0.3;
     public static readonly NUM_R_SEAS_2: number = 10;
     public static readonly CAN_R_SEA_2_GIMBAL: boolean = true;

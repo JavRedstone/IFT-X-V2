@@ -25,7 +25,7 @@ export class StarshipConstants {
     public static readonly CAN_R_SEA_GIMBAL: boolean = true;
     
     public static readonly R_VAC_SCALE: Vector3 = new Vector3(0.045206, 0.045206, 0.045206);
-    public static readonly R_VAC_RADIUS: number = 0.65;
+    public static readonly R_VAC_RADIUS: number = 0.675;
     public static readonly R_VAC_ANGULAR_OFFSET: number = 60 * Math.PI / 180;
     public static readonly R_VAC_HEIGHT: number = 1.1;
     public static readonly NUM_R_VACS: number = 3;

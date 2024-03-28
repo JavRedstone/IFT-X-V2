@@ -1,7 +1,8 @@
-import { Box3, Euler, Group, Object3D, Quaternion, Vector3 } from "three";
+import { Euler, Group, Object3D, Quaternion, Vector3 } from "three";
 import { MathHelper } from "../helpers/MathHelper";
 import { SuperHeavyConstants } from "../constants/objects/SuperHeavyConstants";
 import { ObjectHelper } from "../helpers/ObjectHelper";
+import { superHeavySettings } from "../ui-stores/ui-store";
 
 export class SuperHeavy {
     public hsr: Group = new Group();
@@ -28,12 +29,16 @@ export class SuperHeavy {
         rSeaAngularOffset3: SuperHeavyConstants.R_SEA_ANGULAR_OFFSET_3,
 
         rSeaRadius1: SuperHeavyConstants.R_SEA_RADIUS_1,
+        numRSeas1: SuperHeavyConstants.NUM_R_SEAS_1,
         rSeaRadius2: SuperHeavyConstants.R_SEA_RADIUS_2,
-        rSeaRadius3: SuperHeavyConstants.R_SEA_RADIUS_3
+        numRSeas2: SuperHeavyConstants.NUM_R_SEAS_2,
+        rSeaRadius3: SuperHeavyConstants.R_SEA_RADIUS_3,
+        numRSeas3: SuperHeavyConstants.NUM_R_SEAS_3,
     };
 
     constructor() {
         this.setupMultiple();
+        this.setupUpdator();
     }
 
     public setupMultiple(): void {
@@ -41,6 +46,26 @@ export class SuperHeavy {
         this.setupChines();
         this.setupRSeas();
         this.setupOuterCylinders();
+    }
+
+    public setupUpdator(): void {
+        superHeavySettings.subscribe((value) => {
+            this.options.gridFinAngularOffset = value.gridFinAngularOffset;
+            this.options.chineAngularOffset = value.chineAngularOffset;
+            this.options.rSeaAngularOffset1 = value.rSeaAngularOffset1;
+            this.options.rSeaAngularOffset2 = value.rSeaAngularOffset2;
+            this.options.rSeaAngularOffset3 = value.rSeaAngularOffset3;
+
+            this.options.rSeaRadius1 = value.rSeaRadius1;
+            this.options.numRSeas1 = value.numRSeas1;
+            this.options.rSeaRadius2 = value.rSeaRadius2;
+            this.options.numRSeas2 = value.numRSeas2;
+            this.options.rSeaRadius3 = value.rSeaRadius3;
+            this.options.numRSeas3 = value.numRSeas3;
+
+            this.setupMultiple();
+            this.hasSetupSingle = false;
+        });
     }
 
     public setupGridFins(): void {
@@ -74,7 +99,7 @@ export class SuperHeavy {
 
     public setupRSeas(): void {
         let rSeaPositions1 = MathHelper.getCircularPositions(SuperHeavyConstants.NUM_R_SEAS_1, SuperHeavyConstants.R_SEA_RADIUS_1 * SuperHeavyConstants.SUPER_HEAVY_SCALE.x, this.options.rSeaAngularOffset1);
-        let rSeaRotations1 = MathHelper.getCircularRotations(SuperHeavyConstants.NUM_R_SEAS_1, this.options.rSeaAngularOffset1);
+        let rSeaRotations1 = MathHelper.getCircularRotations(this.options.numRSeas1, this.options.rSeaAngularOffset1);
 
         for (let i = 0; i < SuperHeavyConstants.NUM_R_SEAS_1; i++) {
             let rSea = new Object3D();
@@ -85,7 +110,7 @@ export class SuperHeavy {
         }
 
         let rSeaPositions2 = MathHelper.getCircularPositions(SuperHeavyConstants.NUM_R_SEAS_2, SuperHeavyConstants.R_SEA_RADIUS_2 * SuperHeavyConstants.SUPER_HEAVY_SCALE.x, this.options.rSeaAngularOffset2);
-        let rSeaRotations2 = MathHelper.getCircularRotations(SuperHeavyConstants.NUM_R_SEAS_2, this.options.rSeaAngularOffset2);
+        let rSeaRotations2 = MathHelper.getCircularRotations(this.options.numRSeas2, this.options.rSeaAngularOffset2);
 
         for (let i = 0; i < SuperHeavyConstants.NUM_R_SEAS_2; i++) {
             let rSea = new Object3D();
@@ -96,7 +121,7 @@ export class SuperHeavy {
         }
 
         let rSeaPositions3 = MathHelper.getCircularPositions(SuperHeavyConstants.NUM_R_SEAS_3, SuperHeavyConstants.R_SEA_RADIUS_3 * SuperHeavyConstants.SUPER_HEAVY_SCALE.x, this.options.rSeaAngularOffset3);
-        let rSeaRotations3 = MathHelper.getCircularRotations(SuperHeavyConstants.NUM_R_SEAS_3, this.options.rSeaAngularOffset3);
+        let rSeaRotations3 = MathHelper.getCircularRotations(this.options.numRSeas3, this.options.rSeaAngularOffset3);
 
         for (let i = 0; i < SuperHeavyConstants.NUM_R_SEAS_3; i++) {
             let rSea = new Object3D();
@@ -109,7 +134,7 @@ export class SuperHeavy {
 
     public setupOuterCylinders(): void {
         let outerCylinderPositions = MathHelper.getCircularPositions(SuperHeavyConstants.NUM_R_SEAS_3, SuperHeavyConstants.OUTER_CYLINDER_RADIUS * SuperHeavyConstants.SUPER_HEAVY_SCALE.x, this.options.rSeaAngularOffset3);
-        let outerCylinderRotations = MathHelper.getCircularRotations(SuperHeavyConstants.NUM_R_SEAS_3, this.options.rSeaAngularOffset3);
+        let outerCylinderRotations = MathHelper.getCircularRotations(this.options.numRSeas3, this.options.rSeaAngularOffset3);
         
         for (let i = 0; i < SuperHeavyConstants.NUM_R_SEAS_3; i++) {
             let outerCylinder = new Object3D();

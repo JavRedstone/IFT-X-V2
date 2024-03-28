@@ -1,5 +1,5 @@
 import { type ThrelteContext } from "@threlte/core";
-import { AdditiveBlending, BackSide, DirectionalLight, DoubleSide, EquirectangularReflectionMapping, Group, Mesh, MeshStandardMaterial, RepeatWrapping, SRGBColorSpace, ShaderMaterial, SphereGeometry, Vector3 } from "three";
+import { AdditiveBlending, BackSide, DoubleSide, EquirectangularReflectionMapping, Group, Mesh, MeshStandardMaterial, RepeatWrapping, SRGBColorSpace, ShaderMaterial, SphereGeometry, Vector3 } from "three";
 import { TextureHelper } from "../helpers/TextureHelper";
 import { CelestialConstants } from "../constants/CelestialConstants";
 import { TextureConstants } from "../constants/TextureConstants";
