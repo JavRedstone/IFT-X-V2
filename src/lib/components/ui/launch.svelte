@@ -2,7 +2,7 @@
     import { onMount } from "svelte";
     import { Vector2, type Vector3 } from "three";
     import { RaptorUI } from "../structs/ui/RaptorUI";
-    import { starshipSettings, superHeavySettings } from "../ui-stores/ui-store";
+    import { starshipSettings, superHeavySettings, telemetry } from "../ui-stores/ui-store";
     import { MathHelper } from "../helpers/MathHelper";
     import s25 from "../images/s25.png";
     import b9 from "../images/b9.png";
@@ -38,6 +38,27 @@
         rSeaRadius3: 0,
         numRSeas3: 0,
     };
+    let telemetryValues: any = {
+        dt: 0,
+
+        starshipRaptors: [],
+        starshipAngle: 0,
+        starshipSpeed: 0,
+        starshipAltitude: 0,
+        starshipLOX: 0,
+        starshipCH4: 0,
+        starshipDisabled: false,
+
+        superHeavyRaptors: [],
+        superHeavyAngle: 0,
+        superHeavySpeed: 0,
+        superHeavyAltitude: 0,
+        superHeavyLOX: 0,
+        superHeavyCH4: 0,
+        superHeavyDisabled: false,
+
+        separated: false
+    };
 
     function setupUpdator() {
         starshipSettings.subscribe((value) => {
@@ -48,8 +69,9 @@
 
             starshipOptions.rSeaRadius = value.rSeaRadius;
             starshipOptions.numRSeas = value.numRSeas;
-            superHeavyOptions.rVacRadius = value.rVacRadius;
+            starshipOptions.rVacRadius = value.rVacRadius;
             starshipOptions.numRVacs = value.numRVacs;
+            
             createStarshipRaptors();
             createSuperHeavyRaptors();
         });
@@ -69,6 +91,27 @@
             createStarshipRaptors();
             createSuperHeavyRaptors();
         });
+        telemetry.subscribe((value) => {
+            telemetryValues.dt = value.dt;
+
+            telemetryValues.starshipRaptors = value.starshipRaptors;
+            telemetryValues.starshipAngle = value.starshipAngle;
+            telemetryValues.starshipSpeed = value.starshipSpeed;
+            telemetryValues.starshipAltitude = value.starshipAltitude;
+            telemetryValues.starshipLOX = value.starshipLOX;
+            telemetryValues.starshipCH4 = value.starshipCH4;
+            telemetryValues.starshipDisabled = value.starshipDisabled;
+
+            telemetryValues.superHeavyRaptors = value.superHeavyRaptors;
+            telemetryValues.superHeavyAngle = value.superHeavyAngle;
+            telemetryValues.superHeavySpeed = value.superHeavySpeed;
+            telemetryValues.superHeavyAltitude = value.superHeavyAltitude;
+            telemetryValues.superHeavyLOX = value.superHeavyLOX;
+            telemetryValues.superHeavyCH4 = value.superHeavyCH4;
+            telemetryValues.superHeavyDisabled = value.superHeavyDisabled;
+
+            telemetryValues.separated = value.separated;
+        });
     }
 
     function createStarshipRaptors() {
@@ -76,7 +119,7 @@
         for (let i = 0; i < starshipOptions.numRSeas; i++) {
             starshipRaptors = [...starshipRaptors, new RaptorUI(i, false, true, new Vector2(superHeavyOptions.rSeaRadius3 * sizeMult - rSeaPositions[i].x - rSeaRadius, rSeaPositions[i].z + superHeavyOptions.rSeaRadius3 * sizeMult - rSeaRadius))];
         }
-        let rVacPositions: Vector3[] = MathHelper.getCircularPositions(starshipOptions.numRVacs, superHeavyOptions.rVacRadius * sizeMult, starshipOptions.rVacAngularOffset + angOffset);
+        let rVacPositions: Vector3[] = MathHelper.getCircularPositions(starshipOptions.numRVacs, starshipOptions.rVacRadius * sizeMult, starshipOptions.rVacAngularOffset + angOffset);
         for (let i = 0; i < starshipOptions.numRVacs; i++) {
             starshipRaptors = [...starshipRaptors, new RaptorUI(i, false, false, new Vector2(superHeavyOptions.rSeaRadius3 * sizeMult - rVacPositions[i].x - rVacRadius, rVacPositions[i].z + superHeavyOptions.rSeaRadius3 * sizeMult - rVacRadius))];
         }
@@ -158,9 +201,8 @@
         left: 0;
         top: 0;
         height: 100%;
-        width: 100%;
         border-radius: 4px;
-        background: linear-gradient(to right, transparent, white)
+        background: linear-gradient(to right, rgba(255, 255, 255, 0.25), white)
     }
 
     .launch-fuel {
@@ -215,9 +257,9 @@
     }
 </style>
 <div class="launch-container" style="user-select: none;">
-    <div class="launch-time">T+00:00:05</div>
+    <div class="launch-time">{ MathHelper.getTString(telemetryValues.dt) }</div>
     <div class="launch-event">INTEGRATED FLIGHT TEST X</div>
-    <div style="opacity:0.25">
+    <div style="opacity: {telemetryValues.starshipDisabled ? 0.5 : 1};">
         {#each starshipRaptors as raptor}
             <div class="launch-raptor">
                 <div
@@ -227,34 +269,34 @@
             </div>
         {/each}
 
-        <span class="launch-fuel" style="right: 293px; top: 56px;">LOX</span>
+        <span class="launch-fuel" style="right: 293px; top: 57px;">LOX</span>
         <div class="launch-bar-container"
             style="right: 125px; top: 60px;"
         >
-            <div class="launch-bar"></div>
+            <div class="launch-bar" style="width:{telemetryValues.starshipLOX * 100}%"></div>
         </div>
-        <span class="launch-fuel" style="right: 293px; top: 76px;">CH4</span>
+        <span class="launch-fuel" style="right: 293px; top: 77px;">CH4</span>
         <div class="launch-bar-container"
             style="right: 125px; top: 80px;"
         >
-            <div class="launch-bar"></div>
+            <div class="launch-bar" style="width:{telemetryValues.starshipCH4 * 100}%"></div>
         </div>
 
         <div class="launch-telem-container" style="right: 125px; top: 12px; width: 185px">
             <span class="launch-telem">SPEED</span>
             <span class="launch-telem-spacer"></span>
-            <span class="launch-telem">10KM/H</span>
+            <span class="launch-telem">{telemetryValues.starshipSpeed}KM/H</span>
         </div>
-        <div class="launch-telem-container" style="right: 125px; top: 30px; width: 171px">
+        <div class="launch-telem-container" style="right: 139px; top: 30px; width: 171px">
             <span class="launch-telem">ALTITUDE</span>
             <span class="launch-telem-spacer"></span>
-            <span class="launch-telem">10KM</span>
+            <span class="launch-telem">{telemetryValues.starshipAltitude}KM</span>
         </div>
         
         <div class="launch-line" style="right: 354px;"></div>
-        <img class="launch-image" style="right: 397px; transform: rotate(0deg);" src={s25} alt="ship">
+        <img class="launch-image" style="right: 397px; transform: rotate({telemetryValues.starshipAngle}rad);" src={s25} alt="ship">
     </div>
-    <div>
+    <div style="opacity: {telemetryValues.superHeavyDisabled ? 0.5 : 1};">
         {#each superHeavyRaptors as raptor}
             <div class="launch-raptor">
                 <div
@@ -264,31 +306,31 @@
             </div>
         {/each}
 
-        <span class="launch-fuel" style="left: 125px; top: 56px;">LOX</span>
+        <span class="launch-fuel" style="left: 125px; top: 57px;">LOX</span>
         <div class="launch-bar-container"
             style="left: 150px; top: 60px;"
         >
-            <div class="launch-bar"></div>
+            <div class="launch-bar" style="width:{telemetryValues.superHeavyLOX * 100}%"></div>
         </div>
-        <span class="launch-fuel" style="left: 125px; top: 76px;">CH4</span>
+        <span class="launch-fuel" style="left: 125px; top: 77px;">CH4</span>
         <div class="launch-bar-container"
             style="left: 150px; top: 80px;"
         >
-            <div class="launch-bar"></div>
+            <div class="launch-bar" style="width:{telemetryValues.superHeavyCH4 * 100}%"></div>
         </div>
         
         <div class="launch-telem-container" style="left: 125px; top: 12px; width: 185px">
             <span class="launch-telem">SPEED</span>
             <span class="launch-telem-spacer"></span>
-            <span class="launch-telem">10KM/H</span>
+            <span class="launch-telem">{telemetryValues.superHeavySpeed}KM/H</span>
         </div>
         <div class="launch-telem-container" style="left: 125px; top: 30px; width: 171px">
             <span class="launch-telem">ALTITUDE</span>
             <span class="launch-telem-spacer"></span>
-            <span class="launch-telem">10KM</span>
+            <span class="launch-telem">{telemetryValues.superHeavyAltitude}KM</span>
         </div>
         
         <div class="launch-line" style="left: 336px;"></div>
-        <img class="launch-image" style="left: 390px; transform: rotate(0deg);" src={s25b9} alt="booster">
+        <img class="launch-image" style="left: {telemetryValues.separated ? 385 : 390}px; transform: rotate({telemetryValues.superHeavyAngle}rad);" src={telemetryValues.separated ? b9 : s25b9} alt="booster">
     </div>
 </div>

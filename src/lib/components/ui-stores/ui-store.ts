@@ -51,15 +51,18 @@ export const telemetry = writable({
     starshipAngle: 0,
     starshipSpeed: 0,
     starshipAltitude: 0,
-    starshipLOX: 100,
-    starshipCH4: 100,
+    starshipLOX: 0,
+    starshipCH4: 0,
+    starshipDisabled: true,
 
     superHeavyRaptors: [],
     superHeavyAngle: 0,
     superHeavySpeed: 0,
     superHeavyAltitude: 0,
-    superHeavyLOX: 100,
-    superHeavyCH4: 100,
+    superHeavyLOX: 0,
+    superHeavyCH4: 0,
+    superHeavyDisabled: false,
+
     separated: false
 });
 

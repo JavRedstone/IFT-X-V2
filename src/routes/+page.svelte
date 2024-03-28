@@ -12,7 +12,6 @@
 </div>
 
 <style>
-  @import url('hhttps://fonts.googleapis.com/css2?family=M+PLUS+Code+Latin:wght@100..700&display=swap');
   :global(body) {
     margin: 0;
     padding: 0;
