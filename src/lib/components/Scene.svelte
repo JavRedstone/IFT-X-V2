@@ -26,11 +26,19 @@
   import { LaunchManager } from './managers/LaunchManager';
   import OuterCylinder from './models/outer_cylinder.svelte';
   import { SceneConstants } from './constants/SceneConstants';
+  import type { Object3D } from 'three';
 
   const TC: ThrelteContext = useThrelte();  
   let sceneManager: SceneManager = new SceneManager(TC);
   let updInterval: number = setInterval(() => updateAll(SceneConstants.DELTA), 1000 / SceneConstants.FPS);
 
+  function updateAll(delta: number) {
+    sceneManager.updateAll(delta);
+    updateSky();
+    updateStarship();
+    updateSuperHeavy();
+  }
+  
   let skyOptions = {
     enabled: false,
     setEnvironment: false,
@@ -42,11 +50,6 @@
     azimuth: 0
   }
 
-  function updateAll(delta: number) {
-    sceneManager.updateAll(delta);
-    updateSky();
-  }
-  
   function updateSky() {
     skyOptions.enabled = sceneManager.skyManager.enabled;
     skyOptions.setEnvironment = sceneManager.skyManager.setEnvironment;
@@ -56,6 +59,26 @@
     skyOptions.mieDirectionalG = sceneManager.skyManager.mieDirectionalG;
     skyOptions.elevation = sceneManager.skyManager.elevation;
     skyOptions.azimuth = sceneManager.skyManager.azimuth;
+  }
+
+  let rSeasSS: Object3D[] = [];
+  let rVacsSS: Object3D[] = [];
+
+  function updateStarship(): void {
+    rSeasSS = sceneManager.launchManager.starship.rSeas;
+    rVacsSS = sceneManager.launchManager.starship.rVacs;
+  }
+
+  let gridFinsSH: Object3D[] = [];
+  let chinesSH: Object3D[] = [];
+  let rSeasSH: Object3D[] = [];
+  let outerCylindersSH: Object3D[] = [];
+
+  function updateSuperHeavy(): void {
+    gridFinsSH = sceneManager.launchManager.superHeavy.gridFins;
+    chinesSH = sceneManager.launchManager.superHeavy.chines;
+    rSeasSH = sceneManager.launchManager.superHeavy.rSeas;
+    outerCylindersSH = sceneManager.launchManager.superHeavy.outerCylinders;
   }
   
   const { scene, renderer, camera, size, autoRender, renderStage } = TC;
@@ -119,7 +142,7 @@
   <AftL bind:ref={sceneManager.launchManager.starship.aftL}/>
   <AftR bind:ref={sceneManager.launchManager.starship.aftR}/>
   <ThrustPuck bind:ref={sceneManager.launchManager.starship.thrustPuck}/>
-  {#each sceneManager.launchManager.starship.rSeas as rSea, i}
+  {#each rSeasSS as rSea, i}
     <Rsea
       position={[rSea.position.x, rSea.position.y, rSea.position.z]}
       rotation={[rSea.rotation.x, rSea.rotation.y, rSea.rotation.z]}
@@ -128,7 +151,7 @@
       bind:ref={sceneManager.launchManager.starship.rSeaObjs[i]}
     />
   {/each}
-  {#each sceneManager.launchManager.starship.rVacs as rVac, i}
+  {#each rVacsSS as rVac, i}
     <Rvac
       position={[rVac.position.x, rVac.position.y, rVac.position.z]}
       rotation={[rVac.rotation.x, rVac.rotation.y, rVac.rotation.z]}
@@ -142,7 +165,7 @@
 <T.Group bind:ref={sceneManager.launchManager.superHeavy.group}>
   <Hsr bind:ref={sceneManager.launchManager.superHeavy.hsr}/>
   <BoosterRing bind:ref={sceneManager.launchManager.superHeavy.boosterRing}/>
-  {#each sceneManager.launchManager.superHeavy.gridFins as gridFin, i}
+  {#each gridFinsSH as gridFin, i}
     <GridFin
       position={[gridFin.position.x, gridFin.position.y, gridFin.position.z]}
       rotation={[gridFin.rotation.x, gridFin.rotation.y, gridFin.rotation.z]}
@@ -151,7 +174,7 @@
       bind:ref={sceneManager.launchManager.superHeavy.gridFinObjs[i]}
     />
   {/each}
-  {#each sceneManager.launchManager.superHeavy.chines as chine, i}
+  {#each chinesSH as chine, i}
     <Chine
       position={[chine.position.x, chine.position.y, chine.position.z]}
       rotation={[chine.rotation.x, chine.rotation.y, chine.rotation.z]}
@@ -160,7 +183,7 @@
       bind:ref={sceneManager.launchManager.superHeavy.chineObjs[i]}
     />
   {/each}
-  {#each sceneManager.launchManager.superHeavy.rSeas as rSea, i}
+  {#each rSeasSH as rSea, i}
     <Rsea
       position={[rSea.position.x, rSea.position.y, rSea.position.z]}
       rotation={[rSea.rotation.x, rSea.rotation.y, rSea.rotation.z]}
@@ -169,7 +192,7 @@
       bind:ref={sceneManager.launchManager.superHeavy.rSeaObjs[i]}
     />
   {/each}
-  {#each sceneManager.launchManager.superHeavy.outerCylinders as outerCylinder, i}
+  {#each outerCylindersSH as outerCylinder, i}
   <OuterCylinder
     position={[outerCylinder.position.x, outerCylinder.position.y, outerCylinder.position.z]}
     rotation={[outerCylinder.rotation.x, outerCylinder.rotation.y, outerCylinder.rotation.z]}

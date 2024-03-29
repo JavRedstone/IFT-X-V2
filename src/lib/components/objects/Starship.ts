@@ -26,10 +26,13 @@ export class Starship {
         rSeaAngularOffset: StarshipConstants.R_SEA_ANGULAR_OFFSET,
         rVacAngularOffset: StarshipConstants.R_VAC_ANGULAR_OFFSET,
 
+        bodyHeightScale: 1,
+
         forwardLHeightScale: 1,
         forwardLWidthScale: 1,
         forwardRHeightScale: 1,
         forwardRWidthScale: 1,
+
         aftLHeightScale: 1,
         aftLWidthScale: 1,
         aftRHeightScale: 1,
@@ -47,6 +50,10 @@ export class Starship {
     }
 
     public setupMultiple(): void {
+        this.rSeas = [];
+        this.rSeaObjs = [];
+        this.rVacs = [];
+        this.rVacObjs = [];
         this.setupRSeas();
         this.setupRVacs();
     }
@@ -55,6 +62,8 @@ export class Starship {
         starshipSettings.subscribe((value) => {
             this.options.rSeaAngularOffset = value.rSeaAngularOffset;
             this.options.rVacAngularOffset = value.rVacAngularOffset;
+
+            this.options.bodyHeightScale = value.bodyHeightScale;
 
             this.options.forwardLHeightScale = value.forwardLHeightScale;
             this.options.forwardLWidthScale = value.forwardLWidthScale;
@@ -79,10 +88,10 @@ export class Starship {
     }
 
     public setupRSeas(): void {
-        let rSeaPositions = MathHelper.getCircularPositions(StarshipConstants.NUM_R_SEAS, StarshipConstants.R_SEA_RADIUS * StarshipConstants.STARSHIP_SCALE.x, this.options.rSeaAngularOffset);
-        let rSeaRotations = MathHelper.getCircularRotations(StarshipConstants.NUM_R_SEAS, this.options.rSeaAngularOffset);
+        let rSeaPositions = MathHelper.getCircularPositions(this.options.numRSeas, this.options.rSeaRadius * StarshipConstants.STARSHIP_SCALE.x, this.options.rSeaAngularOffset);
+        let rSeaRotations = MathHelper.getCircularRotations(this.options.numRSeas, this.options.rSeaAngularOffset);
 
-        for (let i = 0; i < StarshipConstants.NUM_R_SEAS; i++) {
+        for (let i = 0; i < this.options.numRSeas; i++) {
             let rSea = new Object3D();
             rSea.position.copy(rSeaPositions[i].clone().add(new Vector3(0, StarshipConstants.R_SEA_HEIGHT * StarshipConstants.STARSHIP_SCALE.y, 0)));
             rSea.rotation.copy(rSeaRotations[i]);
@@ -93,10 +102,10 @@ export class Starship {
     }
 
     public setupRVacs(): void {
-        let rVacPositions = MathHelper.getCircularPositions(StarshipConstants.NUM_R_VACS, StarshipConstants.R_VAC_RADIUS * StarshipConstants.STARSHIP_SCALE.x, this.options.rVacAngularOffset);
-        let rVacRotations = MathHelper.getCircularRotations(StarshipConstants.NUM_R_VACS, this.options.rVacAngularOffset);
+        let rVacPositions = MathHelper.getCircularPositions(this.options.numRVacs, this.options.rVacRadius * StarshipConstants.STARSHIP_SCALE.x, this.options.rVacAngularOffset);
+        let rVacRotations = MathHelper.getCircularRotations(this.options.numRVacs, this.options.rVacAngularOffset);
 
-        for (let i = 0; i < StarshipConstants.NUM_R_VACS; i++) {
+        for (let i = 0; i < this.options.numRVacs; i++) {
             let rVac = new Object3D();
             rVac.position.copy(rVacPositions[i].clone().add(new Vector3(0, StarshipConstants.R_VAC_HEIGHT * StarshipConstants.STARSHIP_SCALE.y, 0)));
             rVac.rotation.copy(rVacRotations[i]);
@@ -108,14 +117,22 @@ export class Starship {
 
     public setupSingle(): void {
         if (this.nosecone != null && this.shipRing != null && this.forwardL != null && this.forwardR != null && this.aftL != null && this.aftR != null) {
+            this.nosecone.userData.aabb = null;
+            this.shipRing.userData.aabb = null;
+            this.forwardL.userData.aabb = null;
+            this.forwardR.userData.aabb = null;
+            this.aftL.userData.aabb = null;
+            this.aftR.userData.aabb = null;
+            this.thrustPuck.userData.aabb = null;
+
             this.nosecone.scale.copy(StarshipConstants.NOSECONE_SCALE.clone().multiply(StarshipConstants.STARSHIP_SCALE));
-            this.shipRing.scale.copy(StarshipConstants.SHIP_RING_SCALE.clone().multiply(StarshipConstants.STARSHIP_SCALE));
-            this.forwardL.scale.copy(StarshipConstants.FORWARD_L_SCALE.clone().multiply(StarshipConstants.STARSHIP_SCALE));
+            this.shipRing.scale.copy(StarshipConstants.SHIP_RING_SCALE.clone().multiply(StarshipConstants.STARSHIP_SCALE).multiply(new Vector3(1, this.options.bodyHeightScale, 1)));
+            this.forwardL.scale.copy(StarshipConstants.FORWARD_L_SCALE.clone().multiply(StarshipConstants.STARSHIP_SCALE).multiply(new Vector3(1, this.options.forwardLHeightScale, this.options.forwardLWidthScale)));
             this.forwardL.rotation.copy(StarshipConstants.FORWARD_L_ROTATION);
-            this.forwardR.scale.copy(StarshipConstants.FORWARD_R_SCALE.clone().multiply(StarshipConstants.STARSHIP_SCALE));
+            this.forwardR.scale.copy(StarshipConstants.FORWARD_R_SCALE.clone().multiply(StarshipConstants.STARSHIP_SCALE).multiply(new Vector3(1, this.options.forwardRHeightScale, this.options.forwardRWidthScale)));
             this.forwardR.rotation.copy(StarshipConstants.FORWARD_R_ROTATION);
-            this.aftL.scale.copy(StarshipConstants.AFT_L_SCALE.clone().multiply(StarshipConstants.STARSHIP_SCALE));
-            this.aftR.scale.copy(StarshipConstants.AFT_R_SCALE.clone().multiply(StarshipConstants.STARSHIP_SCALE));
+            this.aftL.scale.copy(StarshipConstants.AFT_L_SCALE.clone().multiply(StarshipConstants.STARSHIP_SCALE).multiply(new Vector3(1, this.options.aftLHeightScale, this.options.aftLWidthScale)));
+            this.aftR.scale.copy(StarshipConstants.AFT_R_SCALE.clone().multiply(StarshipConstants.STARSHIP_SCALE).multiply(new Vector3(1, this.options.aftRHeightScale, this.options.aftRWidthScale)));
             this.thrustPuck.scale.copy(StarshipConstants.THRUST_PUCK_SCALE.clone().multiply(StarshipConstants.STARSHIP_SCALE));
             this.thrustPuck.position.copy(this.shipRing.position.clone().add(new Vector3(0, StarshipConstants.THRUST_PUCK_HEIGHT * StarshipConstants.STARSHIP_SCALE.y, 0)));
             this.hasSetupSingle = true;

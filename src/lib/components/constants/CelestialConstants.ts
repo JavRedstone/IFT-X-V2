@@ -6,6 +6,7 @@ export class CelestialConstants {
     public static readonly SUN_INTENSITY: number = 3;
 
     public static readonly EARTH_RADIUS: number = 360;
+    public static readonly EARTH_EFFECTIVE_RADIUS: number = CelestialConstants.EARTH_RADIUS * 0.999966;
     public static readonly EARTH_VIEW_RADIUS: number = CelestialConstants.EARTH_RADIUS * 1.1;
     public static readonly CLOUDS_RADIUS: number = CelestialConstants.EARTH_RADIUS * 1.0025;
     public static readonly ATMOSPHERE_RADIUS: number = CelestialConstants.EARTH_RADIUS * 1.075;

@@ -1,16 +1,16 @@
 import { type ThrelteContext } from "@threlte/core";
-import { OrbitControls } from "@threlte/extras";
 import { Euler, Group, PerspectiveCamera, Quaternion, Vector3 } from "three";
 import { OLIT } from "../objects/OLIT";
 import { Starship } from "../objects/Starship";
 import { SuperHeavy } from "../objects/SuperHeavy";
 import { ObjectHelper } from "../helpers/ObjectHelper";
-import { OLIT_CONSTANTS } from "../constants/objects/OLITConstants";
+import { OLITConstants } from "../constants/objects/OLITConstants";
 import { CameraConstants } from "../constants/CameraConstants";
 import { CelestialConstants } from "../constants/CelestialConstants";
 import { MathHelper } from "../helpers/MathHelper";
 import { PRTransients } from "../constants/transients/PRTransients";
 import { SuperHeavyConstants } from "../constants/objects/SuperHeavyConstants";
+import { starshipSettings, superHeavySettings } from "../ui-stores/ui-store";
 
 export class LaunchManager {
     public tc: ThrelteContext;
@@ -44,6 +44,28 @@ export class LaunchManager {
         this.OLIT = new OLIT();
         this.starship = new Starship();
         this.superHeavy = new SuperHeavy();
+
+        this.setupUpdator();
+    }
+
+    public setupUpdator(): void {
+        starshipSettings.subscribe((value) => {
+            // this.updateAABBs();
+        });
+        superHeavySettings.subscribe((value) => {
+            // this.updateAABBs();
+        });
+    }
+
+    public updateAABBs(): void {
+        if (this.group != null && this.starship.group != null && this.superHeavy.group != null && this.OLIT.group != null &&
+            this.group.userData.aabb != null && this.starship.group.userData.aabb != null && this.superHeavy.group.userData.aabb != null && this.OLIT.group.userData.aabb != null &&
+            this.group.userData.aabb.getSize(new Vector3).length() != 0 && this.starship.group.userData.aabb.getSize(new Vector3).length() != 0 && this.superHeavy.group.userData.aabb.getSize(new Vector3).length() != 0 && this.OLIT.group.userData.aabb.getSize(new Vector3).length() != 0) {
+            this.starship.group.userData.aabb = ObjectHelper.getAabb(this.starship.group);
+            this.superHeavy.group.userData.aabb = ObjectHelper.getAabb(this.superHeavy.group);
+            this.OLIT.group.userData.aabb = ObjectHelper.getAabb(this.OLIT.group);
+            console.log(this.starship.group.userData.aabb.getSize(new Vector3).y, this.superHeavy.group.userData.aabb.getSize(new Vector3).y, this.OLIT.group.userData.aabb.getSize(new Vector3).y);
+        }
     }
 
     public updateRealObjects(delta: number): void {
@@ -59,18 +81,23 @@ export class LaunchManager {
                 this.superHeavy.group.userData.aabb = ObjectHelper.getAabb(this.superHeavy.group);
                 this.OLIT.group.userData.aabb = ObjectHelper.getAabb(this.OLIT.group);
 
+                
+            console.log(this.starship.group.userData.aabb.getSize(new Vector3).y, this.superHeavy.group.userData.aabb.getSize(new Vector3).y, this.OLIT.group.userData.aabb.getSize(new Vector3).y);
+
                 this.tc.scene.add(this.group);
             }
             else if (this.starship.hasUpdatedObb && this.superHeavy.hasUpdatedObb && this.OLIT.hasUpdatedObb) {
                 if (!this.hasLaunched) {
-                    this.superHeavy.group.position.copy(this.OLIT.group.position.clone().add(this.OLIT.olm.position.clone().add(new Vector3(0, this.OLIT.olm.userData.aabb.getSize(new Vector3).y - OLIT_CONSTANTS.OLM_RING_HEIGHT * OLIT_CONSTANTS.OLM_SCALE.y * OLIT_CONSTANTS.OLIT_SCALE.y, 0))));
-                    this.starship.group.position.copy(this.superHeavy.group.position.clone().add(new Vector3(0, this.superHeavy.boosterRing.userData.aabb.getSize(new Vector3).y + this.superHeavy.hsr.userData.aabb.getSize(new Vector3).y - SuperHeavyConstants.HSR_OFFSET * SuperHeavyConstants.SUPER_HEAVY_SCALE.y, 0)));
-                    this.superHeavy.group.rotation.copy(OLIT_CONSTANTS.STARSHIP_ROTATION);
-                    this.starship.group.rotation.copy(OLIT_CONSTANTS.STARSHIP_ROTATION);
-                    
+                    this.superHeavy.group.position.copy(this.OLIT.group.position.clone().add(this.OLIT.olm.position.clone().add(new Vector3(0, this.OLIT.olm.userData.aabb.getSize(new Vector3).y - OLITConstants.OLM_RING_HEIGHT * OLITConstants.OLM_SCALE.y * OLITConstants.OLIT_SCALE.y, 0))));
+                    this.starship.group.position.copy(this.superHeavy.group.position.clone().add(new Vector3(0, this.superHeavy.boosterRing.userData.aabb.getSize(new Vector3).y + this.superHeavy.hsr.userData.aabb.getSize(new Vector3).y - this.superHeavy.hsr.userData.aabb.getSize(new Vector3).y * SuperHeavyConstants.HSR_OFFSET, 0)));
+                    this.superHeavy.group.rotation.copy(OLITConstants.STARSHIP_ROTATION);
+                    this.starship.group.rotation.copy(OLITConstants.STARSHIP_ROTATION);
+                    // this.OLIT.body.scale.y = (this.starship.group.userData.aabb.getSize(new Vector3).y + this.superHeavy.group.userData.aabb.getSize(new Vector3).y) / (OLITConstants.BODY_SCALE.y * OLITConstants.BODY_MULTIPLIER);
+                    // this.OLIT.hasSetupSingle = false;
+
                     if (!this.hasSetInitialPosition) {
                         let rotation: Euler = new Euler(153.875 * Math.PI / 180, 96.65 * Math.PI / 180, 0);
-                        PRTransients.realPositions.groupPosition = new Vector3(1, 0, 0).applyEuler(rotation).multiplyScalar(CelestialConstants.EARTH_RADIUS);
+                        PRTransients.realPositions.groupPosition = new Vector3(1, 0, 0).applyEuler(rotation).multiplyScalar(CelestialConstants.EARTH_EFFECTIVE_RADIUS);
                         this.hasSetInitialPosition = true;
                     }
                     let diffAxis: Vector3 = PRTransients.realPositions.groupPosition.clone().sub(new Vector3(0, PRTransients.realPositions.groupPosition.y, 0));
@@ -90,6 +117,7 @@ export class LaunchManager {
             this.starship.group.userData.aabb.getSize(new Vector3).length() != 0 && this.superHeavy.group.userData.aabb.getSize(new Vector3).length() != 0) {
                 if (this.isCameraOnStarship) {
                     PRTransients.realPositions.orbitControlsPosition = PRTransients.realPositions.groupPosition.clone().add(this.starship.group.position.clone().add(this.starship.group.userData.aabb.getCenter(new Vector3)).applyEuler(PRTransients.realRotations.groupRotation));
+                    console.log(PRTransients.realPositions.orbitControlsPosition)
                     if (!this.isRealCameraInitialized) {
                         PRTransients.realPositions.cameraPosition = PRTransients.realPositions.groupPosition.clone().add(this.starship.group.position.clone().add(this.starship.group.userData.aabb.getCenter(new Vector3).add(new Vector3(0, 0, CameraConstants.CAMERA_DEFAULT))).applyEuler(PRTransients.realRotations.groupRotation));
                         this.isRealCameraInitialized = true;

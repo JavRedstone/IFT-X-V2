@@ -4,12 +4,12 @@ export class StarshipConstants {
     public static readonly STARSHIP_SCALE: Vector3 = new Vector3(0.001, 0.001, 0.001);
     // public static readonly STARSHIP_SCALE: Vector3 = new Vector3(1, 1, 1);
     
-    public static readonly NOSECONE_SCALE: Vector3 = new Vector3(1, 0.8, 1);
-    public static readonly SHIP_RING_SCALE: Vector3 = new Vector3(1, 4/5*50/4.5, 1);
+    public static readonly NOSECONE_SCALE: Vector3 = new Vector3(1, 0.9, 1);
+    public static readonly SHIP_RING_SCALE: Vector3 = new Vector3(1, 8.5, 1);
     
-    public static readonly FORWARD_L_SCALE: Vector3 = new Vector3(0.033610, 0.033610, 0.033610);
+    public static readonly FORWARD_L_SCALE: Vector3 = new Vector3(0.033610, 0.05, 0.033610);
     public static readonly FORWARD_L_ROTATION: Euler = new Euler(12.8405*Math.PI/180, 0, 0);
-    public static readonly FORWARD_R_SCALE: Vector3 = new Vector3(0.033610, 0.033610, 0.033610);
+    public static readonly FORWARD_R_SCALE: Vector3 = new Vector3(0.033610, 0.05, 0.033610);
     public static readonly FORWARD_R_ROTATION: Euler = new Euler(-12.8405*Math.PI/180, 0, 0);
     public static readonly AFT_L_SCALE: Vector3 = new Vector3(0.033610, 0.06, 0.033610);
     public static readonly AFT_R_SCALE: Vector3 = new Vector3(0.033610, 0.06, 0.033610);
