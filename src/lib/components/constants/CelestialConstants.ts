@@ -11,7 +11,7 @@ export class CelestialConstants {
     public static readonly CLOUDS_RADIUS: number = CelestialConstants.EARTH_RADIUS * 1.0025;
     public static readonly ATMOSPHERE_RADIUS: number = CelestialConstants.EARTH_RADIUS * 1.075;
     public static readonly EARTH_ROTATION_SPEED: number = 0.0001;
-    public static readonly CLOUDS_ROTATION_SPEED: number = CelestialConstants.EARTH_ROTATION_SPEED * 2;
+    public static readonly CLOUDS_ROTATION_SPEED: number = CelestialConstants.EARTH_ROTATION_SPEED * 100;
 
     public static readonly EARTH_VERTICES: number = 360;
     public static readonly EARTH_BUMP_SCALE: number = 0.03;

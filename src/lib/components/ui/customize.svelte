@@ -44,28 +44,29 @@
         rVacAngularOffsetDegrees: 0,
     };
     let validatedStarship: any = {
-        bodyHeightScale: false,
+        bodyHeightScale: true,
 
-        forwardLHeightScale: false,
-        forwardLWidthScale: false,
-        forwardRHeightScale: false,
-        forwardRWidthScale: false,
-        aftLHeightScale: false,
-        aftLWidthScale: false,
-        aftRHeightScale: false,
-        aftRWidthScale: false,
+        forwardLHeightScale: true,
+        forwardLWidthScale: true,
+        forwardRHeightScale: true,
+        forwardRWidthScale: true,
+        aftLHeightScale: true,
+        aftLWidthScale: true,
+        aftRHeightScale: true,
+        aftRWidthScale: true,
 
-        rSeaRadius: false,
-        numRSeas: false,
-        rSeaAngularOffset: false,
-        rSeaAngularOffsetDegrees: false,
+        rSeaRadius: true,
+        numRSeas: true,
+        rSeaAngularOffset: true,
+        rSeaAngularOffsetDegrees: true,
 
-        rVacRadius: false,
-        numRVacs: false,
-        rVacAngularOffset: false,
-        rVacAngularOffsetDegrees: false,
+        rVacRadius: true,
+        numRVacs: true,
+        rVacAngularOffset: true,
+        rVacAngularOffsetDegrees: true,
     }
     let superHeavyOptions: any = {
+        hsrHeightScale: 1,
         bodyHeightScale: 1,
 
         numGridFins: 0,
@@ -95,33 +96,34 @@
         rSeaAngularOffset3Degrees: 0,
     };
     let validatedSuperHeavy: any = {
-        bodyHeightScale: false,
+        hsrHeightScale: true,
+        bodyHeightScale: true,
 
-        numGridFins: false,
-        gridFinLengthScale: false,
-        gridFinWidthScale: false,
-        gridFinAngularOffset: false,
-        gridFinAngularOffsetDegrees: false,
+        numGridFins: true,
+        gridFinLengthScale: true,
+        gridFinWidthScale: true,
+        gridFinAngularOffset: true,
+        gridFinAngularOffsetDegrees: true,
 
-        numChines: false,
-        chineHeightScale: false,
-        chineAngularOffset: false,
-        chineAngularOffsetDegrees: false,
+        numChines: true,
+        chineHeightScale: true,
+        chineAngularOffset: true,
+        chineAngularOffsetDegrees: true,
 
-        numRSeas1: false,
-        rSeaRadius1: false,
-        rSeaAngularOffset1: false,
-        rSeaAngularOffset1Degrees: false,
+        numRSeas1: true,
+        rSeaRadius1: true,
+        rSeaAngularOffset1: true,
+        rSeaAngularOffset1Degrees: true,
 
-        numRSeas2: false,
-        rSeaRadius2: false,
-        rSeaAngularOffset2: false,
-        rSeaAngularOffset2Degrees: false,
+        numRSeas2: true,
+        rSeaRadius2: true,
+        rSeaAngularOffset2: true,
+        rSeaAngularOffset2Degrees: true,
 
-        numRSeas3: false,
-        rSeaRadius3: false,
-        rSeaAngularOffset3: false,
-        rSeaAngularOffset3Degrees: false,
+        numRSeas3: true,
+        rSeaRadius3: true,
+        rSeaAngularOffset3: true,
+        rSeaAngularOffset3Degrees: true,
     }
 
     function setupUpdator() {
@@ -166,6 +168,7 @@
             superHeavyOptions.rSeaAngularOffset2Degrees = value.rSeaAngularOffset2 * 180 / Math.PI;
             superHeavyOptions.rSeaAngularOffset3Degrees = value.rSeaAngularOffset3 * 180 / Math.PI;
 
+            superHeavyOptions.hsrHeightScale = value.hsrHeightScale;
             superHeavyOptions.bodyHeightScale = value.bodyHeightScale;
             superHeavyOptions.chineHeightScale = value.chineHeightScale;
             superHeavyOptions.numChines = value.numChines;
@@ -190,8 +193,11 @@
     function createRaptors() {
         starshipRaptors = [];
         superHeavyRaptors = [];
-        createStarshipRaptors();
-        createSuperHeavyRaptors();
+        setTimeout(() => {
+            createStarshipRaptors();
+            createSuperHeavyRaptors();
+            // to make html catch up so the animation doesn't break
+        }, 0);
     }
 
     function createStarshipRaptors() {
@@ -234,6 +240,7 @@
         str = str.replace('Aft R', 'Aft Right Flap');
         str = str.replace('Forward L', 'Forward Left Flap');
         str = str.replace('Forward R', 'Forward Right Flap');
+        str = str.replace('Hsr', 'Hot Staging Ring');
         return str;
     }
 
@@ -315,6 +322,7 @@
                 value.rSeaAngularOffset2 = superHeavyOptions.rSeaAngularOffset2Degrees * Math.PI / 180;
                 value.rSeaAngularOffset3 = superHeavyOptions.rSeaAngularOffset3Degrees * Math.PI / 180;
 
+                value.hsrHeightScale = superHeavyOptions.hsrHeightScale;
                 value.bodyHeightScale = superHeavyOptions.bodyHeightScale;
                 value.chineHeightScale = superHeavyOptions.chineHeightScale;
                 value.numChines = superHeavyOptions.numChines;
@@ -339,6 +347,7 @@
 
     function resetSuperHeavy(): void {
         superHeavyOptions = {
+            hsrHeightScale: 1,
             bodyHeightScale: 1,
 
             numGridFins: SuperHeavyConstants.NUM_GRID_FINS,
@@ -370,26 +379,70 @@
         validateSuperHeavy();
     }
 
+    let hasLeftBar: boolean = true;
+    let hasRightBar: boolean = true;
+
+    function hideShowLeftBar() {
+        hasLeftBar = !hasLeftBar;
+    }
+
+    function hideShowRightBar() {
+        hasRightBar = !hasRightBar;
+    }
+
     onMount(() => {
         setupUpdator();
     });
 </script>
 <style>
+    @keyframes increaseOpacity {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+
+    @keyframes slideInLeft {
+        from {
+            left: -50px;
+        }
+        to {
+            left: 16px;
+        }
+    }
+
+    @keyframes grow {
+        from {
+            width: 0;
+            height: 0;
+        }
+        to {
+            width: 100%;
+            height: 100%;
+        }
+    }
+
     .customize-container {
         position: fixed;
         top: 0;
         height: 100vh;
         background-color: rgba(0, 0, 0, 0.5);
+
+        animation: increaseOpacity 0.5s;
     }
 
     .customize-image {
         position: absolute;
         object-fit: contain;
+        height: calc(100vh - 128px);
         max-width: 50px;
-        height: calc(100vh - 32px);
         left: 16px;
-        top: 16px;
+        top: 64px;
         user-select: none;
+
+        animation: slideInLeft 0.5s, increaseOpacity 2s;
     }
     
     .customize-options {
@@ -443,7 +496,9 @@
     .customize-raptor {
         position: absolute;
         border: solid white;
-        border-radius: 100%;;
+        border-radius: 100%;
+
+        animation: increaseOpacity 4s;
     }
 
     .customize-raptor-throttle {
@@ -453,13 +508,15 @@
         transform: translate(-50%, -50%);
         border-radius: 100%;
         background-color: white;
+
+        animation: grow 2s infinite alternate;
     }
     
     .customize-banner {
         position: fixed;
         top: 0;
-        left: 390px;
-        width: calc(100vw - 722px);
+        /* left: 390px;
+        width: calc(100vw - 722px); */
         height: 32px;
         background-color: rgba(0, 0, 0, 0.5);
         user-select: none;
@@ -467,18 +524,15 @@
 
     .customize-action {
         position: absolute;
-        top: 0;
-        width: 50%;
-        height: 100%;
         border: none;
-        border-left: 1px solid white;
-        border-right: 1px solid white;
         outline: none;
         background-color: rgba(255, 255, 255, 0.5);
         font-size: 16px;
         color: white;
         font-family: "M PLUS Code Latin", monospace;
+
         transition: background-color 0.2s, color 0.2s;
+        animation: increaseOpacity 0.5s;
 
         &:hover {
             background-color: rgba(255, 255, 255, 0.75);
@@ -488,66 +542,78 @@
     }
 </style>
 
-<div class="customize-container" style="width: 390px; left: 0px;">
-    <img class="customize-image" src={s25b9} alt="booster">
-    <div class="customize-title" style="right:166px; top:16px;">Customize Starship</div>
-    <div class="customize-options" style="right:166px; top: 56px; height: calc(100vh - 72px);">
-        {#each Object.keys(starshipOptions) as option}
-            {#if !(option.includes("AngularOffset") && !option.includes("Degrees")) && !convertToCustomize(option).includes('Raptor')}
-                <div class="customize-option">
-                    <div class="customize-option-title">{convertToCustomize(option)}</div>
-                    <input class="customize-option-input" type="number" bind:value={starshipOptions[option]}>
-                </div>
-            {/if}
-        {/each}
-    </div>
-    <div class="customize-title" style="right:16px; top:16px;">Customize Superheavy</div>
-    <div class="customize-options" style="right:16px; top: 56px; height: calc(100vh - 72px);">
-        {#each Object.keys(superHeavyOptions) as option}
-            {#if !(option.includes("AngularOffset") && !option.includes("Degrees")) && !convertToCustomize(option).includes('Raptor')}
-                <div class="customize-option">
-                    <div class="customize-option-title">{convertToCustomize(option)}</div>
-                    <input class="customize-option-input" type="number" bind:value={superHeavyOptions[option]}>
-                </div>
-            {/if}
-        {/each}
-    </div>
-</div>
-<div class="customize-container" style="width: 332px; right: 0px;">
-    {#each starshipRaptors as raptor}
-        <div class="customize-raptor" style="border-width: {border}px; width: {raptor.isSea ? rSeaRadius*2 : rVacRadius*2}px; height: {raptor.isSea ? rSeaRadius*2 : rVacRadius*2}px; right: {raptor.position.x + posOffset + 152}px; top: {raptor.position.y + posOffset}px;">
-            <div class="customize-raptor-throttle" style="width: {raptor.isSea ? raptor.throttle * rSeaRealRadius * 2 : raptor.throttle * rVacRealRadius * 2}px; height: {raptor.isSea ? raptor.throttle * rSeaRealRadius * 2 : raptor.throttle * rVacRealRadius * 2}px"></div>
+{#if hasLeftBar}
+    <div class="customize-container" style="width: 390px; left: 0px;">
+        <img class="customize-image" src={s25b9} alt="booster">
+        <div class="customize-title" style="right:166px; top:16px;">Customize Starship</div>
+        <div class="customize-options" style="right:166px; top: 56px; height: calc(100vh - 88px);">
+            {#each Object.keys(starshipOptions) as option}
+                {#if !(option.includes("AngularOffset") && !option.includes("Degrees")) && !convertToCustomize(option).includes('Raptor')}
+                    <div class="customize-option">
+                        <div class="customize-option-title">{convertToCustomize(option)}</div>
+                        <input class="customize-option-input" type="number" bind:value={starshipOptions[option]}>
+                    </div>
+                {/if}
+            {/each}
         </div>
-    {/each}
-    {#each superHeavyRaptors as raptor}
-        <div class="customize-raptor" style="border-width: {border}px; width: {raptor.isSea ? rSeaRadius*2 : rVacRadius*2}px; height: {raptor.isSea ? rSeaRadius*2 : rVacRadius*2}px; right: {raptor.position.x + posOffset}px; top: {raptor.position.y + posOffset}px;">
-            <div class="customize-raptor-throttle" style="width: {raptor.isSea ? raptor.throttle * rSeaRealRadius * 2 : raptor.throttle * rVacRealRadius * 2}px; height: {raptor.isSea ? raptor.throttle * rSeaRealRadius * 2 : raptor.throttle * rVacRealRadius * 2}px"></div>
+        <div class="customize-title" style="right:16px; top:16px;">Customize Superheavy</div>
+        <div class="customize-options" style="right:16px; top: 56px; height: calc(100vh - 88px);">
+            {#each Object.keys(superHeavyOptions) as option}
+                {#if !(option.includes("AngularOffset") && !option.includes("Degrees")) && !convertToCustomize(option).includes('Raptor')}
+                    <div class="customize-option">
+                        <div class="customize-option-title">{convertToCustomize(option)}</div>
+                        <input class="customize-option-input" type="number" bind:value={superHeavyOptions[option]}>
+                    </div>
+                {/if}
+            {/each}
         </div>
-    {/each}
-    <div class="customize-title" style="right:166px; top:170px;">Customize Starship</div>
-    <div class="customize-options" style="right:166px; top: 220px; height: calc(100vh - 236px);">
-        {#each Object.keys(starshipOptions) as option}
-            {#if !(option.includes("AngularOffset") && !option.includes("Degrees")) && convertToCustomize(option).includes('Raptor')}
-                <div class="customize-option">
-                    <div class="customize-option-title">{convertToCustomize(option)}</div>
-                    <input class="customize-option-input" type="number" bind:value={starshipOptions[option]}>
-                </div>
-            {/if}
-        {/each}
+        <button class="customize-action" style="left: 0; bottom: 0; width: 100%; height: 24px;" on:click={hideShowLeftBar}>Hide Left</button>
     </div>
-    <div class="customize-title" style="right:16px; top:170px;">Customize Superheavy</div>
-    <div class="customize-options" style="right:16px; top: 220px; height: calc(100vh - 236px);">
-        {#each Object.keys(superHeavyOptions) as option}
-            {#if !(option.includes("AngularOffset") && !option.includes("Degrees")) && convertToCustomize(option).includes('Raptor')}
-                <div class="customize-option">
-                    <div class="customize-option-title">{convertToCustomize(option)}</div>
-                    <input class="customize-option-input" type="number" bind:value={superHeavyOptions[option]}>
-                </div>
-            {/if}
+{/if}
+{#if hasRightBar}
+    <div class="customize-container" style="width: 332px; right: 0px;">
+        {#each starshipRaptors as raptor}
+            <div class="customize-raptor" style="border-width: {border}px; width: {raptor.isSea ? rSeaRadius*2 : rVacRadius*2}px; height: {raptor.isSea ? rSeaRadius*2 : rVacRadius*2}px; right: {raptor.position.x + posOffset + 152}px; top: {raptor.position.y + posOffset}px;">
+                <div class="customize-raptor-throttle" style="width: {raptor.isSea ? raptor.throttle * rSeaRealRadius * 2 : raptor.throttle * rVacRealRadius * 2}px; height: {raptor.isSea ? raptor.throttle * rSeaRealRadius * 2 : raptor.throttle * rVacRealRadius * 2}px"></div>
+            </div>
         {/each}
+        {#each superHeavyRaptors as raptor}
+            <div class="customize-raptor" style="border-width: {border}px; width: {raptor.isSea ? rSeaRadius*2 : rVacRadius*2}px; height: {raptor.isSea ? rSeaRadius*2 : rVacRadius*2}px; right: {raptor.position.x + posOffset}px; top: {raptor.position.y + posOffset}px;">
+                <div class="customize-raptor-throttle" style="width: {raptor.isSea ? raptor.throttle * rSeaRealRadius * 2 : raptor.throttle * rVacRealRadius * 2}px; height: {raptor.isSea ? raptor.throttle * rSeaRealRadius * 2 : raptor.throttle * rVacRealRadius * 2}px"></div>
+            </div>
+        {/each}
+        <div class="customize-title" style="right:166px; top:170px;">Customize Starship</div>
+        <div class="customize-options" style="right:166px; top: 220px; height: calc(100vh - 252px);">
+            {#each Object.keys(starshipOptions) as option}
+                {#if !(option.includes("AngularOffset") && !option.includes("Degrees")) && convertToCustomize(option).includes('Raptor')}
+                    <div class="customize-option">
+                        <div class="customize-option-title">{convertToCustomize(option)}</div>
+                        <input class="customize-option-input" type="number" bind:value={starshipOptions[option]}>
+                    </div>
+                {/if}
+            {/each}
+        </div>
+        <div class="customize-title" style="right:16px; top:170px;">Customize Superheavy</div>
+        <div class="customize-options" style="right:16px; top: 220px; height: calc(100vh - 252px);">
+            {#each Object.keys(superHeavyOptions) as option}
+                {#if !(option.includes("AngularOffset") && !option.includes("Degrees")) && convertToCustomize(option).includes('Raptor')}
+                    <div class="customize-option">
+                        <div class="customize-option-title">{convertToCustomize(option)}</div>
+                        <input class="customize-option-input" type="number" bind:value={superHeavyOptions[option]}>
+                    </div>
+                {/if}
+            {/each}
+        </div>
+        <button class="customize-action" style="right: 0; bottom: 0; width: 100%; height: 24px;" on:click={hideShowRightBar}>Hide Right</button>
     </div>
-</div>
-<div class="customize-banner">    
-    <button class="customize-action" style="left:0" on:click={validate}>Validate</button>
-    <button class="customize-action" style="left:50%" on:click={reset}>Reset</button>
+{/if}
+<div class="customize-banner" style={hasLeftBar ? hasRightBar ? "left: 390px; width: calc(100vw - 722px);" : "left: 390px; width: calc(100vw - 390px);" : hasRightBar ? "left: 0; width: calc(100vw - 332px);" : "left: 0; width: 100vw;"}>
+    {#if !hasLeftBar}
+        <button class="customize-action" style="left:0; top: 0; width: 20%; height: 100%; border-right: 1px solid white;" on:click={hideShowLeftBar}>Show Left</button>
+    {/if}
+    {#if !hasRightBar}
+        <button class="customize-action" style="right:0; top: 0; width: 20%; height: 100%; border-left: 1px solid white;" on:click={hideShowRightBar}>Show Right</button>
+    {/if}
+    <button class="customize-action" style="left:{hasLeftBar ? '0' : '20%'}; top: 0; width: {hasLeftBar && hasRightBar ? '50%' : !hasLeftBar && !hasRightBar ? '30%' : '40%'}; height: 100%; border-right: 1px solid white;" on:click={validate}>Validate</button>
+    <button class="customize-action" style="right:{hasRightBar ? '0' : '20%'}; top: 0; width: {hasLeftBar && hasRightBar ? '50%' : !hasLeftBar && !hasRightBar ? '30%' : '40%'}; height: 100%;" on:click={reset}>Reset</button>
 </div>

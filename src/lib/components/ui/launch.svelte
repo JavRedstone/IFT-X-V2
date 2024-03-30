@@ -166,6 +166,51 @@
     });
 </script>
 <style>
+    @keyframes increaseOpacity {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+
+    @keyframes slideUp {
+        from {
+            transform: translateY(100%);
+        }
+        to {
+            transform: translateY(0);
+        }
+    }
+    
+    @keyframes rightLeft {
+        0% {
+            width: 0;
+        }
+        50% {
+            width: 100%;
+        }
+        100% {
+            width: 0;
+        }
+    }
+
+    @keyframes inOut {
+        0% {
+            width: 0;
+            height: 0;
+        }
+        50% {
+            width: 100%;
+            height: 100%;
+        }
+        100% {
+            width: 0;
+            height: 0;
+        }
+    }
+
     .launch-container {
         position: fixed;
         bottom: 0;
@@ -173,12 +218,16 @@
         width: 100vw;
         height: 108px;
         background-color: rgba(0, 0, 0, 0.5);
+        
+        animation: slideUp 0.5s, increaseOpacity 1s;
     }
 
     .launch-raptor {
         position: absolute;
         border: solid white;
-        border-radius: 100%;;
+        border-radius: 100%;
+
+        animation: increaseOpacity 0.5s;
     }
 
     .launch-raptor-throttle {
@@ -188,6 +237,8 @@
         transform: translate(-50%, -50%);
         border-radius: 100%;
         background-color: white;
+
+        animation: inOut 5s;
     }
 
     .launch-bar-container {
@@ -204,7 +255,9 @@
         top: 0;
         height: 100%;
         border-radius: 4px;
-        background: linear-gradient(to right, rgba(255, 255, 255, 0.25), white)
+        background: linear-gradient(to right, rgba(255, 255, 255, 0.25), white);
+
+        animation: rightLeft 5s;
     }
 
     .launch-fuel {
@@ -230,6 +283,8 @@
         height: 80px;
         width: auto;
         top: 15px;
+
+        animation: slideUp 2s, increaseOpacity 1s;
     }
 
     .launch-line {

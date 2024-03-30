@@ -10,14 +10,14 @@ export class SuperHeavyConstants {
 
     public static readonly GRID_FIN_SCALE: Vector3 = new Vector3(0.082328, 0.082328, 0.082328);
     public static readonly GRID_FIN_RADIUS: number = 1;
-    public static readonly GRID_FIN_ROTATION: Euler = new Euler(90 * Math.PI/180, 0, 0);
+    public static readonly GRID_FIN_ROTATION: Euler = new Euler(90 * Math.PI/180, 0, -90 * Math.PI/180);
     public static readonly GRID_FIN_ANGULAR_OFFSET: number = 45 * Math.PI / 180;
     public static readonly GRID_FIN_TOP_OFFSET: number = 0.1;
     public static readonly NUM_GRID_FINS: number = 4;
 
     public static readonly CHINE_SCALE: Vector3 = new Vector3(1, 1, 1);
     public static readonly CHINE_RADIUS: number = 0.975;
-    public static readonly CHINE_ROTATION: Euler = new Euler(0, 90 * Math.PI/180, 0);
+    public static readonly CHINE_ROTATION: Euler = new Euler(0, 180 * Math.PI/180, 0);
     public static readonly CHINE_ANGULAR_OFFSET: number = 45 * Math.PI / 180;
     public static readonly CHINE_BOTTOM_OFFSET: number = 0.35;
     public static readonly NUM_CHINES: number = 4;
@@ -40,5 +40,6 @@ export class SuperHeavyConstants {
     public static readonly CAN_R_SEA_3_GIMBAL: boolean = false;
 
     public static readonly OUTER_CYLINDER_SCALE: Vector3 = new Vector3(0.125, 0.125, 0.125);
-    public static readonly OUTER_CYLINDER_RADIUS: number = 0.95;
+    public static readonly OUTER_CYLINDER_ADDITIONAL_RADIUS: number = 0.25;
+    public static readonly OUTER_CYLINDER_THRESHOLD: number = 0.9;
 }

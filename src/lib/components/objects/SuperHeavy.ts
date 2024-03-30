@@ -28,6 +28,7 @@ export class SuperHeavy {
         rSeaAngularOffset2: SuperHeavyConstants.R_SEA_ANGULAR_OFFSET_2,
         rSeaAngularOffset3: SuperHeavyConstants.R_SEA_ANGULAR_OFFSET_3,
 
+        hsrHeightScale: 1,
         bodyHeightScale: 1,
         chineHeightScale: 1,
         numChines: SuperHeavyConstants.NUM_CHINES,
@@ -68,6 +69,7 @@ export class SuperHeavy {
             this.options.rSeaAngularOffset2 = value.rSeaAngularOffset2;
             this.options.rSeaAngularOffset3 = value.rSeaAngularOffset3;
 
+            this.options.hsrHeightScale = value.hsrHeightScale;
             this.options.bodyHeightScale = value.bodyHeightScale;
             this.options.chineHeightScale = value.chineHeightScale;
             this.options.numChines = value.numChines;
@@ -90,13 +92,12 @@ export class SuperHeavy {
 
     public setupGridFins(): void {
         let gridFinPositions = MathHelper.getCircularPositions(this.options.numGridFins, SuperHeavyConstants.GRID_FIN_RADIUS * SuperHeavyConstants.SUPER_HEAVY_SCALE.x, this.options.gridFinAngularOffset);
-        let gridFinRotations = MathHelper.getCircularRotations(this.options.numGridFins, this.options.gridFinAngularOffset, true);
+        let gridFinRotations = MathHelper.getCircularRotations(this.options.numGridFins, this.options.gridFinAngularOffset);
 
         for (let i = 0; i < this.options.numGridFins; i++) {
             let gridFin = new Object3D();
             gridFin.position.copy(gridFinPositions[i]);
-            // gridFin.rotation.copy(new Euler(SuperHeavyConstants.GRID_FIN_ROTATION.x + gridFinRotations[i].x, gridFinRotations[i].z, -gridFinRotations[i].y));
-            gridFin.rotation.copy(new Euler().setFromQuaternion(new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), SuperHeavyConstants.GRID_FIN_ROTATION.x).multiply(new Quaternion().setFromAxisAngle(new Vector3(0, 0, 1), -gridFinRotations[i].y))));
+            gridFin.rotation.copy(new Euler().setFromQuaternion(new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), SuperHeavyConstants.GRID_FIN_ROTATION.x).multiply(new Quaternion().setFromAxisAngle(new Vector3(0, 0, 1), gridFinRotations[i].y + SuperHeavyConstants.GRID_FIN_ROTATION.z))));
             gridFin.scale.copy(SuperHeavyConstants.GRID_FIN_SCALE.clone().multiply(SuperHeavyConstants.SUPER_HEAVY_SCALE).multiply(new Vector3(this.options.gridFinWidthScale, this.options.gridFinLengthScale, 1)));
             this.gridFins = [...this.gridFins, gridFin];
         }
@@ -109,8 +110,7 @@ export class SuperHeavy {
         for (let i = 0; i < this.options.numChines; i++) {
             let chine = new Object3D();
             chine.position.copy(chinePositions[i].clone().add(new Vector3(0, SuperHeavyConstants.CHINE_BOTTOM_OFFSET * SuperHeavyConstants.SUPER_HEAVY_SCALE.y, 0)));
-            chineRotations[i] = new Euler(chineRotations[i].x, chineRotations[i].y + SuperHeavyConstants.CHINE_ROTATION.y, chineRotations[i].z);
-            chine.rotation.copy(chineRotations[i]);
+            chine.rotation.copy(new Euler(0, -chineRotations[i].y + SuperHeavyConstants.CHINE_ROTATION.y, 0));
             chine.scale.copy(SuperHeavyConstants.CHINE_SCALE.clone().multiply(SuperHeavyConstants.SUPER_HEAVY_SCALE).multiply(new Vector3(1, this.options.chineHeightScale, 1)));
             this.chines = [...this.chines, chine];
         }
@@ -152,15 +152,17 @@ export class SuperHeavy {
     }
 
     public setupOuterCylinders(): void {
-        let outerCylinderPositions = MathHelper.getCircularPositions(SuperHeavyConstants.NUM_R_SEAS_3, SuperHeavyConstants.OUTER_CYLINDER_RADIUS * SuperHeavyConstants.SUPER_HEAVY_SCALE.x, this.options.rSeaAngularOffset3);
-        let outerCylinderRotations = MathHelper.getCircularRotations(this.options.numRSeas3, this.options.rSeaAngularOffset3);
-        
-        for (let i = 0; i < SuperHeavyConstants.NUM_R_SEAS_3; i++) {
-            let outerCylinder = new Object3D();
-            outerCylinder.position.copy(outerCylinderPositions[i].clone().add(new Vector3(0, SuperHeavyConstants.R_SEA_HEIGHT_3 * SuperHeavyConstants.SUPER_HEAVY_SCALE.y, 0)));
-            outerCylinder.rotation.copy(outerCylinderRotations[i]);
-            outerCylinder.scale.copy(SuperHeavyConstants.OUTER_CYLINDER_SCALE.clone().multiply(SuperHeavyConstants.SUPER_HEAVY_SCALE));
-            this.outerCylinders = [...this.outerCylinders, outerCylinder];
+        if (this.options.rSeaRadius3 > SuperHeavyConstants.OUTER_CYLINDER_THRESHOLD) {
+            let outerCylinderPositions = MathHelper.getCircularPositions(this.options.numRSeas3, (this.options.rSeaRadius3 + SuperHeavyConstants.OUTER_CYLINDER_ADDITIONAL_RADIUS) * SuperHeavyConstants.SUPER_HEAVY_SCALE.x, this.options.rSeaAngularOffset3);
+            let outerCylinderRotations = MathHelper.getCircularRotations(this.options.numRSeas3, this.options.rSeaAngularOffset3);
+            
+            for (let i = 0; i < this.options.numRSeas3; i++) {
+                let outerCylinder = new Object3D();
+                outerCylinder.position.copy(outerCylinderPositions[i].clone().add(new Vector3(0, SuperHeavyConstants.R_SEA_HEIGHT_3 * SuperHeavyConstants.SUPER_HEAVY_SCALE.y, 0)));
+                outerCylinder.rotation.copy(outerCylinderRotations[i]);
+                outerCylinder.scale.copy(SuperHeavyConstants.OUTER_CYLINDER_SCALE.clone().multiply(SuperHeavyConstants.SUPER_HEAVY_SCALE));
+                this.outerCylinders = [...this.outerCylinders, outerCylinder];
+            }
         }
     }
 
@@ -170,7 +172,7 @@ export class SuperHeavy {
             this.boosterRing.userData.aabb = null;
             this.hasUpdatedAABB = false;
 
-            this.hsr.scale.copy(SuperHeavyConstants.HSR_SCALE.clone().multiply(SuperHeavyConstants.SUPER_HEAVY_SCALE));
+            this.hsr.scale.copy(SuperHeavyConstants.HSR_SCALE.clone().multiply(SuperHeavyConstants.SUPER_HEAVY_SCALE).multiply(new Vector3(1, this.options.hsrHeightScale, 1)));
             this.boosterRing.scale.copy(SuperHeavyConstants.BOOSTER_RING_SCALE.clone().multiply(SuperHeavyConstants.SUPER_HEAVY_SCALE).multiply(new Vector3(1, this.options.bodyHeightScale, 1)));
             this.hasSetupSingle = true;
         }

@@ -12,7 +12,7 @@ export const toggles = writable({
 export const starshipSettings = writable({
     rSeaAngularOffset: StarshipConstants.R_SEA_ANGULAR_OFFSET,
     rVacAngularOffset: StarshipConstants.R_VAC_ANGULAR_OFFSET,
-
+    
     bodyHeightScale: 1,
 
     forwardLHeightScale: 1,
@@ -39,6 +39,7 @@ export const superHeavySettings = writable({
     rSeaAngularOffset2: SuperHeavyConstants.R_SEA_ANGULAR_OFFSET_2,
     rSeaAngularOffset3: SuperHeavyConstants.R_SEA_ANGULAR_OFFSET_3,
 
+    hsrHeightScale: 1,
     bodyHeightScale: 1,
     chineHeightScale: 1,
     numChines: SuperHeavyConstants.NUM_CHINES,

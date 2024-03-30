@@ -108,9 +108,7 @@ export class LaunchManager {
                         PRTransients.realPositions.groupPosition = new Vector3(1, 0, 0).applyEuler(rotation).multiplyScalar(CelestialConstants.EARTH_EFFECTIVE_RADIUS);
                         this.hasSetInitialPosition = true;
                     }
-                    let diffAxis: Vector3 = PRTransients.realPositions.groupPosition.clone().sub(new Vector3(0, PRTransients.realPositions.groupPosition.y, 0));
-                    diffAxis.applyEuler(new Euler(0, CelestialConstants.EARTH_ROTATION_SPEED * delta, 0));
-                    PRTransients.realPositions.groupPosition.copy(new Vector3(0, PRTransients.realPositions.groupPosition.y, 0).add(diffAxis));
+                    PRTransients.realPositions.groupPosition.applyEuler(new Euler(0, 2 * CelestialConstants.EARTH_ROTATION_SPEED * delta, 0));
                     PRTransients.realRotations.groupRotation.copy(new Euler().setFromQuaternion(new Quaternion().setFromUnitVectors(new Vector3(0, 1, 0), PRTransients.realPositions.groupPosition.clone().normalize()).multiply(new Quaternion().setFromEuler(this.earthRot))));
                 }
             }
@@ -171,7 +169,6 @@ export class LaunchManager {
         }
         for (let key of Object.keys(PRTransients.realRotations)) {
             PRTransients.fakeRotations[key].setFromQuaternion(rot.clone().multiply(new Quaternion().setFromEuler(PRTransients.realRotations[key])));
-            // PRTransients.fakeRotations[key].setFromQuaternion(PRTransients.fakeRotations[key].clone().multiply(new Quaternion().setFromEuler(this.earthRot.clone())));
         }
     }
 
