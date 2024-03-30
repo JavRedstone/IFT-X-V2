@@ -20,7 +20,7 @@ export class Starship {
     public group: Group = null;
 
     public hasSetupSingle: boolean = false;
-    public hasUpdatedObb: boolean = false;
+    public hasUpdatedAABB: boolean = false;
 
     public options: any = {
         rSeaAngularOffset: StarshipConstants.R_SEA_ANGULAR_OFFSET,
@@ -124,6 +124,7 @@ export class Starship {
             this.aftL.userData.aabb = null;
             this.aftR.userData.aabb = null;
             this.thrustPuck.userData.aabb = null;
+            this.hasUpdatedAABB = false;
 
             this.nosecone.scale.copy(StarshipConstants.NOSECONE_SCALE.clone().multiply(StarshipConstants.STARSHIP_SCALE));
             this.shipRing.scale.copy(StarshipConstants.SHIP_RING_SCALE.clone().multiply(StarshipConstants.STARSHIP_SCALE).multiply(new Vector3(1, this.options.bodyHeightScale, 1)));
@@ -139,7 +140,7 @@ export class Starship {
         }    
     }
 
-    public updateObb(): void {
+    public updateAABB(): void {
         if (this.nosecone != null && this.shipRing != null && this.forwardL != null && this.forwardR != null && this.aftL != null && this.aftR != null && this.thrustPuck != null) {
             if (this.nosecone.userData.aabb == null || this.shipRing.userData.aabb == null || this.forwardL.userData.aabb == null || this.forwardR.userData.aabb == null || this.aftL.userData.aabb == null || this.aftR.userData.aabb == null || this.thrustPuck.userData.aabb == null ||
                 this.nosecone.userData.aabb.getSize(new Vector3).length() == 0 || this.shipRing.userData.aabb.getSize(new Vector3).length() == 0 || this.forwardL.userData.aabb.getSize(new Vector3).length() == 0 || this.forwardR.userData.aabb.getSize(new Vector3).length() == 0 || this.aftL.userData.aabb.getSize(new Vector3).length() == 0 || this.aftR.userData.aabb.getSize(new Vector3).length() == 0 || this.thrustPuck.userData.aabb.getSize(new Vector3).length() == 0) {
@@ -150,26 +151,17 @@ export class Starship {
                 this.aftL.userData.aabb = ObjectHelper.getAabb(this.aftL);
                 this.aftR.userData.aabb = ObjectHelper.getAabb(this.aftR);
                 this.thrustPuck.userData.aabb = ObjectHelper.getAabb(this.thrustPuck);
-            }            
-            // this.nosecone.userData.aabb.applyMatrix4(this.nosecone.matrixWorld);
-            // this.shipRing.userData.aabb.applyMatrix4(this.shipRing.matrixWorld);
-            // this.forwardL.userData.aabb.applyMatrix4(this.forwardL.matrixWorld);
-            // this.forwardR.userData.aabb.applyMatrix4(this.forwardR.matrixWorld);
-            // this.aftL.userData.aabb.applyMatrix4(this.aftL.matrixWorld);
-            // this.aftR.userData.aabb.applyMatrix4(this.aftR.matrixWorld);
-            // this.thrustPuck.userData.aabb.applyMatrix4(this.thrustPuck.matrixWorld);
+            }
         }
         for (let i = 0; i < this.rSeas.length; i++) {
             if (this.rSeas[i].userData.aabb == null || this.rSeas[i].userData.aabb.getSize(new Vector3).length() == 0) {
                 this.rSeas[i].userData.aabb = ObjectHelper.getAabb(this.rSeas[i]);
             }
-            // this.rSeas[i].userData.aabb.applyMatrix4(this.rSeas[i].matrixWorld);
         }
         for (let i = 0; i < this.rVacs.length; i++) {
             if (this.rVacs[i].userData.aabb == null || this.rVacs[i].userData.aabb.getSize(new Vector3).length() == 0) {
                 this.rVacs[i].userData.aabb = ObjectHelper.getAabb(this.rVacs[i]);
             }
-            // this.rVacs[i].userData.aabb.applyMatrix4(this.rVacs[i].matrixWorld);
         }
     }
 
@@ -180,7 +172,7 @@ export class Starship {
             this.forwardR.position.copy(this.shipRing.position.clone().add(new Vector3(0, this.shipRing.userData.aabb.getSize(new Vector3).y, StarshipConstants.STARSHIP_SCALE.z)));
             this.aftL.position.copy(this.shipRing.position.clone().add(new Vector3(0, 0, -StarshipConstants.STARSHIP_SCALE.z)));
             this.aftR.position.copy(this.shipRing.position.clone().add(new Vector3(0, 0, StarshipConstants.STARSHIP_SCALE.z)));
-            this.hasUpdatedObb = true;
+            this.hasUpdatedAABB = true;
         }
     }
 
@@ -189,7 +181,7 @@ export class Starship {
             this.setupSingle();
         }
         else {
-            this.updateObb();
+            this.updateAABB();
             this.updateObjects();
         }
     }

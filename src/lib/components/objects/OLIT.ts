@@ -19,7 +19,7 @@ export class OLIT {
     public group: Group = null;
 
     public hasSetupSingle: boolean = false;
-    public hasUpdatedObb: boolean = false;
+    public hasUpdatedAABB: boolean = false;
 
     constructor() {
     }
@@ -34,7 +34,7 @@ export class OLIT {
             this.qd.userData.aabb = null;
             this.carriageQd.userData.aabb = null;
             this.olm.userData.aabb = null;
-            this.hasUpdatedObb = false;
+            this.hasUpdatedAABB = false;
             
             this.top.scale.copy(OLITConstants.TOP_SCALE.clone().multiply(OLITConstants.OLIT_SCALE));
             this.body.scale.x = OLITConstants.BODY_SCALE.x * OLITConstants.OLIT_SCALE.x;
@@ -55,7 +55,7 @@ export class OLIT {
         }
     }
 
-    public updateObb(): void {
+    public updateAABB(): void {
         if (this.top != null && this.body != null && this.arm1 != null && this.arm2 != null && this.carriageArms != null && this.qd != null && this.carriageQd != null && this.olm != null) {
             if (this.top.userData.aabb == null || this.body.userData.aabb == null || this.arm1.userData.aabb == null || this.arm2.userData.aabb == null || this.carriageArms.userData.aabb == null || this.qd.userData.aabb == null || this.carriageQd.userData.aabb == null || this.olm.userData.aabb == null ||
                 this.top.userData.aabb.getSize(new Vector3).length() == 0 || this.body.userData.aabb.getSize(new Vector3).length() == 0 || this.arm1.userData.aabb.getSize(new Vector3).length() == 0 || this.arm2.userData.aabb.getSize(new Vector3).length() == 0 || this.carriageArms.userData.aabb.getSize(new Vector3).length() == 0 || this.qd.userData.aabb.getSize(new Vector3).length() == 0 || this.carriageQd.userData.aabb.getSize(new Vector3).length() == 0 || this.olm.userData.aabb.getSize(new Vector3).length() == 0) {
@@ -67,16 +67,7 @@ export class OLIT {
                 this.qd.userData.aabb = ObjectHelper.getAabb(this.qd);
                 this.carriageQd.userData.aabb = ObjectHelper.getAabb(this.carriageQd);
                 this.olm.userData.aabb = ObjectHelper.getAabb(this.olm);
-                this.hasUpdatedObb = true;
             }
-            // this.top.userData.aabb.applyMatrix4(this.top.matrixWorld);
-            // this.body.userData.aabb.applyMatrix4(this.body.matrixWorld);
-            // this.arm1.userData.aabb.applyMatrix4(this.arm1.matrixWorld);
-            // this.arm2.userData.aabb.applyMatrix4(this.arm2.matrixWorld);
-            // this.carriageArms.userData.aabb.applyMatrix4(this.carriageArms.matrixWorld);
-            // this.qd.userData.aabb.applyMatrix4(this.qd.matrixWorld);
-            // this.carriageQd.userData.aabb.applyMatrix4(this.carriageQd.matrixWorld);
-            // this.olm.userData.aabb.applyMatrix4(this.olm.matrixWorld);
         }
     }
 
@@ -89,6 +80,7 @@ export class OLIT {
             this.qd.position.copy(this.body.position.clone().add(new Vector3(0, OLITConstants.QD_BOTTOM_OFFSET * this.body.userData.aabb.getSize(new Vector3).y, 0)));
             this.carriageQd.position.copy(this.body.position.clone().add(new Vector3(0, OLITConstants.QD_BOTTOM_OFFSET * this.body.userData.aabb.getSize(new Vector3).y, 0)));
             
+            this.hasUpdatedAABB = true;
         }
     }
 
@@ -97,7 +89,7 @@ export class OLIT {
             this.setupSingle();
         }
         else {
-            this.updateObb();
+            this.updateAABB();
             this.updateObjects();
         }
     }

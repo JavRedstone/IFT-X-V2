@@ -237,6 +237,16 @@
         return str;
     }
 
+    function validate(): void {
+        validateStarship();
+        validateSuperHeavy();
+    }
+
+    function reset(): void {
+        resetStarship();
+        resetSuperHeavy();
+    }
+
     function validateStarship(): void {
         let isCompletelyValidated: boolean = true;
 
@@ -458,14 +468,14 @@
     .customize-action {
         position: absolute;
         top: 0;
-        width: 25%;
+        width: 50%;
         height: 100%;
         border: none;
         border-left: 1px solid white;
         border-right: 1px solid white;
         outline: none;
         background-color: rgba(255, 255, 255, 0.5);
-        font-size: 10px;
+        font-size: 16px;
         color: white;
         font-family: "M PLUS Code Latin", monospace;
         transition: background-color 0.2s, color 0.2s;
@@ -537,9 +547,7 @@
         {/each}
     </div>
 </div>
-<div class="customize-banner">
-    <button class="customize-action" style="left:0" on:click={validateStarship}>Validate Starship</button>
-    <button class="customize-action" style="left:25%" on:click={resetStarship}>Reset Starship</button>
-    <button class="customize-action" style="left:50%" on:click={validateSuperHeavy}>Validate Superheavy</button>
-    <button class="customize-action" style="left:75%" on:click={resetSuperHeavy}>Reset Superheavy</button>
+<div class="customize-banner">    
+    <button class="customize-action" style="left:0" on:click={validate}>Validate</button>
+    <button class="customize-action" style="left:50%" on:click={reset}>Reset</button>
 </div>

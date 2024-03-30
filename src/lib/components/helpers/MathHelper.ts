@@ -17,11 +17,11 @@ export class MathHelper {
         return positions;
     }
     
-    public static getCircularRotations(n: number, angularOffset: number): Euler[] {
+    public static getCircularRotations(n: number, angularOffset: number, cw: boolean = false): Euler[] {
         let rotations = [];
         for (let i = 0; i < n; i++) {
             let x = 0;
-            let y = 2 * Math.PI * (n-i) / n + angularOffset;
+            let y = cw ? 2 * Math.PI * i/n + angularOffset : 2 * Math.PI * (n-i) / n + angularOffset;
             let z = 0;
             rotations.push(new Euler(x, y, z));
         }

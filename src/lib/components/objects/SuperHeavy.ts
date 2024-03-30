@@ -19,7 +19,7 @@ export class SuperHeavy {
     public group: Group = null;
 
     public hasSetupSingle: boolean = false;
-    public hasUpdatedObb: boolean = false;
+    public hasUpdatedAABB: boolean = false;
 
     public options: any = {
         gridFinAngularOffset: SuperHeavyConstants.GRID_FIN_ANGULAR_OFFSET,
@@ -90,13 +90,13 @@ export class SuperHeavy {
 
     public setupGridFins(): void {
         let gridFinPositions = MathHelper.getCircularPositions(this.options.numGridFins, SuperHeavyConstants.GRID_FIN_RADIUS * SuperHeavyConstants.SUPER_HEAVY_SCALE.x, this.options.gridFinAngularOffset);
-        let gridFinRotations = MathHelper.getCircularRotations(this.options.numGridFins, this.options.gridFinAngularOffset);
+        let gridFinRotations = MathHelper.getCircularRotations(this.options.numGridFins, this.options.gridFinAngularOffset, true);
 
         for (let i = 0; i < this.options.numGridFins; i++) {
             let gridFin = new Object3D();
             gridFin.position.copy(gridFinPositions[i]);
-            gridFinRotations[i] = new Euler(gridFinRotations[i].x + SuperHeavyConstants.GRID_FIN_ROTATION.x, gridFinRotations[i].z, -gridFinRotations[i].y);
-            gridFin.rotation.copy(gridFinRotations[i]);
+            // gridFin.rotation.copy(new Euler(SuperHeavyConstants.GRID_FIN_ROTATION.x + gridFinRotations[i].x, gridFinRotations[i].z, -gridFinRotations[i].y));
+            gridFin.rotation.copy(new Euler().setFromQuaternion(new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), SuperHeavyConstants.GRID_FIN_ROTATION.x).multiply(new Quaternion().setFromAxisAngle(new Vector3(0, 0, 1), -gridFinRotations[i].y))));
             gridFin.scale.copy(SuperHeavyConstants.GRID_FIN_SCALE.clone().multiply(SuperHeavyConstants.SUPER_HEAVY_SCALE).multiply(new Vector3(this.options.gridFinWidthScale, this.options.gridFinLengthScale, 1)));
             this.gridFins = [...this.gridFins, gridFin];
         }
@@ -168,7 +168,7 @@ export class SuperHeavy {
         if (this.hsr != null && this.boosterRing != null) {
             this.hsr.userData.aabb = null;
             this.boosterRing.userData.aabb = null;
-            this.hasUpdatedObb = false;
+            this.hasUpdatedAABB = false;
 
             this.hsr.scale.copy(SuperHeavyConstants.HSR_SCALE.clone().multiply(SuperHeavyConstants.SUPER_HEAVY_SCALE));
             this.boosterRing.scale.copy(SuperHeavyConstants.BOOSTER_RING_SCALE.clone().multiply(SuperHeavyConstants.SUPER_HEAVY_SCALE).multiply(new Vector3(1, this.options.bodyHeightScale, 1)));
@@ -176,32 +176,27 @@ export class SuperHeavy {
         }
     }
 
-    public updateObb(): void {
+    public updateAABB(): void {
         if (this.hsr != null && this.boosterRing != null) {
             if (this.hsr.userData.aabb == null || this.boosterRing.userData.aabb == null || this.hsr.userData.aabb.getSize(new Vector3).length() == 0 || this.boosterRing.userData.aabb.getSize(new Vector3).length() == 0) {
                 this.hsr.userData.aabb = ObjectHelper.getAabb(this.hsr);
                 this.boosterRing.userData.aabb = ObjectHelper.getAabb(this.boosterRing);
             }
-            // this.hsr.userData.aabb.applyMatrix4(this.hsr.matrixWorld);
-            // this.boosterRing.userData.aabb.applyMatrix4(this.boosterRing.matrixWorld);
         }
         for (let gridFinObj of this.gridFinObjs) {
             if (gridFinObj.userData.aabb == null || gridFinObj.userData.aabb.getSize(new Vector3).length() == 0) {
                 gridFinObj.userData.aabb = ObjectHelper.getAabb(gridFinObj);
             }
-            // gridFinObj.userData.aabb.applyMatrix4(gridFinObj.matrixWorld);
         }
         for (let chineObj of this.chineObjs) {
             if (chineObj.userData.aabb == null || chineObj.userData.aabb.getSize(new Vector3).length() == 0) {
                 chineObj.userData.aabb = ObjectHelper.getAabb(chineObj);
             }
-            // chineObj.userData.aabb.applyMatrix4(chineObj.matrixWorld);
         }
         for (let rSeaObj of this.rSeaObjs) {
             if (rSeaObj.userData.aabb == null || rSeaObj.userData.aabb.getSize(new Vector3).length() == 0) {
                 rSeaObj.userData.aabb = ObjectHelper.getAabb(rSeaObj);
             }
-            // rSeaObj.userData.aabb.applyMatrix4(rSeaObj.matrixWorld);
         }
     }
 
@@ -213,7 +208,7 @@ export class SuperHeavy {
                     gridFin.position.copy(new Vector3(gridFin.position.x, this.boosterRing.position.y + this.boosterRing.userData.aabb.getSize(new Vector3).y - SuperHeavyConstants.GRID_FIN_TOP_OFFSET * SuperHeavyConstants.SUPER_HEAVY_SCALE.y, gridFin.position.z));
                 }
             }
-            this.hasUpdatedObb = true;
+            this.hasUpdatedAABB = true;
         }
     }
 
@@ -222,7 +217,7 @@ export class SuperHeavy {
             this.setupSingle();
         }
         else {
-            this.updateObb();
+            this.updateAABB();
             this.updateObjects();
         }
     }
