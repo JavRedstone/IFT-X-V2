@@ -1,4 +1,4 @@
-<script lang="ts">
+    <script lang="ts">
     import { onMount } from "svelte";
     import { Vector2, type Vector3 } from "three";
     import { RaptorUI } from "../structs/ui/RaptorUI";
@@ -138,26 +138,26 @@
     function createStarshipRaptors(): void {
         let rSeaPositions: Vector3[] = MathHelper.getCircularPositions(starshipOptions.numRSeas, starshipOptions.rSeaRadius * sizeMult, starshipOptions.rSeaAngularOffset);
         for (let i = 0; i < starshipOptions.numRSeas; i++) {
-            starshipRaptors = [...starshipRaptors, new RaptorUI(true, telemetryValues.rSeaThrottles[i], new Vector2(superHeavyOptions.rSeaRadius3 * sizeMult - rSeaPositions[i].z - rSeaRealRadius, rSeaPositions[i].x + superHeavyOptions.rSeaRadius3 * sizeMult - rSeaRealRadius))];
+            starshipRaptors = [...starshipRaptors, new RaptorUI(true, telemetryValues.rSeaThrottles[i], new Vector2(sizeMult - rSeaPositions[i].z - rSeaRealRadius, rSeaPositions[i].x + sizeMult - rSeaRealRadius))];
         }
         let rVacPositions: Vector3[] = MathHelper.getCircularPositions(starshipOptions.numRVacs, starshipOptions.rVacRadius * sizeMult, starshipOptions.rVacAngularOffset);
         for (let i = 0; i < starshipOptions.numRVacs; i++) {
-            starshipRaptors = [...starshipRaptors, new RaptorUI(false, telemetryValues.rVacThrottles[i], new Vector2(superHeavyOptions.rSeaRadius3 * sizeMult - rVacPositions[i].z - rVacRealRadius, rVacPositions[i].x + superHeavyOptions.rSeaRadius3 * sizeMult - rVacRealRadius))];
+            starshipRaptors = [...starshipRaptors, new RaptorUI(false, telemetryValues.rVacThrottles[i], new Vector2(sizeMult - rVacPositions[i].z - rVacRealRadius, rVacPositions[i].x + sizeMult - rVacRealRadius))];
         }
     }
 
     function createSuperHeavyRaptors(): void {
         let rSeaPositions1: Vector3[] = MathHelper.getCircularPositions(superHeavyOptions.numRSeas1, superHeavyOptions.rSeaRadius1 * sizeMult, superHeavyOptions.rSeaAngularOffset1);
         for (let i = 0; i < superHeavyOptions.numRSeas1; i++) {
-            superHeavyRaptors = [...superHeavyRaptors, new RaptorUI(true, telemetryValues.rSeaThrottles1[i], new Vector2(rSeaPositions1[i].z + superHeavyOptions.rSeaRadius3 * sizeMult - rSeaRealRadius, rSeaPositions1[i].x + superHeavyOptions.rSeaRadius3 * sizeMult - rSeaRealRadius))];
+            superHeavyRaptors = [...superHeavyRaptors, new RaptorUI(true, telemetryValues.rSeaThrottles1[i], new Vector2(rSeaPositions1[i].z + sizeMult - rSeaRealRadius, rSeaPositions1[i].x + sizeMult - rSeaRealRadius))];
         }
         let rSeaPositions2: Vector3[] = MathHelper.getCircularPositions(superHeavyOptions.numRSeas2, superHeavyOptions.rSeaRadius2 * sizeMult, superHeavyOptions.rSeaAngularOffset2);
         for (let i = 0; i < superHeavyOptions.numRSeas2; i++) {
-            superHeavyRaptors = [...superHeavyRaptors, new RaptorUI(true, telemetryValues.rSeaThrottles2[i], new Vector2(rSeaPositions2[i].z + superHeavyOptions.rSeaRadius3 * sizeMult - rSeaRealRadius, rSeaPositions2[i].x + superHeavyOptions.rSeaRadius3 * sizeMult - rSeaRealRadius))];
+            superHeavyRaptors = [...superHeavyRaptors, new RaptorUI(true, telemetryValues.rSeaThrottles2[i], new Vector2(rSeaPositions2[i].z + sizeMult - rSeaRealRadius, rSeaPositions2[i].x + sizeMult - rSeaRealRadius))];
         }
         let rSeaPositions3: Vector3[] = MathHelper.getCircularPositions(superHeavyOptions.numRSeas3, superHeavyOptions.rSeaRadius3 * sizeMult, superHeavyOptions.rSeaAngularOffset3);
         for (let i = 0; i < superHeavyOptions.numRSeas3; i++) {
-            superHeavyRaptors = [...superHeavyRaptors, new RaptorUI(true, telemetryValues.rSeaThrottles3[i], new Vector2(rSeaPositions3[i].z + superHeavyOptions.rSeaRadius3 * sizeMult - rSeaRealRadius, rSeaPositions3[i].x + superHeavyOptions.rSeaRadius3 * sizeMult - rSeaRealRadius))];
+            superHeavyRaptors = [...superHeavyRaptors, new RaptorUI(true, telemetryValues.rSeaThrottles3[i], new Vector2(rSeaPositions3[i].z + sizeMult - rSeaRealRadius, rSeaPositions3[i].x + sizeMult - rSeaRealRadius))];
         }
     }
 
@@ -202,8 +202,8 @@
             height: 0;
         }
         50% {
-            width: 100%;
-            height: 100%;
+            width: 110%;
+            height: 110%;
         }
         100% {
             width: 0;
@@ -216,7 +216,7 @@
         bottom: 0;
         left: 0;
         width: 100vw;
-        height: 108px;
+        height: 110px;
         background-color: rgba(0, 0, 0, 0.5);
         
         animation: slideUp 0.5s, increaseOpacity 1s;

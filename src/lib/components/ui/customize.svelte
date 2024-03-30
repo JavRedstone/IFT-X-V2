@@ -13,7 +13,7 @@
     let superHeavyRaptors: RaptorUI[] = [];
 
     const sizeMult = 66;
-    const posOffset = 32;
+    const posOffset = 24;
     const rSeaRadius = 7.5;
     const rVacRadius = 16;
     const border = 1.275;
@@ -203,26 +203,26 @@
     function createStarshipRaptors() {
         let rSeaPositions: Vector3[] = MathHelper.getCircularPositions(starshipOptions.numRSeas, starshipOptions.rSeaRadius * sizeMult, starshipOptions.rSeaAngularOffset);
         for (let i = 0; i < starshipOptions.numRSeas; i++) {
-            starshipRaptors = [...starshipRaptors, new RaptorUI(true, defaultThrottle, new Vector2(superHeavyOptions.rSeaRadius3 * sizeMult - rSeaPositions[i].z - rSeaRealRadius, rSeaPositions[i].x + superHeavyOptions.rSeaRadius3 * sizeMult - rSeaRealRadius))];
+            starshipRaptors = [...starshipRaptors, new RaptorUI(true, defaultThrottle, new Vector2(sizeMult - rSeaPositions[i].z - rSeaRealRadius, rSeaPositions[i].x + sizeMult - rSeaRealRadius))];
         }
         let rVacPositions: Vector3[] = MathHelper.getCircularPositions(starshipOptions.numRVacs, starshipOptions.rVacRadius * sizeMult, starshipOptions.rVacAngularOffset);
         for (let i = 0; i < starshipOptions.numRVacs; i++) {
-            starshipRaptors = [...starshipRaptors, new RaptorUI(false, defaultThrottle, new Vector2(superHeavyOptions.rSeaRadius3 * sizeMult - rVacPositions[i].z - rVacRealRadius, rVacPositions[i].x + superHeavyOptions.rSeaRadius3 * sizeMult - rVacRealRadius))];
+            starshipRaptors = [...starshipRaptors, new RaptorUI(false, defaultThrottle, new Vector2(sizeMult - rVacPositions[i].z - rVacRealRadius, rVacPositions[i].x + sizeMult - rVacRealRadius))];
         }
     }
 
     function createSuperHeavyRaptors() {
         let rSeaPositions1: Vector3[] = MathHelper.getCircularPositions(superHeavyOptions.numRSeas1, superHeavyOptions.rSeaRadius1 * sizeMult, superHeavyOptions.rSeaAngularOffset1);
         for (let i = 0; i < superHeavyOptions.numRSeas1; i++) {
-            superHeavyRaptors = [...superHeavyRaptors, new RaptorUI(true, defaultThrottle, new Vector2(superHeavyOptions.rSeaRadius3 * sizeMult - rSeaRealRadius - rSeaPositions1[i].z, rSeaPositions1[i].x + superHeavyOptions.rSeaRadius3 * sizeMult - rSeaRealRadius))];
+            superHeavyRaptors = [...superHeavyRaptors, new RaptorUI(true, defaultThrottle, new Vector2(sizeMult - rSeaRealRadius - rSeaPositions1[i].z, rSeaPositions1[i].x + sizeMult - rSeaRealRadius))];
         }
         let rSeaPositions2: Vector3[] = MathHelper.getCircularPositions(superHeavyOptions.numRSeas2, superHeavyOptions.rSeaRadius2 * sizeMult, superHeavyOptions.rSeaAngularOffset2);
         for (let i = 0; i < superHeavyOptions.numRSeas2; i++) {
-            superHeavyRaptors = [...superHeavyRaptors, new RaptorUI(true, defaultThrottle, new Vector2(superHeavyOptions.rSeaRadius3 * sizeMult - rSeaRealRadius - rSeaPositions2[i].z, rSeaPositions2[i].x + superHeavyOptions.rSeaRadius3 * sizeMult - rSeaRealRadius))];
+            superHeavyRaptors = [...superHeavyRaptors, new RaptorUI(true, defaultThrottle, new Vector2(sizeMult - rSeaRealRadius - rSeaPositions2[i].z, rSeaPositions2[i].x + sizeMult - rSeaRealRadius))];
         }
         let rSeaPositions3: Vector3[] = MathHelper.getCircularPositions(superHeavyOptions.numRSeas3, superHeavyOptions.rSeaRadius3 * sizeMult, superHeavyOptions.rSeaAngularOffset3);
         for (let i = 0; i < superHeavyOptions.numRSeas3; i++) {
-            superHeavyRaptors = [...superHeavyRaptors, new RaptorUI(true, defaultThrottle, new Vector2(superHeavyOptions.rSeaRadius3 * sizeMult - rSeaRealRadius - rSeaPositions3[i].z, rSeaPositions3[i].x + superHeavyOptions.rSeaRadius3 * sizeMult - rSeaRealRadius))];
+            superHeavyRaptors = [...superHeavyRaptors, new RaptorUI(true, defaultThrottle, new Vector2(sizeMult - rSeaRealRadius - rSeaPositions3[i].z, rSeaPositions3[i].x + sizeMult - rSeaRealRadius))];
         }
     }
 
@@ -419,8 +419,8 @@
             height: 0;
         }
         to {
-            width: 100%;
-            height: 100%;
+            width: 104%;
+            height: 104%;
         }
     }
 
@@ -571,7 +571,7 @@
     </div>
 {/if}
 {#if hasRightBar}
-    <div class="customize-container" style="width: 332px; right: 0px;">
+    <div class="customize-container" style="width: 340px; right: 0px;">
         {#each starshipRaptors as raptor}
             <div class="customize-raptor" style="border-width: {border}px; width: {raptor.isSea ? rSeaRadius*2 : rVacRadius*2}px; height: {raptor.isSea ? rSeaRadius*2 : rVacRadius*2}px; right: {raptor.position.x + posOffset + 152}px; top: {raptor.position.y + posOffset}px;">
                 <div class="customize-raptor-throttle" style="width: {raptor.isSea ? raptor.throttle * rSeaRealRadius * 2 : raptor.throttle * rVacRealRadius * 2}px; height: {raptor.isSea ? raptor.throttle * rSeaRealRadius * 2 : raptor.throttle * rVacRealRadius * 2}px"></div>
@@ -607,7 +607,7 @@
         <button class="customize-action" style="right: 0; bottom: 0; width: 100%; height: 24px;" on:click={hideShowRightBar}>Hide Right</button>
     </div>
 {/if}
-<div class="customize-banner" style={hasLeftBar ? hasRightBar ? "left: 390px; width: calc(100vw - 722px);" : "left: 390px; width: calc(100vw - 390px);" : hasRightBar ? "left: 0; width: calc(100vw - 332px);" : "left: 0; width: 100vw;"}>
+<div class="customize-banner" style={hasLeftBar ? hasRightBar ? "left: 390px; width: calc(100vw - 390px - 340px);" : "left: 390px; width: calc(100vw - 390px);" : hasRightBar ? "left: 0; width: calc(100vw - 340px);" : "left: 0; width: 100vw;"}>
     {#if !hasLeftBar}
         <button class="customize-action" style="left:0; top: 0; width: 20%; height: 100%; border-right: 1px solid white;" on:click={hideShowLeftBar}>Show Left</button>
     {/if}
