@@ -231,15 +231,15 @@
     }
 
     function estimateTWR() {
-        let shipLOXMass: number = LaunchHelper.getFuelMass(StarshipConstants.SHIP_RING_SCALE.x * StarshipConstants.REAL_LIFE_SCALE.x, starshipOptions.shipRingHeight * StarshipConstants.SHIP_RING_SCALE.y * StarshipConstants.LOX_PERCENTAGE * StarshipConstants.REAL_LIFE_SCALE.y, FuelConstants.LOX_DENSITY);
-        let shipCH4Mass: number = LaunchHelper.getFuelMass(StarshipConstants.SHIP_RING_SCALE.x * StarshipConstants.REAL_LIFE_SCALE.x, starshipOptions.shipRingHeight * StarshipConstants.SHIP_RING_SCALE.y * StarshipConstants.CH4_PERCENTAGE * StarshipConstants.REAL_LIFE_SCALE.y, FuelConstants.CH4_DENSITY);
+        let shipLOXMass: number = LaunchHelper.getFuelMass(StarshipConstants.SHIP_RING_SCALE.x * StarshipConstants.REAL_LIFE_SCALE.x, starshipOptions.shipRingHeight * StarshipConstants.SHIP_RING_SCALE.y * StarshipConstants.LOX_PERCENTAGE, FuelConstants.LOX_DENSITY);
+        let shipCH4Mass: number = LaunchHelper.getFuelMass(StarshipConstants.SHIP_RING_SCALE.x * StarshipConstants.REAL_LIFE_SCALE.x, starshipOptions.shipRingHeight * StarshipConstants.SHIP_RING_SCALE.y * StarshipConstants.CH4_PERCENTAGE, FuelConstants.CH4_DENSITY);
         let shipDryMass: number = StarshipConstants.DRY_MASS + starshipRaptors.length * RaptorConstants.DRY_MASS;
         let shipWetMass: number = shipLOXMass + shipCH4Mass + shipDryMass;
 
         let shipThrust: number = starshipOptions.numRSeas * LaunchHelper.getThrust(true, starshipOptions.rSeaType) + starshipOptions.numRVacs * LaunchHelper.getThrust(false, starshipOptions.rVacType);
 
-        let boosterLOXMass: number = LaunchHelper.getFuelMass(SuperHeavyConstants.BOOSTER_RING_SCALE.x * SuperHeavyConstants.REAL_LIFE_SCALE.x, superHeavyOptions.boosterRingHeight * SuperHeavyConstants.BOOSTER_RING_SCALE.y * SuperHeavyConstants.LOX_PERCENTAGE * SuperHeavyConstants.REAL_LIFE_SCALE.y, FuelConstants.LOX_DENSITY);
-        let boosterCH4Mass: number = LaunchHelper.getFuelMass(SuperHeavyConstants.BOOSTER_RING_SCALE.x * SuperHeavyConstants.REAL_LIFE_SCALE.x, superHeavyOptions.boosterRingHeight * SuperHeavyConstants.BOOSTER_RING_SCALE.y * SuperHeavyConstants.CH4_PERCENTAGE * SuperHeavyConstants.REAL_LIFE_SCALE.y, FuelConstants.CH4_DENSITY);
+        let boosterLOXMass: number = LaunchHelper.getFuelMass(SuperHeavyConstants.BOOSTER_RING_SCALE.x * SuperHeavyConstants.REAL_LIFE_SCALE.x, superHeavyOptions.boosterRingHeight * SuperHeavyConstants.BOOSTER_RING_SCALE.y * SuperHeavyConstants.LOX_PERCENTAGE, FuelConstants.LOX_DENSITY);
+        let boosterCH4Mass: number = LaunchHelper.getFuelMass(SuperHeavyConstants.BOOSTER_RING_SCALE.x * SuperHeavyConstants.REAL_LIFE_SCALE.x, superHeavyOptions.boosterRingHeight * SuperHeavyConstants.BOOSTER_RING_SCALE.y * SuperHeavyConstants.CH4_PERCENTAGE, FuelConstants.CH4_DENSITY);
         let boosterDryMass: number = SuperHeavyConstants.DRY_MASS + superHeavyRaptors.length * RaptorConstants.DRY_MASS;
         let boosterWetMass: number = boosterLOXMass + boosterCH4Mass + boosterDryMass;
 
@@ -617,8 +617,6 @@
     .customize-banner {
         position: fixed;
         top: 0;
-        /* left: 390px;
-        width: calc(100vw - 722px); */
         height: 32px;
         background-color: rgba(0, 0, 0, 0.5);
         user-select: none;
