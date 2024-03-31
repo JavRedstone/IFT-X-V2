@@ -959,7 +959,7 @@
                 hideShowRightBar();
             }
             else if (event.key === "Enter") {
-                validateStarship();
+                validate();
             }
             else if (event.key === "r" || event.key === "R") {
                 resetStarship();
