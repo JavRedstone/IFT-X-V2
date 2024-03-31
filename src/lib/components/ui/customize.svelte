@@ -406,6 +406,7 @@
 
     function resetSuperHeavy(): void {
         superHeavyOptions = {
+            hasHsr: true,
             hsrHeight: SuperHeavyConstants.HSR_HEIGHT * SuperHeavyConstants.REAL_LIFE_SCALE.y,
             boosterRingHeight: SuperHeavyConstants.BOOSTER_RING_HEIGHT * SuperHeavyConstants.REAL_LIFE_SCALE.y,
             
