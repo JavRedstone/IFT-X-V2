@@ -5,24 +5,38 @@
     import { RaptorUI } from "../structs/ui/RaptorUI";
     import { starshipSettings, superHeavySettings } from "../ui-stores/ui-store";
     import { MathHelper } from "../helpers/MathHelper";
+    import s25 from "../images/s25.png";
+    import b9 from "../images/b9.png";
     import s25b9 from "../images/s25b9.png";
-  import { StarshipConstants } from '../constants/objects/StarshipConstants';
-  import { SuperHeavyConstants } from '../constants/objects/SuperHeavyConstants';
+    import { StarshipConstants } from '../constants/objects/StarshipConstants';
+    import { SuperHeavyConstants } from '../constants/objects/SuperHeavyConstants';
+    import { RaptorConstants } from '../constants/RaptorConstants';
+    import { FuelConstants } from '../constants/objects/FuelConstants';
+    import { LaunchHelper } from '../helpers/LaunchHelper';
+    import { PhysicsConstants } from '../constants/PhysicsConstants';
 
     let starshipRaptors: RaptorUI[] = [];
     let superHeavyRaptors: RaptorUI[] = [];
+    
+    let stackHeight: number = 0;
+    let boosterHeight: number = 0;
+    let shipHeight: number = 0;
+    
+    let stackTWR: string = '0';
+    let boosterTWR: string = '0';
+    let shipTWR: string = '0';
 
     const sizeMult = 66;
-    const posOffset = 24;
+    const topOffset = 70;
     const rSeaRadius = 7.5;
-    const rVacRadius = 16;
+    const rVacRadius = RaptorConstants.RADIUS_SEA_TO_VAC * rSeaRadius;
     const border = 1.275;
     const rSeaRealRadius = rSeaRadius + border;
     const rVacRealRadius = rVacRadius + border;
     const defaultThrottle = 1;
 
-    let starshipOptions: any = {
-        bodyHeightScale: 1,
+    let starshipOptions: any = {        
+        shipRingHeight: StarshipConstants.SHIP_RING_HEIGHT * StarshipConstants.REAL_LIFE_SCALE.y,
 
         forwardLHeightScale: 1,
         forwardLWidthScale: 1,
@@ -33,18 +47,20 @@
         aftRHeightScale: 1,
         aftRWidthScale: 1,
 
-        rSeaRadius: 0,
-        numRSeas: 0,
-        rSeaAngularOffset: 0,
-        rSeaAngularOffsetDegrees: 0,
+        rSeaRadius: StarshipConstants.R_SEA_RADIUS * SuperHeavyConstants.REAL_LIFE_SCALE.x,
+        numRSeas: StarshipConstants.NUM_R_SEAS,
+        rSeaAngularOffset: StarshipConstants.R_SEA_ANGULAR_OFFSET * 180/Math.PI,
+        rSeaType: 2,
+        canRSeaGimbal: StarshipConstants.CAN_R_SEA_GIMBAL,
 
-        rVacRadius: 0,
-        numRVacs: 0,
-        rVacAngularOffset: 0,
-        rVacAngularOffsetDegrees: 0,
+        rVacRadius: StarshipConstants.R_VAC_RADIUS * SuperHeavyConstants.REAL_LIFE_SCALE.x,
+        numRVacs: StarshipConstants.NUM_R_VACS,
+        rVacAngularOffset: StarshipConstants.R_VAC_ANGULAR_OFFSET * 180/Math.PI,
+        rVacType: 2,
+        canRVacGimbal: StarshipConstants.CAN_R_VAC_GIMBAL,
     };
     let validatedStarship: any = {
-        bodyHeightScale: true,
+        shipRingHeight: true,
 
         forwardLHeightScale: true,
         forwardLWidthScale: true,
@@ -58,72 +74,75 @@
         rSeaRadius: true,
         numRSeas: true,
         rSeaAngularOffset: true,
-        rSeaAngularOffsetDegrees: true,
+        rSeaType: true,
 
         rVacRadius: true,
         numRVacs: true,
         rVacAngularOffset: true,
-        rVacAngularOffsetDegrees: true,
+        rVacType: true,
     }
     let superHeavyOptions: any = {
-        hsrHeightScale: 1,
-        bodyHeightScale: 1,
-
-        numGridFins: 0,
+        hasHsr: true,
+        hsrHeight: SuperHeavyConstants.HSR_HEIGHT * SuperHeavyConstants.REAL_LIFE_SCALE.y,
+        boosterRingHeight: SuperHeavyConstants.BOOSTER_RING_HEIGHT * SuperHeavyConstants.REAL_LIFE_SCALE.y,
+        
+        numGridFins: SuperHeavyConstants.NUM_GRID_FINS,
+        gridFinAngularOffset: SuperHeavyConstants.GRID_FIN_ANGULAR_OFFSET * 180/Math.PI,
         gridFinLengthScale: 1,
         gridFinWidthScale: 1,
-        gridFinAngularOffset: 0,
-        gridFinAngularOffsetDegrees: 0,
 
-        numChines: 0,
+        numChines: SuperHeavyConstants.NUM_CHINES,
+        chineAngularOffset: SuperHeavyConstants.CHINE_ANGULAR_OFFSET * 180/Math.PI,
         chineHeightScale: 1,
-        chineAngularOffset: 0,
-        chineAngularOffsetDegrees: 0,
+        
+        rSeaRadius1: SuperHeavyConstants.R_SEA_RADIUS_1 * SuperHeavyConstants.REAL_LIFE_SCALE.x,
+        numRSeas1: SuperHeavyConstants.NUM_R_SEAS_1,
+        rSeaAngularOffset1: SuperHeavyConstants.R_SEA_ANGULAR_OFFSET_1 * 180/Math.PI,
+        rSeaType1: 2,
+        canRSea1Gimbal: SuperHeavyConstants.CAN_R_SEA_1_GIMBAL,
 
-        numRSeas1: 0,
-        rSeaRadius1: 0,
-        rSeaAngularOffset1: 0,
-        rSeaAngularOffset1Degrees: 0,
+        rSeaRadius2: SuperHeavyConstants.R_SEA_RADIUS_2 * SuperHeavyConstants.REAL_LIFE_SCALE.x,
+        numRSeas2: SuperHeavyConstants.NUM_R_SEAS_2,
+        rSeaAngularOffset2: SuperHeavyConstants.R_SEA_ANGULAR_OFFSET_2 * 180/Math.PI,
+        rSeaType2: 2,
+        canRSea2Gimbal: SuperHeavyConstants.CAN_R_SEA_2_GIMBAL,
 
-        numRSeas2: 0,
-        rSeaRadius2: 0,
-        rSeaAngularOffset2: 0,
-        rSeaAngularOffset2Degrees: 0,
-
-        numRSeas3: 0,
-        rSeaRadius3: 0,
-        rSeaAngularOffset3: 0,
-        rSeaAngularOffset3Degrees: 0,
+        rSeaRadius3: SuperHeavyConstants.R_SEA_RADIUS_3 * SuperHeavyConstants.REAL_LIFE_SCALE.x,
+        numRSeas3: SuperHeavyConstants.NUM_R_SEAS_3,
+        rSeaAngularOffset3: SuperHeavyConstants.R_SEA_ANGULAR_OFFSET_3 * 180/Math.PI,
+        rSeaType3: 2,
+        canRSea3Gimbal: SuperHeavyConstants.CAN_R_SEA_3_GIMBAL,
     };
     let validatedSuperHeavy: any = {
-        hsrHeightScale: true,
-        bodyHeightScale: true,
+        hsrHeight: true,
+        boosterRingHeight: true,
 
         numGridFins: true,
+        gridFinAngularOffset: true,
         gridFinLengthScale: true,
         gridFinWidthScale: true,
-        gridFinAngularOffset: true,
-        gridFinAngularOffsetDegrees: true,
 
         numChines: true,
-        chineHeightScale: true,
         chineAngularOffset: true,
-        chineAngularOffsetDegrees: true,
+        chineHeightScale: true,
 
         numRSeas1: true,
         rSeaRadius1: true,
         rSeaAngularOffset1: true,
-        rSeaAngularOffset1Degrees: true,
+        rSeaType1: true,
+        canRSea1Gimbal: true,
 
         numRSeas2: true,
         rSeaRadius2: true,
         rSeaAngularOffset2: true,
-        rSeaAngularOffset2Degrees: true,
+        rSeaType2: true,
+        canRSea2Gimbal: true,
 
         numRSeas3: true,
         rSeaRadius3: true,
         rSeaAngularOffset3: true,
-        rSeaAngularOffset3Degrees: true,
+        rSeaType3: true,
+        canRSea3Gimbal: true,
     }
 
     function setupUpdator() {
@@ -131,10 +150,7 @@
             starshipOptions.rSeaAngularOffset = value.rSeaAngularOffset;
             starshipOptions.rVacAngularOffset = value.rVacAngularOffset;
 
-            starshipOptions.rSeaAngularOffsetDegrees = value.rSeaAngularOffset * 180 / Math.PI;
-            starshipOptions.rVacAngularOffsetDegrees = value.rVacAngularOffset * 180 / Math.PI;
-
-            starshipOptions.bodyHeightScale = value.bodyHeightScale;
+            starshipOptions.shipRingHeight = value.shipRingHeight;
             
             starshipOptions.forwardLHeightScale = value.forwardLHeightScale;
             starshipOptions.forwardLWidthScale = value.forwardLWidthScale;
@@ -147,29 +163,29 @@
 
             starshipOptions.rSeaRadius = value.rSeaRadius;
             starshipOptions.numRSeas = value.numRSeas;
+            starshipOptions.rSeaType = value.rSeaType;
+            starshipOptions.canRSeaGimbal = value.canRSeaGimbal;
 
             starshipOptions.rVacRadius = value.rVacRadius;
             starshipOptions.numRVacs = value.numRVacs;
+            starshipOptions.rVacType = value.rVacType;
+            starshipOptions.canRVacGimbal = value.canRVacGimbal;
             
             createRaptors();
+            estimateHeight();
+            estimateTWR();
         });
         superHeavySettings.subscribe((value) => {
             superHeavyOptions.gridFinAngularOffset = value.gridFinAngularOffset;
             superHeavyOptions.chineAngularOffset = value.chineAngularOffset;
 
-            superHeavyOptions.gridFinAngularOffsetDegrees = value.gridFinAngularOffset * 180 / Math.PI;
-            superHeavyOptions.chineAngularOffsetDegrees = value.chineAngularOffset * 180 / Math.PI;
-
             superHeavyOptions.rSeaAngularOffset1 = value.rSeaAngularOffset1;
             superHeavyOptions.rSeaAngularOffset2 = value.rSeaAngularOffset2;
             superHeavyOptions.rSeaAngularOffset3 = value.rSeaAngularOffset3;
 
-            superHeavyOptions.rSeaAngularOffset1Degrees = value.rSeaAngularOffset1 * 180 / Math.PI;
-            superHeavyOptions.rSeaAngularOffset2Degrees = value.rSeaAngularOffset2 * 180 / Math.PI;
-            superHeavyOptions.rSeaAngularOffset3Degrees = value.rSeaAngularOffset3 * 180 / Math.PI;
-
-            superHeavyOptions.hsrHeightScale = value.hsrHeightScale;
-            superHeavyOptions.bodyHeightScale = value.bodyHeightScale;
+            superHeavyOptions.hasHsr = value.hsrHeight > 0;
+            superHeavyOptions.hsrHeight = value.hsrHeight;
+            superHeavyOptions.boosterRingHeight = value.boosterRingHeight;
             superHeavyOptions.chineHeightScale = value.chineHeightScale;
             superHeavyOptions.numChines = value.numChines;
 
@@ -179,14 +195,22 @@
 
             superHeavyOptions.rSeaRadius1 = value.rSeaRadius1;
             superHeavyOptions.numRSeas1 = value.numRSeas1;
+            superHeavyOptions.rSeaType1 = value.rSeaType1;
+            superHeavyOptions.canRSea1Gimbal = value.canRSea1Gimbal;
 
             superHeavyOptions.rSeaRadius2 = value.rSeaRadius2;
             superHeavyOptions.numRSeas2 = value.numRSeas2;
+            superHeavyOptions.rSeaType2 = value.rSeaType2;
+            superHeavyOptions.canRSea2Gimbal = value.canRSea2Gimbal;
 
             superHeavyOptions.rSeaRadius3 = value.rSeaRadius3;
             superHeavyOptions.numRSeas3 = value.numRSeas3;
+            superHeavyOptions.rSeaType3 = value.rSeaType3;
+            superHeavyOptions.canRSea3Gimbal = value.canRSea3Gimbal;
             
             createRaptors();
+            estimateHeight();
+            estimateTWR();
         });
     }
 
@@ -200,37 +224,61 @@
         }, 0);
     }
 
+    function estimateHeight(): void {
+        shipHeight = Math.round(starshipOptions.shipRingHeight * StarshipConstants.SHIP_RING_SCALE.y + StarshipConstants.NOSECONE_HEIGHT * SuperHeavyConstants.REAL_LIFE_SCALE.y);
+        boosterHeight = Math.round(superHeavyOptions.boosterRingHeight * SuperHeavyConstants.BOOSTER_RING_SCALE.y + superHeavyOptions.hsrHeight * SuperHeavyConstants.HSR_SCALE.y);
+        stackHeight = Math.round(shipHeight + boosterHeight);
+    }
+
+    function estimateTWR() {
+        let shipLOXMass: number = LaunchHelper.getFuelMass(StarshipConstants.SHIP_RING_SCALE.x * StarshipConstants.REAL_LIFE_SCALE.x, starshipOptions.shipRingHeight * StarshipConstants.SHIP_RING_SCALE.y * StarshipConstants.LOX_PERCENTAGE * StarshipConstants.REAL_LIFE_SCALE.y, FuelConstants.LOX_DENSITY);
+        let shipCH4Mass: number = LaunchHelper.getFuelMass(StarshipConstants.SHIP_RING_SCALE.x * StarshipConstants.REAL_LIFE_SCALE.x, starshipOptions.shipRingHeight * StarshipConstants.SHIP_RING_SCALE.y * StarshipConstants.CH4_PERCENTAGE * StarshipConstants.REAL_LIFE_SCALE.y, FuelConstants.CH4_DENSITY);
+        let shipDryMass: number = StarshipConstants.DRY_MASS + starshipRaptors.length * RaptorConstants.DRY_MASS;
+        let shipWetMass: number = shipLOXMass + shipCH4Mass + shipDryMass;
+
+        let shipThrust: number = starshipOptions.numRSeas * LaunchHelper.getThrust(true, starshipOptions.rSeaType) + starshipOptions.numRVacs * LaunchHelper.getThrust(false, starshipOptions.rVacType);
+
+        let boosterLOXMass: number = LaunchHelper.getFuelMass(SuperHeavyConstants.BOOSTER_RING_SCALE.x * SuperHeavyConstants.REAL_LIFE_SCALE.x, superHeavyOptions.boosterRingHeight * SuperHeavyConstants.BOOSTER_RING_SCALE.y * SuperHeavyConstants.LOX_PERCENTAGE * SuperHeavyConstants.REAL_LIFE_SCALE.y, FuelConstants.LOX_DENSITY);
+        let boosterCH4Mass: number = LaunchHelper.getFuelMass(SuperHeavyConstants.BOOSTER_RING_SCALE.x * SuperHeavyConstants.REAL_LIFE_SCALE.x, superHeavyOptions.boosterRingHeight * SuperHeavyConstants.BOOSTER_RING_SCALE.y * SuperHeavyConstants.CH4_PERCENTAGE * SuperHeavyConstants.REAL_LIFE_SCALE.y, FuelConstants.CH4_DENSITY);
+        let boosterDryMass: number = SuperHeavyConstants.DRY_MASS + superHeavyRaptors.length * RaptorConstants.DRY_MASS;
+        let boosterWetMass: number = boosterLOXMass + boosterCH4Mass + boosterDryMass;
+
+        let boosterThrust: number = superHeavyOptions.numRSeas1 * LaunchHelper.getThrust(true, superHeavyOptions.rSeaType1) + superHeavyOptions.numRSeas2 * LaunchHelper.getThrust(true, superHeavyOptions.rSeaType2) + superHeavyOptions.numRSeas3 * LaunchHelper.getThrust(true, superHeavyOptions.rSeaType3);
+        
+        shipTWR = StringHelper.formatNumber(LaunchHelper.getTWR(shipThrust, shipWetMass, PhysicsConstants.EARTH_GRAVITY_SURFACE), 2);
+        boosterTWR = StringHelper.formatNumber(LaunchHelper.getTWR(boosterThrust, boosterWetMass, PhysicsConstants.EARTH_GRAVITY_SURFACE), 2);
+        stackTWR = StringHelper.formatNumber(LaunchHelper.getTWR(boosterThrust, shipWetMass + boosterWetMass, PhysicsConstants.EARTH_GRAVITY_SURFACE), 2);
+    }
+
     function createStarshipRaptors() {
-        let rSeaPositions: Vector3[] = MathHelper.getCircularPositions(starshipOptions.numRSeas, starshipOptions.rSeaRadius * sizeMult, starshipOptions.rSeaAngularOffset);
+        let rSeaPositions: Vector3[] = MathHelper.getCircularPositions(starshipOptions.numRSeas, starshipOptions.rSeaRadius / StarshipConstants.REAL_LIFE_SCALE.x * sizeMult, starshipOptions.rSeaAngularOffset * Math.PI / 180);
         for (let i = 0; i < starshipOptions.numRSeas; i++) {
-            starshipRaptors = [...starshipRaptors, new RaptorUI(true, defaultThrottle, new Vector2(sizeMult - rSeaPositions[i].z - rSeaRealRadius, rSeaPositions[i].x + sizeMult - rSeaRealRadius))];
+            starshipRaptors = [...starshipRaptors, new RaptorUI(true, starshipOptions.rSeaType, defaultThrottle, new Vector2(sizeMult - rSeaPositions[i].z - rSeaRealRadius, rSeaPositions[i].x + sizeMult - rSeaRealRadius))];
         }
-        let rVacPositions: Vector3[] = MathHelper.getCircularPositions(starshipOptions.numRVacs, starshipOptions.rVacRadius * sizeMult, starshipOptions.rVacAngularOffset);
+        let rVacPositions: Vector3[] = MathHelper.getCircularPositions(starshipOptions.numRVacs, starshipOptions.rVacRadius / StarshipConstants.REAL_LIFE_SCALE.x * sizeMult, starshipOptions.rVacAngularOffset * Math.PI / 180);
         for (let i = 0; i < starshipOptions.numRVacs; i++) {
-            starshipRaptors = [...starshipRaptors, new RaptorUI(false, defaultThrottle, new Vector2(sizeMult - rVacPositions[i].z - rVacRealRadius, rVacPositions[i].x + sizeMult - rVacRealRadius))];
+            starshipRaptors = [...starshipRaptors, new RaptorUI(false, starshipOptions.rVacType, defaultThrottle, new Vector2(sizeMult - rVacPositions[i].z - rVacRealRadius, rVacPositions[i].x + sizeMult - rVacRealRadius))];
         }
     }
 
     function createSuperHeavyRaptors() {
-        let rSeaPositions1: Vector3[] = MathHelper.getCircularPositions(superHeavyOptions.numRSeas1, superHeavyOptions.rSeaRadius1 * sizeMult, superHeavyOptions.rSeaAngularOffset1);
+        let rSeaPositions1: Vector3[] = MathHelper.getCircularPositions(superHeavyOptions.numRSeas1, superHeavyOptions.rSeaRadius1 / SuperHeavyConstants.REAL_LIFE_SCALE.x * sizeMult, superHeavyOptions.rSeaAngularOffset1 * Math.PI / 180);
         for (let i = 0; i < superHeavyOptions.numRSeas1; i++) {
-            superHeavyRaptors = [...superHeavyRaptors, new RaptorUI(true, defaultThrottle, new Vector2(sizeMult - rSeaRealRadius - rSeaPositions1[i].z, rSeaPositions1[i].x + sizeMult - rSeaRealRadius))];
+            superHeavyRaptors = [...superHeavyRaptors, new RaptorUI(true, superHeavyOptions.rSeaType1, defaultThrottle, new Vector2(sizeMult - rSeaRealRadius - rSeaPositions1[i].z, rSeaPositions1[i].x + sizeMult - rSeaRealRadius))];
         }
-        let rSeaPositions2: Vector3[] = MathHelper.getCircularPositions(superHeavyOptions.numRSeas2, superHeavyOptions.rSeaRadius2 * sizeMult, superHeavyOptions.rSeaAngularOffset2);
+        let rSeaPositions2: Vector3[] = MathHelper.getCircularPositions(superHeavyOptions.numRSeas2, superHeavyOptions.rSeaRadius2 / SuperHeavyConstants.REAL_LIFE_SCALE.x * sizeMult, superHeavyOptions.rSeaAngularOffset2 * Math.PI / 180);
         for (let i = 0; i < superHeavyOptions.numRSeas2; i++) {
-            superHeavyRaptors = [...superHeavyRaptors, new RaptorUI(true, defaultThrottle, new Vector2(sizeMult - rSeaRealRadius - rSeaPositions2[i].z, rSeaPositions2[i].x + sizeMult - rSeaRealRadius))];
+            superHeavyRaptors = [...superHeavyRaptors, new RaptorUI(true, superHeavyOptions.rSeaType2, defaultThrottle, new Vector2(sizeMult - rSeaRealRadius - rSeaPositions2[i].z, rSeaPositions2[i].x + sizeMult - rSeaRealRadius))];
         }
-        let rSeaPositions3: Vector3[] = MathHelper.getCircularPositions(superHeavyOptions.numRSeas3, superHeavyOptions.rSeaRadius3 * sizeMult, superHeavyOptions.rSeaAngularOffset3);
+        let rSeaPositions3: Vector3[] = MathHelper.getCircularPositions(superHeavyOptions.numRSeas3, superHeavyOptions.rSeaRadius3 / SuperHeavyConstants.REAL_LIFE_SCALE.x * sizeMult, superHeavyOptions.rSeaAngularOffset3 * Math.PI / 180);
         for (let i = 0; i < superHeavyOptions.numRSeas3; i++) {
-            superHeavyRaptors = [...superHeavyRaptors, new RaptorUI(true, defaultThrottle, new Vector2(sizeMult - rSeaRealRadius - rSeaPositions3[i].z, rSeaPositions3[i].x + sizeMult - rSeaRealRadius))];
+            superHeavyRaptors = [...superHeavyRaptors, new RaptorUI(true, superHeavyOptions.rSeaType3, defaultThrottle, new Vector2(sizeMult - rSeaRealRadius - rSeaPositions3[i].z, rSeaPositions3[i].x + sizeMult - rSeaRealRadius))];
         }
     }
 
     function convertToCustomize(str: string): string {
         str = StringHelper.makeCapitalizedSpaced(str);
         str = str.replace('Num', 'Number Of');
-        str = str.replace('Scale', '');
-        str = str.replace('Degrees', '');
         str = str.replace('R Sea', 'Raptor Sea Level');
         str = str.replace('R Vac', 'Raptor Vacuum');
         str = str.replace('1', 'Inner');
@@ -259,10 +307,10 @@
 
         if (isCompletelyValidated) {
             starshipSettings.update((value) => {
-                value.rSeaAngularOffset = starshipOptions.rSeaAngularOffsetDegrees * Math.PI / 180;
-                value.rVacAngularOffset = starshipOptions.rVacAngularOffsetDegrees * Math.PI / 180;
+                value.rSeaAngularOffset = starshipOptions.rSeaAngularOffset;
+                value.rVacAngularOffset = starshipOptions.rVacAngularOffset;
 
-                value.bodyHeightScale = starshipOptions.bodyHeightScale;
+                value.shipRingHeight = starshipOptions.shipRingHeight;
                 
                 value.forwardLHeightScale = starshipOptions.forwardLHeightScale;
                 value.forwardLWidthScale = starshipOptions.forwardLWidthScale;
@@ -275,9 +323,13 @@
 
                 value.rSeaRadius = starshipOptions.rSeaRadius;
                 value.numRSeas = starshipOptions.numRSeas;
+                value.rSeaType = starshipOptions.rSeaType;
+                value.canRSeaGimbal = starshipOptions.canRSeaGimbal;
 
                 value.rVacRadius = starshipOptions.rVacRadius;
                 value.numRVacs = starshipOptions.numRVacs;
+                value.rVacType = starshipOptions.rVacType;
+                value.canRVacGimbal = starshipOptions.canRVacGimbal;
                 
                 return value;
             });
@@ -286,7 +338,7 @@
 
     function resetStarship(): void {
         starshipOptions = {
-            bodyHeightScale: 1,
+            shipRingHeight: StarshipConstants.SHIP_RING_HEIGHT * StarshipConstants.REAL_LIFE_SCALE.y,
 
             forwardLHeightScale: 1,
             forwardLWidthScale: 1,
@@ -297,15 +349,17 @@
             aftRHeightScale: 1,
             aftRWidthScale: 1,
 
-            rSeaRadius: StarshipConstants.R_SEA_RADIUS,
+            rSeaRadius: StarshipConstants.R_SEA_RADIUS * SuperHeavyConstants.REAL_LIFE_SCALE.x,
             numRSeas: StarshipConstants.NUM_R_SEAS,
-            rSeaAngularOffset: StarshipConstants.R_SEA_ANGULAR_OFFSET,
-            rSeaAngularOffsetDegrees: StarshipConstants.R_SEA_ANGULAR_OFFSET * 180 / Math.PI,
+            rSeaAngularOffset: StarshipConstants.R_SEA_ANGULAR_OFFSET * 180/Math.PI,
+            rSeaType: 2,
+            canRSeaGimbal: StarshipConstants.CAN_R_SEA_GIMBAL,
 
-            rVacRadius: StarshipConstants.R_VAC_RADIUS,
+            rVacRadius: StarshipConstants.R_VAC_RADIUS * SuperHeavyConstants.REAL_LIFE_SCALE.x,
             numRVacs: StarshipConstants.NUM_R_VACS,
-            rVacAngularOffset: StarshipConstants.R_VAC_ANGULAR_OFFSET,
-            rVacAngularOffsetDegrees: StarshipConstants.R_VAC_ANGULAR_OFFSET * 180 / Math.PI,
+            rVacAngularOffset: StarshipConstants.R_VAC_ANGULAR_OFFSET * 180/Math.PI,
+            rVacType: 2,
+            canRVacGimbal: StarshipConstants.CAN_R_VAC_GIMBAL,
         };
         validateStarship();
     }
@@ -315,15 +369,14 @@
 
         if (isCompletelyValidated) {
             superHeavySettings.update((value) => {
-                value.gridFinAngularOffset = superHeavyOptions.gridFinAngularOffsetDegrees * Math.PI / 180;
-                value.chineAngularOffset = superHeavyOptions.chineAngularOffsetDegrees * Math.PI / 180;
+                value.gridFinAngularOffset = superHeavyOptions.gridFinAngularOffset;
 
-                value.rSeaAngularOffset1 = superHeavyOptions.rSeaAngularOffset1Degrees * Math.PI / 180;
-                value.rSeaAngularOffset2 = superHeavyOptions.rSeaAngularOffset2Degrees * Math.PI / 180;
-                value.rSeaAngularOffset3 = superHeavyOptions.rSeaAngularOffset3Degrees * Math.PI / 180;
+                value.rSeaAngularOffset1 = superHeavyOptions.rSeaAngularOffset1;
+                value.rSeaAngularOffset2 = superHeavyOptions.rSeaAngularOffset2;
+                value.rSeaAngularOffset3 = superHeavyOptions.rSeaAngularOffset3;
 
-                value.hsrHeightScale = superHeavyOptions.hsrHeightScale;
-                value.bodyHeightScale = superHeavyOptions.bodyHeightScale;
+                value.hsrHeight = superHeavyOptions.hasHsr ? superHeavyOptions.hsrHeight : 0;
+                value.boosterRingHeight = superHeavyOptions.boosterRingHeight;
                 value.chineHeightScale = superHeavyOptions.chineHeightScale;
                 value.numChines = superHeavyOptions.numChines;
 
@@ -333,12 +386,18 @@
 
                 value.rSeaRadius1 = superHeavyOptions.rSeaRadius1;
                 value.numRSeas1 = superHeavyOptions.numRSeas1;
+                value.rSeaType1 = superHeavyOptions.rSeaType1;
+                value.canRSea1Gimbal = superHeavyOptions.canRSea1Gimbal;
 
                 value.rSeaRadius2 = superHeavyOptions.rSeaRadius2;
                 value.numRSeas2 = superHeavyOptions.numRSeas2;
+                value.rSeaType2 = superHeavyOptions.rSeaType2;
+                value.canRSea2Gimbal = superHeavyOptions.canRSea2Gimbal;
 
                 value.rSeaRadius3 = superHeavyOptions.rSeaRadius3;
                 value.numRSeas3 = superHeavyOptions.numRSeas3;
+                value.rSeaType3 = superHeavyOptions.rSeaType3;
+                value.canRSea3Gimbal = superHeavyOptions.canRSea3Gimbal;
                 
                 return value;
             });
@@ -347,36 +406,52 @@
 
     function resetSuperHeavy(): void {
         superHeavyOptions = {
-            hsrHeightScale: 1,
-            bodyHeightScale: 1,
-
+            hsrHeight: SuperHeavyConstants.HSR_HEIGHT * SuperHeavyConstants.REAL_LIFE_SCALE.y,
+            boosterRingHeight: SuperHeavyConstants.BOOSTER_RING_HEIGHT * SuperHeavyConstants.REAL_LIFE_SCALE.y,
+            
             numGridFins: SuperHeavyConstants.NUM_GRID_FINS,
+            gridFinAngularOffset: SuperHeavyConstants.GRID_FIN_ANGULAR_OFFSET * 180/Math.PI,
             gridFinLengthScale: 1,
             gridFinWidthScale: 1,
-            gridFinAngularOffset: SuperHeavyConstants.GRID_FIN_ANGULAR_OFFSET,
-            gridFinAngularOffsetDegrees: SuperHeavyConstants.GRID_FIN_ANGULAR_OFFSET * 180 / Math.PI,
 
             numChines: SuperHeavyConstants.NUM_CHINES,
+            chineAngularOffset: SuperHeavyConstants.CHINE_ANGULAR_OFFSET * 180/Math.PI,
             chineHeightScale: 1,
-            chineAngularOffset: SuperHeavyConstants.CHINE_ANGULAR_OFFSET,
-            chineAngularOffsetDegrees: SuperHeavyConstants.CHINE_ANGULAR_OFFSET * 180 / Math.PI,
-
+            
+            rSeaRadius1: SuperHeavyConstants.R_SEA_RADIUS_1 * SuperHeavyConstants.REAL_LIFE_SCALE.x,
             numRSeas1: SuperHeavyConstants.NUM_R_SEAS_1,
-            rSeaRadius1: SuperHeavyConstants.R_SEA_RADIUS_1,
-            rSeaAngularOffset1: SuperHeavyConstants.R_SEA_ANGULAR_OFFSET_1,
-            rSeaAngularOffset1Degrees: SuperHeavyConstants.R_SEA_ANGULAR_OFFSET_1 * 180 / Math.PI,
+            rSeaAngularOffset1: SuperHeavyConstants.R_SEA_ANGULAR_OFFSET_1 * 180/Math.PI,
+            rSeaType1: 2,
+            canRSea1Gimbal: SuperHeavyConstants.CAN_R_SEA_1_GIMBAL,
 
+            rSeaRadius2: SuperHeavyConstants.R_SEA_RADIUS_2 * SuperHeavyConstants.REAL_LIFE_SCALE.x,
             numRSeas2: SuperHeavyConstants.NUM_R_SEAS_2,
-            rSeaRadius2: SuperHeavyConstants.R_SEA_RADIUS_2,
-            rSeaAngularOffset2: SuperHeavyConstants.R_SEA_ANGULAR_OFFSET_2,
-            rSeaAngularOffset2Degrees: SuperHeavyConstants.R_SEA_ANGULAR_OFFSET_2 * 180 / Math.PI,
+            rSeaAngularOffset2: SuperHeavyConstants.R_SEA_ANGULAR_OFFSET_2 * 180/Math.PI,
+            rSeaType2: 2,
+            canRSea2Gimbal: SuperHeavyConstants.CAN_R_SEA_2_GIMBAL,
 
+            rSeaRadius3: SuperHeavyConstants.R_SEA_RADIUS_3 * SuperHeavyConstants.REAL_LIFE_SCALE.x,
             numRSeas3: SuperHeavyConstants.NUM_R_SEAS_3,
-            rSeaRadius3: SuperHeavyConstants.R_SEA_RADIUS_3,
-            rSeaAngularOffset3: SuperHeavyConstants.R_SEA_ANGULAR_OFFSET_3,
-            rSeaAngularOffset3Degrees: SuperHeavyConstants.R_SEA_ANGULAR_OFFSET_3 * 180 / Math.PI,
+            rSeaAngularOffset3: SuperHeavyConstants.R_SEA_ANGULAR_OFFSET_3 * 180/Math.PI,
+            rSeaType3: 2,
+            canRSea3Gimbal: SuperHeavyConstants.CAN_R_SEA_3_GIMBAL,
         };
         validateSuperHeavy();
+    }
+
+    function updateHsr() {
+        if (superHeavyOptions.hasHsr && superHeavyOptions.hsrHeight === 0) {
+            superHeavyOptions.hasHsr = false;
+            // before the html updates (b/c checkbox checked after update)
+        }
+        setTimeout(
+            () => {
+                if (superHeavyOptions.hasHsr && superHeavyOptions.hsrHeight === 0) {
+                    superHeavyOptions.hsrHeight = SuperHeavyConstants.HSR_HEIGHT * SuperHeavyConstants.REAL_LIFE_SCALE.y;
+                }
+                // wait until the html catches up
+            }
+        ,0)
     }
 
     let hasLeftBar: boolean = true;
@@ -431,6 +506,20 @@
         background-color: rgba(0, 0, 0, 0.5);
 
         animation: increaseOpacity 0.5s;
+
+        user-select: none;
+    }
+
+    .customize-subtitle {
+        position: absolute;
+        font-size: 14px;
+        font-weight: bold;
+    }
+
+    .customize-stats {
+        position: absolute;
+        top: 40px;
+        font-size: 12px;
     }
 
     .customize-image {
@@ -440,9 +529,15 @@
         max-width: 50px;
         left: 16px;
         top: 64px;
-        user-select: none;
 
         animation: slideInLeft 0.5s, increaseOpacity 2s;
+    }
+
+    .customize-small-image {
+        position: absolute;
+        width: auto;
+
+        transform: rotate(90deg);
     }
     
     .customize-options {
@@ -459,7 +554,6 @@
         text-align: center;
         font-size: 16px;
         font-weight: bold;
-        user-select: none;
     }
 
     .customize-option-title {
@@ -470,7 +564,6 @@
         padding: 6px;
         text-align: center;
         font-size: 14px;
-        user-select: none;
     }
 
     .customize-option-input {
@@ -493,12 +586,21 @@
         }
     }
 
+    .customize-option-checkbox {
+        width: 24px;
+        height: 24px;
+        margin-top: 8px;
+        accent-color: black;
+        outline: none;
+        border: none;
+    }
+
     .customize-raptor {
         position: absolute;
         border: solid white;
         border-radius: 100%;
 
-        animation: increaseOpacity 4s;
+        animation: increaseOpacity 0.5s;
     }
 
     .customize-raptor-throttle {
@@ -544,11 +646,14 @@
 
 {#if hasLeftBar}
     <div class="customize-container" style="width: 390px; left: 0px;">
-        <img class="customize-image" src={s25b9} alt="booster">
-        <div class="customize-title" style="right:166px; top:16px;">Customize Starship</div>
-        <div class="customize-options" style="right:166px; top: 56px; height: calc(100vh - 88px);">
+        <div class="customize-subtitle" style="left:16px; top:16px;">Vertical Height</div>
+        <div class="customize-stats" style="left:16px;">Ship: {shipHeight}m | Booster: {boosterHeight}m | Stack: {stackHeight}m</div>
+        <img class="customize-image" src={s25b9} alt="stack">
+        <img class="customize-small-image" src={s25} alt="ship" style="height: 80px; top: 40px; right: 230px;">
+        <div class="customize-title" style="right:170px; top: 104px;">Customize Starship</div>
+        <div class="customize-options" style="right:166px; top: 154px; height: calc(100vh - 186px);">
             {#each Object.keys(starshipOptions) as option}
-                {#if !(option.includes("AngularOffset") && !option.includes("Degrees")) && !convertToCustomize(option).includes('Raptor')}
+                {#if !convertToCustomize(option).includes('Raptor')}
                     <div class="customize-option">
                         <div class="customize-option-title">{convertToCustomize(option)}</div>
                         <input class="customize-option-input" type="number" bind:value={starshipOptions[option]}>
@@ -556,14 +661,36 @@
                 {/if}
             {/each}
         </div>
-        <div class="customize-title" style="right:16px; top:16px;">Customize Superheavy</div>
-        <div class="customize-options" style="right:16px; top: 56px; height: calc(100vh - 88px);">
+        <img class="customize-small-image" src={b9} alt="booster" style="height: 112px; top: 25px; right: 80px;">
+        <div class="customize-title" style="right:20px; top: 104px;">Customize Superheavy</div>
+        <div class="customize-options" style="right:16px; top: 154px; height: calc(100vh - 186px);">
             {#each Object.keys(superHeavyOptions) as option}
-                {#if !(option.includes("AngularOffset") && !option.includes("Degrees")) && !convertToCustomize(option).includes('Raptor')}
-                    <div class="customize-option">
-                        <div class="customize-option-title">{convertToCustomize(option)}</div>
-                        <input class="customize-option-input" type="number" bind:value={superHeavyOptions[option]}>
-                    </div>
+                {#if !convertToCustomize(option).includes('Raptor')}
+                    {#if option != 'hasHsr'}
+                        {#if option === 'hsrHeight'}
+                            {#if superHeavyOptions.hasHsr}
+                                <div class="customize-option">
+                                    <div class="customize-option-title">{convertToCustomize(option)}</div>
+                                    <input class="customize-option-input" type="number" bind:value={superHeavyOptions[option]} on:input={updateHsr}>
+                                </div>
+                            {:else}
+                                <div class="customize-option" style="opacity: 0.5;">
+                                    <div class="customize-option-title">{convertToCustomize(option)}</div>
+                                    <input class="customize-option-input" type="number" value="0" disabled>
+                                </div>
+                            {/if}
+                        {:else}
+                            <div class="customize-option">
+                                <div class="customize-option-title">{convertToCustomize(option)}</div>
+                                <input class="customize-option-input" type="number" bind:value={superHeavyOptions[option]}>
+                            </div>
+                        {/if}
+                    {:else}
+                        <div class="customize-option">
+                            <div class="customize-option-title">{convertToCustomize(option)}</div>
+                            <input class="customize-option-checkbox" type="checkbox" bind:checked={superHeavyOptions[option]} on:input={updateHsr}>
+                        </div>
+                    {/if}
                 {/if}
             {/each}
         </div>
@@ -571,49 +698,65 @@
     </div>
 {/if}
 {#if hasRightBar}
-    <div class="customize-container" style="width: 340px; right: 0px;">
+    <div class="customize-container" style="width: 335px; right: 0px;">
+        <div class="customize-subtitle" style="right:16px; top:16px;">Thrust to Weight Ratio (Sea Level)</div>
+        <div class="customize-stats" style="right:16px;">Ship: {shipTWR}:1 | Booster: {boosterTWR}:1 | Stack: {stackTWR}:1</div>
         {#each starshipRaptors as raptor}
-            <div class="customize-raptor" style="border-width: {border}px; width: {raptor.isSea ? rSeaRadius*2 : rVacRadius*2}px; height: {raptor.isSea ? rSeaRadius*2 : rVacRadius*2}px; right: {raptor.position.x + posOffset + 152}px; top: {raptor.position.y + posOffset}px;">
+            <div class="customize-raptor" style="border-width: {border}px; width: {raptor.isSea ? rSeaRadius*2 : rVacRadius*2}px; height: {raptor.isSea ? rSeaRadius*2 : rVacRadius*2}px; right: {raptor.position.x + 180}px; top: {raptor.position.y + topOffset}px;">
                 <div class="customize-raptor-throttle" style="width: {raptor.isSea ? raptor.throttle * rSeaRealRadius * 2 : raptor.throttle * rVacRealRadius * 2}px; height: {raptor.isSea ? raptor.throttle * rSeaRealRadius * 2 : raptor.throttle * rVacRealRadius * 2}px"></div>
             </div>
         {/each}
         {#each superHeavyRaptors as raptor}
-            <div class="customize-raptor" style="border-width: {border}px; width: {raptor.isSea ? rSeaRadius*2 : rVacRadius*2}px; height: {raptor.isSea ? rSeaRadius*2 : rVacRadius*2}px; right: {raptor.position.x + posOffset}px; top: {raptor.position.y + posOffset}px;">
+            <div class="customize-raptor" style="border-width: {border}px; width: {raptor.isSea ? rSeaRadius*2 : rVacRadius*2}px; height: {raptor.isSea ? rSeaRadius*2 : rVacRadius*2}px; right: {raptor.position.x + 28}px; top: {raptor.position.y + topOffset}px;">
                 <div class="customize-raptor-throttle" style="width: {raptor.isSea ? raptor.throttle * rSeaRealRadius * 2 : raptor.throttle * rVacRealRadius * 2}px; height: {raptor.isSea ? raptor.throttle * rSeaRealRadius * 2 : raptor.throttle * rVacRealRadius * 2}px"></div>
             </div>
         {/each}
-        <div class="customize-title" style="right:166px; top:170px;">Customize Starship</div>
-        <div class="customize-options" style="right:166px; top: 220px; height: calc(100vh - 252px);">
+        <div class="customize-title" style="right:170px; top:210px;">Customize Starship</div>
+        <div class="customize-options" style="right:170px; top: 260px; height: calc(100vh - 292px);">
             {#each Object.keys(starshipOptions) as option}
-                {#if !(option.includes("AngularOffset") && !option.includes("Degrees")) && convertToCustomize(option).includes('Raptor')}
-                    <div class="customize-option">
-                        <div class="customize-option-title">{convertToCustomize(option)}</div>
-                        <input class="customize-option-input" type="number" bind:value={starshipOptions[option]}>
-                    </div>
+                {#if convertToCustomize(option).includes('Raptor')}
+                    {#if typeof starshipOptions[option] === 'boolean'}
+                        <div class="customize-option">
+                            <div class="customize-option-title">{convertToCustomize(option)}</div>
+                            <input class="customize-option-checkbox" type="checkbox" bind:checked={starshipOptions[option]}>
+                        </div>
+                    {:else}
+                        <div class="customize-option">
+                            <div class="customize-option-title">{convertToCustomize(option)}</div>
+                            <input class="customize-option-input" type="number" bind:value={starshipOptions[option]}>
+                        </div>
+                    {/if}
                 {/if}
             {/each}
         </div>
-        <div class="customize-title" style="right:16px; top:170px;">Customize Superheavy</div>
-        <div class="customize-options" style="right:16px; top: 220px; height: calc(100vh - 252px);">
+        <div class="customize-title" style="right:20px; top:210px;">Customize Superheavy</div>
+        <div class="customize-options" style="right:20px; top: 260px; height: calc(100vh - 292px);">
             {#each Object.keys(superHeavyOptions) as option}
-                {#if !(option.includes("AngularOffset") && !option.includes("Degrees")) && convertToCustomize(option).includes('Raptor')}
-                    <div class="customize-option">
-                        <div class="customize-option-title">{convertToCustomize(option)}</div>
-                        <input class="customize-option-input" type="number" bind:value={superHeavyOptions[option]}>
-                    </div>
+                {#if convertToCustomize(option).includes('Raptor')}
+                    {#if typeof superHeavyOptions[option] === 'boolean'}
+                        <div class="customize-option">
+                            <div class="customize-option-title">{convertToCustomize(option)}</div>
+                            <input class="customize-option-checkbox" type="checkbox" bind:checked={superHeavyOptions[option]}>
+                        </div>
+                    {:else}
+                        <div class="customize-option">
+                            <div class="customize-option-title">{convertToCustomize(option)}</div>
+                            <input class="customize-option-input" type="number" bind:value={superHeavyOptions[option]}>
+                        </div>
+                    {/if}
                 {/if}
             {/each}
         </div>
         <button class="customize-action" style="right: 0; bottom: 0; width: 100%; height: 24px;" on:click={hideShowRightBar}>Hide Right</button>
     </div>
 {/if}
-<div class="customize-banner" style={hasLeftBar ? hasRightBar ? "left: 390px; width: calc(100vw - 390px - 340px);" : "left: 390px; width: calc(100vw - 390px);" : hasRightBar ? "left: 0; width: calc(100vw - 340px);" : "left: 0; width: 100vw;"}>
+<div class="customize-banner" style={hasLeftBar ? hasRightBar ? "left: 390px; width: calc(100vw - 390px - 335px);" : "left: 390px; width: calc(100vw - 390px);" : hasRightBar ? "left: 0; width: calc(100vw - 335px);" : "left: 0; width: 100vw;"}>
     {#if !hasLeftBar}
-        <button class="customize-action" style="left:0; top: 0; width: 20%; height: 100%; border-right: 1px solid white;" on:click={hideShowLeftBar}>Show Left</button>
+        <button class="customize-action" style="left:0; top: 0; width: 25%; height: 100%; border-right: 1px solid white;" on:click={hideShowLeftBar}>Show Left</button>
     {/if}
     {#if !hasRightBar}
-        <button class="customize-action" style="right:0; top: 0; width: 20%; height: 100%; border-left: 1px solid white;" on:click={hideShowRightBar}>Show Right</button>
+        <button class="customize-action" style="right:0; top: 0; width: 25%; height: 100%; border-left: 1px solid white;" on:click={hideShowRightBar}>Show Right</button>
     {/if}
-    <button class="customize-action" style="left:{hasLeftBar ? '0' : '20%'}; top: 0; width: {hasLeftBar && hasRightBar ? '50%' : !hasLeftBar && !hasRightBar ? '30%' : '40%'}; height: 100%; border-right: 1px solid white;" on:click={validate}>Validate</button>
-    <button class="customize-action" style="right:{hasRightBar ? '0' : '20%'}; top: 0; width: {hasLeftBar && hasRightBar ? '50%' : !hasLeftBar && !hasRightBar ? '30%' : '40%'}; height: 100%;" on:click={reset}>Reset</button>
+    <button class="customize-action" style="left:{hasLeftBar ? '0' : '25%'}; top: 0; width: {hasLeftBar && hasRightBar ? '50%' : !hasLeftBar && !hasRightBar ? '25%' : '37.5%'}; height: 100%; border-right: 1px solid white;" on:click={validate}>Validate</button>
+    <button class="customize-action" style="right:{hasRightBar ? '0' : '25%'}; top: 0; width: {hasLeftBar && hasRightBar ? '50%' : !hasLeftBar && !hasRightBar ? '25%' : '37.5%'}; height: 100%;" on:click={reset}>Reset</button>
 </div>

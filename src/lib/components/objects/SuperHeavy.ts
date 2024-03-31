@@ -28,8 +28,8 @@ export class SuperHeavy {
         rSeaAngularOffset2: SuperHeavyConstants.R_SEA_ANGULAR_OFFSET_2,
         rSeaAngularOffset3: SuperHeavyConstants.R_SEA_ANGULAR_OFFSET_3,
 
-        hsrHeightScale: 1,
-        bodyHeightScale: 1,
+        hsrHeight: 1,
+        boosterRingHeight: 1,
         chineHeightScale: 1,
         numChines: SuperHeavyConstants.NUM_CHINES,
 
@@ -69,8 +69,8 @@ export class SuperHeavy {
             this.options.rSeaAngularOffset2 = value.rSeaAngularOffset2;
             this.options.rSeaAngularOffset3 = value.rSeaAngularOffset3;
 
-            this.options.hsrHeightScale = value.hsrHeightScale;
-            this.options.bodyHeightScale = value.bodyHeightScale;
+            this.options.hsrHeight = value.hsrHeight;
+            this.options.boosterRingHeight = value.boosterRingHeight;
             this.options.chineHeightScale = value.chineHeightScale;
             this.options.numChines = value.numChines;
 
@@ -91,8 +91,8 @@ export class SuperHeavy {
     }
 
     public setupGridFins(): void {
-        let gridFinPositions = MathHelper.getCircularPositions(this.options.numGridFins, SuperHeavyConstants.GRID_FIN_RADIUS * SuperHeavyConstants.SUPER_HEAVY_SCALE.x, this.options.gridFinAngularOffset);
-        let gridFinRotations = MathHelper.getCircularRotations(this.options.numGridFins, this.options.gridFinAngularOffset);
+        let gridFinPositions = MathHelper.getCircularPositions(this.options.numGridFins, SuperHeavyConstants.GRID_FIN_RADIUS * SuperHeavyConstants.SUPER_HEAVY_SCALE.x, this.options.gridFinAngularOffset * Math.PI / 180);
+        let gridFinRotations = MathHelper.getCircularRotations(this.options.numGridFins, this.options.gridFinAngularOffset * Math.PI / 180);
 
         for (let i = 0; i < this.options.numGridFins; i++) {
             let gridFin = new Object3D();
@@ -104,8 +104,8 @@ export class SuperHeavy {
     }
 
     public setupChines(): void {
-        let chinePositions = MathHelper.getCircularPositions(this.options.numChines, SuperHeavyConstants.CHINE_RADIUS * SuperHeavyConstants.SUPER_HEAVY_SCALE.x, this.options.chineAngularOffset);
-        let chineRotations = MathHelper.getCircularRotations(this.options.numChines, this.options.chineAngularOffset);
+        let chinePositions = MathHelper.getCircularPositions(this.options.numChines, SuperHeavyConstants.CHINE_RADIUS * SuperHeavyConstants.SUPER_HEAVY_SCALE.x, this.options.chineAngularOffset * Math.PI / 180);
+        let chineRotations = MathHelper.getCircularRotations(this.options.numChines, this.options.chineAngularOffset * Math.PI / 180);
 
         for (let i = 0; i < this.options.numChines; i++) {
             let chine = new Object3D();
@@ -117,8 +117,8 @@ export class SuperHeavy {
     }
 
     public setupRSeas(): void {
-        let rSeaPositions1 = MathHelper.getCircularPositions(this.options.numRSeas1, this.options.rSeaRadius1 * SuperHeavyConstants.SUPER_HEAVY_SCALE.x, this.options.rSeaAngularOffset1);
-        let rSeaRotations1 = MathHelper.getCircularRotations(this.options.numRSeas1, this.options.rSeaAngularOffset1);
+        let rSeaPositions1 = MathHelper.getCircularPositions(this.options.numRSeas1, this.options.rSeaRadius1 * SuperHeavyConstants.SUPER_HEAVY_SCALE.x / SuperHeavyConstants.REAL_LIFE_SCALE.y, this.options.rSeaAngularOffset1 * Math.PI / 180);
+        let rSeaRotations1 = MathHelper.getCircularRotations(this.options.numRSeas1, this.options.rSeaAngularOffset1 * Math.PI / 180);
 
         for (let i = 0; i < this.options.numRSeas1; i++) {
             let rSea = new Object3D();
@@ -128,8 +128,8 @@ export class SuperHeavy {
             this.rSeas = [...this.rSeas, rSea];
         }
 
-        let rSeaPositions2 = MathHelper.getCircularPositions(this.options.numRSeas2, this.options.rSeaRadius2 * SuperHeavyConstants.SUPER_HEAVY_SCALE.x, this.options.rSeaAngularOffset2);
-        let rSeaRotations2 = MathHelper.getCircularRotations(this.options.numRSeas2, this.options.rSeaAngularOffset2);
+        let rSeaPositions2 = MathHelper.getCircularPositions(this.options.numRSeas2, this.options.rSeaRadius2 * SuperHeavyConstants.SUPER_HEAVY_SCALE.x / SuperHeavyConstants.REAL_LIFE_SCALE.y, this.options.rSeaAngularOffset2 * Math.PI / 180);
+        let rSeaRotations2 = MathHelper.getCircularRotations(this.options.numRSeas2, this.options.rSeaAngularOffset2 * Math.PI / 180);
 
         for (let i = 0; i < this.options.numRSeas2; i++) {
             let rSea = new Object3D();
@@ -139,8 +139,8 @@ export class SuperHeavy {
             this.rSeas = [...this.rSeas, rSea];
         }
 
-        let rSeaPositions3 = MathHelper.getCircularPositions(this.options.numRSeas3, this.options.rSeaRadius3 * SuperHeavyConstants.SUPER_HEAVY_SCALE.x, this.options.rSeaAngularOffset3);
-        let rSeaRotations3 = MathHelper.getCircularRotations(this.options.numRSeas3, this.options.rSeaAngularOffset3);
+        let rSeaPositions3 = MathHelper.getCircularPositions(this.options.numRSeas3, this.options.rSeaRadius3 * SuperHeavyConstants.SUPER_HEAVY_SCALE.x / SuperHeavyConstants.REAL_LIFE_SCALE.y, this.options.rSeaAngularOffset3 * Math.PI / 180);
+        let rSeaRotations3 = MathHelper.getCircularRotations(this.options.numRSeas3, this.options.rSeaAngularOffset3 * Math.PI / 180);
 
         for (let i = 0; i < this.options.numRSeas3; i++) {
             let rSea = new Object3D();
@@ -153,8 +153,8 @@ export class SuperHeavy {
 
     public setupOuterCylinders(): void {
         if (this.options.rSeaRadius3 > SuperHeavyConstants.OUTER_CYLINDER_THRESHOLD) {
-            let outerCylinderPositions = MathHelper.getCircularPositions(this.options.numRSeas3, (this.options.rSeaRadius3 + SuperHeavyConstants.OUTER_CYLINDER_ADDITIONAL_RADIUS) * SuperHeavyConstants.SUPER_HEAVY_SCALE.x, this.options.rSeaAngularOffset3);
-            let outerCylinderRotations = MathHelper.getCircularRotations(this.options.numRSeas3, this.options.rSeaAngularOffset3);
+            let outerCylinderPositions = MathHelper.getCircularPositions(this.options.numRSeas3, (this.options.rSeaRadius3 / SuperHeavyConstants.REAL_LIFE_SCALE.y + SuperHeavyConstants.OUTER_CYLINDER_ADDITIONAL_RADIUS) * SuperHeavyConstants.SUPER_HEAVY_SCALE.x, this.options.rSeaAngularOffset3 * Math.PI / 180);
+            let outerCylinderRotations = MathHelper.getCircularRotations(this.options.numRSeas3, this.options.rSeaAngularOffset3 * Math.PI / 180);
             
             for (let i = 0; i < this.options.numRSeas3; i++) {
                 let outerCylinder = new Object3D();
@@ -172,8 +172,8 @@ export class SuperHeavy {
             this.boosterRing.userData.aabb = null;
             this.hasUpdatedAABB = false;
 
-            this.hsr.scale.copy(SuperHeavyConstants.HSR_SCALE.clone().multiply(SuperHeavyConstants.SUPER_HEAVY_SCALE).multiply(new Vector3(1, this.options.hsrHeightScale, 1)));
-            this.boosterRing.scale.copy(SuperHeavyConstants.BOOSTER_RING_SCALE.clone().multiply(SuperHeavyConstants.SUPER_HEAVY_SCALE).multiply(new Vector3(1, this.options.bodyHeightScale, 1)));
+            this.hsr.scale.copy(SuperHeavyConstants.HSR_SCALE.clone().multiply(SuperHeavyConstants.SUPER_HEAVY_SCALE).multiply(new Vector3(1, this.options.hsrHeight / (SuperHeavyConstants.HSR_HEIGHT * SuperHeavyConstants.REAL_LIFE_SCALE.y), 1)));
+            this.boosterRing.scale.copy(SuperHeavyConstants.BOOSTER_RING_SCALE.clone().multiply(SuperHeavyConstants.SUPER_HEAVY_SCALE).multiply(new Vector3(1, this.options.boosterRingHeight / SuperHeavyConstants.REAL_LIFE_SCALE.y, 1)));
             this.hasSetupSingle = true;
         }
     }

@@ -26,7 +26,7 @@ export class Starship {
         rSeaAngularOffset: StarshipConstants.R_SEA_ANGULAR_OFFSET,
         rVacAngularOffset: StarshipConstants.R_VAC_ANGULAR_OFFSET,
 
-        bodyHeightScale: 1,
+        shipRingHeight: 1,
 
         forwardLHeightScale: 1,
         forwardLWidthScale: 1,
@@ -63,7 +63,7 @@ export class Starship {
             this.options.rSeaAngularOffset = value.rSeaAngularOffset;
             this.options.rVacAngularOffset = value.rVacAngularOffset;
 
-            this.options.bodyHeightScale = value.bodyHeightScale;
+            this.options.shipRingHeight = value.shipRingHeight;
 
             this.options.forwardLHeightScale = value.forwardLHeightScale;
             this.options.forwardLWidthScale = value.forwardLWidthScale;
@@ -88,7 +88,7 @@ export class Starship {
     }
 
     public setupRSeas(): void {
-        let rSeaPositions = MathHelper.getCircularPositions(this.options.numRSeas, this.options.rSeaRadius * StarshipConstants.STARSHIP_SCALE.x, this.options.rSeaAngularOffset);
+        let rSeaPositions = MathHelper.getCircularPositions(this.options.numRSeas, this.options.rSeaRadius * StarshipConstants.STARSHIP_SCALE.x / StarshipConstants.REAL_LIFE_SCALE.x, this.options.rSeaAngularOffset * Math.PI / 180);
         let rSeaRotations = MathHelper.getCircularRotations(this.options.numRSeas, this.options.rSeaAngularOffset);
 
         for (let i = 0; i < this.options.numRSeas; i++) {
@@ -102,8 +102,8 @@ export class Starship {
     }
 
     public setupRVacs(): void {
-        let rVacPositions = MathHelper.getCircularPositions(this.options.numRVacs, this.options.rVacRadius * StarshipConstants.STARSHIP_SCALE.x, this.options.rVacAngularOffset);
-        let rVacRotations = MathHelper.getCircularRotations(this.options.numRVacs, this.options.rVacAngularOffset);
+        let rVacPositions = MathHelper.getCircularPositions(this.options.numRVacs, this.options.rVacRadius * StarshipConstants.STARSHIP_SCALE.x / StarshipConstants.REAL_LIFE_SCALE.x, this.options.rVacAngularOffset);
+        let rVacRotations = MathHelper.getCircularRotations(this.options.numRVacs, this.options.rVacAngularOffset * Math.PI / 180);
 
         for (let i = 0; i < this.options.numRVacs; i++) {
             let rVac = new Object3D();
@@ -127,7 +127,7 @@ export class Starship {
             this.hasUpdatedAABB = false;
 
             this.nosecone.scale.copy(StarshipConstants.NOSECONE_SCALE.clone().multiply(StarshipConstants.STARSHIP_SCALE));
-            this.shipRing.scale.copy(StarshipConstants.SHIP_RING_SCALE.clone().multiply(StarshipConstants.STARSHIP_SCALE).multiply(new Vector3(1, this.options.bodyHeightScale, 1)));
+            this.shipRing.scale.copy(StarshipConstants.SHIP_RING_SCALE.clone().multiply(StarshipConstants.STARSHIP_SCALE).multiply(new Vector3(1, this.options.shipRingHeight / StarshipConstants.REAL_LIFE_SCALE.y, 1)));
             this.forwardL.scale.copy(StarshipConstants.FORWARD_L_SCALE.clone().multiply(StarshipConstants.STARSHIP_SCALE).multiply(new Vector3(1, this.options.forwardLHeightScale, this.options.forwardLWidthScale)));
             this.forwardL.rotation.copy(StarshipConstants.FORWARD_L_ROTATION);
             this.forwardR.scale.copy(StarshipConstants.FORWARD_R_SCALE.clone().multiply(StarshipConstants.STARSHIP_SCALE).multiply(new Vector3(1, this.options.forwardRHeightScale, this.options.forwardRWidthScale)));

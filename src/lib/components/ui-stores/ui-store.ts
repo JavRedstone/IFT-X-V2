@@ -10,10 +10,7 @@ export const toggles = writable({
 });
 
 export const starshipSettings = writable({
-    rSeaAngularOffset: StarshipConstants.R_SEA_ANGULAR_OFFSET,
-    rVacAngularOffset: StarshipConstants.R_VAC_ANGULAR_OFFSET,
-    
-    bodyHeightScale: 1,
+    shipRingHeight: StarshipConstants.SHIP_RING_HEIGHT * StarshipConstants.REAL_LIFE_SCALE.y,
 
     forwardLHeightScale: 1,
     forwardLWidthScale: 1,
@@ -24,38 +21,49 @@ export const starshipSettings = writable({
     aftRHeightScale: 1,
     aftRWidthScale: 1,
 
-    rSeaRadius: StarshipConstants.R_SEA_RADIUS,
+    rSeaRadius: StarshipConstants.R_SEA_RADIUS * SuperHeavyConstants.REAL_LIFE_SCALE.x,
     numRSeas: StarshipConstants.NUM_R_SEAS,
+    rSeaAngularOffset: StarshipConstants.R_SEA_ANGULAR_OFFSET * 180/Math.PI,
+    rSeaType: 2,
+    canRSeaGimbal: StarshipConstants.CAN_R_SEA_GIMBAL,
 
-    rVacRadius: StarshipConstants.R_VAC_RADIUS,
+    rVacRadius: StarshipConstants.R_VAC_RADIUS * SuperHeavyConstants.REAL_LIFE_SCALE.x,
     numRVacs: StarshipConstants.NUM_R_VACS,
+    rVacAngularOffset: StarshipConstants.R_VAC_ANGULAR_OFFSET * 180/Math.PI,
+    rVacType: 2,
+    canRVacGimbal: StarshipConstants.CAN_R_VAC_GIMBAL,
 });
 
 export const superHeavySettings = writable({
-    gridFinAngularOffset: SuperHeavyConstants.GRID_FIN_ANGULAR_OFFSET,
-    chineAngularOffset: SuperHeavyConstants.CHINE_ANGULAR_OFFSET,
+    hsrHeight: SuperHeavyConstants.HSR_HEIGHT * SuperHeavyConstants.REAL_LIFE_SCALE.y,
+    boosterRingHeight: SuperHeavyConstants.BOOSTER_RING_HEIGHT * SuperHeavyConstants.REAL_LIFE_SCALE.y,
     
-    rSeaAngularOffset1: SuperHeavyConstants.R_SEA_ANGULAR_OFFSET_1,
-    rSeaAngularOffset2: SuperHeavyConstants.R_SEA_ANGULAR_OFFSET_2,
-    rSeaAngularOffset3: SuperHeavyConstants.R_SEA_ANGULAR_OFFSET_3,
-
-    hsrHeightScale: 1,
-    bodyHeightScale: 1,
-    chineHeightScale: 1,
-    numChines: SuperHeavyConstants.NUM_CHINES,
-    
+    numGridFins: SuperHeavyConstants.NUM_GRID_FINS,
+    gridFinAngularOffset: SuperHeavyConstants.GRID_FIN_ANGULAR_OFFSET * 180/Math.PI,
     gridFinLengthScale: 1,
     gridFinWidthScale: 1,
-    numGridFins: SuperHeavyConstants.NUM_GRID_FINS,
 
-    rSeaRadius1: SuperHeavyConstants.R_SEA_RADIUS_1,
+    numChines: SuperHeavyConstants.NUM_CHINES,
+    chineAngularOffset: SuperHeavyConstants.CHINE_ANGULAR_OFFSET * 180/Math.PI,
+    chineHeightScale: 1,
+    
+    rSeaRadius1: SuperHeavyConstants.R_SEA_RADIUS_1 * SuperHeavyConstants.REAL_LIFE_SCALE.x,
     numRSeas1: SuperHeavyConstants.NUM_R_SEAS_1,
+    rSeaAngularOffset1: SuperHeavyConstants.R_SEA_ANGULAR_OFFSET_1 * 180/Math.PI,
+    rSeaType1: 2,
+    canRSea1Gimbal: SuperHeavyConstants.CAN_R_SEA_1_GIMBAL,
 
-    rSeaRadius2: SuperHeavyConstants.R_SEA_RADIUS_2,
+    rSeaRadius2: SuperHeavyConstants.R_SEA_RADIUS_2 * SuperHeavyConstants.REAL_LIFE_SCALE.x,
     numRSeas2: SuperHeavyConstants.NUM_R_SEAS_2,
+    rSeaAngularOffset2: SuperHeavyConstants.R_SEA_ANGULAR_OFFSET_2 * 180/Math.PI,
+    rSeaType2: 2,
+    canRSea2Gimbal: SuperHeavyConstants.CAN_R_SEA_2_GIMBAL,
 
-    rSeaRadius3: SuperHeavyConstants.R_SEA_RADIUS_3,
+    rSeaRadius3: SuperHeavyConstants.R_SEA_RADIUS_3 * SuperHeavyConstants.REAL_LIFE_SCALE.x,
     numRSeas3: SuperHeavyConstants.NUM_R_SEAS_3,
+    rSeaAngularOffset3: SuperHeavyConstants.R_SEA_ANGULAR_OFFSET_3 * 180/Math.PI,
+    rSeaType3: 2,
+    canRSea3Gimbal: SuperHeavyConstants.CAN_R_SEA_3_GIMBAL,
 });
 
 export const telemetry = writable({

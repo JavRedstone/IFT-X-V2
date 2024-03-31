@@ -1,5 +1,4 @@
-import { Euler, Group, Quaternion, Spherical, Vector3 } from "three";
-import { ObjectHelper } from "./ObjectHelper";
+import { Euler, Quaternion, Vector3 } from "three";
 
 export class MathHelper {    
     public static clamp(value: number, min: number, max: number): number {
@@ -46,15 +45,5 @@ export class MathHelper {
         let angle = v1.angleTo(v2);
         let axis = new Vector3().crossVectors(v1, v2).normalize();
         return new Quaternion().setFromAxisAngle(axis, angle);
-    }
-
-    public static getTString(dt: number): string {
-        // format: T-00:00:00
-        let sign = dt < 0 ? "-" : "+";
-        dt = Math.abs(dt);
-        let hours = Math.floor(dt / 3600);
-        let minutes = Math.floor((dt % 3600) / 60);
-        let seconds = Math.floor(dt % 60);
-        return `T${sign}${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
     }
 }
