@@ -962,7 +962,7 @@
                 validate();
             }
             else if (event.key === "r" || event.key === "R") {
-                resetStarship();
+                reset();
             }
         });
     }
