@@ -889,7 +889,7 @@
         validateSuperHeavy();
     }
 
-    function updateHsr() {
+    function updateHsr(): void {
         if (superHeavyOptions.hasHsr && superHeavyOptions.hsrHeight === 0) {
             superHeavyOptions.hasHsr = false;
             // before the html updates (b/c checkbox checked after update)
@@ -904,7 +904,7 @@
         ,0)
     }
 
-    function setIsEditing(object: string) {
+    function setIsEditing(object: string): void {
         if (object == "SS") {
             toggles.update((value) => {
                 value.isEditingStarship = true;
@@ -939,16 +939,37 @@
     let hasLeftBar: boolean = true;
     let hasRightBar: boolean = true;
 
-    function hideShowLeftBar() {
+    function hideShowLeftBar(): void {
         hasLeftBar = !hasLeftBar;
     }
 
-    function hideShowRightBar() {
+    function hideShowRightBar(): void {
         hasRightBar = !hasRightBar;
+    }
+
+    function setupKeybinds(): void {
+        window.addEventListener("keydown", (event) => {
+            if (event.key === "Escape") {
+                setIsEditing("");
+            }
+            else if (event.key === "ArrowLeft") {
+                hideShowLeftBar();
+            }
+            else if (event.key === "ArrowRight") {
+                hideShowRightBar();
+            }
+            else if (event.key === "Enter") {
+                validateStarship();
+            }
+            else if (event.key === "r" || event.key === "R") {
+                resetStarship();
+            }
+        });
     }
 
     onMount(() => {
         setupUpdator();
+        setupKeybinds();
     });
 </script>
 <style>
@@ -1175,7 +1196,7 @@
                 {/if}
             {/each}
         </div>
-        <button class="customize-action" style="left: 0; bottom: 0; width: 100%; height: 24px;" on:click={hideShowLeftBar}>Hide Left</button>
+        <button class="customize-action" style="left: 0; bottom: 0; width: 100%; height: 24px;" on:click={hideShowLeftBar}>&#9668; Hide Left</button>
     </div>
 {/if}
 {#if hasRightBar}
@@ -1230,16 +1251,16 @@
                 {/if}
             {/each}
         </div>
-        <button class="customize-action" style="right: 0; bottom: 0; width: 100%; height: 24px;" on:click={hideShowRightBar}>Hide Right</button>
+        <button class="customize-action" style="right: 0; bottom: 0; width: 100%; height: 24px;" on:click={hideShowRightBar}>Hide Right &#9658;</button>
     </div>
 {/if}
 <div class="customize-banner" style={hasLeftBar ? hasRightBar ? "left: 390px; width: calc(100vw - 390px - 340px);" : "left: 390px; width: calc(100vw - 390px);" : hasRightBar ? "left: 0; width: calc(100vw - 340px);" : "left: 0; width: 100vw;"}>
     {#if !hasLeftBar}
-        <button class="customize-action" style="left:0; top: 0; width: 25%; height: 100%; border-right: 1px solid white;" on:click={hideShowLeftBar}>Show Left</button>
+        <button class="customize-action" style="left:0; top: 0; width: 25%; height: 100%; border-right: 1px solid white;" on:click={hideShowLeftBar}>&#9668; Show Left</button>
     {/if}
     {#if !hasRightBar}
-        <button class="customize-action" style="right:0; top: 0; width: 25%; height: 100%; border-left: 1px solid white;" on:click={hideShowRightBar}>Show Right</button>
+        <button class="customize-action" style="right:0; top: 0; width: 25%; height: 100%; border-left: 1px solid white;" on:click={hideShowRightBar}>Show Right &#9658;</button>
     {/if}
-    <button class="customize-action" style="left:{hasLeftBar ? '0' : '25%'}; top: 0; width: {hasLeftBar && hasRightBar ? '50%' : !hasLeftBar && !hasRightBar ? '25%' : '37.5%'}; height: 100%; border-right: 1px solid white;" on:click={validate}>Test & Preview</button>
-    <button class="customize-action" style="right:{hasRightBar ? '0' : '25%'}; top: 0; width: {hasLeftBar && hasRightBar ? '50%' : !hasLeftBar && !hasRightBar ? '25%' : '37.5%'}; height: 100%;" on:click={reset}>Reset</button>
+    <button class="customize-action" style="left:{hasLeftBar ? '0' : '25%'}; top: 0; width: {hasLeftBar && hasRightBar ? '50%' : !hasLeftBar && !hasRightBar ? '25%' : '37.5%'}; height: 100%; border-right: 1px solid white;" on:click={validate}>Test &#128498;</button>
+    <button class="customize-action" style="right:{hasRightBar ? '0' : '25%'}; top: 0; width: {hasLeftBar && hasRightBar ? '50%' : !hasLeftBar && !hasRightBar ? '25%' : '37.5%'}; height: 100%;" on:click={reset}>Reset &#8634;</button>
 </div>
