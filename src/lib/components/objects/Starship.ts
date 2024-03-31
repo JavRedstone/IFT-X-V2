@@ -2,7 +2,7 @@ import { Group, Object3D, Vector3 } from "three";
 import { StarshipConstants } from "../constants/objects/StarshipConstants";
 import { MathHelper } from "../helpers/MathHelper";
 import { ObjectHelper } from "../helpers/ObjectHelper";
-import { starshipSettings } from "../ui-stores/ui-store";
+import { starshipSettings, toggles } from "../ui-stores/ui-store";
 
 export class Starship {
     public nosecone: Group = new Group();
@@ -21,6 +21,9 @@ export class Starship {
 
     public hasSetupSingle: boolean = false;
     public hasUpdatedAABB: boolean = false;
+
+    public isEditing: boolean = false;
+    public visibilityCooldown: number = StarshipConstants.VISIBILITY_COOLDOWN;
 
     public options: any = {
         rSeaAngularOffset: StarshipConstants.R_SEA_ANGULAR_OFFSET,
@@ -59,6 +62,9 @@ export class Starship {
     }
 
     public setupUpdator(): void {
+        toggles.subscribe((value) => {
+            this.isEditing = value.isEditingStarship;
+        });
         starshipSettings.subscribe((value) => {
             this.options.rSeaAngularOffset = value.rSeaAngularOffset;
             this.options.rVacAngularOffset = value.rVacAngularOffset;
@@ -89,7 +95,7 @@ export class Starship {
 
     public setupRSeas(): void {
         let rSeaPositions = MathHelper.getCircularPositions(this.options.numRSeas, this.options.rSeaRadius * StarshipConstants.STARSHIP_SCALE.x / StarshipConstants.REAL_LIFE_SCALE.x, this.options.rSeaAngularOffset * Math.PI / 180);
-        let rSeaRotations = MathHelper.getCircularRotations(this.options.numRSeas, this.options.rSeaAngularOffset);
+        let rSeaRotations = MathHelper.getCircularRotations(this.options.numRSeas, this.options.rSeaAngularOffset * Math.PI / 180);
 
         for (let i = 0; i < this.options.numRSeas; i++) {
             let rSea = new Object3D();
@@ -102,7 +108,7 @@ export class Starship {
     }
 
     public setupRVacs(): void {
-        let rVacPositions = MathHelper.getCircularPositions(this.options.numRVacs, this.options.rVacRadius * StarshipConstants.STARSHIP_SCALE.x / StarshipConstants.REAL_LIFE_SCALE.x, this.options.rVacAngularOffset);
+        let rVacPositions = MathHelper.getCircularPositions(this.options.numRVacs, this.options.rVacRadius * StarshipConstants.STARSHIP_SCALE.x / StarshipConstants.REAL_LIFE_SCALE.x, this.options.rVacAngularOffset * Math.PI / 180);
         let rVacRotations = MathHelper.getCircularRotations(this.options.numRVacs, this.options.rVacAngularOffset * Math.PI / 180);
 
         for (let i = 0; i < this.options.numRVacs; i++) {
@@ -165,7 +171,7 @@ export class Starship {
         }
     }
 
-    public updateObjects(): void {
+    public updateObjects(delta: number): void {
         if (this.nosecone != null && this.shipRing != null && this.forwardL != null && this.forwardR != null && this.aftL != null && this.aftR != null && this.nosecone.userData.aabb.getSize(new Vector3).length() != 0 && this.shipRing.userData.aabb.getSize(new Vector3).length() != 0 && this.forwardL.userData.aabb.getSize(new Vector3).length() != 0 && this.forwardR.userData.aabb.getSize(new Vector3).length() != 0 && this.aftL.userData.aabb.getSize(new Vector3).length() != 0 && this.aftR.userData.aabb.getSize(new Vector3).length() != 0) {
             this.nosecone.position.copy(this.shipRing.position.clone().add(new Vector3(0, this.shipRing.userData.aabb.getSize(new Vector3).y, 0)));
             this.forwardL.position.copy(this.shipRing.position.clone().add(new Vector3(0, this.shipRing.userData.aabb.getSize(new Vector3).y, -StarshipConstants.STARSHIP_SCALE.z)));
@@ -173,6 +179,20 @@ export class Starship {
             this.aftL.position.copy(this.shipRing.position.clone().add(new Vector3(0, 0, -StarshipConstants.STARSHIP_SCALE.z)));
             this.aftR.position.copy(this.shipRing.position.clone().add(new Vector3(0, 0, StarshipConstants.STARSHIP_SCALE.z)));
             this.hasUpdatedAABB = true;
+        }
+
+        if (this.isEditing) {
+            if (this.visibilityCooldown > 0) {
+                this.visibilityCooldown -= delta;
+            }
+            if (this.visibilityCooldown <= 0) {
+                this.group.visible = !this.group.visible;
+                this.visibilityCooldown = StarshipConstants.VISIBILITY_COOLDOWN;
+            }
+        }
+        else {
+            this.group.visible = true;
+            this.visibilityCooldown = StarshipConstants.VISIBILITY_COOLDOWN;
         }
     }
 
@@ -182,7 +202,7 @@ export class Starship {
         }
         else {
             this.updateAABB();
-            this.updateObjects();
+            this.updateObjects(delta);
         }
     }
 }

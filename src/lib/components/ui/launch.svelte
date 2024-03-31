@@ -17,11 +17,11 @@
 
     const sizeMult = 44;
     const posOffset = 12;
-    const rSeaRadius = 4.5;
+    const rSeaRadius = sizeMult * RaptorConstants.RADIUS_SEA;
     const rVacRadius = RaptorConstants.RADIUS_SEA_TO_VAC * rSeaRadius;
     const border = 1.275;
-    const rSeaRealRadius = rSeaRadius + border;
-    const rVacRealRadius = rVacRadius + border;
+    const rSeaFakeRadius = rSeaRadius - border;
+    const rVacFakeRadius = rVacRadius - border;
 
     let starshipOptions: any = {
         rSeaRadius: 0,
@@ -150,26 +150,26 @@
     function createStarshipRaptors(): void {
         let rSeaPositions: Vector3[] = MathHelper.getCircularPositions(starshipOptions.numRSeas, starshipOptions.rSeaRadius / StarshipConstants.REAL_LIFE_SCALE.x * sizeMult, starshipOptions.rSeaAngularOffset * Math.PI / 180);
         for (let i = 0; i < starshipOptions.numRSeas; i++) {
-            starshipRaptors = [...starshipRaptors, new RaptorUI(true, starshipOptions.rSeaType, telemetryValues.rSeaThrottles[i], new Vector2(sizeMult - rSeaPositions[i].z - rSeaRealRadius, rSeaPositions[i].x + sizeMult - rSeaRealRadius))];
+            starshipRaptors = [...starshipRaptors, new RaptorUI(true, starshipOptions.rSeaType, telemetryValues.rSeaThrottles[i], new Vector2(sizeMult - rSeaPositions[i].z - rSeaRadius, rSeaPositions[i].x + sizeMult - rSeaRadius))];
         }
         let rVacPositions: Vector3[] = MathHelper.getCircularPositions(starshipOptions.numRVacs, starshipOptions.rVacRadius / StarshipConstants.REAL_LIFE_SCALE.x * sizeMult, starshipOptions.rVacAngularOffset * Math.PI / 180);
         for (let i = 0; i < starshipOptions.numRVacs; i++) {
-            starshipRaptors = [...starshipRaptors, new RaptorUI(false, starshipOptions.rVacType, telemetryValues.rVacThrottles[i], new Vector2(sizeMult - rVacPositions[i].z - rVacRealRadius, rVacPositions[i].x + sizeMult - rVacRealRadius))];
+            starshipRaptors = [...starshipRaptors, new RaptorUI(false, starshipOptions.rVacType, telemetryValues.rVacThrottles[i], new Vector2(sizeMult - rVacPositions[i].z - rVacRadius, rVacPositions[i].x + sizeMult - rVacRadius))];
         }
     }
 
     function createSuperHeavyRaptors(): void {
         let rSeaPositions1: Vector3[] = MathHelper.getCircularPositions(superHeavyOptions.numRSeas1, superHeavyOptions.rSeaRadius1 / SuperHeavyConstants.REAL_LIFE_SCALE.x * sizeMult, superHeavyOptions.rSeaAngularOffset1 * Math.PI / 180);
         for (let i = 0; i < superHeavyOptions.numRSeas1; i++) {
-            superHeavyRaptors = [...superHeavyRaptors, new RaptorUI(true, superHeavyOptions.rSeaType1, telemetryValues.rSeaThrottles1[i], new Vector2(rSeaPositions1[i].z + sizeMult - rSeaRealRadius, rSeaPositions1[i].x + sizeMult - rSeaRealRadius))];
+            superHeavyRaptors = [...superHeavyRaptors, new RaptorUI(true, superHeavyOptions.rSeaType1, telemetryValues.rSeaThrottles1[i], new Vector2(rSeaPositions1[i].z + sizeMult - rSeaRadius, rSeaPositions1[i].x + sizeMult - rSeaRadius))];
         }
         let rSeaPositions2: Vector3[] = MathHelper.getCircularPositions(superHeavyOptions.numRSeas2, superHeavyOptions.rSeaRadius2 / SuperHeavyConstants.REAL_LIFE_SCALE.x * sizeMult, superHeavyOptions.rSeaAngularOffset2 * Math.PI / 180);
         for (let i = 0; i < superHeavyOptions.numRSeas2; i++) {
-            superHeavyRaptors = [...superHeavyRaptors, new RaptorUI(true, superHeavyOptions.rSeaType2, telemetryValues.rSeaThrottles2[i], new Vector2(rSeaPositions2[i].z + sizeMult - rSeaRealRadius, rSeaPositions2[i].x + sizeMult - rSeaRealRadius))];
+            superHeavyRaptors = [...superHeavyRaptors, new RaptorUI(true, superHeavyOptions.rSeaType2, telemetryValues.rSeaThrottles2[i], new Vector2(rSeaPositions2[i].z + sizeMult - rSeaRadius, rSeaPositions2[i].x + sizeMult - rSeaRadius))];
         }
         let rSeaPositions3: Vector3[] = MathHelper.getCircularPositions(superHeavyOptions.numRSeas3, superHeavyOptions.rSeaRadius3 / SuperHeavyConstants.REAL_LIFE_SCALE.x * sizeMult, superHeavyOptions.rSeaAngularOffset3 * Math.PI / 180);
         for (let i = 0; i < superHeavyOptions.numRSeas3; i++) {
-            superHeavyRaptors = [...superHeavyRaptors, new RaptorUI(true, superHeavyOptions.rSeaType3, telemetryValues.rSeaThrottles3[i], new Vector2(rSeaPositions3[i].z + sizeMult - rSeaRealRadius, rSeaPositions3[i].x + sizeMult - rSeaRealRadius))];
+            superHeavyRaptors = [...superHeavyRaptors, new RaptorUI(true, superHeavyOptions.rSeaType3, telemetryValues.rSeaThrottles3[i], new Vector2(rSeaPositions3[i].z + sizeMult - rSeaRadius, rSeaPositions3[i].x + sizeMult - rSeaRadius))];
         }
     }
 
@@ -330,8 +330,8 @@
     <div class="launch-event">INTEGRATED FLIGHT TEST X</div>
     <div style="opacity: {telemetryValues.starshipDisabled ? 0.5 : 1};">
         {#each starshipRaptors as raptor}
-            <div class="launch-raptor" style="border-width: {border}px; width: {raptor.isSea ? rSeaRadius*2 : rVacRadius*2}px; height: {raptor.isSea ? rSeaRadius*2 : rVacRadius*2}px; right: {raptor.position.x + posOffset}px; top: {raptor.position.y + posOffset}px;">
-                <div class="launch-raptor-throttle" style="width: {raptor.isSea ? raptor.throttle * rSeaRealRadius * 2 : raptor.throttle * rVacRealRadius * 2}px; height: {raptor.isSea ? raptor.throttle * rSeaRealRadius * 2 : raptor.throttle * rVacRealRadius * 2}px"></div>
+            <div class="launch-raptor" style="border-width: {border}px; width: {raptor.isSea ? rSeaFakeRadius*2 : rVacFakeRadius*2}px; height: {raptor.isSea ? rSeaFakeRadius*2 : rVacFakeRadius*2}px; right: {raptor.position.x + posOffset + border}px; top: {raptor.position.y + posOffset + border}px;">
+                <div class="launch-raptor-throttle" style="width: {raptor.isSea ? raptor.throttle * rSeaRadius * 2 : raptor.throttle * rVacRadius * 2}px; height: {raptor.isSea ? raptor.throttle * rSeaRadius * 2 : raptor.throttle * rVacRadius * 2}px"></div>
             </div>
         {/each}
 
@@ -364,8 +364,8 @@
     </div>
     <div style="opacity: {telemetryValues.superHeavyDisabled ? 0.5 : 1};">
         {#each superHeavyRaptors as raptor}
-            <div class="launch-raptor" style="border-width: {border}px; width: {raptor.isSea ? rSeaRadius*2 : rVacRadius*2}px; height: {raptor.isSea ? rSeaRadius*2 : rVacRadius*2}px; left: {raptor.position.x + posOffset}px; top: {raptor.position.y + posOffset}px;">
-                <div class="launch-raptor-throttle" style="width: {raptor.isSea ? raptor.throttle * rSeaRealRadius * 2 : raptor.throttle * rVacRealRadius * 2}px; height: {raptor.isSea ? raptor.throttle * rSeaRealRadius * 2 : raptor.throttle * rVacRealRadius * 2}px"></div>
+            <div class="launch-raptor" style="border-width: {border}px; width: {raptor.isSea ? rSeaFakeRadius*2 : rVacFakeRadius*2}px; height: {raptor.isSea ? rSeaFakeRadius*2 : rVacFakeRadius*2}px; left: {raptor.position.x + posOffset + border}px; top: {raptor.position.y + posOffset + border}px;">
+                <div class="launch-raptor-throttle" style="width: {raptor.isSea ? raptor.throttle * rSeaFakeRadius * 2 : raptor.throttle * rVacRadius * 2}px; height: {raptor.isSea ? raptor.throttle * rSeaRadius * 2 : raptor.throttle * rVacFakeRadius * 2}px"></div>
             </div>
         {/each}
 

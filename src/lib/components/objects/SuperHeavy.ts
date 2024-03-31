@@ -2,7 +2,7 @@ import { Euler, Group, Object3D, Quaternion, Vector3 } from "three";
 import { MathHelper } from "../helpers/MathHelper";
 import { SuperHeavyConstants } from "../constants/objects/SuperHeavyConstants";
 import { ObjectHelper } from "../helpers/ObjectHelper";
-import { superHeavySettings } from "../ui-stores/ui-store";
+import { superHeavySettings, toggles } from "../ui-stores/ui-store";
 
 export class SuperHeavy {
     public hsr: Group = new Group();
@@ -20,6 +20,9 @@ export class SuperHeavy {
 
     public hasSetupSingle: boolean = false;
     public hasUpdatedAABB: boolean = false;
+
+    public isEditing: boolean = false;
+    public visibilityCooldown: number = SuperHeavyConstants.VISIBILITY_COOLDOWN;
 
     public options: any = {
         gridFinAngularOffset: SuperHeavyConstants.GRID_FIN_ANGULAR_OFFSET,
@@ -62,6 +65,9 @@ export class SuperHeavy {
     }
 
     public setupUpdator(): void {
+        toggles.subscribe((value) => {
+            this.isEditing = value.isEditingSuperHeavy;
+        });
         superHeavySettings.subscribe((value) => {
             this.options.gridFinAngularOffset = value.gridFinAngularOffset;
             this.options.chineAngularOffset = value.chineAngularOffset;
@@ -202,7 +208,7 @@ export class SuperHeavy {
         }
     }
 
-    public updateObjects(): void {
+    public updateObjects(delta: number): void {
         if (this.hsr != null && this.boosterRing != null && this.hsr.userData.aabb.getSize(new Vector3).length() != 0 && this.boosterRing.userData.aabb.getSize(new Vector3).length() != 0) {
             this.hsr.position.copy(this.boosterRing.position.clone().add(new Vector3(0, this.boosterRing.userData.aabb.getSize(new Vector3).y, 0)));
             for (let gridFin of this.gridFins) {
@@ -212,6 +218,20 @@ export class SuperHeavy {
             }
             this.hasUpdatedAABB = true;
         }
+
+        if (this.isEditing) {
+            if (this.visibilityCooldown > 0) {
+                this.visibilityCooldown -= delta;
+            }
+            if (this.visibilityCooldown <= 0) {
+                this.group.visible = !this.group.visible;
+                this.visibilityCooldown = SuperHeavyConstants.VISIBILITY_COOLDOWN;
+            }
+        }
+        else {
+            this.group.visible = true;
+            this.visibilityCooldown = SuperHeavyConstants.VISIBILITY_COOLDOWN;
+        }
     }
 
     public updateScene(delta: number): void {
@@ -220,7 +240,7 @@ export class SuperHeavy {
         }
         else {
             this.updateAABB();
-            this.updateObjects();
+            this.updateObjects(delta);
         }
     }
 }

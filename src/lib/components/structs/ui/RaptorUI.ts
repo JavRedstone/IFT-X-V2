@@ -6,11 +6,13 @@ export class RaptorUI {
     public type: number = 0;
     public throttle: number = 0;
     public position: Vector2 = new Vector2();
+    public isValidated: boolean = true;
 
-    constructor(isSea: boolean, type: number, throttle: number, position: Vector2) {
+    constructor(isSea: boolean, type: number, throttle: number, position: Vector2, isValidated: boolean = true) {
         this.isSea = isSea;
         this.type = type;
         this.throttle = throttle;
         this.position = position;
+        this.isValidated = isValidated;
     }
 }

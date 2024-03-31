@@ -1,6 +1,8 @@
 import { Euler, Vector3 } from "three";
 
 export class SuperHeavyConstants {
+    public static readonly VISIBILITY_COOLDOWN: number = 0.25;
+    
     public static readonly REAL_LIFE_SCALE: Vector3 = new Vector3(4.5, 4.5, 4.5);
 
     public static readonly SUPER_HEAVY_SCALE: Vector3 = new Vector3(0.001, 0.001, 0.001);
@@ -13,12 +15,18 @@ export class SuperHeavyConstants {
     public static readonly HSR_SCALE: Vector3 = new Vector3(1, 1, 1);
     public static readonly HSR_OFFSET: number = 0.0625;
     public static readonly HSR_HEIGHT: number = 4/9;
+    public static readonly MAX_HSR_HEIGHT: number = 1;
 
     public static readonly BOOSTER_RING_SCALE: Vector3 = new Vector3(1, 1, 1);
     public static readonly BOOSTER_RING_HEIGHT: number = 15.25;
+    public static readonly MIN_BOOSTER_RING_HEIGHT: number = 1;
+    public static readonly MAX_BOOSTER_RING_HEIGHT: number = 30;
 
     public static readonly GRID_FIN_SCALE: Vector3 = new Vector3(0.082328, 0.082328, 0.082328);
     public static readonly GRID_FIN_RADIUS: number = 1;
+    public static readonly GRID_FIN_MAX_LENGTH_SCALE: number = 2;
+    public static readonly GRID_FIN_MAX_WIDTH_SCALE: number = 2;
+    public static readonly GRID_FIN_WIDTH_PERC: number = 0.25;
     public static readonly GRID_FIN_ROTATION: Euler = new Euler(90 * Math.PI/180, 0, -90 * Math.PI/180);
     public static readonly GRID_FIN_ANGULAR_OFFSET: number = 45 * Math.PI / 180;
     public static readonly GRID_FIN_TOP_OFFSET: number = 0.1;
@@ -26,6 +34,8 @@ export class SuperHeavyConstants {
 
     public static readonly CHINE_SCALE: Vector3 = new Vector3(1, 1, 1);
     public static readonly CHINE_RADIUS: number = 0.975;
+    public static readonly CHINE_MAX_HEIGHT_SCALE: number = 2;
+    public static readonly CHINE_WIDTH_PERC: number = 0.2;
     public static readonly CHINE_ROTATION: Euler = new Euler(0, 180 * Math.PI/180, 0);
     public static readonly CHINE_ANGULAR_OFFSET: number = 45 * Math.PI / 180;
     public static readonly CHINE_BOTTOM_OFFSET: number = 0.35;

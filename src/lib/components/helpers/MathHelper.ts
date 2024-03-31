@@ -27,6 +27,12 @@ export class MathHelper {
         return rotations;
     }
 
+    // given a circle of radius r, get the maximum number of circles of radius r2 that can be placed around the circle, with the center of circle r2 being on the circle r
+    // 2 * pi * r / (2 * r2) = number of circles
+    public static getMaxCirclesAroundCircle(r: number, r2: number): number {
+        return Math.floor(2 * Math.PI * r / (2 * r2));
+    }
+
     public static getAzimuthElevationFromPos(position: Vector3): { azimuth: number, elevation: number } {
         let azimuth = Math.atan2(position.x, position.z);
         let elevation = Math.atan2(position.y, Math.sqrt(position.x * position.x + position.z * position.z));

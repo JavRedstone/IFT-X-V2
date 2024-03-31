@@ -4,6 +4,8 @@ import { SuperHeavyConstants } from "../constants/objects/SuperHeavyConstants";
 
 export const toggles = writable({
     editMode: true,
+    isEditingStarship: false,
+    isEditingSuperHeavy: false,
     paused: false,
     settings: false,
     credits: false,
@@ -34,7 +36,7 @@ export const starshipSettings = writable({
     canRVacGimbal: StarshipConstants.CAN_R_VAC_GIMBAL,
 });
 
-export const superHeavySettings = writable({
+export const superHeavySettings = writable({    
     hsrHeight: SuperHeavyConstants.HSR_HEIGHT * SuperHeavyConstants.REAL_LIFE_SCALE.y,
     boosterRingHeight: SuperHeavyConstants.BOOSTER_RING_HEIGHT * SuperHeavyConstants.REAL_LIFE_SCALE.y,
     

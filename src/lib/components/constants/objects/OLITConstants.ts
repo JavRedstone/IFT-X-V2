@@ -17,7 +17,7 @@ export class OLITConstants {
     public static readonly QD_BOTTOM_OFFSET: number = 0.65;
     public static readonly QD_ROTATION: Euler = new Euler(0, -140*Math.PI/180, 0);
     public static readonly CARRIAGE_QD_SCALE: Vector3 = new Vector3(1.25, 0.5, 1.25);
-    public static readonly OLM_SCALE: Vector3 = new Vector3(1/OLITConstants.OLIT_HORIZONTAL_MULTIPLIER, 1, 1/OLITConstants.OLIT_HORIZONTAL_MULTIPLIER);
+    public static readonly OLM_SCALE: Vector3 = new Vector3(1.1/OLITConstants.OLIT_HORIZONTAL_MULTIPLIER, 1, 1.1/OLITConstants.OLIT_HORIZONTAL_MULTIPLIER);
     public static readonly OLM_ROTATION: Euler = new Euler(0, -Math.PI / 4, 0);
     public static readonly OLM_OFFSET: Vector3 = new Vector3(3, 0, 3);
     public static readonly OLM_RING_HEIGHT: number = 0.5;
