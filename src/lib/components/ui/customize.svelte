@@ -322,7 +322,7 @@
             validatedStarship.shipRingHeight = true;
         }
 
-        if (starshipOptions.forwardLHeightScale < StarshipConstants.FORWARD_L_MIN_HEIGHT_SCALE || starshipOptions.forwardLHeightScale > StarshipConstants.FORWARD_L_MAX_HEIGHT_SCALE) {
+        if (starshipOptions.forwardLHeightScale < 0 || starshipOptions.forwardLHeightScale > StarshipConstants.FORWARD_L_MAX_HEIGHT_SCALE) {
             validatedStarship.forwardLHeightScale = false;
             starshipCompletelyValidated = false;
         } else {
@@ -334,7 +334,7 @@
         } else {
             validatedStarship.forwardLWidthScale = true;
         }
-        if (starshipOptions.forwardRHeightScale < StarshipConstants.FORWARD_R_MIN_HEIGHT_SCALE || starshipOptions.forwardRHeightScale > StarshipConstants.FORWARD_R_MAX_HEIGHT_SCALE) {
+        if (starshipOptions.forwardRHeightScale < 0 || starshipOptions.forwardRHeightScale > StarshipConstants.FORWARD_R_MAX_HEIGHT_SCALE) {
             validatedStarship.forwardRHeightScale = false;
             starshipCompletelyValidated = false;
         } else {
@@ -346,7 +346,7 @@
         } else {
             validatedStarship.forwardRWidthScale = true;
         }
-        if (starshipOptions.aftLHeightScale < StarshipConstants.AFT_L_MIN_HEIGHT_PERC * starshipOptions.shipRingHeight || starshipOptions.aftLHeightScale > StarshipConstants.AFT_L_MAX_HEIGHT_PERC * starshipOptions.shipRingHeight) {
+        if (starshipOptions.aftLHeightScale < 0 * starshipOptions.shipRingHeight || starshipOptions.aftLHeightScale > StarshipConstants.AFT_L_MAX_HEIGHT_PERC * starshipOptions.shipRingHeight) {
             validatedStarship.aftLHeightScale = false;
             starshipCompletelyValidated = false;
         } else {
@@ -358,7 +358,7 @@
         } else {
             validatedStarship.aftLWidthScale = true;
         }
-        if (starshipOptions.aftRHeightScale < StarshipConstants.AFT_R_MIN_HEIGHT_PERC * starshipOptions.shipRingHeight || starshipOptions.aftRHeightScale > StarshipConstants.AFT_R_MAX_HEIGHT_PERC * starshipOptions.shipRingHeight) {
+        if (starshipOptions.aftRHeightScale < 0 * starshipOptions.shipRingHeight || starshipOptions.aftRHeightScale > StarshipConstants.AFT_R_MAX_HEIGHT_PERC * starshipOptions.shipRingHeight) {
             validatedStarship.aftRHeightScale = false;
             starshipCompletelyValidated = false;
         } else {
@@ -552,7 +552,7 @@
     }
 
     function validateSuperHeavy(): void {
-        if (superHeavyOptions.hsrHeight < 0 || superHeavyOptions.hsrHeight > superHeavyOptions.MAX_HSR_HEIGHT) {
+        if (superHeavyOptions.hsrHeight < 0 || superHeavyOptions.hsrHeight > SuperHeavyConstants.MAX_HSR_HEIGHT * SuperHeavyConstants.REAL_LIFE_SCALE.y) {
             validatedSuperHeavy.hsrHeight = false;
             superHeavyCompletelyValidated = false;
         } else {
@@ -608,7 +608,7 @@
             validatedSuperHeavy.chineAngularOffset = true;
         }
 
-        if (superHeavyOptions.chineHeightScale < 0 || superHeavyOptions.chineHeightScale > SuperHeavyConstants.CHINE_MAX_HEIGHT_SCALE) {
+        if (superHeavyOptions.chineHeightScale < 0 || superHeavyOptions.chineHeightScale > Math.min(SuperHeavyConstants.CHINE_MAX_HEIGHT_SCALE, SuperHeavyConstants.CHINE_MAX_HEIGHT_PERC * superHeavyOptions.boosterRingHeight)) {
             validatedSuperHeavy.chineHeightScale = false;
             superHeavyCompletelyValidated = false;
         } else {
