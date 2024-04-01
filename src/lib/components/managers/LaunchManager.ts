@@ -10,7 +10,7 @@ import { CelestialConstants } from "../constants/CelestialConstants";
 import { MathHelper } from "../helpers/MathHelper";
 import { PRTransients } from "../constants/transients/PRTransients";
 import { SuperHeavyConstants } from "../constants/objects/SuperHeavyConstants";
-import { starshipSettings, superHeavySettings } from "../ui-stores/ui-store";
+import { starshipSettings, superHeavySettings } from "../stores/ui-store";
 
 export class LaunchManager {
     public tc: ThrelteContext;
@@ -51,10 +51,10 @@ export class LaunchManager {
 
     public setupUpdator(): void {
         starshipSettings.subscribe((value) => {
-            this.AABBUpdateRequests = 2
+            this.AABBUpdateRequests += 2;
         });
         superHeavySettings.subscribe((value) => {
-            this.AABBUpdateRequests = 2
+            this.AABBUpdateRequests += 2;
         });
     }
 
@@ -90,7 +90,7 @@ export class LaunchManager {
                 this.group.add(this.starship.group);
                 this.group.add(this.superHeavy.group);
 
-                this.AABBUpdateRequests = 2;
+                this.AABBUpdateRequests += 2;
 
                 this.tc.scene.add(this.group);
             }
@@ -146,6 +146,9 @@ export class LaunchManager {
 
         if (this.starship.hasSetupSingle && this.superHeavy.hasSetupSingle) {
             if (this.AABBUpdateRequests > 0) {
+                if (this.AABBUpdateRequests > 6) {
+                    this.AABBUpdateRequests = 6;
+                }
                 this.updateAABBs();
                 this.AABBUpdateRequests--;
             }

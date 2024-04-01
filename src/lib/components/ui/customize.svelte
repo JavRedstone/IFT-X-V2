@@ -3,11 +3,16 @@
     import { onMount } from "svelte";
     import { Vector2, type Vector3 } from "three";
     import { RaptorUI } from "../structs/ui/RaptorUI";
-    import { starshipSettings, superHeavySettings, toggles } from "../ui-stores/ui-store";
+    import { starshipSettings, superHeavySettings, toggles } from "../stores/ui-store";
     import { MathHelper } from "../helpers/MathHelper";
     import s25 from "../images/s25.png";
+    import s25ss from "../images/s25ss.png";
     import b9 from "../images/b9.png";
+    import b9sh from "../images/b9sh.png";
     import s25b9 from "../images/s25b9.png";
+    import s25b9sssh from "../images/s25b9sssh.png";
+    import s25b9ss from "../images/s25b9ss.png"
+    import s25b9sh from "../images/s25b9sh.png"
     import { StarshipConstants } from '../constants/objects/StarshipConstants';
     import { SuperHeavyConstants } from '../constants/objects/SuperHeavyConstants';
     import { RaptorConstants } from '../constants/RaptorConstants';
@@ -26,8 +31,8 @@
     let boosterTWR: string = '0';
     let shipTWR: string = '0';
     
-    let starshipCompletelyValidated: boolean = true;
-    let superHeavyCompletelyValidated: boolean = true;
+    let starshipValidated: boolean = true;
+    let superHeavyValidated: boolean = true;
 
     const sizeMult = 66;
     const topOffset = 70;
@@ -183,9 +188,7 @@
             starshipOptions.rVacType = value.rVacType;
             starshipOptions.canRVacGimbal = value.canRVacGimbal;
             
-            createRaptors();
-            estimateHeight();
-            estimateTWR();
+            updateDisplay();
         });
         superHeavySettings.subscribe((value) => {
             superHeavyOptions.gridFinAngularOffset = value.gridFinAngularOffset;
@@ -220,10 +223,14 @@
             superHeavyOptions.rSeaType3 = value.rSeaType3;
             superHeavyOptions.canRSea3Gimbal = value.canRSea3Gimbal;
             
-            createRaptors();
-            estimateHeight();
-            estimateTWR();
+            updateDisplay();
         });
+    }
+
+    function updateDisplay(): void {
+        createRaptors();
+        estimateHeight();
+        estimateTWR();
     }
 
     function createRaptors() {
@@ -315,65 +322,66 @@
     }
 
     function validateStarship(): void {
+        starshipValidated = true;
         if (starshipOptions.shipRingHeight < StarshipConstants.MIN_SHIP_RING_HEIGHT * StarshipConstants.REAL_LIFE_SCALE.y || starshipOptions.shipRingHeight > Math.min(superHeavyOptions.boosterRingHeight, StarshipConstants.MAX_SHIP_RING_HEIGHT * StarshipConstants.REAL_LIFE_SCALE.y)) {
             validatedStarship.shipRingHeight = false;
-            starshipCompletelyValidated = false;
+            starshipValidated = false;
         } else {
             validatedStarship.shipRingHeight = true;
         }
 
         if (starshipOptions.forwardLHeightScale < 0 || starshipOptions.forwardLHeightScale > StarshipConstants.FORWARD_L_MAX_HEIGHT_SCALE) {
             validatedStarship.forwardLHeightScale = false;
-            starshipCompletelyValidated = false;
+            starshipValidated = false;
         } else {
             validatedStarship.forwardLHeightScale = true;
         }
         if (starshipOptions.forwardLWidthScale < StarshipConstants.FORWARD_L_MIN_WIDTH_SCALE || starshipOptions.forwardLWidthScale > StarshipConstants.FORWARD_L_MAX_WIDTH_SCALE) {
             validatedStarship.forwardLWidthScale = false;
-            starshipCompletelyValidated = false;
+            starshipValidated = false;
         } else {
             validatedStarship.forwardLWidthScale = true;
         }
         if (starshipOptions.forwardRHeightScale < 0 || starshipOptions.forwardRHeightScale > StarshipConstants.FORWARD_R_MAX_HEIGHT_SCALE) {
             validatedStarship.forwardRHeightScale = false;
-            starshipCompletelyValidated = false;
+            starshipValidated = false;
         } else {
             validatedStarship.forwardRHeightScale = true;
         }
         if (starshipOptions.forwardRWidthScale < StarshipConstants.FORWARD_R_MIN_WIDTH_SCALE || starshipOptions.forwardRWidthScale > StarshipConstants.FORWARD_R_MAX_WIDTH_SCALE) {
             validatedStarship.forwardRWidthScale = false;
-            starshipCompletelyValidated = false;
+            starshipValidated = false;
         } else {
             validatedStarship.forwardRWidthScale = true;
         }
         if (starshipOptions.aftLHeightScale < 0 * starshipOptions.shipRingHeight || starshipOptions.aftLHeightScale > StarshipConstants.AFT_L_MAX_HEIGHT_PERC * starshipOptions.shipRingHeight) {
             validatedStarship.aftLHeightScale = false;
-            starshipCompletelyValidated = false;
+            starshipValidated = false;
         } else {
             validatedStarship.aftLHeightScale = true;
         }
         if (starshipOptions.aftLWidthScale < StarshipConstants.AFT_L_MIN_WIDTH_SCALE || starshipOptions.aftLWidthScale > StarshipConstants.AFT_L_MAX_WIDTH_SCALE) {
             validatedStarship.aftLWidthScale = false;
-            starshipCompletelyValidated = false;
+            starshipValidated = false;
         } else {
             validatedStarship.aftLWidthScale = true;
         }
         if (starshipOptions.aftRHeightScale < 0 * starshipOptions.shipRingHeight || starshipOptions.aftRHeightScale > StarshipConstants.AFT_R_MAX_HEIGHT_PERC * starshipOptions.shipRingHeight) {
             validatedStarship.aftRHeightScale = false;
-            starshipCompletelyValidated = false;
+            starshipValidated = false;
         } else {
             validatedStarship.aftRHeightScale = true;
         }
         if (starshipOptions.aftRWidthScale < StarshipConstants.AFT_R_MIN_WIDTH_SCALE || starshipOptions.aftRWidthScale > StarshipConstants.AFT_R_MAX_WIDTH_SCALE) {
             validatedStarship.aftRWidthScale = false;
-            starshipCompletelyValidated = false;
+            starshipValidated = false;
         } else {
             validatedStarship.aftRWidthScale = true;
         }
 
         if (starshipOptions.rSeaRadius < 0 || (starshipOptions.numRSeas > 1 && starshipOptions.rSeaRadius < RaptorConstants.RADIUS_SEA * StarshipConstants.REAL_LIFE_SCALE.x * RaptorConstants.PACKING_RADIUS_PERC)) {
             validatedStarship.rSeaRadius = false;
-            starshipCompletelyValidated = false;
+            starshipValidated = false;
         } else {
             let outerRadius: number = 0;
             if (starshipOptions.canRSeaGimbal) {
@@ -404,7 +412,7 @@
             }
             if (starshipOptions.rSeaRadius > outerRadius) {
                 validatedStarship.rSeaRadius = false;
-                starshipCompletelyValidated = false;
+                starshipValidated = false;
             } else {
                 validatedStarship.rSeaRadius = true;
             }
@@ -412,28 +420,28 @@
 
         if (starshipOptions.numRSeas < 0 || (starshipOptions.numRSeas > 1 && (starshipOptions.numRSeas > MathHelper.getMaxCirclesAroundCircle(starshipOptions.rSeaRadius, RaptorConstants.RADIUS_SEA * StarshipConstants.REAL_LIFE_SCALE.x * RaptorConstants.PACKING_RADIUS_PERC) || starshipOptions.rSeaRadius < RaptorConstants.RADIUS_SEA * StarshipConstants.REAL_LIFE_SCALE.x * RaptorConstants.PACKING_RADIUS_PERC))) {
             validatedStarship.numRSeas = false;
-            starshipCompletelyValidated = false;
+            starshipValidated = false;
         } else {
             validatedStarship.numRSeas = true;
         }
 
         if (starshipOptions.rSeaAngularOffset < 0 || starshipOptions.rSeaAngularOffset >= 360) {
             validatedStarship.rSeaAngularOffset = false;
-            starshipCompletelyValidated = false;
+            starshipValidated = false;
         } else {
             validatedStarship.rSeaAngularOffset = true;
         }
 
         if (Math.round(starshipOptions.rSeaType) != starshipOptions.rSeaType || starshipOptions.rSeaType < 0 || starshipOptions.rSeaType > 3) {
             validatedStarship.rSeaType = false;
-            starshipCompletelyValidated = false;
+            starshipValidated = false;
         } else {
             validatedStarship.rSeaType = true;
         }
 
         if (starshipOptions.rVacRadius < 0 || (starshipOptions.numRVacs > 1 && starshipOptions.rVacRadius < RaptorConstants.RADIUS_VAC * StarshipConstants.REAL_LIFE_SCALE.x * RaptorConstants.PACKING_RADIUS_PERC)) {
             validatedStarship.rVacRadius = false;
-            starshipCompletelyValidated = false;
+            starshipValidated = false;
         } else {
             let outerRadius: number = 0;
             let innerRadius: number = 0;
@@ -467,7 +475,7 @@
             }
             if (starshipOptions.rVacRadius > outerRadius || starshipOptions.rVacRadius < innerRadius) {
                 validatedStarship.rVacRadius = false;
-                starshipCompletelyValidated = false;
+                starshipValidated = false;
             } else {
                 validatedStarship.rVacRadius = true;
             }
@@ -475,52 +483,56 @@
 
         if (starshipOptions.numRVacs < 0 || (starshipOptions.numRVacs > 1 && (starshipOptions.numRVacs > MathHelper.getMaxCirclesAroundCircle(starshipOptions.rVacRadius, RaptorConstants.RADIUS_VAC * StarshipConstants.REAL_LIFE_SCALE.x * RaptorConstants.PACKING_RADIUS_PERC) || starshipOptions.rVacRadius < RaptorConstants.RADIUS_VAC * StarshipConstants.REAL_LIFE_SCALE.x * RaptorConstants.PACKING_RADIUS_PERC))) {
             validatedStarship.numRVacs = false;
-            starshipCompletelyValidated = false;
+            starshipValidated = false;
         } else {
             validatedStarship.numRVacs = true;
         }
 
         if (starshipOptions.rVacAngularOffset < 0 || starshipOptions.rVacAngularOffset >= 360) {
             validatedStarship.rVacAngularOffset = false;
-            starshipCompletelyValidated = false;
+            starshipValidated = false;
         } else {
             validatedStarship.rVacAngularOffset = true;
         }
 
         if (Math.round(starshipOptions.rVacType) != starshipOptions.rVacType || starshipOptions.rVacType < 0 || starshipOptions.rVacType > 3) {
             validatedStarship.rVacType = false;
-            starshipCompletelyValidated = false;
+            starshipValidated = false;
         } else {
             validatedStarship.rVacType = true;
         }
 
-        starshipSettings.update((value) => {
-            value.rSeaAngularOffset = starshipOptions.rSeaAngularOffset;
-            value.rVacAngularOffset = starshipOptions.rVacAngularOffset;
+        updateDisplay();
 
-            value.shipRingHeight = starshipOptions.shipRingHeight;
-            
-            value.forwardLHeightScale = starshipOptions.forwardLHeightScale;
-            value.forwardLWidthScale = starshipOptions.forwardLWidthScale;
-            value.forwardRHeightScale = starshipOptions.forwardRHeightScale;
-            value.forwardRWidthScale = starshipOptions.forwardRWidthScale;
-            value.aftLHeightScale = starshipOptions.aftLHeightScale;
-            value.aftLWidthScale = starshipOptions.aftLWidthScale;
-            value.aftRHeightScale = starshipOptions.aftRHeightScale;
-            value.aftRWidthScale = starshipOptions.aftRWidthScale;
+        if (starshipValidated) {
+            starshipSettings.update((value) => {
+                value.rSeaAngularOffset = starshipOptions.rSeaAngularOffset;
+                value.rVacAngularOffset = starshipOptions.rVacAngularOffset;
 
-            value.rSeaRadius = starshipOptions.rSeaRadius;
-            value.numRSeas = starshipOptions.numRSeas;
-            value.rSeaType = starshipOptions.rSeaType;
-            value.canRSeaGimbal = starshipOptions.canRSeaGimbal;
+                value.shipRingHeight = starshipOptions.shipRingHeight;
+                
+                value.forwardLHeightScale = starshipOptions.forwardLHeightScale;
+                value.forwardLWidthScale = starshipOptions.forwardLWidthScale;
+                value.forwardRHeightScale = starshipOptions.forwardRHeightScale;
+                value.forwardRWidthScale = starshipOptions.forwardRWidthScale;
+                value.aftLHeightScale = starshipOptions.aftLHeightScale;
+                value.aftLWidthScale = starshipOptions.aftLWidthScale;
+                value.aftRHeightScale = starshipOptions.aftRHeightScale;
+                value.aftRWidthScale = starshipOptions.aftRWidthScale;
 
-            value.rVacRadius = starshipOptions.rVacRadius;
-            value.numRVacs = starshipOptions.numRVacs;
-            value.rVacType = starshipOptions.rVacType;
-            value.canRVacGimbal = starshipOptions.canRVacGimbal;
-            
-            return value;
-        });
+                value.rSeaRadius = starshipOptions.rSeaRadius;
+                value.numRSeas = starshipOptions.numRSeas;
+                value.rSeaType = starshipOptions.rSeaType;
+                value.canRSeaGimbal = starshipOptions.canRSeaGimbal;
+
+                value.rVacRadius = starshipOptions.rVacRadius;
+                value.numRVacs = starshipOptions.numRVacs;
+                value.rVacType = starshipOptions.rVacType;
+                value.canRVacGimbal = starshipOptions.canRVacGimbal;
+                
+                return value;
+            });
+        }
     }
 
     function resetStarship(): void {
@@ -552,72 +564,74 @@
     }
 
     function validateSuperHeavy(): void {
+        superHeavyValidated = true;
+
         if (superHeavyOptions.hsrHeight < 0 || superHeavyOptions.hsrHeight > SuperHeavyConstants.MAX_HSR_HEIGHT * SuperHeavyConstants.REAL_LIFE_SCALE.y) {
             validatedSuperHeavy.hsrHeight = false;
-            superHeavyCompletelyValidated = false;
+            superHeavyValidated = false;
         } else {
             validatedSuperHeavy.hsrHeight = true;
         }
 
         if (superHeavyOptions.boosterRingHeight < SuperHeavyConstants.MIN_BOOSTER_RING_HEIGHT * SuperHeavyConstants.REAL_LIFE_SCALE.y || superHeavyOptions.boosterRingHeight > SuperHeavyConstants.MAX_BOOSTER_RING_HEIGHT * SuperHeavyConstants.REAL_LIFE_SCALE.y) {
             validatedSuperHeavy.boosterRingHeight = false;
-            superHeavyCompletelyValidated = false;
+            superHeavyValidated = false;
         } else {
             validatedSuperHeavy.boosterRingHeight = true;
         }
 
         if (superHeavyOptions.numGridFins < 0 || Math.round(superHeavyOptions.numGridFins) != superHeavyOptions.numGridFins || superHeavyOptions.numGridFins > MathHelper.getMaxCirclesAroundCircle(SuperHeavyConstants.GRID_FIN_RADIUS * SuperHeavyConstants.REAL_LIFE_SCALE.x, superHeavyOptions.gridFinWidthScale * StarshipConstants.REAL_LIFE_SCALE.x * SuperHeavyConstants.GRID_FIN_WIDTH_PERC)) {
             validatedSuperHeavy.numGridFins = false;
-            superHeavyCompletelyValidated = false;
+            superHeavyValidated = false;
         } else {
             validatedSuperHeavy.numGridFins = true;
         }
 
         if (superHeavyOptions.gridFinAngularOffset < 0 || superHeavyOptions.gridFinAngularOffset >= 360) {
             validatedSuperHeavy.gridFinAngularOffset = false;
-            superHeavyCompletelyValidated = false;
+            superHeavyValidated = false;
         } else {
             validatedSuperHeavy.gridFinAngularOffset = true;
         }
 
         if (superHeavyOptions.gridFinLengthScale < 0 || superHeavyOptions.gridFinLengthScale > SuperHeavyConstants.GRID_FIN_MAX_LENGTH_SCALE) {
             validatedSuperHeavy.gridFinLengthScale = false;
-            superHeavyCompletelyValidated = false;
+            superHeavyValidated = false;
         } else {
             validatedSuperHeavy.gridFinLengthScale = true;
         }
 
         if (superHeavyOptions.gridFinWidthScale < 0 || superHeavyOptions.gridFinWidthScale > SuperHeavyConstants.GRID_FIN_MAX_WIDTH_SCALE) {
             validatedSuperHeavy.gridFinWidthScale = false;
-            superHeavyCompletelyValidated = false;
+            superHeavyValidated = false;
         } else {
             validatedSuperHeavy.gridFinWidthScale = true;
         }
 
         if (superHeavyOptions.numChines < 0 || Math.round(superHeavyOptions.numChines) != superHeavyOptions.numChines || superHeavyOptions.numChines > MathHelper.getMaxCirclesAroundCircle(SuperHeavyConstants.CHINE_RADIUS * SuperHeavyConstants.REAL_LIFE_SCALE.x, StarshipConstants.REAL_LIFE_SCALE.x * SuperHeavyConstants.CHINE_WIDTH_PERC)) {
             validatedSuperHeavy.numChines = false;
-            superHeavyCompletelyValidated = false;
+            superHeavyValidated = false;
         } else {
             validatedSuperHeavy.numChines = true;
         }
 
         if (superHeavyOptions.chineAngularOffset < 0 || superHeavyOptions.chineAngularOffset >= 360) {
             validatedSuperHeavy.chineAngularOffset = false;
-            superHeavyCompletelyValidated = false;
+            superHeavyValidated = false;
         } else {
             validatedSuperHeavy.chineAngularOffset = true;
         }
 
         if (superHeavyOptions.chineHeightScale < 0 || superHeavyOptions.chineHeightScale > Math.min(SuperHeavyConstants.CHINE_MAX_HEIGHT_SCALE, SuperHeavyConstants.CHINE_MAX_HEIGHT_PERC * superHeavyOptions.boosterRingHeight)) {
             validatedSuperHeavy.chineHeightScale = false;
-            superHeavyCompletelyValidated = false;
+            superHeavyValidated = false;
         } else {
             validatedSuperHeavy.chineHeightScale = true;
         }
 
         if (superHeavyOptions.rSeaRadius1 < 0 || (superHeavyOptions.numRSeas1 > 1 && superHeavyOptions.rSeaRadius1 < RaptorConstants.RADIUS_SEA * SuperHeavyConstants.REAL_LIFE_SCALE.x * RaptorConstants.PACKING_RADIUS_PERC)) {
             validatedSuperHeavy.rSeaRadius1 = false;
-            superHeavyCompletelyValidated = false;
+            superHeavyValidated = false;
         } else {
             let outerRadius: number = 0;
             if (superHeavyOptions.canRSea1Gimbal) {
@@ -648,7 +662,7 @@
             }
             if (superHeavyOptions.rSeaRadius1 > outerRadius) {
                 validatedSuperHeavy.rSeaRadius1 = false;
-                superHeavyCompletelyValidated = false;
+                superHeavyValidated = false;
             } else {
                 validatedSuperHeavy.rSeaRadius1 = true;
             }
@@ -656,28 +670,28 @@
 
         if (superHeavyOptions.numRSeas1 < 0 || (superHeavyOptions.numRSeas1 > 1 && (superHeavyOptions.numRSeas1 > MathHelper.getMaxCirclesAroundCircle(superHeavyOptions.rSeaRadius1, RaptorConstants.RADIUS_SEA * SuperHeavyConstants.REAL_LIFE_SCALE.x * RaptorConstants.PACKING_RADIUS_PERC) || superHeavyOptions.rSeaRadius1 < RaptorConstants.RADIUS_SEA * SuperHeavyConstants.REAL_LIFE_SCALE.x * RaptorConstants.PACKING_RADIUS_PERC))) {
             validatedSuperHeavy.numRSeas1 = false;
-            superHeavyCompletelyValidated = false;
+            superHeavyValidated = false;
         } else {
             validatedSuperHeavy.numRSeas1 = true;
         }
 
         if (superHeavyOptions.rSeaAngularOffset1 < 0 || superHeavyOptions.rSeaAngularOffset1 >= 360) {
             validatedSuperHeavy.rSeaAngularOffset1 = false;
-            superHeavyCompletelyValidated = false;
+            superHeavyValidated = false;
         } else {
             validatedSuperHeavy.rSeaAngularOffset1 = true;
         }
 
         if (Math.round(superHeavyOptions.rSeaType1) != superHeavyOptions.rSeaType1 || superHeavyOptions.rSeaType1 < 0 || superHeavyOptions.rSeaType1 > 3) {
             validatedSuperHeavy.rSeaType1 = false;
-            superHeavyCompletelyValidated = false;
+            superHeavyValidated = false;
         } else {
             validatedSuperHeavy.rSeaType1 = true;
         }
         
         if (superHeavyOptions.rSeaRadius2 < 0 || (superHeavyOptions.numRSeas2 > 1 && superHeavyOptions.rSeaRadius2 < RaptorConstants.RADIUS_SEA * SuperHeavyConstants.REAL_LIFE_SCALE.x * RaptorConstants.PACKING_RADIUS_PERC)) {
             validatedSuperHeavy.rSeaRadius2 = false;
-            superHeavyCompletelyValidated = false;
+            superHeavyValidated = false;
         } else {
             let innerRadius: number = 0;
             let outerRadius: number = 0;
@@ -731,7 +745,7 @@
             }
             if (superHeavyOptions.rSeaRadius2 > outerRadius || superHeavyOptions.rSeaRadius2 < innerRadius) {
                 validatedSuperHeavy.rSeaRadius2 = false;
-                superHeavyCompletelyValidated = false;
+                superHeavyValidated = false;
             } else {
                 validatedSuperHeavy.rSeaRadius2 = true;
             }
@@ -739,28 +753,28 @@
 
         if (superHeavyOptions.numRSeas2 < 0 || (superHeavyOptions.numRSeas2 > 1 && (superHeavyOptions.numRSeas2 > MathHelper.getMaxCirclesAroundCircle(superHeavyOptions.rSeaRadius2, RaptorConstants.RADIUS_SEA * SuperHeavyConstants.REAL_LIFE_SCALE.x * RaptorConstants.PACKING_RADIUS_PERC) || superHeavyOptions.rSeaRadius2 < RaptorConstants.RADIUS_SEA * SuperHeavyConstants.REAL_LIFE_SCALE.x * RaptorConstants.PACKING_RADIUS_PERC))) {
             validatedSuperHeavy.numRSeas2 = false;
-            superHeavyCompletelyValidated = false;
+            superHeavyValidated = false;
         } else {
             validatedSuperHeavy.numRSeas2 = true;
         }
 
         if (superHeavyOptions.rSeaAngularOffset2 < 0 || superHeavyOptions.rSeaAngularOffset2 >= 360) {
             validatedSuperHeavy.rSeaAngularOffset2 = false;
-            superHeavyCompletelyValidated = false;
+            superHeavyValidated = false;
         } else {
             validatedSuperHeavy.rSeaAngularOffset2 = true;
         }
 
         if (Math.round(superHeavyOptions.rSeaType2) != superHeavyOptions.rSeaType2 || superHeavyOptions.rSeaType2 < 0 || superHeavyOptions.rSeaType2 > 3) {
             validatedSuperHeavy.rSeaType2 = false;
-            superHeavyCompletelyValidated = false;
+            superHeavyValidated = false;
         } else {
             validatedSuperHeavy.rSeaType2 = true;
         }
 
         if (superHeavyOptions.rSeaRadius3 < 0 || (superHeavyOptions.numRSeas3 > 1 && superHeavyOptions.rSeaRadius3 < RaptorConstants.RADIUS_SEA * SuperHeavyConstants.REAL_LIFE_SCALE.x * RaptorConstants.PACKING_RADIUS_PERC)) {
             validatedSuperHeavy.rSeaRadius3 = false;
-            superHeavyCompletelyValidated = false;
+            superHeavyValidated = false;
         } else {
             let innerRadius: number = 0;
             if (superHeavyOptions.canRSea3Gimbal) {
@@ -791,7 +805,7 @@
             }
             if (superHeavyOptions.rSeaRadius3 > SuperHeavyConstants.REAL_LIFE_SCALE.x || superHeavyOptions.rSeaRadius3 < innerRadius) {
                 validatedSuperHeavy.rSeaRadius3 = false;
-                superHeavyCompletelyValidated = false;
+                superHeavyValidated = false;
             } else {
                 validatedSuperHeavy.rSeaRadius3 = true;
             }
@@ -799,58 +813,62 @@
 
         if (superHeavyOptions.numRSeas3 < 0 || (superHeavyOptions.numRSeas3 > 1 && (superHeavyOptions.numRSeas3 > MathHelper.getMaxCirclesAroundCircle(superHeavyOptions.rSeaRadius3, RaptorConstants.RADIUS_SEA * SuperHeavyConstants.REAL_LIFE_SCALE.x * RaptorConstants.PACKING_RADIUS_PERC) || superHeavyOptions.rSeaRadius3 < RaptorConstants.RADIUS_SEA * SuperHeavyConstants.REAL_LIFE_SCALE.x * RaptorConstants.PACKING_RADIUS_PERC))) {
             validatedSuperHeavy.numRSeas3 = false;
-            superHeavyCompletelyValidated = false;
+            superHeavyValidated = false;
         } else {
             validatedSuperHeavy.numRSeas3 = true;
         }
 
         if (superHeavyOptions.rSeaAngularOffset3 < 0 || superHeavyOptions.rSeaAngularOffset3 >= 360) {
             validatedSuperHeavy.rSeaAngularOffset3 = false;
-            superHeavyCompletelyValidated = false;
+            superHeavyValidated = false;
         } else {
             validatedSuperHeavy.rSeaAngularOffset3 = true;
         }
 
         if (Math.round(superHeavyOptions.rSeaType3) != superHeavyOptions.rSeaType3 || superHeavyOptions.rSeaType3 < 0 || superHeavyOptions.rSeaType3 > 3) {
             validatedSuperHeavy.rSeaType3 = false;
-            superHeavyCompletelyValidated = false;
+            superHeavyValidated = false;
         } else {
             validatedSuperHeavy.rSeaType3 = true;
         }
 
-        superHeavySettings.update((value) => {
-            value.gridFinAngularOffset = superHeavyOptions.gridFinAngularOffset;
+        updateDisplay();
 
-            value.rSeaAngularOffset1 = superHeavyOptions.rSeaAngularOffset1;
-            value.rSeaAngularOffset2 = superHeavyOptions.rSeaAngularOffset2;
-            value.rSeaAngularOffset3 = superHeavyOptions.rSeaAngularOffset3;
+        if (superHeavyValidated) {
+            superHeavySettings.update((value) => {
+                value.gridFinAngularOffset = superHeavyOptions.gridFinAngularOffset;
 
-            value.hsrHeight = superHeavyOptions.hasHsr ? superHeavyOptions.hsrHeight : 0;
-            value.boosterRingHeight = superHeavyOptions.boosterRingHeight;
-            value.chineHeightScale = superHeavyOptions.chineHeightScale;
-            value.numChines = superHeavyOptions.numChines;
+                value.rSeaAngularOffset1 = superHeavyOptions.rSeaAngularOffset1;
+                value.rSeaAngularOffset2 = superHeavyOptions.rSeaAngularOffset2;
+                value.rSeaAngularOffset3 = superHeavyOptions.rSeaAngularOffset3;
 
-            value.gridFinLengthScale = superHeavyOptions.gridFinLengthScale;
-            value.gridFinWidthScale = superHeavyOptions.gridFinWidthScale;
-            value.numGridFins = superHeavyOptions.numGridFins;
+                value.hsrHeight = superHeavyOptions.hasHsr ? superHeavyOptions.hsrHeight : 0;
+                value.boosterRingHeight = superHeavyOptions.boosterRingHeight;
+                value.chineHeightScale = superHeavyOptions.chineHeightScale;
+                value.numChines = superHeavyOptions.numChines;
 
-            value.rSeaRadius1 = superHeavyOptions.rSeaRadius1;
-            value.numRSeas1 = superHeavyOptions.numRSeas1;
-            value.rSeaType1 = superHeavyOptions.rSeaType1;
-            value.canRSea1Gimbal = superHeavyOptions.canRSea1Gimbal;
+                value.gridFinLengthScale = superHeavyOptions.gridFinLengthScale;
+                value.gridFinWidthScale = superHeavyOptions.gridFinWidthScale;
+                value.numGridFins = superHeavyOptions.numGridFins;
 
-            value.rSeaRadius2 = superHeavyOptions.rSeaRadius2;
-            value.numRSeas2 = superHeavyOptions.numRSeas2;
-            value.rSeaType2 = superHeavyOptions.rSeaType2;
-            value.canRSea2Gimbal = superHeavyOptions.canRSea2Gimbal;
+                value.rSeaRadius1 = superHeavyOptions.rSeaRadius1;
+                value.numRSeas1 = superHeavyOptions.numRSeas1;
+                value.rSeaType1 = superHeavyOptions.rSeaType1;
+                value.canRSea1Gimbal = superHeavyOptions.canRSea1Gimbal;
 
-            value.rSeaRadius3 = superHeavyOptions.rSeaRadius3;
-            value.numRSeas3 = superHeavyOptions.numRSeas3;
-            value.rSeaType3 = superHeavyOptions.rSeaType3;
-            value.canRSea3Gimbal = superHeavyOptions.canRSea3Gimbal;
-            
-            return value;
-        });
+                value.rSeaRadius2 = superHeavyOptions.rSeaRadius2;
+                value.numRSeas2 = superHeavyOptions.numRSeas2;
+                value.rSeaType2 = superHeavyOptions.rSeaType2;
+                value.canRSea2Gimbal = superHeavyOptions.canRSea2Gimbal;
+
+                value.rSeaRadius3 = superHeavyOptions.rSeaRadius3;
+                value.numRSeas3 = superHeavyOptions.numRSeas3;
+                value.rSeaType3 = superHeavyOptions.rSeaType3;
+                value.canRSea3Gimbal = superHeavyOptions.canRSea3Gimbal;
+                
+                return value;
+            });
+        }
     }
 
     function resetSuperHeavy(): void {
@@ -1150,21 +1168,21 @@
     <div class="customize-container" style="width: 390px; left: 0px;">
         <div class="customize-subtitle" style="left:16px; top:16px;">Vertical Height</div>
         <div class="customize-stats" style="left:16px;">Ship: {shipHeight}m | Booster: {boosterHeight}m | Stack: {stackHeight}m</div>
-        <img class="customize-image" src={s25b9} alt="stack">
-        <img class="customize-small-image" src={s25} alt="ship" style="height: 80px; top: 40px; right: 230px;">
-        <div class="customize-title" style="right:170px; top: 104px;">Customize Starship</div>
+        <img class="customize-image" src={starshipValidated && superHeavyValidated ? s25b9 : starshipValidated ? s25b9sh : superHeavyValidated ? s25b9ss : s25b9sssh} alt="stack">
+        <img class="customize-small-image" src={starshipValidated ? s25 : s25ss} alt="ship" style="height: 80px; top: 40px; right: 230px;">
+        <div class="customize-title" style="right:170px; top: 104px; color: {starshipValidated ? 'white' : '#ff4500'}">Customize Starship</div>
         <div class="customize-options" style="right:166px; top: 154px; height: calc(100vh - 186px);">
             {#each Object.keys(starshipOptions) as option}
                 {#if !convertToCustomize(option).includes('Raptor') && option != "isEditing"}
                     <div class="customize-option">
                         <div class="customize-option-title">{convertToCustomize(option)}</div>
-                        <input class="customize-option-input" type="number" style="background-color: {validatedStarship[option] ? "rgba(0, 0, 0, 0.5)" : "rgba(255, 0, 0, 0.5)"};" bind:value={starshipOptions[option]} on:focusin={()=>{setIsEditing('SS')}} on:focusout={()=>{setIsEditing('')}}>
+                        <input class="customize-option-input" type="number" style="background-color: {validatedStarship[option] ? "rgba(0, 0, 0, 0.5)" : "#ff450080"};" bind:value={starshipOptions[option]} on:focusin={()=>{setIsEditing('SS')}} on:focusout={()=>{setIsEditing('')}}>
                     </div>
                 {/if}
             {/each}
         </div>
-        <img class="customize-small-image" src={b9} alt="booster" style="height: 112px; top: 25px; right: 80px;">
-        <div class="customize-title" style="right:20px; top: 104px;">Customize Superheavy</div>
+        <img class="customize-small-image" src={superHeavyValidated ? b9 : b9sh} alt="booster" style="height: 112px; top: 25px; right: 80px;">
+        <div class="customize-title" style="right:20px; top: 104px; color: {superHeavyValidated ? 'white' : '#ff4500'};">Customize Superheavy</div>
         <div class="customize-options" style="right:16px; top: 154px; height: calc(100vh - 186px);">
             {#each Object.keys(superHeavyOptions) as option}
                 {#if !convertToCustomize(option).includes('Raptor') && option != "isEditing"}
@@ -1173,7 +1191,7 @@
                             {#if superHeavyOptions.hasHsr}
                                 <div class="customize-option">
                                     <div class="customize-option-title">{convertToCustomize(option)}</div>
-                                    <input class="customize-option-input" type="number" style="background-color: {validatedSuperHeavy[option] ? "rgba(0, 0, 0, 0.5)" : "rgba(255, 0, 0, 0.5)"};" bind:value={superHeavyOptions[option]} on:input={updateHsr} on:focus={()=>{setIsEditing('SH')}} on:focusout={()=>{setIsEditing('')}}>
+                                    <input class="customize-option-input" type="number" style="background-color: {validatedSuperHeavy[option] ? "rgba(0, 0, 0, 0.5)" : "#ff450080"};" bind:value={superHeavyOptions[option]} on:input={updateHsr} on:focus={()=>{setIsEditing('SH')}} on:focusout={()=>{setIsEditing('')}}>
                                 </div>
                             {:else}
                                 <div class="customize-option" style="opacity: 0.5;">
@@ -1184,7 +1202,7 @@
                         {:else}
                             <div class="customize-option">
                                 <div class="customize-option-title">{convertToCustomize(option)}</div>
-                                <input class="customize-option-input" type="number" style="background-color: {validatedSuperHeavy[option] ? "rgba(0, 0, 0, 0.5)" : "rgba(255, 0, 0, 0.5)"};" bind:value={superHeavyOptions[option]} on:focusin={()=>{setIsEditing('SH')}} on:focusout={()=>{setIsEditing('')}}>
+                                <input class="customize-option-input" type="number" style="background-color: {validatedSuperHeavy[option] ? "rgba(0, 0, 0, 0.5)" : "#ff450080"};" bind:value={superHeavyOptions[option]} on:focusin={()=>{setIsEditing('SH')}} on:focusout={()=>{setIsEditing('')}}>
                             </div>
                         {/if}
                     {:else}
@@ -1203,19 +1221,19 @@
     <div class="customize-container" style="width: 340px; right: 0px;">
         <div class="customize-subtitle" style="right:16px; top:16px;">Thrust to Weight Ratio (Sea Level)</div>
         <div class="customize-stats" style="right:16px;">Ship: {shipTWR}:1 | Booster: {boosterTWR}:1 | Stack: {stackTWR}:1</div>
-        <div class="customize-body" style="border-width: {border}px; width: {2 * (sizeMult - border)}px; height: {2 * (sizeMult - border)}px; right: {rightOffsetSH + border}px; top: {topOffset + border}px;"></div>
+        <div class="customize-body" style="border-width: {border}px; width: {2 * (sizeMult - border)}px; height: {2 * (sizeMult - border)}px; right: {rightOffsetSS + border}px; top: {topOffset + border}px;"></div>
         {#each starshipRaptors as raptor}
             <div class="customize-raptor" style="border-width: {border}px; border-color: {raptor.isValidated ? 'white' : 'orangered'}; width: {raptor.isSea ? rSeaFakeRadius*2 : rVacFakeRadius*2}px; height: {raptor.isSea ? rSeaFakeRadius*2 : rVacFakeRadius*2}px; right: {raptor.position.x + rightOffsetSS + border}px; top: {raptor.position.y + topOffset + border}px;">
                 <div class="customize-raptor-throttle" style="background-color: {raptor.isValidated ? 'white' : 'orangered'}; width: {raptor.isSea ? raptor.throttle * rSeaRadius * 2 : raptor.throttle * rVacRadius * 2}px; height: {raptor.isSea ? raptor.throttle * rSeaRadius * 2 : raptor.throttle * rVacRadius * 2}px"></div>
             </div>
         {/each}
-        <div class="customize-body" style="border-width: {border}px; width: {2 * (sizeMult - border)}px; height: {2 * (sizeMult - border)}px; right: {rightOffsetSS + border}px; top: {topOffset + border}px;"></div>
+        <div class="customize-body" style="border-width: {border}px; width: {2 * (sizeMult - border)}px; height: {2 * (sizeMult - border)}px; right: {rightOffsetSH + border}px; top: {topOffset + border}px;"></div>
         {#each superHeavyRaptors as raptor}
             <div class="customize-raptor" style="border-width: {border}px; border-color: {raptor.isValidated ? 'white' : 'orangered'}; width: {raptor.isSea ? rSeaFakeRadius*2 : rVacFakeRadius*2}px; height: {raptor.isSea ? rSeaFakeRadius*2 : rVacFakeRadius*2}px; right: {raptor.position.x + rightOffsetSH + border}px; top: {raptor.position.y + topOffset + border}px;">
                 <div class="customize-raptor-throttle" style="background-color: {raptor.isValidated ? 'white' : 'orangered'}; width: {raptor.isSea ? raptor.throttle * rSeaRadius * 2 : raptor.throttle * rVacRadius * 2}px; height: {raptor.isSea ? raptor.throttle * rSeaRadius * 2 : raptor.throttle * rVacRadius * 2}px"></div>
             </div>
         {/each}
-        <div class="customize-title" style="right:170px; top:210px;">Customize Starship</div>
+        <div class="customize-title" style="right:170px; top:210px; color: {starshipValidated ? 'white' : '#ff4500'}">Customize Starship</div>
         <div class="customize-options" style="right:170px; top: 260px; height: calc(100vh - 292px);">
             {#each Object.keys(starshipOptions) as option}
                 {#if convertToCustomize(option).includes('Raptor') && option != "isEditing"}
@@ -1227,7 +1245,7 @@
                     {:else}
                         <div class="customize-option">
                             <div class="customize-option-title">{convertToCustomize(option)}</div>
-                            <input class="customize-option-input" type="number" style="background-color: {validatedStarship[option] ? "rgba(0, 0, 0, 0.5)" : "rgba(255, 0, 0, 0.5)"};" bind:value={starshipOptions[option]} on:focusin={()=>{setIsEditing('SS')}} on:focusout={()=>{setIsEditing('')}}>
+                            <input class="customize-option-input" type="number" style="background-color: {validatedStarship[option] ? "rgba(0, 0, 0, 0.5)" : "#ff450080"};" bind:value={starshipOptions[option]} on:focusin={()=>{setIsEditing('SS')}} on:focusout={()=>{setIsEditing('')}}>
                         </div>
                     {/if}
                 {/if}
@@ -1245,7 +1263,7 @@
                     {:else}
                         <div class="customize-option">
                             <div class="customize-option-title">{convertToCustomize(option)}</div>
-                            <input class="customize-option-input" type="number" style="background-color: {validatedSuperHeavy[option] ? "rgba(0, 0, 0, 0.5)" : "rgba(255, 0, 0, 0.5)"};" bind:value={superHeavyOptions[option]} on:focusin={()=>{setIsEditing('SH')}} on:focusout={()=>{setIsEditing('')}}>
+                            <input class="customize-option-input" type="number" style="background-color: {validatedSuperHeavy[option] ? "rgba(0, 0, 0, 0.5)" : "#ff450080"};" bind:value={superHeavyOptions[option]} on:focusin={()=>{setIsEditing('SH')}} on:focusout={()=>{setIsEditing('')}}>
                         </div>
                     {/if}
                 {/if}

@@ -2,7 +2,7 @@ import { Group, Object3D, Vector3 } from "three";
 import { StarshipConstants } from "../constants/objects/StarshipConstants";
 import { MathHelper } from "../helpers/MathHelper";
 import { ObjectHelper } from "../helpers/ObjectHelper";
-import { starshipSettings, toggles } from "../ui-stores/ui-store";
+import { starshipSettings, toggles } from "../stores/ui-store";
 
 export class Starship {
     public nosecone: Group = new Group();

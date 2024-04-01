@@ -2,7 +2,7 @@ import { Euler, Group, Object3D, Quaternion, Vector3 } from "three";
 import { MathHelper } from "../helpers/MathHelper";
 import { SuperHeavyConstants } from "../constants/objects/SuperHeavyConstants";
 import { ObjectHelper } from "../helpers/ObjectHelper";
-import { superHeavySettings, toggles } from "../ui-stores/ui-store";
+import { superHeavySettings, toggles } from "../stores/ui-store";
 
 export class SuperHeavy {
     public hsr: Group = new Group();

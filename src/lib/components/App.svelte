@@ -1,8 +1,29 @@
 <script lang="ts">
   import { Canvas } from '@threlte/core'
   import Scene from './Scene.svelte'
-  import Launch from './ui/launch.svelte';
+  import Telemetry from './ui/telemetry.svelte';
   import Customize from './ui/customize.svelte';
+  import Fueling from './ui/fueling.svelte';
+  import { onMount } from 'svelte';
+  import { toggles } from './stores/ui-store';
+
+  let initialized: boolean = false;
+  let toggleOptions: any = {
+    editMode: false,
+    paused: false,
+  }
+
+  function setupUpdator(): void {
+    toggles.subscribe((value) => {
+      initialized = true;
+      toggleOptions.editMode = value.editMode;
+      toggleOptions.paused = value.paused;
+    });
+  }
+
+  onMount(() => {
+    setupUpdator();
+  });
 </script>
 <style>
   @keyframes increaseOpacity {
@@ -25,10 +46,16 @@
   }
 </style>
 
-<div class="page">
-  <Canvas>
-    <Scene />
-  </Canvas>
-</div>
-<Customize />
-<!-- <Launch /> -->
+{#if initialized}
+  <div class="page">
+    <Canvas>
+      <Scene />
+    </Canvas>
+  </div>
+  {#if toggleOptions.editMode}
+    <Customize />
+  {:else}
+    <Telemetry />
+    <Fueling />
+  {/if}
+{/if}

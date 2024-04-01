@@ -1,7 +1,7 @@
 import { Group, Vector3 } from "three";
 import { OLITConstants } from "../constants/objects/OLITConstants";
 import { ObjectHelper } from "../helpers/ObjectHelper";
-import { starshipSettings, superHeavySettings } from "../ui-stores/ui-store";
+import { starshipSettings, superHeavySettings } from "../stores/ui-store";
 import { StarshipConstants } from "../constants/objects/StarshipConstants";
 import { SuperHeavyConstants } from "../constants/objects/SuperHeavyConstants";
 
