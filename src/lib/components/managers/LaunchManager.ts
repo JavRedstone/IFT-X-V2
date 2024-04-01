@@ -51,10 +51,10 @@ export class LaunchManager {
 
     public setupUpdator(): void {
         starshipSettings.subscribe((value) => {
-            this.AABBUpdateRequests+=2
+            this.AABBUpdateRequests = 2
         });
         superHeavySettings.subscribe((value) => {
-            this.AABBUpdateRequests+=2
+            this.AABBUpdateRequests = 2
         });
     }
 
@@ -90,7 +90,7 @@ export class LaunchManager {
                 this.group.add(this.starship.group);
                 this.group.add(this.superHeavy.group);
 
-                this.AABBUpdateRequests+=2;
+                this.AABBUpdateRequests = 2;
 
                 this.tc.scene.add(this.group);
             }
