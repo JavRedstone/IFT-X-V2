@@ -1170,7 +1170,7 @@
         <div class="customize-stats" style="left:16px;">Ship: {shipHeight}m | Booster: {boosterHeight}m | Stack: {stackHeight}m</div>
         <img class="customize-image" src={starshipValidated && superHeavyValidated ? s25b9 : starshipValidated ? s25b9sh : superHeavyValidated ? s25b9ss : s25b9sssh} alt="stack">
         <img class="customize-small-image" src={starshipValidated ? s25 : s25ss} alt="ship" style="height: 80px; top: 40px; right: 230px;">
-        <div class="customize-title" style="right:170px; top: 104px; color: {starshipValidated ? 'white' : '#ff4500'}">Customize Starship</div>
+        <div class="customize-title" style="right:170px; top: 104px;">Customize Starship</div>
         <div class="customize-options" style="right:166px; top: 154px; height: calc(100vh - 186px);">
             {#each Object.keys(starshipOptions) as option}
                 {#if !convertToCustomize(option).includes('Raptor') && option != "isEditing"}
@@ -1182,7 +1182,7 @@
             {/each}
         </div>
         <img class="customize-small-image" src={superHeavyValidated ? b9 : b9sh} alt="booster" style="height: 112px; top: 25px; right: 80px;">
-        <div class="customize-title" style="right:20px; top: 104px; color: {superHeavyValidated ? 'white' : '#ff4500'};">Customize Superheavy</div>
+        <div class="customize-title" style="right:20px; top: 104px;">Customize Superheavy</div>
         <div class="customize-options" style="right:16px; top: 154px; height: calc(100vh - 186px);">
             {#each Object.keys(superHeavyOptions) as option}
                 {#if !convertToCustomize(option).includes('Raptor') && option != "isEditing"}
@@ -1233,7 +1233,7 @@
                 <div class="customize-raptor-throttle" style="background-color: {raptor.isValidated ? 'white' : 'orangered'}; width: {raptor.isSea ? raptor.throttle * rSeaRadius * 2 : raptor.throttle * rVacRadius * 2}px; height: {raptor.isSea ? raptor.throttle * rSeaRadius * 2 : raptor.throttle * rVacRadius * 2}px"></div>
             </div>
         {/each}
-        <div class="customize-title" style="right:170px; top:210px; color: {starshipValidated ? 'white' : '#ff4500'}">Customize Starship</div>
+        <div class="customize-title" style="right:170px; top:210px;">Customize Starship</div>
         <div class="customize-options" style="right:170px; top: 260px; height: calc(100vh - 292px);">
             {#each Object.keys(starshipOptions) as option}
                 {#if convertToCustomize(option).includes('Raptor') && option != "isEditing"}
