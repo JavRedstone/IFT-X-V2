@@ -15,6 +15,7 @@ export class SuperHeavyConstants {
     public static readonly HSR_SCALE: Vector3 = new Vector3(1, 1, 1);
     public static readonly HSR_OFFSET: number = 0.0625;
     public static readonly HSR_HEIGHT: number = 4/9;
+    public static readonly MIN_HSR_HEIGHT: number = 0.025;
     public static readonly MAX_HSR_HEIGHT: number = 1;
 
     public static readonly BOOSTER_RING_SCALE: Vector3 = new Vector3(1, 1, 1);
