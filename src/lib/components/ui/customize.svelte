@@ -45,6 +45,7 @@
     const rVacFakeRadius = rVacRadius - border;
     const defaultThrottle = 1;
 
+    let isEditing: boolean = false;
     let isEditingStarship: boolean = false;
     let isEditingSuperHeavy: boolean = false;
 
@@ -160,6 +161,7 @@
 
     function setupUpdator() {
         toggles.subscribe((value) => {
+            isEditing = value.isEditing;
             isEditingStarship = value.isEditingStarship;
             isEditingSuperHeavy = value.isEditingSuperHeavy;
         });
@@ -250,16 +252,17 @@
     }
 
     function estimateTWR() {
-        let shipLOXMass: number = LaunchHelper.getFuelMass(StarshipConstants.SHIP_RING_SCALE.x * StarshipConstants.REAL_LIFE_SCALE.x, starshipOptions.shipRingHeight * StarshipConstants.SHIP_RING_SCALE.y * StarshipConstants.LOX_PERCENTAGE, FuelConstants.LOX_DENSITY);
-        let shipCH4Mass: number = LaunchHelper.getFuelMass(StarshipConstants.SHIP_RING_SCALE.x * StarshipConstants.REAL_LIFE_SCALE.x, starshipOptions.shipRingHeight * StarshipConstants.SHIP_RING_SCALE.y * StarshipConstants.CH4_PERCENTAGE, FuelConstants.CH4_DENSITY);
-        let shipDryMass: number = StarshipConstants.DRY_MASS + starshipRaptors.length * RaptorConstants.DRY_MASS;
+        let shipLOXMass: number = LaunchHelper.getFuelMass(StarshipConstants.SHIP_RING_SCALE.x * StarshipConstants.REAL_LIFE_SCALE.x, starshipOptions.shipRingHeight * StarshipConstants.LOX_PERCENTAGE, FuelConstants.LOX_DENSITY);
+        let shipCH4Mass: number = LaunchHelper.getFuelMass(StarshipConstants.SHIP_RING_SCALE.x * StarshipConstants.REAL_LIFE_SCALE.x, starshipOptions.shipRingHeight * StarshipConstants.CH4_PERCENTAGE, FuelConstants.CH4_DENSITY);
+        // these dry masses are for the real life scaled
+        let shipDryMass: number = StarshipConstants.NOSECONE_DRY_MASS + StarshipConstants.SHIP_RING_DRY_MASS * starshipOptions.shipRingHeight / StarshipConstants.REAL_LIFE_SCALE.y + StarshipConstants.FORWARD_L_DRY_MASS * starshipOptions.forwardLHeightScale * starshipOptions.forwardLWidthScale + StarshipConstants.FORWARD_R_DRY_MASS * starshipOptions.forwardRHeightScale * starshipOptions.forwardRWidthScale + StarshipConstants.AFT_L_DRY_MASS * starshipOptions.aftLHeightScale * starshipOptions.aftLWidthScale + StarshipConstants.AFT_R_DRY_MASS * starshipOptions.aftRHeightScale * starshipOptions.aftRWidthScale + starshipRaptors.length * RaptorConstants.DRY_MASS;
         let shipWetMass: number = shipLOXMass + shipCH4Mass + shipDryMass;
 
         let shipThrust: number = starshipOptions.numRSeas * LaunchHelper.getThrust(true, starshipOptions.rSeaType) + starshipOptions.numRVacs * LaunchHelper.getThrust(false, starshipOptions.rVacType);
 
-        let boosterLOXMass: number = LaunchHelper.getFuelMass(SuperHeavyConstants.BOOSTER_RING_SCALE.x * SuperHeavyConstants.REAL_LIFE_SCALE.x, superHeavyOptions.boosterRingHeight * SuperHeavyConstants.BOOSTER_RING_SCALE.y * SuperHeavyConstants.LOX_PERCENTAGE, FuelConstants.LOX_DENSITY);
-        let boosterCH4Mass: number = LaunchHelper.getFuelMass(SuperHeavyConstants.BOOSTER_RING_SCALE.x * SuperHeavyConstants.REAL_LIFE_SCALE.x, superHeavyOptions.boosterRingHeight * SuperHeavyConstants.BOOSTER_RING_SCALE.y * SuperHeavyConstants.CH4_PERCENTAGE, FuelConstants.CH4_DENSITY);
-        let boosterDryMass: number = SuperHeavyConstants.DRY_MASS + superHeavyRaptors.length * RaptorConstants.DRY_MASS;
+        let boosterLOXMass: number = LaunchHelper.getFuelMass(SuperHeavyConstants.BOOSTER_RING_SCALE.x * SuperHeavyConstants.REAL_LIFE_SCALE.x, superHeavyOptions.boosterRingHeight * SuperHeavyConstants.LOX_PERCENTAGE, FuelConstants.LOX_DENSITY);
+        let boosterCH4Mass: number = LaunchHelper.getFuelMass(SuperHeavyConstants.BOOSTER_RING_SCALE.x * SuperHeavyConstants.REAL_LIFE_SCALE.x, superHeavyOptions.boosterRingHeight * SuperHeavyConstants.CH4_PERCENTAGE, FuelConstants.CH4_DENSITY);
+        let boosterDryMass: number = SuperHeavyConstants.HSR_DRY_MASS / (SuperHeavyConstants.HSR_HEIGHT * SuperHeavyConstants.REAL_LIFE_SCALE.y) * superHeavyOptions.hsrHeight + SuperHeavyConstants.BOOSTER_RING_DRY_MASS * superHeavyOptions.boosterRingHeight / SuperHeavyConstants.REAL_LIFE_SCALE.y + SuperHeavyConstants.GRID_FIN_DRY_MASS * superHeavyOptions.numGridFins * superHeavyOptions.gridFinLengthScale * superHeavyOptions.gridFinWidthScale + SuperHeavyConstants.CHINE_DRY_MASS * superHeavyOptions.numChines * superHeavyOptions.chineHeightScale + superHeavyRaptors.length * RaptorConstants.DRY_MASS;
         let boosterWetMass: number = boosterLOXMass + boosterCH4Mass + boosterDryMass;
 
         let boosterThrust: number = superHeavyOptions.numRSeas1 * LaunchHelper.getThrust(true, superHeavyOptions.rSeaType1) + superHeavyOptions.numRSeas2 * LaunchHelper.getThrust(true, superHeavyOptions.rSeaType2) + superHeavyOptions.numRSeas3 * LaunchHelper.getThrust(true, superHeavyOptions.rSeaType3);
@@ -967,22 +970,34 @@
 
     function setupKeybinds(): void {
         window.addEventListener("keydown", (event) => {
-            if (event.key === "Escape") {
-                setIsEditing("");
-            }
-            else if (event.key === "ArrowLeft") {
-                hideShowLeftBar();
-            }
-            else if (event.key === "ArrowRight") {
-                hideShowRightBar();
-            }
-            else if (event.key === "Enter") {
-                validate();
-            }
-            else if (event.key === "r" || event.key === "R") {
-                reset();
+            if (isEditing) {
+                if (event.key === "ArrowLeft") {
+                    hideShowLeftBar();
+                }
+                else if (event.key === "ArrowRight") {
+                    hideShowRightBar();
+                }
+                else if (event.key === "Enter") {
+                    validate();
+                }
+                else if (event.key === "r" || event.key === "R") {
+                    reset();
+                }
             }
         });
+    }
+
+    function startFueling(): void {
+        validate();
+        if (starshipValidated && superHeavyValidated) {
+            toggles.update((value) => {
+                value.isEditing = false;
+                value.isEditingStarship = false;
+                value.isEditingSuperHeavy = false;
+                value.isFueling = true;
+                return value;
+            });
+        }
     }
 
     onMount(() => {
@@ -1138,9 +1153,7 @@
     
     .customize-banner {
         position: fixed;
-        top: 0;
         height: 32px;
-        background-color: rgba(0, 0, 0, 0.5);
         user-select: none;
     }
 
@@ -1150,7 +1163,7 @@
         outline: none;
         background-color: rgba(255, 255, 255, 0.5);
         font-size: 16px;
-        color: white;
+        color: black;
         font-family: "M PLUS Code Latin", monospace;
 
         transition: background-color 0.2s, color 0.2s;
@@ -1158,7 +1171,6 @@
 
         &:hover {
             background-color: rgba(255, 255, 255, 0.75);
-            color: black;
             cursor: pointer;
         }
     }
@@ -1214,7 +1226,7 @@
                 {/if}
             {/each}
         </div>
-        <button class="customize-action" style="left: 0; bottom: 0; width: 100%; height: 24px;" on:click={hideShowLeftBar}>&#9668; Hide Left</button>
+        <button class="customize-action" style="left: 0; bottom: 0; width: 100%; height: 32px;" on:click={hideShowLeftBar}>&#9668; Hide Left</button>
     </div>
 {/if}
 {#if hasRightBar}
@@ -1269,10 +1281,10 @@
                 {/if}
             {/each}
         </div>
-        <button class="customize-action" style="right: 0; bottom: 0; width: 100%; height: 24px;" on:click={hideShowRightBar}>Hide Right &#9658;</button>
+        <button class="customize-action" style="right: 0; bottom: 0; width: 100%; height: 32px;" on:click={hideShowRightBar}>Hide Right &#9658;</button>
     </div>
 {/if}
-<div class="customize-banner" style={hasLeftBar ? hasRightBar ? "left: 390px; width: calc(100vw - 390px - 340px);" : "left: 390px; width: calc(100vw - 390px);" : hasRightBar ? "left: 0; width: calc(100vw - 340px);" : "left: 0; width: 100vw;"}>
+<div class="customize-banner" style="top: 0; {hasLeftBar ? hasRightBar ? "left: 390px; width: calc(100vw - 390px - 340px);" : "left: 390px; width: calc(100vw - 390px);" : hasRightBar ? "left: 0; width: calc(100vw - 340px);" : "left: 0; width: 100vw;"}">
     {#if !hasLeftBar}
         <button class="customize-action" style="left:0; top: 0; width: 25%; height: 100%; border-right: 1px solid white;" on:click={hideShowLeftBar}>&#9668; Show Left</button>
     {/if}
@@ -1281,4 +1293,7 @@
     {/if}
     <button class="customize-action" style="left:{hasLeftBar ? '0' : '25%'}; top: 0; width: {hasLeftBar && hasRightBar ? '50%' : !hasLeftBar && !hasRightBar ? '25%' : '37.5%'}; height: 100%; border-right: 1px solid white;" on:click={validate}>Test &#128504;</button>
     <button class="customize-action" style="right:{hasRightBar ? '0' : '25%'}; top: 0; width: {hasLeftBar && hasRightBar ? '50%' : !hasLeftBar && !hasRightBar ? '25%' : '37.5%'}; height: 100%;" on:click={reset}>Reset &#8634;</button>
+</div>
+<div class="customize-banner" style="bottom: 0; {hasLeftBar ? hasRightBar ? "left: 390px; width: calc(100vw - 390px - 340px);" : "left: 390px; width: calc(100vw - 390px);" : hasRightBar ? "left: 0; width: calc(100vw - 340px);" : "left: 0; width: 100vw;"}">
+    <button class="customize-action" style="left:0; bottom:0; width:100%; height: 100%; border-left: 1px solid white; border-right: 1px solid white; color: white; background-color: {starshipValidated && superHeavyValidated ? '#009f6B80' : '#ff450080'}" on:click={startFueling}>Fuel &#10054;</button>
 </div>

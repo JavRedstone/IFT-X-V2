@@ -1,4 +1,6 @@
 <script lang="ts">
+	import BoosterFrost from './models/booster_frost.svelte';
+	import ShipFrost from './models/ship_frost.svelte';
 	import Carriage from './models/carriage.svelte';
   import { SceneManager } from '$lib/components/managers/SceneManager';
   import { T, useThrelte, type ThrelteContext } from '@threlte/core'
@@ -23,7 +25,6 @@
   import Arms from './models/arms.svelte';
   import Qd from './models/qd.svelte';
   import Olm from './models/olm.svelte';
-  import { LaunchManager } from './managers/LaunchManager';
   import OuterCylinder from './models/outer_cylinder.svelte';
   import { SceneConstants } from './constants/SceneConstants';
   import type { Object3D } from 'three';
@@ -160,6 +161,18 @@
       bind:ref={sceneManager.launchManager.starship.rVacObjs[i]}
     />
   {/each}
+  <ShipFrost
+    position={[sceneManager.launchManager.starship.CH4Frost.position.x, sceneManager.launchManager.starship.CH4Frost.position.y, sceneManager.launchManager.starship.CH4Frost.position.z]}
+    rotation={[sceneManager.launchManager.starship.CH4Frost.rotation.x, sceneManager.launchManager.starship.CH4Frost.rotation.y, sceneManager.launchManager.starship.CH4Frost.rotation.z]}
+    scale={[sceneManager.launchManager.starship.CH4Frost.scale.x, sceneManager.launchManager.starship.CH4Frost.scale.y, sceneManager.launchManager.starship.CH4Frost.scale.z]}
+    bind:ref={sceneManager.launchManager.starship.CH4Frost}
+  />
+  <ShipFrost
+    position={[sceneManager.launchManager.starship.LOXFrost.position.x, sceneManager.launchManager.starship.LOXFrost.position.y, sceneManager.launchManager.starship.LOXFrost.position.z]}
+    rotation={[sceneManager.launchManager.starship.LOXFrost.rotation.x, sceneManager.launchManager.starship.LOXFrost.rotation.y, sceneManager.launchManager.starship.LOXFrost.rotation.z]}
+    scale={[sceneManager.launchManager.starship.LOXFrost.scale.x, sceneManager.launchManager.starship.LOXFrost.scale.y, sceneManager.launchManager.starship.LOXFrost.scale.z]}
+    bind:ref={sceneManager.launchManager.starship.LOXFrost}
+  />
 </T.Group>
 
 <T.Group bind:ref={sceneManager.launchManager.superHeavy.group}>
@@ -193,14 +206,26 @@
     />
   {/each}
   {#each outerCylindersSH as outerCylinder, i}
-  <OuterCylinder
-    position={[outerCylinder.position.x, outerCylinder.position.y, outerCylinder.position.z]}
-    rotation={[outerCylinder.rotation.x, outerCylinder.rotation.y, outerCylinder.rotation.z]}
-    scale={[outerCylinder.scale.x, outerCylinder.scale.y, outerCylinder.scale.z]}
-    userData={outerCylinder.userData}
-    bind:ref={sceneManager.launchManager.superHeavy.outerCylinderObjs[i]}
+    <OuterCylinder
+      position={[outerCylinder.position.x, outerCylinder.position.y, outerCylinder.position.z]}
+      rotation={[outerCylinder.rotation.x, outerCylinder.rotation.y, outerCylinder.rotation.z]}
+      scale={[outerCylinder.scale.x, outerCylinder.scale.y, outerCylinder.scale.z]}
+      userData={outerCylinder.userData}
+      bind:ref={sceneManager.launchManager.superHeavy.outerCylinderObjs[i]}
+    />
+  {/each}
+  <BoosterFrost
+    position={[sceneManager.launchManager.superHeavy.CH4Frost.position.x, sceneManager.launchManager.superHeavy.CH4Frost.position.y, sceneManager.launchManager.superHeavy.CH4Frost.position.z]}
+    rotation={[sceneManager.launchManager.superHeavy.CH4Frost.rotation.x, sceneManager.launchManager.superHeavy.CH4Frost.rotation.y, sceneManager.launchManager.superHeavy.CH4Frost.rotation.z]}
+    scale={[sceneManager.launchManager.superHeavy.CH4Frost.scale.x, sceneManager.launchManager.superHeavy.CH4Frost.scale.y, sceneManager.launchManager.superHeavy.CH4Frost.scale.z]}
+    bind:ref={sceneManager.launchManager.superHeavy.CH4Frost}
   />
-{/each}
+  <BoosterFrost
+    position={[sceneManager.launchManager.superHeavy.LOXFrost.position.x, sceneManager.launchManager.superHeavy.LOXFrost.position.y, sceneManager.launchManager.superHeavy.LOXFrost.position.z]}
+    rotation={[sceneManager.launchManager.superHeavy.LOXFrost.rotation.x, sceneManager.launchManager.superHeavy.LOXFrost.rotation.y, sceneManager.launchManager.superHeavy.LOXFrost.rotation.z]}
+    scale={[sceneManager.launchManager.superHeavy.LOXFrost.scale.x, sceneManager.launchManager.superHeavy.LOXFrost.scale.y, sceneManager.launchManager.superHeavy.LOXFrost.scale.z]}
+    bind:ref={sceneManager.launchManager.superHeavy.LOXFrost}
+  />
 </T.Group>
 
 <T.Group bind:ref={sceneManager.launchManager.OLIT.group}>

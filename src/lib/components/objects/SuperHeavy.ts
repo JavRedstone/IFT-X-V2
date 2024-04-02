@@ -2,7 +2,7 @@ import { Euler, Group, Object3D, Quaternion, Vector3 } from "three";
 import { MathHelper } from "../helpers/MathHelper";
 import { SuperHeavyConstants } from "../constants/objects/SuperHeavyConstants";
 import { ObjectHelper } from "../helpers/ObjectHelper";
-import { superHeavySettings, toggles } from "../stores/ui-store";
+import { superHeavySettings, telemetry, toggles } from "../stores/ui-store";
 
 export class SuperHeavy {
     public hsr: Group = new Group();
@@ -15,6 +15,8 @@ export class SuperHeavy {
     public rSeaObjs: Group[] = [];
     public outerCylinders: Object3D[] = [];
     public outerCylinderObjs: Group[] = [];
+    public LOXFrost: Group = new Group();
+    public CH4Frost: Group = new Group();
 
     public group: Group = null;
 
@@ -22,6 +24,8 @@ export class SuperHeavy {
     public hasUpdatedAABB: boolean = false;
 
     public isEditing: boolean = false;
+    public LOX: number = 0;
+    public CH4: number = 0;
     public visibilityCooldown: number = SuperHeavyConstants.VISIBILITY_COOLDOWN;
 
     public options: any = {
@@ -68,6 +72,12 @@ export class SuperHeavy {
         toggles.subscribe((value) => {
             this.isEditing = value.isEditingSuperHeavy;
         });
+        telemetry.subscribe((value) => {
+            this.LOX = value.superHeavyLOX;
+            this.CH4 = value.superHeavyCH4;
+
+            this.updateFrost();
+        });
         superHeavySettings.subscribe((value) => {
             this.options.gridFinAngularOffset = value.gridFinAngularOffset;
             this.options.chineAngularOffset = value.chineAngularOffset;
@@ -94,6 +104,32 @@ export class SuperHeavy {
             this.setupMultiple();
             this.hasSetupSingle = false;
         });
+    }
+
+    public updateFrost(): void {
+        if (this.CH4Frost != null && this.LOXFrost != null) {
+            if (this.CH4 == 0) {
+                this.CH4Frost.visible = false;
+            }
+            else {
+                this.CH4Frost.visible = true;
+                this.CH4Frost.scale.y = this.CH4 / 100;
+            }
+            
+            this.CH4Frost.scale.copy(SuperHeavyConstants.CRYOGENIC_SCALE.clone().multiply(SuperHeavyConstants.SUPER_HEAVY_SCALE).multiply(new Vector3(1, this.CH4 * SuperHeavyConstants.CH4_PERCENTAGE * this.options.boosterRingHeight / SuperHeavyConstants.REAL_LIFE_SCALE.y, 1)));
+            this.CH4Frost.position.copy(this.boosterRing.position.clone().add(new Vector3(0, SuperHeavyConstants.SUPER_HEAVY_SCALE.y * (SuperHeavyConstants.LOX_BOTTOM_PERCENTAGE + SuperHeavyConstants.LOX_PERCENTAGE + SuperHeavyConstants.CH4_BOTTOM_PERCENTAGE) * this.options.boosterRingHeight / SuperHeavyConstants.REAL_LIFE_SCALE.y, 0)));
+
+            if (this.LOX == 0) {
+                this.LOXFrost.visible = false;
+            }
+            else {
+                this.LOXFrost.visible = true;
+                this.LOXFrost.scale.y = this.LOX / 100;
+            }
+
+            this.LOXFrost.scale.copy(SuperHeavyConstants.CRYOGENIC_SCALE.clone().multiply(SuperHeavyConstants.SUPER_HEAVY_SCALE).multiply(new Vector3(1, this.LOX * SuperHeavyConstants.LOX_PERCENTAGE * this.options.boosterRingHeight / SuperHeavyConstants.REAL_LIFE_SCALE.y, 1)));
+            this.LOXFrost.position.copy(this.boosterRing.position.clone().add(new Vector3(0, SuperHeavyConstants.SUPER_HEAVY_SCALE.y * SuperHeavyConstants.LOX_BOTTOM_PERCENTAGE * this.options.boosterRingHeight / SuperHeavyConstants.REAL_LIFE_SCALE.y, 0)));
+        }
     }
 
     public setupGridFins(): void {
@@ -180,6 +216,7 @@ export class SuperHeavy {
 
             this.hsr.scale.copy(SuperHeavyConstants.HSR_SCALE.clone().multiply(SuperHeavyConstants.SUPER_HEAVY_SCALE).multiply(new Vector3(1, (this.options.hsrHeight < SuperHeavyConstants.MIN_HSR_HEIGHT ? SuperHeavyConstants.MIN_HSR_HEIGHT : this.options.hsrHeight) / (SuperHeavyConstants.HSR_HEIGHT * SuperHeavyConstants.REAL_LIFE_SCALE.y), 1)));
             this.boosterRing.scale.copy(SuperHeavyConstants.BOOSTER_RING_SCALE.clone().multiply(SuperHeavyConstants.SUPER_HEAVY_SCALE).multiply(new Vector3(1, this.options.boosterRingHeight / SuperHeavyConstants.REAL_LIFE_SCALE.y, 1)));
+            this.updateFrost();
             this.hasSetupSingle = true;
         }
     }

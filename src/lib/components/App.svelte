@@ -8,16 +8,20 @@
   import { toggles } from './stores/ui-store';
 
   let initialized: boolean = false;
-  let toggleOptions: any = {
-    editMode: false,
+  let toggleValues: any = {
+    isEditing: false,
+    isFueling: false,
+    isLaunching: false,
     paused: false,
   }
 
   function setupUpdator(): void {
     toggles.subscribe((value) => {
       initialized = true;
-      toggleOptions.editMode = value.editMode;
-      toggleOptions.paused = value.paused;
+      toggleValues.isEditing = value.isEditing;
+      toggleValues.isFueling = value.isFueling;
+      toggleValues.isLaunching = value.isLaunching;
+      toggleValues.paused = value.paused;
     });
   }
 
@@ -52,10 +56,11 @@
       <Scene />
     </Canvas>
   </div>
-  {#if toggleOptions.editMode}
+  {#if toggleValues.isEditing}
     <Customize />
-  {:else}
-    <Telemetry />
+  {:else if toggleValues.isFueling}
     <Fueling />
+  {:else if toggleValues.isLaunching}
+    <Telemetry />
   {/if}
 {/if}

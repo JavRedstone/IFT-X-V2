@@ -196,30 +196,12 @@
         }
     }
     
-    @keyframes rightLeft {
-        0% {
+    @keyframes expandRight {
+        from {
             width: 0;
         }
-        50% {
+        to {
             width: 100%;
-        }
-        100% {
-            width: 0;
-        }
-    }
-
-    @keyframes inOut {
-        0% {
-            width: 0;
-            height: 0;
-        }
-        50% {
-            width: 110%;
-            height: 110%;
-        }
-        100% {
-            width: 0;
-            height: 0;
         }
     }
 
@@ -238,8 +220,6 @@
         position: absolute;
         border: solid white;
         border-radius: 100%;
-
-        animation: increaseOpacity 0.5s;
     }
 
     .telemetry-raptor-throttle {
@@ -249,8 +229,6 @@
         transform: translate(-50%, -50%);
         border-radius: 100%;
         background-color: white;
-
-        animation: inOut 5s;
     }
 
     .telemetry-bar-container {
@@ -269,7 +247,7 @@
         border-radius: 4px;
         background: linear-gradient(to right, rgba(255, 255, 255, 0.25), white);
 
-        animation: rightLeft 5s;
+        animation: expandRight 1s;
     }
 
     .telemetry-fuel {

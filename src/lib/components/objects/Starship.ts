@@ -1,8 +1,8 @@
-import { Group, Object3D, Vector3 } from "three";
+import { Group, Mesh, Object3D, Vector3 } from "three";
 import { StarshipConstants } from "../constants/objects/StarshipConstants";
 import { MathHelper } from "../helpers/MathHelper";
 import { ObjectHelper } from "../helpers/ObjectHelper";
-import { starshipSettings, toggles } from "../stores/ui-store";
+import { starshipSettings, telemetry, toggles } from "../stores/ui-store";
 
 export class Starship {
     public nosecone: Group = new Group();
@@ -16,6 +16,8 @@ export class Starship {
     public rSeaObjs: Group[] = [];
     public rVacs: Object3D[] = [];
     public rVacObjs: Group[] = [];
+    public LOXFrost: Group = new Group();
+    public CH4Frost: Group = new Group();
     
     public group: Group = null;
 
@@ -23,6 +25,8 @@ export class Starship {
     public hasUpdatedAABB: boolean = false;
 
     public isEditing: boolean = false;
+    public LOX: number = 0;
+    public CH4: number = 0;
     public visibilityCooldown: number = StarshipConstants.VISIBILITY_COOLDOWN;
 
     public options: any = {
@@ -65,6 +69,12 @@ export class Starship {
         toggles.subscribe((value) => {
             this.isEditing = value.isEditingStarship;
         });
+        telemetry.subscribe((value) => {
+            this.LOX = value.starshipLOX;
+            this.CH4 = value.starshipCH4;
+
+            this.updateFrost();
+        });
         starshipSettings.subscribe((value) => {
             this.options.rSeaAngularOffset = value.rSeaAngularOffset;
             this.options.rVacAngularOffset = value.rVacAngularOffset;
@@ -91,6 +101,32 @@ export class Starship {
             this.setupMultiple();
             this.hasSetupSingle = false;
         });
+    }
+
+    public updateFrost(): void {
+        if (this.CH4Frost != null && this.LOXFrost != null) {
+            if (this.CH4 == 0) {
+                this.CH4Frost.visible = false;
+            }
+            else {
+                this.CH4Frost.visible = true;
+                this.CH4Frost.scale.y = this.CH4 / 100;
+            }
+            
+            this.CH4Frost.scale.copy(StarshipConstants.CRYOGENIC_SCALE.clone().multiply(StarshipConstants.STARSHIP_SCALE).multiply(new Vector3(1, this.CH4 * StarshipConstants.CH4_PERCENTAGE * this.options.shipRingHeight / StarshipConstants.REAL_LIFE_SCALE.y, 1)));
+            this.CH4Frost.position.copy(this.shipRing.position.clone().add(new Vector3(0, StarshipConstants.STARSHIP_SCALE.y * (StarshipConstants.LOX_BOTTOM_PERCENTAGE + StarshipConstants.LOX_PERCENTAGE + StarshipConstants.CH4_BOTTOM_PERCENTAGE) * this.options.shipRingHeight / StarshipConstants.REAL_LIFE_SCALE.y, 0)));
+
+            if (this.LOX == 0) {
+                this.LOXFrost.visible = false;
+            }
+            else {
+                this.LOXFrost.visible = true;
+                this.LOXFrost.scale.y = this.LOX / 100;
+            }
+
+            this.LOXFrost.scale.copy(StarshipConstants.CRYOGENIC_SCALE.clone().multiply(StarshipConstants.STARSHIP_SCALE).multiply(new Vector3(1, this.LOX * StarshipConstants.LOX_PERCENTAGE * this.options.shipRingHeight / StarshipConstants.REAL_LIFE_SCALE.y, 1)));
+            this.LOXFrost.position.copy(this.shipRing.position.clone().add(new Vector3(0, StarshipConstants.STARSHIP_SCALE.y * StarshipConstants.LOX_BOTTOM_PERCENTAGE * this.options.shipRingHeight / StarshipConstants.REAL_LIFE_SCALE.y, 0)));
+        }
     }
 
     public setupRSeas(): void {
@@ -142,6 +178,7 @@ export class Starship {
             this.aftR.scale.copy(StarshipConstants.AFT_R_SCALE.clone().multiply(StarshipConstants.STARSHIP_SCALE).multiply(new Vector3(1, this.options.aftRHeightScale, this.options.aftRWidthScale)));
             this.thrustPuck.scale.copy(StarshipConstants.THRUST_PUCK_SCALE.clone().multiply(StarshipConstants.STARSHIP_SCALE));
             this.thrustPuck.position.copy(this.shipRing.position.clone().add(new Vector3(0, StarshipConstants.THRUST_PUCK_HEIGHT * StarshipConstants.STARSHIP_SCALE.y, 0)));
+            this.updateFrost();
             this.hasSetupSingle = true;
         }    
     }

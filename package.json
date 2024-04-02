@@ -33,6 +33,7 @@
   },
   "type": "module",
   "dependencies": {
-    "postprocessing": "^6.35.2"
+    "postprocessing": "^6.35.2",
+    "three-nebula": "^10.0.3"
   }
 }

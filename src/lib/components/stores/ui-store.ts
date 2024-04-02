@@ -3,9 +3,11 @@ import { StarshipConstants } from "../constants/objects/StarshipConstants";
 import { SuperHeavyConstants } from "../constants/objects/SuperHeavyConstants";
 
 export const toggles = writable({
-    editMode: true,
+    isEditing: false,
     isEditingStarship: false,
     isEditingSuperHeavy: false,
+    isFueling: true,
+    isLaunching: false,
     paused: false,
     settings: false,
     credits: false,
@@ -70,12 +72,17 @@ export const superHeavySettings = writable({
 
 export const telemetry = writable({
     dt: 0,
+    wind: 0,
+    temperature: 0,
+    weather: true,
+    range: true,
+    vehicle: true,
 
     starshipAngle: 0,
     starshipSpeed: 0,
     starshipAltitude: 0,
-    starshipLOX: 0,
-    starshipCH4: 0,
+    starshipLOX: 1,
+    starshipCH4: 1,
     starshipDisabled: true,
     rSeaThrottles: [],
     rVacThrottles: [],
@@ -83,8 +90,8 @@ export const telemetry = writable({
     superHeavyAngle: 0,
     superHeavySpeed: 0,
     superHeavyAltitude: 0,
-    superHeavyLOX: 0,
-    superHeavyCH4: 0,
+    superHeavyLOX: 1,
+    superHeavyCH4: 1,
     superHeavyDisabled: false,
     rSeaThrottles1: [],
     rSeaThrottles2: [],
