@@ -8,6 +8,7 @@ export class SuperHeavyConstants {
     public static readonly SUPER_HEAVY_SCALE: Vector3 = new Vector3(0.001, 0.001, 0.001);
     // public static readonly SUPER_HEAVY_SCALE: Vector3 = new Vector3(1, 1, 1);
 
+    public static readonly FUELING_TIME: number = 45; //mins for default
     public static readonly LOX_BOTTOM_PERCENTAGE: number = 0.025;
     public static readonly CH4_BOTTOM_PERCENTAGE: number = 0.01;
     public static readonly LOX_PERCENTAGE: number = 0.525;  // this should be higher than ch4

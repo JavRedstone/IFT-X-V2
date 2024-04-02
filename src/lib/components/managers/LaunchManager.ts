@@ -1,4 +1,4 @@
-import { type ThrelteContext } from "@threlte/core";
+import type { ThrelteContext } from "@threlte/core";
 import { Euler, Group, PerspectiveCamera, Quaternion, Vector3 } from "three";
 import { OLIT } from "../objects/OLIT";
 import { Starship } from "../objects/Starship";
@@ -10,7 +10,7 @@ import { CelestialConstants } from "../constants/CelestialConstants";
 import { MathHelper } from "../helpers/MathHelper";
 import { PRTransients } from "../constants/transients/PRTransients";
 import { SuperHeavyConstants } from "../constants/objects/SuperHeavyConstants";
-import { starshipSettings, superHeavySettings } from "../stores/ui-store";
+import { starshipSettings, superHeavySettings, toggles } from "../stores/ui-store";
 
 export class LaunchManager {
     public tc: ThrelteContext;
@@ -33,7 +33,10 @@ export class LaunchManager {
     public earthRot: Euler = new Euler(0, 0, 0);
 
     public isCameraOnStarship: boolean = true;
-    public hasLaunched: boolean = false;
+
+    public hasStartedFueling: boolean = false;
+    public isLaunching: boolean = false;
+    public liftedOff: boolean = false;
 
     constructor(tc: ThrelteContext) {
         this.tc = tc;
@@ -50,6 +53,9 @@ export class LaunchManager {
     }
 
     public setupUpdator(): void {
+        toggles.subscribe((value) => {
+            this.isLaunching = value.isLaunching;
+        });
         starshipSettings.subscribe((value) => {
             this.AABBUpdateRequests += 2;
         });
@@ -95,7 +101,7 @@ export class LaunchManager {
                 this.tc.scene.add(this.group);
             }
             else if (this.starship.hasUpdatedAABB && this.superHeavy.hasUpdatedAABB && this.OLIT.hasUpdatedAABB) {
-                if (!this.hasLaunched) {
+                if (!this.liftedOff) {
                     this.superHeavy.group.position.copy(this.OLIT.group.position.clone().add(this.OLIT.olm.position.clone().add(new Vector3(0, this.OLIT.olm.userData.aabb.getSize(new Vector3).y - OLITConstants.OLM_RING_HEIGHT * OLITConstants.OLM_SCALE.y * OLITConstants.OLIT_SCALE.y, 0))));
                     this.starship.group.position.copy(this.superHeavy.group.position.clone().add(new Vector3(0, this.superHeavy.boosterRing.userData.aabb.getSize(new Vector3).y + this.superHeavy.hsr.userData.aabb.getSize(new Vector3).y - this.superHeavy.hsr.userData.aabb.getSize(new Vector3).y * SuperHeavyConstants.HSR_OFFSET, 0)));
                     this.superHeavy.group.rotation.copy(OLITConstants.STARSHIP_ROTATION);

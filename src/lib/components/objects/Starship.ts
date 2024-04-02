@@ -3,6 +3,8 @@ import { StarshipConstants } from "../constants/objects/StarshipConstants";
 import { MathHelper } from "../helpers/MathHelper";
 import { ObjectHelper } from "../helpers/ObjectHelper";
 import { starshipSettings, telemetry, toggles } from "../stores/ui-store";
+import { FuelConstants } from "../constants/objects/FuelConstants";
+import { LaunchHelper } from "../helpers/LaunchHelper";
 
 export class Starship {
     public nosecone: Group = new Group();
@@ -25,6 +27,7 @@ export class Starship {
     public hasUpdatedAABB: boolean = false;
 
     public isEditing: boolean = false;
+    public isFueling: boolean = false;
     public LOX: number = 0;
     public CH4: number = 0;
     public visibilityCooldown: number = StarshipConstants.VISIBILITY_COOLDOWN;
@@ -68,12 +71,11 @@ export class Starship {
     public setupUpdator(): void {
         toggles.subscribe((value) => {
             this.isEditing = value.isEditingStarship;
+            this.isFueling = value.hasStartedFueling;
         });
         telemetry.subscribe((value) => {
             this.LOX = value.starshipLOX;
             this.CH4 = value.starshipCH4;
-
-            this.updateFrost();
         });
         starshipSettings.subscribe((value) => {
             this.options.rSeaAngularOffset = value.rSeaAngularOffset;
@@ -103,7 +105,35 @@ export class Starship {
         });
     }
 
-    public updateFrost(): void {
+    public updateFrost(delta: number): void {
+        if (this.isFueling) {
+            let CH4Mass: number = MathHelper.getVolumeofCylinder(StarshipConstants.SHIP_RING_SCALE.x * StarshipConstants.REAL_LIFE_SCALE.x, this.options.shipRingHeight * StarshipConstants.CH4_PERCENTAGE);   
+            let LOXMass: number = MathHelper.getVolumeofCylinder(StarshipConstants.SHIP_RING_SCALE.x * StarshipConstants.REAL_LIFE_SCALE.x, this.options.shipRingHeight * StarshipConstants.LOX_PERCENTAGE);
+
+            let CH4MassPerc: number = FuelConstants.FUELING_RATE * FuelConstants.FUELING_SPEEDUP / CH4Mass * delta;
+            let LOXMassPerc: number = FuelConstants.FUELING_RATE * FuelConstants.FUELING_SPEEDUP / LOXMass * delta;
+
+            if (this.CH4 < 1) {
+                this.CH4 += CH4MassPerc;
+            }
+            if (this.LOX < 1) {
+                this.LOX += LOXMassPerc;
+            }
+
+            if (this.CH4 > 1) {
+                this.CH4 = 1;
+            }
+            if (this.LOX > 1) {
+                this.LOX = 1;
+            }
+
+            telemetry.update((value) => {
+                value.starshipCH4 = this.CH4;
+                value.starshipLOX = this.LOX;
+                return value;
+            });
+        }
+
         if (this.CH4Frost != null && this.LOXFrost != null) {
             if (this.CH4 == 0) {
                 this.CH4Frost.visible = false;
@@ -178,7 +208,6 @@ export class Starship {
             this.aftR.scale.copy(StarshipConstants.AFT_R_SCALE.clone().multiply(StarshipConstants.STARSHIP_SCALE).multiply(new Vector3(1, this.options.aftRHeightScale, this.options.aftRWidthScale)));
             this.thrustPuck.scale.copy(StarshipConstants.THRUST_PUCK_SCALE.clone().multiply(StarshipConstants.STARSHIP_SCALE));
             this.thrustPuck.position.copy(this.shipRing.position.clone().add(new Vector3(0, StarshipConstants.THRUST_PUCK_HEIGHT * StarshipConstants.STARSHIP_SCALE.y, 0)));
-            this.updateFrost();
             this.hasSetupSingle = true;
         }    
     }
@@ -238,6 +267,7 @@ export class Starship {
             this.setupSingle();
         }
         else {
+            this.updateFrost(delta);
             this.updateAABB();
             this.updateObjects(delta);
         }

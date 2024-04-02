@@ -52,4 +52,8 @@ export class MathHelper {
         let axis = new Vector3().crossVectors(v1, v2).normalize();
         return new Quaternion().setFromAxisAngle(axis, angle);
     }
+
+    public static getVolumeofCylinder(radius: number, height: number): number {
+        return Math.PI * radius * radius * height;
+    }
 }
