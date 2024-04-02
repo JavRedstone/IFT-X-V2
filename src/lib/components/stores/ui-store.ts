@@ -3,10 +3,10 @@ import { StarshipConstants } from "../constants/objects/StarshipConstants";
 import { SuperHeavyConstants } from "../constants/objects/SuperHeavyConstants";
 
 export const toggles = writable({
-    isEditing: true,
+    isEditing: false,
     isEditingStarship: false,
     isEditingSuperHeavy: false,
-    isFueling: false,
+    isFueling: true,
     isLaunching: false,
     paused: false,
     settings: false,
