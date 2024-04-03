@@ -1,4 +1,4 @@
-import { RaptorConstants } from "$lib/components/constants/RaptorConstants";
+import { RaptorConstants } from "$lib/components/constants/objects/RaptorConstants";
 import { Vector2 } from "three";
 
 export class RaptorUI {

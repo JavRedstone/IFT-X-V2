@@ -15,7 +15,7 @@
     import s25b9sh from "../images/s25b9sh.png"
     import { StarshipConstants } from '../constants/objects/StarshipConstants';
     import { SuperHeavyConstants } from '../constants/objects/SuperHeavyConstants';
-    import { RaptorConstants } from '../constants/RaptorConstants';
+    import { RaptorConstants } from '../constants/objects/RaptorConstants';
     import { LaunchConstants } from '../constants/objects/LaunchConstants';
     import { LaunchHelper } from '../helpers/LaunchHelper';
     import { PhysicsConstants } from '../constants/PhysicsConstants';

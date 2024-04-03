@@ -4,6 +4,7 @@ import { SuperHeavyConstants } from "../constants/objects/SuperHeavyConstants";
 import { ObjectHelper } from "../helpers/ObjectHelper";
 import { superHeavySettings, telemetry, toggles } from "../stores/ui-store";
 import { LaunchConstants } from "../constants/objects/LaunchConstants";
+import { Gimbal } from "../structs/Gimbal";
 
 export class SuperHeavy {
     public hsr: Group = new Group();
@@ -49,10 +50,13 @@ export class SuperHeavy {
 
         rSeaRadius1: SuperHeavyConstants.R_SEA_RADIUS_1,
         numRSeas1: SuperHeavyConstants.NUM_R_SEAS_1,
+        canRSea1Gimbal: SuperHeavyConstants.CAN_R_SEA_1_GIMBAL,
         rSeaRadius2: SuperHeavyConstants.R_SEA_RADIUS_2,
         numRSeas2: SuperHeavyConstants.NUM_R_SEAS_2,
+        canRSea2Gimbal: SuperHeavyConstants.CAN_R_SEA_2_GIMBAL,
         rSeaRadius3: SuperHeavyConstants.R_SEA_RADIUS_3,
         numRSeas3: SuperHeavyConstants.NUM_R_SEAS_3,
+        canRSea3Gimbal: SuperHeavyConstants.CAN_R_SEA_3_GIMBAL
     };
 
     constructor() {
@@ -99,10 +103,13 @@ export class SuperHeavy {
 
             this.options.rSeaRadius1 = value.rSeaRadius1;
             this.options.numRSeas1 = value.numRSeas1;
+            this.options.canRSea1Gimbal = value.canRSea1Gimbal;
             this.options.rSeaRadius2 = value.rSeaRadius2;
             this.options.numRSeas2 = value.numRSeas2;
+            this.options.canRSea2Gimbal = value.canRSea2Gimbal;
             this.options.rSeaRadius3 = value.rSeaRadius3;
             this.options.numRSeas3 = value.numRSeas3;
+            this.options.canRSea3Gimbal = value.canRSea3Gimbal;
 
             this.setupMultiple();
             this.hasSetupSingle = false;
@@ -204,6 +211,10 @@ export class SuperHeavy {
             rSea.position.copy(rSeaPositions1[i].clone().add(new Vector3(0, SuperHeavyConstants.R_SEA_HEIGHT_1 * SuperHeavyConstants.SUPER_HEAVY_SCALE.y, 0)));
             rSea.rotation.copy(rSeaRotations1[i]);
             rSea.scale.copy(SuperHeavyConstants.R_SEA_SCALE.clone().multiply(SuperHeavyConstants.SUPER_HEAVY_SCALE));
+            if (this.options.canRSea1Gimbal) {
+                rSea.userData.gimbal = new Gimbal(0, 0);
+            }
+
             this.rSeas = [...this.rSeas, rSea];
         }
 
@@ -215,6 +226,10 @@ export class SuperHeavy {
             rSea.position.copy(rSeaPositions2[i].clone().add(new Vector3(0, SuperHeavyConstants.R_SEA_HEIGHT_2 * SuperHeavyConstants.SUPER_HEAVY_SCALE.y, 0)));
             rSea.rotation.copy(rSeaRotations2[i]);
             rSea.scale.copy(SuperHeavyConstants.R_SEA_SCALE.clone().multiply(SuperHeavyConstants.SUPER_HEAVY_SCALE));
+            if (this.options.canRSea2Gimbal) {
+                rSea.userData.gimbal = new Gimbal(0, 0);
+            }
+
             this.rSeas = [...this.rSeas, rSea];
         }
 
@@ -226,6 +241,10 @@ export class SuperHeavy {
             rSea.position.copy(rSeaPositions3[i].clone().add(new Vector3(0, SuperHeavyConstants.R_SEA_HEIGHT_3 * SuperHeavyConstants.SUPER_HEAVY_SCALE.y, 0)));
             rSea.rotation.copy(rSeaRotations3[i]);
             rSea.scale.copy(SuperHeavyConstants.R_SEA_SCALE.clone().multiply(SuperHeavyConstants.SUPER_HEAVY_SCALE));
+            if (this.options.canRSea3Gimbal) {
+                rSea.userData.gimbal = new Gimbal(0, 0);
+            }
+
             this.rSeas = [...this.rSeas, rSea];
         }
     }
@@ -305,6 +324,8 @@ export class SuperHeavy {
             this.group.visible = true;
             this.visibilityCooldown = SuperHeavyConstants.VISIBILITY_COOLDOWN;
         }
+        
+        this.updateFrost(delta);
     }
 
     public updateScene(delta: number): void {
@@ -312,7 +333,6 @@ export class SuperHeavy {
             this.setupSingle();
         }
         else {
-            this.updateFrost(delta);
             this.updateAABB();
             this.updateObjects(delta);
         }

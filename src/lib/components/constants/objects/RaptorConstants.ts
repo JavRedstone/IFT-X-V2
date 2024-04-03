@@ -3,9 +3,13 @@ export class RaptorConstants {
     // public static readonly RADIUS_SEA: number = 13/90; // out of 1
     public static readonly RADIUS_SEA: number = 0.125; // out of 1 (this one is fake but works better for the model)
     public static readonly RADIUS_VAC: number = RaptorConstants.RADIUS_SEA * RaptorConstants.RADIUS_SEA_TO_VAC; // out of 1
-    public static readonly GIMBAL_SPACE_PERC: number = 1.5;//times the radius of the engine bell
     public static readonly PACKING_RADIUS_PERC: number = 1.15;
-
+    public static readonly GIMBAL_SPACE_PERC: number = 1.5;//times the radius of the engine bell
+    
+    public static readonly GIMBAL_MAX_ANGLE: number = 15 * Math.PI/180; //rad
+    public static readonly GIMBAL_LATERAL_SPEED: number = 0.5;
+    public static readonly GIMBAL_ROTATIONAL_SPEED: number = 0.5;
+    
     public static readonly DRY_MASS: number = 1600; //kg
 
     public static readonly MASS_FLOW_LOX: number = 510; //kg/s

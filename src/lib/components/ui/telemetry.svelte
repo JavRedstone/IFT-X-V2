@@ -7,7 +7,7 @@
     import s25 from "../images/s25.png";
     import b9 from "../images/b9.png";
     import s25b9 from "../images/s25b9.png";
-    import { RaptorConstants } from "../constants/RaptorConstants";
+    import { RaptorConstants } from "../constants/objects/RaptorConstants";
     import { LaunchHelper } from "../helpers/LaunchHelper";
     import { StarshipConstants } from "../constants/objects/StarshipConstants";
     import { SuperHeavyConstants } from "../constants/objects/SuperHeavyConstants";

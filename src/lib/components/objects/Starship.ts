@@ -5,6 +5,7 @@ import { ObjectHelper } from "../helpers/ObjectHelper";
 import { starshipSettings, telemetry, toggles } from "../stores/ui-store";
 import { LaunchConstants } from "../constants/objects/LaunchConstants";
 import { LaunchHelper } from "../helpers/LaunchHelper";
+import { Gimbal } from "../structs/Gimbal";
 
 export class Starship {
     public nosecone: Group = new Group();
@@ -51,8 +52,10 @@ export class Starship {
 
         rSeaRadius: StarshipConstants.R_SEA_RADIUS,
         numRSeas: StarshipConstants.NUM_R_SEAS,
+        canRSeaGimbal: StarshipConstants.CAN_R_SEA_GIMBAL,
         rVacRadius: StarshipConstants.R_VAC_RADIUS,
-        numRVacs: StarshipConstants.NUM_R_VACS
+        numRVacs: StarshipConstants.NUM_R_VACS,
+        canRVacGimbal: StarshipConstants.CAN_R_VAC_GIMBAL
     };
 
     constructor() {
@@ -96,8 +99,10 @@ export class Starship {
 
             this.options.rSeaRadius = value.rSeaRadius;
             this.options.numRSeas = value.numRSeas;
+            this.options.canRSeaGimbal = value.canRSeaGimbal;
             this.options.rVacRadius = value.rVacRadius;
             this.options.numRVacs = value.numRVacs;
+            this.options.canRVacGimbal = value.canRVacGimbal;
 
             this.rSeas = [];
             this.rVacs = [];
@@ -178,6 +183,9 @@ export class Starship {
             rSea.position.copy(rSeaPositions[i].clone().add(new Vector3(0, StarshipConstants.R_SEA_HEIGHT * StarshipConstants.STARSHIP_SCALE.y, 0)));
             rSea.rotation.copy(rSeaRotations[i]);
             rSea.scale.copy(StarshipConstants.R_SEA_SCALE.clone().multiply(StarshipConstants.STARSHIP_SCALE));
+            if (this.options.canRSeaGimbal) {
+                rSea.userData.gimbal = new Gimbal(0, 0);
+            }
 
             this.rSeas = [...this.rSeas, rSea];
         }
@@ -192,6 +200,9 @@ export class Starship {
             rVac.position.copy(rVacPositions[i].clone().add(new Vector3(0, StarshipConstants.R_VAC_HEIGHT * StarshipConstants.STARSHIP_SCALE.y, 0)));
             rVac.rotation.copy(rVacRotations[i]);
             rVac.scale.copy(StarshipConstants.R_VAC_SCALE.clone().multiply(StarshipConstants.STARSHIP_SCALE));
+            if (this.options.canRVacGimbal) {
+                rVac.userData.gimbal = new Gimbal(0, 0);
+            }
 
             this.rVacs = [...this.rVacs, rVac];
         }
@@ -270,6 +281,8 @@ export class Starship {
             this.group.visible = true;
             this.visibilityCooldown = StarshipConstants.VISIBILITY_COOLDOWN;
         }
+        
+        this.updateFrost(delta);
     }
 
     public updateScene(delta: number): void {
@@ -277,7 +290,6 @@ export class Starship {
             this.setupSingle();
         }
         else {
-            this.updateFrost(delta);
             this.updateAABB();
             this.updateObjects(delta);
         }
