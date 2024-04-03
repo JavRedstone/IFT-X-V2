@@ -7,8 +7,8 @@ export class RaptorConstants {
     public static readonly GIMBAL_SPACE_PERC: number = 1.5;//times the radius of the engine bell
     
     public static readonly GIMBAL_MAX_ANGLE: number = 15 * Math.PI/180; //rad
-    public static readonly GIMBAL_LATERAL_SPEED: number = 0.5;
-    public static readonly GIMBAL_ROTATIONAL_SPEED: number = 0.5;
+    public static readonly GIMBAL_GIMBALING_ANG_VEL: number = 10;
+    public static readonly GIMBAL_Y_ANG_VEL: number = 10;
     
     public static readonly DRY_MASS: number = 1600; //kg
 

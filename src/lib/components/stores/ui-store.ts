@@ -83,12 +83,13 @@ export const telemetry = writable({
     starshipLOX: 0,
     starshipCH4: 0,
     starshipDisabled: true,
+    
     rSeaThrottles: [],
     rVacThrottles: [],
-    rSeaGimbalRadii: [],
-    rVacGimbalRadii: [],
-    rSeaGimbalAngles: [],
-    rVacGimbalAngles: [],
+    rSeaGimbalingAngles: [],
+    rVacGimbalingAngles: [],
+    rSeaGimbalYs: [],
+    rVacGimbalYs: [],
 
     superHeavyAngle: 0,
     superHeavySpeed: 0,
@@ -96,15 +97,16 @@ export const telemetry = writable({
     superHeavyLOX: 0,
     superHeavyCH4: 0,
     superHeavyDisabled: false,
+
     rSeaThrottles1: [],
     rSeaThrottles2: [],
     rSeaThrottles3: [],
-    rSeaGimbalRadii1: [],
-    rSeaGimbalRadii2: [],
-    rSeaGimbalRadii3: [],
-    rSeaGimbalAngles1: [],
-    rSeaGimbalAngles2: [],
-    rSeaGimbalAngles3: [],
+    rSeaGimbalingAngles1: [],
+    rSeaGimbalingAngles2: [],
+    rSeaGimbalingAngles3: [],
+    rSeaGimbalYs1: [],
+    rSeaGimbalYs2: [],
+    rSeaGimbalYs3: [],
 
     separated: false
 });

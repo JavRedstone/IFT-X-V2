@@ -1,30 +1,41 @@
 export class Gimbal {
-    public radius: number;
-    public angle: number;
+    public gimbalAngle: number;
+    public angleY: number;
+    public tGimbalAngle: number;
+    public tAngleY: number;
 
-    public constructor(radius: number, angle: number, speed: number = 0) {
-        this.radius = radius;
-        this.angle = angle;
+    public constructor() {
+        this.gimbalAngle = 0;
+        this.angleY = 0;
+        this.tGimbalAngle = 0;
+        this.tAngleY = 0;
     }
 
-    public tickTowardsTarget(targetRadius: number, targetAngle: number, delta: number): void {
-        if (this.radius == 0) {
-            this.angle = targetAngle;
+    public setTarget(tGimbalAngle: number, tAngleY: number): void {
+        this.tGimbalAngle = tGimbalAngle;
+        this.tAngleY = tAngleY;
+    }
+
+    public update(delta: number): void {
+        let targetAngleY: number = this.tAngleY;
+
+        if (this.gimbalAngle == 0) {
+            this.angleY = targetAngleY;
         }
-        this.radius += (targetRadius - this.radius) * delta;
-        if (targetRadius > 0) {
-            targetAngle %= 2 * Math.PI;
-            if (targetAngle < 0) {
-                targetAngle += 2 * Math.PI;
+        this.gimbalAngle += (this.tGimbalAngle - this.gimbalAngle) * delta;
+        if (this.tGimbalAngle > 0) {
+            targetAngleY %= 2 * Math.PI;
+            if (targetAngleY < 0) {
+                targetAngleY += 2 * Math.PI;
             }
-            if (Math.abs(targetAngle - this.angle) > Math.PI) {
-                if (targetAngle > this.angle) {
-                    targetAngle -= 2 * Math.PI;
+            if (Math.abs(targetAngleY - this.angleY) > Math.PI) {
+                if (targetAngleY > this.angleY) {
+                    targetAngleY -= 2 * Math.PI;
                 } else {
-                    targetAngle += 2 * Math.PI;
+                    targetAngleY += 2 * Math.PI;
                 }
             }
-            this.angle += (targetAngle - this.angle) * delta;
+            this.angleY += (targetAngleY - this.angleY) * delta;
         }
     }
 }

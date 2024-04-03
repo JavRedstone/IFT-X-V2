@@ -1,4 +1,4 @@
-import { Group, Mesh, Object3D, Vector3 } from "three";
+import { Euler, Group, Mesh, Object3D, Quaternion, Vector3 } from "three";
 import { StarshipConstants } from "../constants/objects/StarshipConstants";
 import { MathHelper } from "../helpers/MathHelper";
 import { ObjectHelper } from "../helpers/ObjectHelper";
@@ -6,6 +6,7 @@ import { starshipSettings, telemetry, toggles } from "../stores/ui-store";
 import { LaunchConstants } from "../constants/objects/LaunchConstants";
 import { LaunchHelper } from "../helpers/LaunchHelper";
 import { Gimbal } from "../structs/Gimbal";
+import { RaptorConstants } from "../constants/objects/RaptorConstants";
 
 export class Starship {
     public nosecone: Group = new Group();
@@ -28,6 +29,7 @@ export class Starship {
     public hasUpdatedAABB: boolean = false;
 
     public isEditing: boolean = false;
+    public isEditingSelf: boolean = false;
     public isFueling: boolean = false;
     public hasStartedFueling: boolean = false;
     public LOX: number = 0;
@@ -74,7 +76,8 @@ export class Starship {
 
     public setupUpdator(): void {
         toggles.subscribe((value) => {
-            this.isEditing = value.isEditingStarship;
+            this.isEditing = value.isEditing;
+            this.isEditingSelf = value.isEditingStarship;
             this.isFueling = value.isFueling;
             this.hasStartedFueling = value.hasStartedFueling;
         });
@@ -109,6 +112,43 @@ export class Starship {
 
             this.setupMultiple();
             this.hasSetupSingle = false;
+        });
+    }
+
+    public runGimbalingProgram(delta: number): void {
+        let rSeaGimbalingAngles: number[] = [];
+        let rSeaGimbalYs: number[] = [];
+        let rVacGimbalingAngles: number[] = [];
+        let rVacGimbalYs: number[] = [];
+        if (this.options.canRSeaGimbal) {
+            for (let i = 0; i < this.options.numRSeas; i++) {
+                let rSea = this.rSeas[i];
+                if (rSea.userData.gimbal != null && rSea.userData.originalRotation != null) {
+                    if (rSea.userData.gimbal.gimbalAngle == 0) {
+                        rSea.userData.gimbal.gimbalAngle = RaptorConstants.GIMBAL_MAX_ANGLE;
+                        rSea.userData.gimbal.angleY = 0;
+                    } else {
+                        rSea.userData.gimbal.setTarget(RaptorConstants.GIMBAL_MAX_ANGLE, rSea.userData.gimbal.tAngleY + RaptorConstants.GIMBAL_Y_ANG_VEL * delta);
+
+                        console.log(rSea.userData.gimbal.angleY);
+                    }
+
+                    rSea.userData.gimbal.update(delta);
+
+                    rSea.rotation.copy(new Euler().setFromQuaternion(new Quaternion().setFromEuler(rSea.userData.originalRotation).multiply(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), rSea.userData.gimbal.angleY).multiply(new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), rSea.userData.gimbal.gimbalAngle)))));
+
+                    rSeaGimbalingAngles = [...rSeaGimbalingAngles, rSea.userData.gimbal.gimbalAngle];
+                    rSeaGimbalYs = [...rSeaGimbalYs, rSea.userData.gimbal.angleY];
+                }
+            }
+        }
+
+        telemetry.update((value) => {
+            value.rSeaGimbalingAngles = rSeaGimbalingAngles;
+            value.rSeaGimbalYs = rSeaGimbalYs;
+            value.rVacGimbalingAngles = rVacGimbalingAngles;
+            value.rVacGimbalYs = rVacGimbalYs;
+            return value;
         });
     }
 
@@ -176,15 +216,14 @@ export class Starship {
 
     public setupRSeas(): void {
         let rSeaPositions = MathHelper.getCircularPositions(this.options.numRSeas, this.options.rSeaRadius * StarshipConstants.STARSHIP_SCALE.x / StarshipConstants.REAL_LIFE_SCALE.x, this.options.rSeaAngularOffset * Math.PI / 180);
-        let rSeaRotations = MathHelper.getCircularRotations(this.options.numRSeas, this.options.rSeaAngularOffset * Math.PI / 180);
 
         for (let i = 0; i < this.options.numRSeas; i++) {
             let rSea = new Object3D();
             rSea.position.copy(rSeaPositions[i].clone().add(new Vector3(0, StarshipConstants.R_SEA_HEIGHT * StarshipConstants.STARSHIP_SCALE.y, 0)));
-            rSea.rotation.copy(rSeaRotations[i]);
             rSea.scale.copy(StarshipConstants.R_SEA_SCALE.clone().multiply(StarshipConstants.STARSHIP_SCALE));
+            rSea.userData.originalRotation = new Euler(0, 0, 0);
             if (this.options.canRSeaGimbal) {
-                rSea.userData.gimbal = new Gimbal(0, 0);
+                rSea.userData.gimbal = new Gimbal();
             }
 
             this.rSeas = [...this.rSeas, rSea];
@@ -193,15 +232,14 @@ export class Starship {
 
     public setupRVacs(): void {
         let rVacPositions = MathHelper.getCircularPositions(this.options.numRVacs, this.options.rVacRadius * StarshipConstants.STARSHIP_SCALE.x / StarshipConstants.REAL_LIFE_SCALE.x, this.options.rVacAngularOffset * Math.PI / 180);
-        let rVacRotations = MathHelper.getCircularRotations(this.options.numRVacs, this.options.rVacAngularOffset * Math.PI / 180);
 
         for (let i = 0; i < this.options.numRVacs; i++) {
             let rVac = new Object3D();
             rVac.position.copy(rVacPositions[i].clone().add(new Vector3(0, StarshipConstants.R_VAC_HEIGHT * StarshipConstants.STARSHIP_SCALE.y, 0)));
-            rVac.rotation.copy(rVacRotations[i]);
             rVac.scale.copy(StarshipConstants.R_VAC_SCALE.clone().multiply(StarshipConstants.STARSHIP_SCALE));
+            rVac.userData.originalRotation = new Euler(0, 0, 0);
             if (this.options.canRVacGimbal) {
-                rVac.userData.gimbal = new Gimbal(0, 0);
+                rVac.userData.gimbal = new Gimbal();
             }
 
             this.rVacs = [...this.rVacs, rVac];
@@ -267,8 +305,11 @@ export class Starship {
             this.aftR.position.copy(this.shipRing.position.clone().add(new Vector3(0, 0, StarshipConstants.STARSHIP_SCALE.z)));
             this.hasUpdatedAABB = true;
         }
-
+        
         if (this.isEditing) {
+            this.runGimbalingProgram(delta);
+        }
+        if (this.isEditingSelf) {
             if (this.visibilityCooldown > 0) {
                 this.visibilityCooldown -= delta;
             }

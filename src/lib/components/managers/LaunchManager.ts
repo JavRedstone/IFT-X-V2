@@ -125,7 +125,7 @@ export class LaunchManager {
                         this.dt += delta * LaunchConstants.FUELING_SPEEDUP;
                     }
                 }
-                if (!this.liftedOff) {
+                if (!this.liftedOff && this.OLIT.hasUpdatedAABB) {
                     this.superHeavy.group.position.copy(this.OLIT.group.position.clone().add(this.OLIT.olm.position.clone().add(new Vector3(0, this.OLIT.olm.userData.aabb.getSize(new Vector3).y - OLITConstants.OLM_RING_HEIGHT * OLITConstants.OLM_SCALE.y * OLITConstants.OLIT_SCALE.y, 0))));
                     this.starship.group.position.copy(this.superHeavy.group.position.clone().add(new Vector3(0, this.superHeavy.boosterRing.userData.aabb.getSize(new Vector3).y + this.superHeavy.hsr.userData.aabb.getSize(new Vector3).y - this.superHeavy.hsr.userData.aabb.getSize(new Vector3).y * SuperHeavyConstants.HSR_OFFSET, 0)));
                     this.superHeavy.group.rotation.copy(OLITConstants.STARSHIP_ROTATION);

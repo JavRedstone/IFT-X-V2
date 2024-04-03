@@ -3,7 +3,7 @@
     import { onMount } from "svelte";
     import { Vector2, type Vector3 } from "three";
     import { RaptorUI } from "../structs/ui/RaptorUI";
-    import { starshipSettings, superHeavySettings, toggles } from "../stores/ui-store";
+    import { starshipSettings, superHeavySettings, telemetry, toggles } from "../stores/ui-store";
     import { MathHelper } from "../helpers/MathHelper";
     import s25 from "../images/s25.png";
     import s25ss from "../images/s25ss.png";
@@ -49,6 +49,19 @@
     let isEditingStarship: boolean = false;
     let isEditingSuperHeavy: boolean = false;
 
+    let telemetryValues: any = {
+        rSeaGimbalingAngles: [],
+        rVacGimbalingAngles: [],
+        rSeaGimbalYs: [],
+        rVacGimbalYs: [],
+        
+        rSeaGimbalingAngles1: [],
+        rSeaGimbalingAngles2: [],
+        rSeaGimbalingAngles3: [],
+        rSeaGimbalYs1: [],
+        rSeaGimbalYs2: [],
+        rSeaGimbalYs3: [],
+    };
     let starshipOptions: any = {
         shipRingHeight: StarshipConstants.SHIP_RING_HEIGHT * StarshipConstants.REAL_LIFE_SCALE.y,
 
@@ -165,6 +178,14 @@
             isEditingStarship = value.isEditingStarship;
             isEditingSuperHeavy = value.isEditingSuperHeavy;
         });
+        telemetry.subscribe((value) => {
+            telemetryValues.rSeaGimbalingAngles = value.rSeaGimbalingAngles;
+            telemetryValues.rVacGimbalingAngles = value.rVacGimbalingAngles;
+            telemetryValues.rSeaGimbalYs = value.rSeaGimbalYs;
+            telemetryValues.rVacGimbalYs = value.rVacGimbalYs;
+            
+            updateGimbals();
+        });
         starshipSettings.subscribe((value) => {
             starshipOptions.rSeaAngularOffset = value.rSeaAngularOffset;
             starshipOptions.rVacAngularOffset = value.rVacAngularOffset;
@@ -245,6 +266,45 @@
         }, 0);
     }
 
+    function updateGimbals(): void {
+        if (telemetryValues.rSeaGimbalingAngles.length == starshipOptions.numRSeas && telemetryValues.rSeaGimbalYs.length == starshipOptions.numRSeas) {
+            for (let i = 0; i < starshipOptions.numRSeas; i++) {
+                if (starshipRaptors[i] != undefined) {
+                    starshipRaptors[i].updateGimbal(telemetryValues.rSeaGimbalingAngles[i], telemetryValues.rSeaGimbalYs[i]);
+                }
+            }
+        }
+        if (telemetryValues.rVacGimbalingAngles.length == starshipOptions.numRVacs && telemetryValues.rVacGimbalYs.length == starshipOptions.numRVacs) {
+            for (let i = 0; i < starshipOptions.numRVacs; i++) {
+                if (starshipRaptors[i + starshipOptions.numRSeas] != undefined) {
+                    starshipRaptors[i + starshipOptions.numRSeas].updateGimbal(telemetryValues.rVacGimbalingAngles[i], telemetryValues.rVacGimbalYs[i]);
+                }
+            }
+        }
+
+        if (telemetryValues.rSeaGimbalingAngles.length == superHeavyOptions.numRSeas1 && telemetryValues.rSeaGimbalYs.length == superHeavyOptions.numRSeas1) {
+            for (let i = 0; i < superHeavyOptions.numRSeas1; i++) {
+                if (superHeavyRaptors[i] != undefined) {
+                    superHeavyRaptors[i].updateGimbal(telemetryValues.rSeaGimbalingAngles1[i], telemetryValues.rSeaGimbalYs1[i]);
+                }
+            }
+        }
+        if (telemetryValues.rSeaGimbalingAngles.length == superHeavyOptions.numRSeas2 && telemetryValues.rSeaGimbalYs.length == superHeavyOptions.numRSeas2) {
+            for (let i = 0; i < superHeavyOptions.numRSeas2; i++) {
+                if (superHeavyRaptors[i + superHeavyOptions.numRSeas1] != undefined) {
+                    superHeavyRaptors[i + superHeavyOptions.numRSeas1].updateGimbal(telemetryValues.rSeaGimbalingAngles2[i], telemetryValues.rSeaGimbalYs2[i]);
+                }
+            }
+        }
+        if (telemetryValues.rSeaGimbalingAngles.length == superHeavyOptions.numRSeas3 && telemetryValues.rSeaGimbalYs.length == superHeavyOptions.numRSeas3) {
+            for (let i = 0; i < superHeavyOptions.numRSeas3; i++) {
+                if (superHeavyRaptors[i + superHeavyOptions.numRSeas1 + superHeavyOptions.numRSeas2] != undefined) {
+                    superHeavyRaptors[i + superHeavyOptions.numRSeas1 + superHeavyOptions.numRSeas2].updateGimbal(telemetryValues.rSeaGimbalingAngles3[i], telemetryValues.rSeaGimbalYs3[i]);
+                }
+            }
+        }
+    }
+
     function estimateHeight(): void {
         shipHeight = Math.round(starshipOptions.shipRingHeight * StarshipConstants.SHIP_RING_SCALE.y + StarshipConstants.NOSECONE_HEIGHT * SuperHeavyConstants.REAL_LIFE_SCALE.y);
         boosterHeight = Math.round(superHeavyOptions.boosterRingHeight * SuperHeavyConstants.BOOSTER_RING_SCALE.y + superHeavyOptions.hsrHeight * SuperHeavyConstants.HSR_SCALE.y);
@@ -275,26 +335,26 @@
     function createStarshipRaptors() {
         let rSeaPositions: Vector3[] = MathHelper.getCircularPositions(starshipOptions.numRSeas, starshipOptions.rSeaRadius / StarshipConstants.REAL_LIFE_SCALE.x * sizeMult, starshipOptions.rSeaAngularOffset * Math.PI / 180);
         for (let i = 0; i < starshipOptions.numRSeas; i++) {
-            starshipRaptors = [...starshipRaptors, new RaptorUI(true, starshipOptions.rSeaType, defaultThrottle, new Vector2(sizeMult - rSeaPositions[i].z - rSeaRadius, rSeaPositions[i].x + sizeMult - rSeaRadius), validatedStarship.rSeaRadius && validatedStarship.rSeaAngularOffset && validatedStarship.rSeaType && validatedStarship.numRSeas)];
+            starshipRaptors = [...starshipRaptors, new RaptorUI(true, starshipOptions.rSeaType, defaultThrottle, new Vector2(sizeMult - rSeaPositions[i].z - rSeaRadius, rSeaPositions[i].x + sizeMult - rSeaRadius), telemetryValues.rSeaGimbalingAngles[i], telemetryValues.rSeaGimbalYs[i], validatedStarship.rSeaRadius && validatedStarship.rSeaAngularOffset && validatedStarship.rSeaType && validatedStarship.numRSeas)];
         }
         let rVacPositions: Vector3[] = MathHelper.getCircularPositions(starshipOptions.numRVacs, starshipOptions.rVacRadius / StarshipConstants.REAL_LIFE_SCALE.x * sizeMult, starshipOptions.rVacAngularOffset * Math.PI / 180);
         for (let i = 0; i < starshipOptions.numRVacs; i++) {
-            starshipRaptors = [...starshipRaptors, new RaptorUI(false, starshipOptions.rVacType, defaultThrottle, new Vector2(sizeMult - rVacPositions[i].z - rVacRadius, rVacPositions[i].x + sizeMult - rVacRadius),  validatedStarship.rVacRadius && validatedStarship.rVacAngularOffset && validatedStarship.rVacType && validatedStarship.numRVacs)];
+            starshipRaptors = [...starshipRaptors, new RaptorUI(false, starshipOptions.rVacType, defaultThrottle, new Vector2(sizeMult - rVacPositions[i].z - rVacRadius, rVacPositions[i].x + sizeMult - rVacRadius),telemetryValues.rVacGimbalingAngles[i], telemetryValues.rVacGimbalYs[i], validatedStarship.rVacRadius && validatedStarship.rVacAngularOffset && validatedStarship.rVacType && validatedStarship.numRVacs)];
         }
     }
 
     function createSuperHeavyRaptors() {
         let rSeaPositions1: Vector3[] = MathHelper.getCircularPositions(superHeavyOptions.numRSeas1, superHeavyOptions.rSeaRadius1 / SuperHeavyConstants.REAL_LIFE_SCALE.x * sizeMult, superHeavyOptions.rSeaAngularOffset1 * Math.PI / 180);
         for (let i = 0; i < superHeavyOptions.numRSeas1; i++) {
-            superHeavyRaptors = [...superHeavyRaptors, new RaptorUI(true, superHeavyOptions.rSeaType1, defaultThrottle, new Vector2(sizeMult - rSeaRadius - rSeaPositions1[i].z, rSeaPositions1[i].x + sizeMult - rSeaRadius), validatedSuperHeavy.rSeaRadius1 && validatedSuperHeavy.rSeaAngularOffset1 && validatedSuperHeavy.rSeaType1 && validatedSuperHeavy.numRSeas1)];
+            superHeavyRaptors = [...superHeavyRaptors, new RaptorUI(true, superHeavyOptions.rSeaType1, defaultThrottle, new Vector2(sizeMult - rSeaRadius - rSeaPositions1[i].z, rSeaPositions1[i].x + sizeMult - rSeaRadius), telemetryValues.rSeaGimbalingAngles1[i], telemetryValues.rSeaGimbalYs1[i], validatedSuperHeavy.rSeaRadius1 && validatedSuperHeavy.rSeaAngularOffset1 && validatedSuperHeavy.rSeaType1 && validatedSuperHeavy.numRSeas1)];
         }
         let rSeaPositions2: Vector3[] = MathHelper.getCircularPositions(superHeavyOptions.numRSeas2, superHeavyOptions.rSeaRadius2 / SuperHeavyConstants.REAL_LIFE_SCALE.x * sizeMult, superHeavyOptions.rSeaAngularOffset2 * Math.PI / 180);
         for (let i = 0; i < superHeavyOptions.numRSeas2; i++) {
-            superHeavyRaptors = [...superHeavyRaptors, new RaptorUI(true, superHeavyOptions.rSeaType2, defaultThrottle, new Vector2(sizeMult - rSeaRadius - rSeaPositions2[i].z, rSeaPositions2[i].x + sizeMult - rSeaRadius), validatedSuperHeavy.rSeaRadius2 && validatedSuperHeavy.rSeaAngularOffset2 && validatedSuperHeavy.rSeaType2 && validatedSuperHeavy.numRSeas2)];
+            superHeavyRaptors = [...superHeavyRaptors, new RaptorUI(true, superHeavyOptions.rSeaType2, defaultThrottle, new Vector2(sizeMult - rSeaRadius - rSeaPositions2[i].z, rSeaPositions2[i].x + sizeMult - rSeaRadius), telemetryValues.rSeaGimbalingAngles2[i], telemetryValues.rSeaGimbalYs2[i], validatedSuperHeavy.rSeaRadius2 && validatedSuperHeavy.rSeaAngularOffset2 && validatedSuperHeavy.rSeaType2 && validatedSuperHeavy.numRSeas2)];
         }
         let rSeaPositions3: Vector3[] = MathHelper.getCircularPositions(superHeavyOptions.numRSeas3, superHeavyOptions.rSeaRadius3 / SuperHeavyConstants.REAL_LIFE_SCALE.x * sizeMult, superHeavyOptions.rSeaAngularOffset3 * Math.PI / 180);
         for (let i = 0; i < superHeavyOptions.numRSeas3; i++) {
-            superHeavyRaptors = [...superHeavyRaptors, new RaptorUI(true, superHeavyOptions.rSeaType3, defaultThrottle, new Vector2(sizeMult - rSeaRadius - rSeaPositions3[i].z, rSeaPositions3[i].x + sizeMult - rSeaRadius), validatedSuperHeavy.rSeaRadius3 && validatedSuperHeavy.rSeaAngularOffset3 && validatedSuperHeavy.rSeaType3 && validatedSuperHeavy.numRSeas3)];
+            superHeavyRaptors = [...superHeavyRaptors, new RaptorUI(true, superHeavyOptions.rSeaType3, defaultThrottle, new Vector2(sizeMult - rSeaRadius - rSeaPositions3[i].z, rSeaPositions3[i].x + sizeMult - rSeaRadius), telemetryValues.rSeaGimbalingAngles3[i], telemetryValues.rSeaGimbalYs3[i], validatedSuperHeavy.rSeaRadius3 && validatedSuperHeavy.rSeaAngularOffset3 && validatedSuperHeavy.rSeaType3 && validatedSuperHeavy.numRSeas3)];
         }
     }
 
