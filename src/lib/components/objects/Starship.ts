@@ -3,7 +3,7 @@ import { StarshipConstants } from "../constants/objects/StarshipConstants";
 import { MathHelper } from "../helpers/MathHelper";
 import { ObjectHelper } from "../helpers/ObjectHelper";
 import { starshipSettings, telemetry, toggles } from "../stores/ui-store";
-import { FuelConstants } from "../constants/objects/FuelConstants";
+import { LaunchConstants } from "../constants/objects/LaunchConstants";
 import { LaunchHelper } from "../helpers/LaunchHelper";
 
 export class Starship {
@@ -28,6 +28,7 @@ export class Starship {
 
     public isEditing: boolean = false;
     public isFueling: boolean = false;
+    public hasStartedFueling: boolean = false;
     public LOX: number = 0;
     public CH4: number = 0;
     public visibilityCooldown: number = StarshipConstants.VISIBILITY_COOLDOWN;
@@ -71,7 +72,8 @@ export class Starship {
     public setupUpdator(): void {
         toggles.subscribe((value) => {
             this.isEditing = value.isEditingStarship;
-            this.isFueling = value.hasStartedFueling;
+            this.isFueling = value.isFueling;
+            this.hasStartedFueling = value.hasStartedFueling;
         });
         telemetry.subscribe((value) => {
             this.LOX = value.starshipLOX;
@@ -106,26 +108,34 @@ export class Starship {
     }
 
     public updateFrost(delta: number): void {
-        if (this.isFueling) {
-            let CH4Mass: number = MathHelper.getVolumeofCylinder(StarshipConstants.SHIP_RING_SCALE.x * StarshipConstants.REAL_LIFE_SCALE.x, this.options.shipRingHeight * StarshipConstants.CH4_PERCENTAGE);   
-            let LOXMass: number = MathHelper.getVolumeofCylinder(StarshipConstants.SHIP_RING_SCALE.x * StarshipConstants.REAL_LIFE_SCALE.x, this.options.shipRingHeight * StarshipConstants.LOX_PERCENTAGE);
+        if (this.isFueling && !this.hasStartedFueling) {
+            telemetry.update((value) => {
+                value.starshipCH4 = 0;
+                value.starshipLOX = 0;
 
-            let CH4MassPerc: number = FuelConstants.FUELING_RATE * FuelConstants.FUELING_SPEEDUP / CH4Mass * delta;
-            let LOXMassPerc: number = FuelConstants.FUELING_RATE * FuelConstants.FUELING_SPEEDUP / LOXMass * delta;
+                return value;
+            });
+        }
+        if (this.hasStartedFueling) {
+            let CH4Volume: number = MathHelper.getVolumeofCylinder(StarshipConstants.SHIP_RING_SCALE.x * StarshipConstants.REAL_LIFE_SCALE.x, this.options.shipRingHeight * StarshipConstants.CH4_PERCENTAGE);   
+            let LOXVolume: number = MathHelper.getVolumeofCylinder(StarshipConstants.SHIP_RING_SCALE.x * StarshipConstants.REAL_LIFE_SCALE.x, this.options.shipRingHeight * StarshipConstants.LOX_PERCENTAGE);
+    
+            let CH4Rate: number = LaunchConstants.FUELING_RATE * LaunchConstants.FUELING_SPEEDUP * delta / CH4Volume;
+            let LOXRate: number = LaunchConstants.FUELING_RATE * LaunchConstants.FUELING_SPEEDUP* delta / LOXVolume;
 
             if (this.CH4 < 1) {
-                this.CH4 += CH4MassPerc;
+                this.CH4 += CH4Rate;
             }
-            if (this.LOX < 1) {
-                this.LOX += LOXMassPerc;
-            }
-
-            if (this.CH4 > 1) {
+            else {
                 this.CH4 = 1;
             }
-            if (this.LOX > 1) {
+            if (this.LOX < 1) {
+                this.LOX += LOXRate;
+            }
+            else {
                 this.LOX = 1;
             }
+
 
             telemetry.update((value) => {
                 value.starshipCH4 = this.CH4;

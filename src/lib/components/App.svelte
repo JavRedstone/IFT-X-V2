@@ -12,7 +12,6 @@
     isEditing: false,
     isFueling: false,
     isLaunching: false,
-    paused: false,
   }
 
   function setupUpdator(): void {
@@ -21,7 +20,6 @@
       toggleValues.isEditing = value.isEditing;
       toggleValues.isFueling = value.isFueling;
       toggleValues.isLaunching = value.isLaunching;
-      toggleValues.paused = value.paused;
     });
   }
 

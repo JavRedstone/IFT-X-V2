@@ -3,6 +3,7 @@ import { MathHelper } from "../helpers/MathHelper";
 import { SuperHeavyConstants } from "../constants/objects/SuperHeavyConstants";
 import { ObjectHelper } from "../helpers/ObjectHelper";
 import { superHeavySettings, telemetry, toggles } from "../stores/ui-store";
+import { LaunchConstants } from "../constants/objects/LaunchConstants";
 
 export class SuperHeavy {
     public hsr: Group = new Group();
@@ -24,6 +25,8 @@ export class SuperHeavy {
     public hasUpdatedAABB: boolean = false;
 
     public isEditing: boolean = false;
+    public isFueling: boolean = false;
+    public hasStartedFueling: boolean = false;
     public LOX: number = 0;
     public CH4: number = 0;
     public visibilityCooldown: number = SuperHeavyConstants.VISIBILITY_COOLDOWN;
@@ -71,12 +74,12 @@ export class SuperHeavy {
     public setupUpdator(): void {
         toggles.subscribe((value) => {
             this.isEditing = value.isEditingSuperHeavy;
+            this.isFueling = value.isFueling;
+            this.hasStartedFueling = value.hasStartedFueling;
         });
         telemetry.subscribe((value) => {
             this.LOX = value.superHeavyLOX;
             this.CH4 = value.superHeavyCH4;
-
-            this.updateFrost();
         });
         superHeavySettings.subscribe((value) => {
             this.options.gridFinAngularOffset = value.gridFinAngularOffset;
@@ -106,7 +109,41 @@ export class SuperHeavy {
         });
     }
 
-    public updateFrost(): void {
+    public updateFrost(delta: number): void {
+        if (this.isFueling && !this.hasStartedFueling) {
+            telemetry.update((value) => {
+                value.superHeavyCH4 = 0;
+                value.superHeavyLOX = 0;
+
+                return value;
+            });
+        }
+        if (this.hasStartedFueling) {
+            let CH4Volume: number = MathHelper.getVolumeofCylinder(SuperHeavyConstants.BOOSTER_RING_SCALE.x * SuperHeavyConstants.REAL_LIFE_SCALE.x, this.options.boosterRingHeight * SuperHeavyConstants.CH4_PERCENTAGE);   
+            let LOXVolume: number = MathHelper.getVolumeofCylinder(SuperHeavyConstants.BOOSTER_RING_SCALE.x * SuperHeavyConstants.REAL_LIFE_SCALE.x, this.options.boosterRingHeight * SuperHeavyConstants.LOX_PERCENTAGE);
+            
+            let CH4Rate: number = LaunchConstants.FUELING_RATE * LaunchConstants.FUELING_SPEEDUP * delta / CH4Volume;
+            let LOXRate: number = LaunchConstants.FUELING_RATE * LaunchConstants.FUELING_SPEEDUP* delta / LOXVolume;
+
+            if (this.CH4 < 1) {
+                this.CH4 += CH4Rate;
+            }
+            else {
+                this.CH4 = 1;
+            }
+            if (this.LOX < 1) {
+                this.LOX += LOXRate;
+            }
+            else {
+                this.LOX = 1;
+            }
+
+            telemetry.update((value) => {
+                value.superHeavyCH4 = this.CH4;
+                value.superHeavyLOX = this.LOX;
+                return value;
+            });
+        }
         if (this.CH4Frost != null && this.LOXFrost != null) {
             if (this.CH4 == 0) {
                 this.CH4Frost.visible = false;
@@ -216,7 +253,6 @@ export class SuperHeavy {
 
             this.hsr.scale.copy(SuperHeavyConstants.HSR_SCALE.clone().multiply(SuperHeavyConstants.SUPER_HEAVY_SCALE).multiply(new Vector3(1, (this.options.hsrHeight < SuperHeavyConstants.MIN_HSR_HEIGHT ? SuperHeavyConstants.MIN_HSR_HEIGHT : this.options.hsrHeight) / (SuperHeavyConstants.HSR_HEIGHT * SuperHeavyConstants.REAL_LIFE_SCALE.y), 1)));
             this.boosterRing.scale.copy(SuperHeavyConstants.BOOSTER_RING_SCALE.clone().multiply(SuperHeavyConstants.SUPER_HEAVY_SCALE).multiply(new Vector3(1, this.options.boosterRingHeight / SuperHeavyConstants.REAL_LIFE_SCALE.y, 1)));
-            this.updateFrost();
             this.hasSetupSingle = true;
         }
     }
@@ -276,6 +312,7 @@ export class SuperHeavy {
             this.setupSingle();
         }
         else {
+            this.updateFrost(delta);
             this.updateAABB();
             this.updateObjects(delta);
         }

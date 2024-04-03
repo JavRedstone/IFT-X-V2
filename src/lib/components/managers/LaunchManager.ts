@@ -10,7 +10,10 @@ import { CelestialConstants } from "../constants/CelestialConstants";
 import { MathHelper } from "../helpers/MathHelper";
 import { PRTransients } from "../constants/transients/PRTransients";
 import { SuperHeavyConstants } from "../constants/objects/SuperHeavyConstants";
-import { starshipSettings, superHeavySettings, toggles } from "../stores/ui-store";
+import { starshipSettings, superHeavySettings, telemetry, toggles } from "../stores/ui-store";
+import { LaunchConstants } from "../constants/objects/LaunchConstants";
+import { StarshipConstants } from "../constants/objects/StarshipConstants";
+import { LaunchHelper } from "../helpers/LaunchHelper";
 
 export class LaunchManager {
     public tc: ThrelteContext;
@@ -34,6 +37,8 @@ export class LaunchManager {
 
     public isCameraOnStarship: boolean = true;
 
+    public dt: number = 0;
+    public isFueling: boolean = false;
     public hasStartedFueling: boolean = false;
     public isLaunching: boolean = false;
     public liftedOff: boolean = false;
@@ -54,13 +59,15 @@ export class LaunchManager {
 
     public setupUpdator(): void {
         toggles.subscribe((value) => {
+            this.isFueling = value.isFueling;
+            this.hasStartedFueling = value.hasStartedFueling;
             this.isLaunching = value.isLaunching;
         });
         starshipSettings.subscribe((value) => {
-            this.AABBUpdateRequests += 2;
+            this.AABBUpdateRequests += LaunchConstants.AABB_REQUEST_AMOUNT;
         });
         superHeavySettings.subscribe((value) => {
-            this.AABBUpdateRequests += 2;
+            this.AABBUpdateRequests += LaunchConstants.AABB_REQUEST_AMOUNT;
         });
     }
 
@@ -96,11 +103,28 @@ export class LaunchManager {
                 this.group.add(this.starship.group);
                 this.group.add(this.superHeavy.group);
 
-                this.AABBUpdateRequests += 2;
+                this.AABBUpdateRequests += LaunchConstants.AABB_REQUEST_AMOUNT;
 
                 this.tc.scene.add(this.group);
             }
-            else if (this.starship.hasUpdatedAABB && this.superHeavy.hasUpdatedAABB && this.OLIT.hasUpdatedAABB) {
+            else if (this.starship.hasUpdatedAABB && this.superHeavy.hasUpdatedAABB) {
+                if (this.isFueling && !this.hasStartedFueling) {
+                    let ssCH4Volume: number = MathHelper.getVolumeofCylinder(StarshipConstants.SHIP_RING_SCALE.x * StarshipConstants.REAL_LIFE_SCALE.x, this.starship.options.shipRingHeight * StarshipConstants.CH4_PERCENTAGE);   
+                    let ssLOXVolume: number = MathHelper.getVolumeofCylinder(StarshipConstants.SHIP_RING_SCALE.x * StarshipConstants.REAL_LIFE_SCALE.x, this.starship.options.shipRingHeight * StarshipConstants.LOX_PERCENTAGE);
+                
+                    let shCH4Volume: number = MathHelper.getVolumeofCylinder(SuperHeavyConstants.BOOSTER_RING_SCALE.x * SuperHeavyConstants.REAL_LIFE_SCALE.x, this.superHeavy.options.boosterRingHeight * SuperHeavyConstants.CH4_PERCENTAGE);
+                    let shLOXVolume: number = MathHelper.getVolumeofCylinder(SuperHeavyConstants.BOOSTER_RING_SCALE.x * SuperHeavyConstants.REAL_LIFE_SCALE.x, this.superHeavy.options.boosterRingHeight * SuperHeavyConstants.LOX_PERCENTAGE);
+
+                    this.dt = -Math.round(LaunchConstants.STOP_DT + Math.max(ssCH4Volume, ssLOXVolume, shCH4Volume, shLOXVolume) / LaunchConstants.FUELING_RATE);
+                }
+                if (this.hasStartedFueling) {
+                    if (this.dt >= -LaunchConstants.HOLD_DT) {
+                        this.dt = -LaunchConstants.HOLD_DT;
+                    }
+                    else {
+                        this.dt += delta * LaunchConstants.FUELING_SPEEDUP;
+                    }
+                }
                 if (!this.liftedOff) {
                     this.superHeavy.group.position.copy(this.OLIT.group.position.clone().add(this.OLIT.olm.position.clone().add(new Vector3(0, this.OLIT.olm.userData.aabb.getSize(new Vector3).y - OLITConstants.OLM_RING_HEIGHT * OLITConstants.OLM_SCALE.y * OLITConstants.OLIT_SCALE.y, 0))));
                     this.starship.group.position.copy(this.superHeavy.group.position.clone().add(new Vector3(0, this.superHeavy.boosterRing.userData.aabb.getSize(new Vector3).y + this.superHeavy.hsr.userData.aabb.getSize(new Vector3).y - this.superHeavy.hsr.userData.aabb.getSize(new Vector3).y * SuperHeavyConstants.HSR_OFFSET, 0)));
@@ -119,6 +143,10 @@ export class LaunchManager {
                 }
             }
         }
+        telemetry.update((value) => {
+            value.dt = this.dt;
+            return value;
+        });
     }
 
     public updateRealCamera(delta: number): void {
@@ -152,8 +180,8 @@ export class LaunchManager {
 
         if (this.starship.hasSetupSingle && this.superHeavy.hasSetupSingle) {
             if (this.AABBUpdateRequests > 0) {
-                if (this.AABBUpdateRequests > 6) {
-                    this.AABBUpdateRequests = 6;
+                if (this.AABBUpdateRequests > LaunchConstants.AABB_REQUEST_MAX) {
+                    this.AABBUpdateRequests = LaunchConstants.AABB_REQUEST_MAX;
                 }
                 this.updateAABBs();
                 this.AABBUpdateRequests--;

@@ -31,7 +31,7 @@
 
   const TC: ThrelteContext = useThrelte();  
   let sceneManager: SceneManager = new SceneManager(TC);
-  let updInterval: number = setInterval(() => updateAll(SceneConstants.DELTA), 1000 / SceneConstants.FPS);
+  let updInterval: number = setInterval(() => updateAll(SceneConstants.DELTA), 1000 * SceneConstants.DELTA);
 
   function updateAll(delta: number) {
     sceneManager.updateAll(delta);

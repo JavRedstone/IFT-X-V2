@@ -2,16 +2,19 @@ import { writable } from "svelte/store";
 import { StarshipConstants } from "../constants/objects/StarshipConstants";
 import { SuperHeavyConstants } from "../constants/objects/SuperHeavyConstants";
 
+export const uiSwitches = writable({
+    paused: false,
+    settings: false,
+    credits: false,
+});
+
 export const toggles = writable({
     isEditing: true,
     isEditingStarship: false,
     isEditingSuperHeavy: false,
     isFueling: false,
-    hasStartedFueling: true,
+    hasStartedFueling: false,
     isLaunching: false,
-    paused: false,
-    settings: false,
-    credits: false,
 });
 
 export const starshipSettings = writable({
@@ -73,11 +76,6 @@ export const superHeavySettings = writable({
 
 export const telemetry = writable({
     dt: 0,
-    wind: 0,
-    temperature: 0,
-    weather: true,
-    range: true,
-    vehicle: true,
 
     starshipAngle: 0,
     starshipSpeed: 0,
