@@ -10,7 +10,7 @@ export class RaptorConstants {
     public static readonly R_SEA_GIMBAL_MAX_ANGLE: number = 15 * Math.PI/180; //rad
     public static readonly R_VAC_GIMBAL_MAX_ANGLE: number = this.R_SEA_GIMBAL_MAX_ANGLE / this.RADIUS_SEA_TO_VAC; //rad
     public static readonly GIMBAL_GIMBALING_ANG_VEL: number = 10;
-    public static readonly GIMBAL_Y_ANG_VEL: number = 10;
+    public static readonly GIMBAL_Y_ANG_VEL: number = 7.5;
     
     public static readonly DRY_MASS: number = 1600; //kg
 

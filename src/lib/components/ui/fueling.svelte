@@ -11,6 +11,8 @@
     let realHeight: number = 0;
 
     let hasStartedFueling: boolean = false;
+    let doneFueling: boolean = false;
+
     let setTelemetry: boolean = false;
 
     let telemetryValues: any = {
@@ -26,6 +28,7 @@
     function setupUpdator(): void {
         toggles.subscribe((value) => {
             hasStartedFueling = value.hasStartedFueling;
+            doneFueling = value.doneFueling;
         });
         telemetry.subscribe((value) => {
             telemetryValues.dt = value.dt;
@@ -48,6 +51,16 @@
     function startFueling(): void {
         toggles.update((value) => {
             value.hasStartedFueling = true;
+            return value;
+        });
+    }
+
+    function proceedLaunch(): void {
+        toggles.update((value) => {
+            value.isFueling = false;
+            value.hasStartedFueling = false;
+            value.doneFueling = false;
+            value.isLaunching = true;
             return value;
         });
     }
@@ -155,7 +168,10 @@
         <div class="fueling-time">{ LaunchHelper.getTString(telemetryValues.dt) }</div>
         <div class="fueling-event">INTEGRATED FLIGHT TEST X</div>
     {:else if setTelemetry}
-        <button class="fueling-action" style="width: 100%; height: 64px;" on:click={startFueling}><b>GO</b> for Propellant Load</button>
+        <button class="fueling-action" style="width: 100%; height: 64px; left: 0; top: 0;" on:click={startFueling}><b>GO</b> for Propellant Load &#10054;</button>
+    {/if}
+    {#if doneFueling}
+        <button class="fueling-action" style="width: calc(100vw - 225px); height: 64px; left: 225px; top: 0;" on:click={proceedLaunch}><b>GO</b> for Launch &#128640;</button>
     {/if}
     <div class="fueling-bar-container" style="top: {imageTop + realHeight * 0.195}px; left: {imageLeft + realHeight * 0.039}px; width: {realHeight * 0.085}px; height: {realHeight * 0.08}px;">
         <div class="fueling-bar" style="background-color: rgba(255, 150, 150, 0.5); height: {telemetryValues.starshipCH4 * 100}%;"></div>

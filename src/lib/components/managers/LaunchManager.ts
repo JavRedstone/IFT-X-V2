@@ -120,6 +120,10 @@ export class LaunchManager {
                 if (this.hasStartedFueling) {
                     if (this.dt >= -LaunchConstants.HOLD_DT) {
                         this.dt = -LaunchConstants.HOLD_DT;
+                        toggles.update((value) => {
+                            value.doneFueling = true;
+                            return value;
+                        });
                     }
                     else {
                         this.dt += delta * LaunchConstants.FUELING_SPEEDUP;

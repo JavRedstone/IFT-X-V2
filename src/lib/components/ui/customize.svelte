@@ -1258,6 +1258,24 @@
             cursor: pointer;
         }
     }
+
+    .customize-fueling-action {
+        position: absolute;
+        border: none;
+        outline: none;
+        background-color: #009f6B80;
+        font-size: 16px;
+        color: white;
+        font-family: "M PLUS Code Latin", monospace;
+
+        transition: background-color 0.2s, color 0.2s;
+        animation: increaseOpacity 0.5s;
+
+        &:hover {
+            background-color: #009f6B;
+            cursor: pointer;
+        }
+    }
 </style>
 
 {#if hasLeftBar}
@@ -1378,6 +1396,8 @@
     <button class="customize-action" style="left:{hasLeftBar ? '0' : '25%'}; top: 0; width: {hasLeftBar && hasRightBar ? '50%' : !hasLeftBar && !hasRightBar ? '25%' : '37.5%'}; height: 100%; border-right: 1px solid white;" on:click={validate}>Test &#128504;</button>
     <button class="customize-action" style="right:{hasRightBar ? '0' : '25%'}; top: 0; width: {hasLeftBar && hasRightBar ? '50%' : !hasLeftBar && !hasRightBar ? '25%' : '37.5%'}; height: 100%;" on:click={reset}>Reset &#8634;</button>
 </div>
-<div class="customize-banner" style="bottom: 0; {hasLeftBar ? hasRightBar ? "left: 390px; width: calc(100vw - 390px - 340px);" : "left: 390px; width: calc(100vw - 390px);" : hasRightBar ? "left: 0; width: calc(100vw - 340px);" : "left: 0; width: 100vw;"}">
-    <button class="customize-action" style="left:0; bottom:0; width:100%; height: 100%; border-left: 1px solid white; border-right: 1px solid white; color: white; background-color: {starshipValidated && superHeavyValidated ? '#009f6B80' : '#ff450080'}" on:click={startFueling}>Fuel &#10054;</button>
-</div>
+{#if starshipValidated && superHeavyValidated}
+    <div class="customize-banner" style="bottom: 0; {hasLeftBar ? hasRightBar ? "left: 390px; width: calc(100vw - 390px - 340px);" : "left: 390px; width: calc(100vw - 390px);" : hasRightBar ? "left: 0; width: calc(100vw - 340px);" : "left: 0; width: 100vw;"}">
+        <button class="customize-fueling-action" style="left:0; bottom:0; width:100%; height: 100%; border-left: 1px solid white; border-right: 1px solid white;" on:click={startFueling}>Fuel &#10054;</button>
+    </div>
+{/if}

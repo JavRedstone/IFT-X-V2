@@ -14,6 +14,7 @@ export const toggles = writable({
     isEditingSuperHeavy: false,
     isFueling: false,
     hasStartedFueling: false,
+    doneFueling: false,
     isLaunching: false,
 });
 
