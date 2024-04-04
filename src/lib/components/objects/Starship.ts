@@ -125,20 +125,38 @@ export class Starship {
                 let rSea = this.rSeas[i];
                 if (rSea.userData.gimbal != null && rSea.userData.originalRotation != null) {
                     if (rSea.userData.gimbal.gimbalAngle == 0) {
-                        rSea.userData.gimbal.gimbalAngle = RaptorConstants.GIMBAL_MAX_ANGLE;
+                        rSea.userData.gimbal.gimbalAngle = RaptorConstants.R_SEA_GIMBAL_MAX_ANGLE;
                         rSea.userData.gimbal.angleY = 0;
                     } else {
-                        rSea.userData.gimbal.setTarget(RaptorConstants.GIMBAL_MAX_ANGLE, rSea.userData.gimbal.tAngleY + RaptorConstants.GIMBAL_Y_ANG_VEL * delta);
-
-                        console.log(rSea.userData.gimbal.angleY);
+                        rSea.userData.gimbal.setTarget(RaptorConstants.R_SEA_GIMBAL_MAX_ANGLE, rSea.userData.gimbal.tAngleY + RaptorConstants.GIMBAL_Y_ANG_VEL * delta);
                     }
 
                     rSea.userData.gimbal.update(delta);
 
-                    rSea.rotation.copy(new Euler().setFromQuaternion(new Quaternion().setFromEuler(rSea.userData.originalRotation).multiply(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), rSea.userData.gimbal.angleY).multiply(new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), rSea.userData.gimbal.gimbalAngle)))));
+                    rSea.rotation.copy(new Euler().setFromQuaternion(new Quaternion().setFromEuler(rSea.userData.originalRotation).multiply(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), -rSea.userData.gimbal.angleY).multiply(new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), rSea.userData.gimbal.gimbalAngle)))));
 
                     rSeaGimbalingAngles = [...rSeaGimbalingAngles, rSea.userData.gimbal.gimbalAngle];
                     rSeaGimbalYs = [...rSeaGimbalYs, rSea.userData.gimbal.angleY];
+                }
+            }
+        }
+        if (this.options.canRVacGimbal) {
+            for (let i = 0; i < this.options.numRVacs; i++) {
+                let rVac = this.rVacs[i];
+                if (rVac.userData.gimbal != null && rVac.userData.originalRotation != null) {
+                    if (rVac.userData.gimbal.gimbalAngle == 0) {
+                        rVac.userData.gimbal.gimbalAngle = RaptorConstants.R_VAC_GIMBAL_MAX_ANGLE;
+                        rVac.userData.gimbal.angleY = 0;
+                    } else {
+                        rVac.userData.gimbal.setTarget(RaptorConstants.R_VAC_GIMBAL_MAX_ANGLE, rVac.userData.gimbal.tAngleY + RaptorConstants.GIMBAL_Y_ANG_VEL * delta);
+                    }
+
+                    rVac.userData.gimbal.update(delta);
+
+                    rVac.rotation.copy(new Euler().setFromQuaternion(new Quaternion().setFromEuler(rVac.userData.originalRotation).multiply(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), -rVac.userData.gimbal.angleY).multiply(new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), rVac.userData.gimbal.gimbalAngle)))));
+
+                    rVacGimbalingAngles = [...rVacGimbalingAngles, rVac.userData.gimbal.gimbalAngle];
+                    rVacGimbalYs = [...rVacGimbalYs, rVac.userData.gimbal.angleY];
                 }
             }
         }
@@ -222,9 +240,7 @@ export class Starship {
             rSea.position.copy(rSeaPositions[i].clone().add(new Vector3(0, StarshipConstants.R_SEA_HEIGHT * StarshipConstants.STARSHIP_SCALE.y, 0)));
             rSea.scale.copy(StarshipConstants.R_SEA_SCALE.clone().multiply(StarshipConstants.STARSHIP_SCALE));
             rSea.userData.originalRotation = new Euler(0, 0, 0);
-            if (this.options.canRSeaGimbal) {
-                rSea.userData.gimbal = new Gimbal();
-            }
+            rSea.userData.gimbal = new Gimbal();
 
             this.rSeas = [...this.rSeas, rSea];
         }
@@ -238,9 +254,7 @@ export class Starship {
             rVac.position.copy(rVacPositions[i].clone().add(new Vector3(0, StarshipConstants.R_VAC_HEIGHT * StarshipConstants.STARSHIP_SCALE.y, 0)));
             rVac.scale.copy(StarshipConstants.R_VAC_SCALE.clone().multiply(StarshipConstants.STARSHIP_SCALE));
             rVac.userData.originalRotation = new Euler(0, 0, 0);
-            if (this.options.canRVacGimbal) {
-                rVac.userData.gimbal = new Gimbal();
-            }
+            rVac.userData.gimbal = new Gimbal();
 
             this.rVacs = [...this.rVacs, rVac];
         }

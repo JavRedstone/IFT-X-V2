@@ -56,7 +56,7 @@ export class StarshipConstants {
     public static readonly R_SEA_SCALE: Vector3 = new Vector3(0.045206, 0.045206, 0.045206);
     public static readonly R_SEA_RADIUS: number = 0.175;
     public static readonly R_SEA_ANGULAR_OFFSET: number = 0;
-    public static readonly R_SEA_HEIGHT: number = 1.1;
+    public static readonly R_SEA_HEIGHT: number = 0.9;
     public static readonly NUM_R_SEAS: number = 3;
     public static readonly R_SEA_TYPE: number = 2;
     public static readonly CAN_R_SEA_GIMBAL: boolean = true;
@@ -64,7 +64,7 @@ export class StarshipConstants {
     public static readonly R_VAC_SCALE: Vector3 = new Vector3(0.045206, 0.045206, 0.045206);
     public static readonly R_VAC_RADIUS: number = 0.7;
     public static readonly R_VAC_ANGULAR_OFFSET: number = 60 * Math.PI / 180;
-    public static readonly R_VAC_HEIGHT: number = 1.1;
+    public static readonly R_VAC_HEIGHT: number = 0.9;
     public static readonly NUM_R_VACS: number = 3;
     public static readonly R_VAC_TYPE: number = 2;
     public static readonly CAN_R_VAC_GIMBAL: boolean = false;

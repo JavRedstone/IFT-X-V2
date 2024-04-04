@@ -5,6 +5,7 @@ import { ObjectHelper } from "../helpers/ObjectHelper";
 import { superHeavySettings, telemetry, toggles } from "../stores/ui-store";
 import { LaunchConstants } from "../constants/objects/LaunchConstants";
 import { Gimbal } from "../structs/Gimbal";
+import { RaptorConstants } from "../constants/objects/RaptorConstants";
 
 export class SuperHeavy {
     public hsr: Group = new Group();
@@ -26,6 +27,7 @@ export class SuperHeavy {
     public hasUpdatedAABB: boolean = false;
 
     public isEditing: boolean = false;
+    public isEditingSelf: boolean = false;
     public isFueling: boolean = false;
     public hasStartedFueling: boolean = false;
     public LOX: number = 0;
@@ -77,7 +79,8 @@ export class SuperHeavy {
 
     public setupUpdator(): void {
         toggles.subscribe((value) => {
-            this.isEditing = value.isEditingSuperHeavy;
+            this.isEditing = value.isEditing;
+            this.isEditingSelf = value.isEditingSuperHeavy;
             this.isFueling = value.isFueling;
             this.hasStartedFueling = value.hasStartedFueling;
         });
@@ -113,6 +116,85 @@ export class SuperHeavy {
 
             this.setupMultiple();
             this.hasSetupSingle = false;
+        });
+    }
+
+    public runGimbalingProgram(delta: number): void {
+        let rSeaGimbalingAngles1: number[] = [];
+        let rSeaGimbalYs1: number[] = [];
+        let rSeaGimbalingAngles2: number[] = [];
+        let rSeaGimbalYs2: number[] = [];
+        let rSeaGimbalingAngles3: number[] = [];
+        let rSeaGimbalYs3: number[] = [];
+        if (this.options.canRSea1Gimbal) {
+            for (let i = 0; i < this.options.numRSeas1; i++) {
+                let rSea = this.rSeas[i];
+                if (rSea.userData.gimbal != null && rSea.userData.originalRotation != null) {
+                    if (rSea.userData.gimbal.gimbalAngle == 0) {
+                        rSea.userData.gimbal.gimbalAngle = RaptorConstants.R_SEA_GIMBAL_MAX_ANGLE;
+                        rSea.userData.gimbal.angleY = 0;
+                    } else {
+                        rSea.userData.gimbal.setTarget(RaptorConstants.R_SEA_GIMBAL_MAX_ANGLE, rSea.userData.gimbal.tAngleY + RaptorConstants.GIMBAL_Y_ANG_VEL * delta);
+                    }
+
+                    rSea.userData.gimbal.update(delta);
+
+                    rSea.rotation.copy(new Euler().setFromQuaternion(new Quaternion().setFromEuler(rSea.userData.originalRotation).multiply(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), -rSea.userData.gimbal.angleY).multiply(new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), rSea.userData.gimbal.gimbalAngle)))));
+
+                    rSeaGimbalingAngles1 = [...rSeaGimbalingAngles1, rSea.userData.gimbal.gimbalAngle];
+                    rSeaGimbalYs1 = [...rSeaGimbalYs1, rSea.userData.gimbal.angleY];
+                }
+            }
+        }
+        if (this.options.canRSea2Gimbal) {
+            for (let i = 0; i < this.options.numRSeas2; i++) {
+                let rSea = this.rSeas[i + this.options.numRSeas1];
+                if (rSea.userData.gimbal != null && rSea.userData.originalRotation != null) {
+                    if (rSea.userData.gimbal.gimbalAngle == 0) {
+                        rSea.userData.gimbal.gimbalAngle = RaptorConstants.R_SEA_GIMBAL_MAX_ANGLE;
+                        rSea.userData.gimbal.angleY = 0;
+                    } else {
+                        rSea.userData.gimbal.setTarget(RaptorConstants.R_SEA_GIMBAL_MAX_ANGLE, rSea.userData.gimbal.tAngleY + RaptorConstants.GIMBAL_Y_ANG_VEL * delta);
+                    }
+
+                    rSea.userData.gimbal.update(delta);
+
+                    rSea.rotation.copy(new Euler().setFromQuaternion(new Quaternion().setFromEuler(rSea.userData.originalRotation).multiply(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), -rSea.userData.gimbal.angleY).multiply(new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), rSea.userData.gimbal.gimbalAngle)))));
+
+                    rSeaGimbalingAngles2 = [...rSeaGimbalingAngles2, rSea.userData.gimbal.gimbalAngle];
+                    rSeaGimbalYs2 = [...rSeaGimbalYs2, rSea.userData.gimbal.angleY];
+                }
+            }
+        }
+        if (this.options.canRSea3Gimbal) {
+            for (let i = 0; i < this.options.numRSeas3; i++) {
+                let rSea = this.rSeas[i + this.options.numRSeas1 + this.options.numRSeas2];
+                if (rSea.userData.gimbal != null && rSea.userData.originalRotation != null) {
+                    if (rSea.userData.gimbal.gimbalAngle == 0) {
+                        rSea.userData.gimbal.gimbalAngle = RaptorConstants.R_SEA_GIMBAL_MAX_ANGLE;
+                        rSea.userData.gimbal.angleY = 0;
+                    } else {
+                        rSea.userData.gimbal.setTarget(RaptorConstants.R_SEA_GIMBAL_MAX_ANGLE, rSea.userData.gimbal.tAngleY + RaptorConstants.GIMBAL_Y_ANG_VEL * delta);
+                    }
+
+                    rSea.userData.gimbal.update(delta);
+
+                    rSea.rotation.copy(new Euler().setFromQuaternion(new Quaternion().setFromEuler(rSea.userData.originalRotation).multiply(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), -rSea.userData.gimbal.angleY).multiply(new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), rSea.userData.gimbal.gimbalAngle)))));
+
+                    rSeaGimbalingAngles3 = [...rSeaGimbalingAngles3, rSea.userData.gimbal.gimbalAngle];
+                    rSeaGimbalYs3 = [...rSeaGimbalYs3, rSea.userData.gimbal.angleY];
+                }
+            }
+        }
+
+        telemetry.update((value) => {
+            value.rSeaGimbalingAngles1 = rSeaGimbalingAngles1;
+            value.rSeaGimbalYs1 = rSeaGimbalYs1;
+            value.rSeaGimbalingAngles2 = rSeaGimbalingAngles2;
+            value.rSeaGimbalYs2 = rSeaGimbalYs2;
+            value.rSeaGimbalingAngles3 = rSeaGimbalingAngles3;
+            value.rSeaGimbalYs3 = rSeaGimbalYs3;
+            return value;
         });
     }
 
@@ -211,9 +293,8 @@ export class SuperHeavy {
             rSea.position.copy(rSeaPositions1[i].clone().add(new Vector3(0, SuperHeavyConstants.R_SEA_HEIGHT_1 * SuperHeavyConstants.SUPER_HEAVY_SCALE.y, 0)));
             rSea.rotation.copy(rSeaRotations1[i]);
             rSea.scale.copy(SuperHeavyConstants.R_SEA_SCALE.clone().multiply(SuperHeavyConstants.SUPER_HEAVY_SCALE));
-            if (this.options.canRSea1Gimbal) {
-                rSea.userData.gimbal = new Gimbal(0, 0);
-            }
+            rSea.userData.originalRotation = new Euler(0, 0, 0);
+            rSea.userData.gimbal = new Gimbal();
 
             this.rSeas = [...this.rSeas, rSea];
         }
@@ -226,9 +307,8 @@ export class SuperHeavy {
             rSea.position.copy(rSeaPositions2[i].clone().add(new Vector3(0, SuperHeavyConstants.R_SEA_HEIGHT_2 * SuperHeavyConstants.SUPER_HEAVY_SCALE.y, 0)));
             rSea.rotation.copy(rSeaRotations2[i]);
             rSea.scale.copy(SuperHeavyConstants.R_SEA_SCALE.clone().multiply(SuperHeavyConstants.SUPER_HEAVY_SCALE));
-            if (this.options.canRSea2Gimbal) {
-                rSea.userData.gimbal = new Gimbal(0, 0);
-            }
+            rSea.userData.originalRotation = new Euler(0, 0, 0);
+            rSea.userData.gimbal = new Gimbal();
 
             this.rSeas = [...this.rSeas, rSea];
         }
@@ -241,9 +321,8 @@ export class SuperHeavy {
             rSea.position.copy(rSeaPositions3[i].clone().add(new Vector3(0, SuperHeavyConstants.R_SEA_HEIGHT_3 * SuperHeavyConstants.SUPER_HEAVY_SCALE.y, 0)));
             rSea.rotation.copy(rSeaRotations3[i]);
             rSea.scale.copy(SuperHeavyConstants.R_SEA_SCALE.clone().multiply(SuperHeavyConstants.SUPER_HEAVY_SCALE));
-            if (this.options.canRSea3Gimbal) {
-                rSea.userData.gimbal = new Gimbal(0, 0);
-            }
+            rSea.userData.originalRotation = new Euler(0, 0, 0);
+            rSea.userData.gimbal = new Gimbal();
 
             this.rSeas = [...this.rSeas, rSea];
         }
@@ -256,7 +335,7 @@ export class SuperHeavy {
             
             for (let i = 0; i < this.options.numRSeas3; i++) {
                 let outerCylinder = new Object3D();
-                outerCylinder.position.copy(outerCylinderPositions[i].clone().add(new Vector3(0, SuperHeavyConstants.R_SEA_HEIGHT_3 * SuperHeavyConstants.SUPER_HEAVY_SCALE.y, 0)));
+                outerCylinder.position.copy(outerCylinderPositions[i].clone().add(new Vector3(0, SuperHeavyConstants.R_SEA_HEIGHT_3 * SuperHeavyConstants.SUPER_HEAVY_SCALE.y + SuperHeavyConstants.OUTER_CYLINDER_ADDITONAL_HEIGHT * SuperHeavyConstants.SUPER_HEAVY_SCALE.y, 0)));
                 outerCylinder.rotation.copy(outerCylinderRotations[i]);
                 outerCylinder.scale.copy(SuperHeavyConstants.OUTER_CYLINDER_SCALE.clone().multiply(SuperHeavyConstants.SUPER_HEAVY_SCALE));
                 this.outerCylinders = [...this.outerCylinders, outerCylinder];
@@ -312,6 +391,9 @@ export class SuperHeavy {
         }
 
         if (this.isEditing) {
+            this.runGimbalingProgram(delta);
+        }
+        if (this.isEditingSelf) {
             if (this.visibilityCooldown > 0) {
                 this.visibilityCooldown -= delta;
             }

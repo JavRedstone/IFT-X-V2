@@ -1,3 +1,5 @@
+import { RaptorConstants } from "../constants/objects/RaptorConstants";
+
 export class Gimbal {
     public gimbalAngle: number;
     public angleY: number;
@@ -17,25 +19,21 @@ export class Gimbal {
     }
 
     public update(delta: number): void {
-        let targetAngleY: number = this.tAngleY;
-
-        if (this.gimbalAngle == 0) {
-            this.angleY = targetAngleY;
+        if (this.gimbalAngle != this.tGimbalAngle) {
+            let diff = this.tGimbalAngle - this.gimbalAngle;
+            let step = RaptorConstants.GIMBAL_GIMBALING_ANG_VEL * delta;
+            if (Math.abs(diff) < step)
+                this.gimbalAngle = this.tGimbalAngle;
+            else
+                this.gimbalAngle += diff > 0 ? step : -step;
         }
-        this.gimbalAngle += (this.tGimbalAngle - this.gimbalAngle) * delta;
-        if (this.tGimbalAngle > 0) {
-            targetAngleY %= 2 * Math.PI;
-            if (targetAngleY < 0) {
-                targetAngleY += 2 * Math.PI;
-            }
-            if (Math.abs(targetAngleY - this.angleY) > Math.PI) {
-                if (targetAngleY > this.angleY) {
-                    targetAngleY -= 2 * Math.PI;
-                } else {
-                    targetAngleY += 2 * Math.PI;
-                }
-            }
-            this.angleY += (targetAngleY - this.angleY) * delta;
+        if (this.angleY != this.tAngleY) {
+            let diff = this.tAngleY - this.angleY;
+            let step = RaptorConstants.GIMBAL_Y_ANG_VEL * delta;
+            if (Math.abs(diff) < step)
+                this.angleY = this.tAngleY;
+            else
+                this.angleY += diff > 0 ? step : -step;
         }
     }
 }

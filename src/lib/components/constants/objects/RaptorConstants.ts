@@ -1,12 +1,14 @@
 export class RaptorConstants {
     public static readonly RADIUS_SEA_TO_VAC: number = 19.2/9;
     // public static readonly RADIUS_SEA: number = 13/90; // out of 1
-    public static readonly RADIUS_SEA: number = 0.125; // out of 1 (this one is fake but works better for the model)
-    public static readonly RADIUS_VAC: number = RaptorConstants.RADIUS_SEA * RaptorConstants.RADIUS_SEA_TO_VAC; // out of 1
+    public static readonly R_SEA_RADIUS: number = 0.125; // out of 1 (this one is fake but works better for the model)
+    public static readonly R_VAC_RADIUS: number = RaptorConstants.R_SEA_RADIUS * RaptorConstants.RADIUS_SEA_TO_VAC; // out of 1
     public static readonly PACKING_RADIUS_PERC: number = 1.15;
-    public static readonly GIMBAL_SPACE_PERC: number = 1.5;//times the radius of the engine bell
-    
-    public static readonly GIMBAL_MAX_ANGLE: number = 15 * Math.PI/180; //rad
+
+    public static readonly R_SEA_GIMBAL_SPACE_PERC: number = 1.5;//times the radius of the engine bell
+    public static readonly R_VAC_GIMBAL_SPACE_PERC: number = 1.5;//times the radius of the engine bell
+    public static readonly R_SEA_GIMBAL_MAX_ANGLE: number = 15 * Math.PI/180; //rad
+    public static readonly R_VAC_GIMBAL_MAX_ANGLE: number = this.R_SEA_GIMBAL_MAX_ANGLE / this.RADIUS_SEA_TO_VAC; //rad
     public static readonly GIMBAL_GIMBALING_ANG_VEL: number = 10;
     public static readonly GIMBAL_Y_ANG_VEL: number = 10;
     
