@@ -30,6 +30,7 @@ export class SuperHeavy {
     public isEditingSelf: boolean = false;
     public isFueling: boolean = false;
     public hasStartedFueling: boolean = false;
+    public isLaunching: boolean = false;
     public LOX: number = 0;
     public CH4: number = 0;
     public visibilityCooldown: number = SuperHeavyConstants.VISIBILITY_COOLDOWN;
@@ -83,6 +84,7 @@ export class SuperHeavy {
             this.isEditingSelf = value.isEditingSuperHeavy;
             this.isFueling = value.isFueling;
             this.hasStartedFueling = value.hasStartedFueling;
+            this.isLaunching = value.isLaunching;
         });
         telemetry.subscribe((value) => {
             this.LOX = value.superHeavyLOX;
@@ -119,7 +121,7 @@ export class SuperHeavy {
         });
     }
 
-    public runGimbalingProgram(delta: number): void {
+    public gimbalTest(delta: number): void {
         let rSeaGimbalingAngles1: number[] = [];
         let rSeaGimbalYs1: number[] = [];
         let rSeaGimbalingAngles2: number[] = [];
@@ -139,7 +141,7 @@ export class SuperHeavy {
 
                     rSea.userData.gimbal.update(delta);
 
-                    rSea.rotation.copy(new Euler().setFromQuaternion(new Quaternion().setFromEuler(rSea.userData.originalRotation).multiply(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), -rSea.userData.gimbal.angleY).multiply(new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), rSea.userData.gimbal.gimbalAngle)))));
+                    rSea.rotation.copy(new Euler().setFromQuaternion(new Quaternion().setFromEuler(rSea.userData.originalRotation).multiply(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), rSea.userData.gimbal.angleY).multiply(new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), rSea.userData.gimbal.gimbalAngle)))));
 
                     rSeaGimbalingAngles1 = [...rSeaGimbalingAngles1, rSea.userData.gimbal.gimbalAngle];
                     rSeaGimbalYs1 = [...rSeaGimbalYs1, rSea.userData.gimbal.angleY];
@@ -159,7 +161,7 @@ export class SuperHeavy {
 
                     rSea.userData.gimbal.update(delta);
 
-                    rSea.rotation.copy(new Euler().setFromQuaternion(new Quaternion().setFromEuler(rSea.userData.originalRotation).multiply(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), -rSea.userData.gimbal.angleY).multiply(new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), rSea.userData.gimbal.gimbalAngle)))));
+                    rSea.rotation.copy(new Euler().setFromQuaternion(new Quaternion().setFromEuler(rSea.userData.originalRotation).multiply(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), rSea.userData.gimbal.angleY).multiply(new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), rSea.userData.gimbal.gimbalAngle)))));
 
                     rSeaGimbalingAngles2 = [...rSeaGimbalingAngles2, rSea.userData.gimbal.gimbalAngle];
                     rSeaGimbalYs2 = [...rSeaGimbalYs2, rSea.userData.gimbal.angleY];
@@ -179,7 +181,7 @@ export class SuperHeavy {
 
                     rSea.userData.gimbal.update(delta);
 
-                    rSea.rotation.copy(new Euler().setFromQuaternion(new Quaternion().setFromEuler(rSea.userData.originalRotation).multiply(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), -rSea.userData.gimbal.angleY).multiply(new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), rSea.userData.gimbal.gimbalAngle)))));
+                    rSea.rotation.copy(new Euler().setFromQuaternion(new Quaternion().setFromEuler(rSea.userData.originalRotation).multiply(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), rSea.userData.gimbal.angleY).multiply(new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), rSea.userData.gimbal.gimbalAngle)))));
 
                     rSeaGimbalingAngles3 = [...rSeaGimbalingAngles3, rSea.userData.gimbal.gimbalAngle];
                     rSeaGimbalYs3 = [...rSeaGimbalYs3, rSea.userData.gimbal.angleY];
@@ -391,7 +393,7 @@ export class SuperHeavy {
         }
 
         if (this.isEditing) {
-            this.runGimbalingProgram(delta);
+            this.gimbalTest(delta);
         }
         if (this.isEditingSelf) {
             if (this.visibilityCooldown > 0) {

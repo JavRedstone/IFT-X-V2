@@ -32,6 +32,7 @@ export class Starship {
     public isEditingSelf: boolean = false;
     public isFueling: boolean = false;
     public hasStartedFueling: boolean = false;
+    public isLaunching: boolean = false;
     public LOX: number = 0;
     public CH4: number = 0;
     public visibilityCooldown: number = StarshipConstants.VISIBILITY_COOLDOWN;
@@ -80,6 +81,7 @@ export class Starship {
             this.isEditingSelf = value.isEditingStarship;
             this.isFueling = value.isFueling;
             this.hasStartedFueling = value.hasStartedFueling;
+            this.isLaunching = value.isLaunching;
         });
         telemetry.subscribe((value) => {
             this.LOX = value.starshipLOX;
@@ -115,7 +117,7 @@ export class Starship {
         });
     }
 
-    public runGimbalingProgram(delta: number): void {
+    public gimbalTest(delta: number): void {
         let rSeaGimbalingAngles: number[] = [];
         let rSeaGimbalYs: number[] = [];
         let rVacGimbalingAngles: number[] = [];
@@ -133,7 +135,7 @@ export class Starship {
 
                     rSea.userData.gimbal.update(delta);
 
-                    rSea.rotation.copy(new Euler().setFromQuaternion(new Quaternion().setFromEuler(rSea.userData.originalRotation).multiply(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), -rSea.userData.gimbal.angleY).multiply(new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), rSea.userData.gimbal.gimbalAngle)))));
+                    rSea.rotation.copy(new Euler().setFromQuaternion(new Quaternion().setFromEuler(rSea.userData.originalRotation).multiply(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), rSea.userData.gimbal.angleY).multiply(new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), rSea.userData.gimbal.gimbalAngle)))));
 
                     rSeaGimbalingAngles = [...rSeaGimbalingAngles, rSea.userData.gimbal.gimbalAngle];
                     rSeaGimbalYs = [...rSeaGimbalYs, rSea.userData.gimbal.angleY];
@@ -153,7 +155,7 @@ export class Starship {
 
                     rVac.userData.gimbal.update(delta);
 
-                    rVac.rotation.copy(new Euler().setFromQuaternion(new Quaternion().setFromEuler(rVac.userData.originalRotation).multiply(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), -rVac.userData.gimbal.angleY).multiply(new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), rVac.userData.gimbal.gimbalAngle)))));
+                    rVac.rotation.copy(new Euler().setFromQuaternion(new Quaternion().setFromEuler(rVac.userData.originalRotation).multiply(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), rVac.userData.gimbal.angleY).multiply(new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), rVac.userData.gimbal.gimbalAngle)))));
 
                     rVacGimbalingAngles = [...rVacGimbalingAngles, rVac.userData.gimbal.gimbalAngle];
                     rVacGimbalYs = [...rVacGimbalYs, rVac.userData.gimbal.angleY];
@@ -321,7 +323,7 @@ export class Starship {
         }
         
         if (this.isEditing) {
-            this.runGimbalingProgram(delta);
+            this.gimbalTest(delta);
         }
         if (this.isEditingSelf) {
             if (this.visibilityCooldown > 0) {

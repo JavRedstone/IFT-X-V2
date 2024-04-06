@@ -11,6 +11,7 @@
     import { LaunchHelper } from "../helpers/LaunchHelper";
     import { StarshipConstants } from "../constants/objects/StarshipConstants";
     import { SuperHeavyConstants } from "../constants/objects/SuperHeavyConstants";
+    import { LaunchConstants } from "../constants/objects/LaunchConstants";
 
     let starshipRaptors: RaptorUI[] = [];
     let superHeavyRaptors: RaptorUI[] = [];
@@ -72,8 +73,12 @@
         rSeaThrottles2: [],
         rSeaThrottles3: [],
 
-        separated: false
+        separated: false,
     };
+
+    let currEvent: string = LaunchConstants.LAUNCH_EVENTS[0];
+    let isEventUrgent: boolean = false;
+    let nextEvent: string = LaunchConstants.LAUNCH_EVENTS[1];
 
     function setupUpdator() {
         starshipSettings.subscribe((value) => {
@@ -88,12 +93,10 @@
             starshipOptions.numRVacs = value.numRVacs;
             starshipOptions.rVacType = value.rVacType;
             
-            createRaptors();
+            starshipRaptors = [];
+            createStarshipRaptors(); 
         });
         superHeavySettings.subscribe((value) => {
-            starshipRaptors = [];
-            superHeavyRaptors = [];
-
             superHeavyOptions.rSeaAngularOffset1 = value.rSeaAngularOffset1;
             superHeavyOptions.rSeaAngularOffset2 = value.rSeaAngularOffset2;
             superHeavyOptions.rSeaAngularOffset3 = value.rSeaAngularOffset3;
@@ -110,7 +113,8 @@
             superHeavyOptions.numRSeas3 = value.numRSeas3;
             superHeavyOptions.rSeaType3 = value.rSeaType3;
 
-            createRaptors();
+            superHeavyRaptors = [];
+            createSuperHeavyRaptors();
         });
         telemetry.subscribe((value) => {
             telemetryValues.dt = value.dt;
@@ -134,17 +138,80 @@
             telemetryValues.rSeaThrottles2 = value.rSeaThrottles2;
             telemetryValues.rSeaThrottles3 = value.rSeaThrottles3;
 
-            telemetryValues.separated = value.separated;
+            telemetryValues.rSeaGimbalingAngles = value.rSeaGimbalingAngles;
+            telemetryValues.rVacGimbalingAngles = value.rVacGimbalingAngles;
+            telemetryValues.rSeaGimbalYs = value.rSeaGimbalYs;
+            telemetryValues.rVacGimbalYs = value.rVacGimbalYs;
             
-            createRaptors();
+            telemetryValues.rSeaGimbalingAngles1 = value.rSeaGimbalingAngles1;
+            telemetryValues.rSeaGimbalingAngles2 = value.rSeaGimbalingAngles2;
+            telemetryValues.rSeaGimbalingAngles3 = value.rSeaGimbalingAngles3;
+            telemetryValues.rSeaGimbalYs1 = value.rSeaGimbalYs1;
+            telemetryValues.rSeaGimbalYs2 = value.rSeaGimbalYs2;
+            telemetryValues.rSeaGimbalYs3 = value.rSeaGimbalYs3;
+
+            telemetryValues.separated = value.separated;
+
+            currEvent = LaunchConstants.LAUNCH_EVENTS[value.currEvent];
+            isEventUrgent = value.isEventUrgent;
+            nextEvent = LaunchConstants.LAUNCH_EVENTS[value.currEvent + 1];
+            
+            updateThrottles();
+            updateGimbals();
         });
     }
 
-    function createRaptors(): void {
-        starshipRaptors = [];
-        superHeavyRaptors = [];
-        createStarshipRaptors();
-        createSuperHeavyRaptors();
+    function updateThrottles(): void {
+
+    }
+
+    function updateGimbals(): void {
+        for (let i = 0; i < starshipRaptors.length; i++) {
+            starshipRaptors[i].position = starshipRaptors[i].originalPosition.clone();
+        }
+        for (let i = 0; i < superHeavyRaptors.length; i++) {
+            superHeavyRaptors[i].position = superHeavyRaptors[i].originalPosition.clone();
+        }
+
+        if (telemetryValues.rSeaGimbalingAngles.length == starshipOptions.numRSeas && telemetryValues.rSeaGimbalYs.length  == starshipOptions.numRSeas) {
+            for (let i = 0; i < starshipOptions.numRSeas; i++) {
+                if (starshipRaptors[i] != undefined && starshipRaptors[i].isValidated) {
+                    starshipRaptors[i].updateGimbal(telemetryValues.rSeaGimbalingAngles[i], telemetryValues.rSeaGimbalYs[i], sizeMult, false);
+                }
+            }
+        }
+        if (telemetryValues.rVacGimbalingAngles.length == starshipOptions.numRVacs && telemetryValues.rVacGimbalYs.length == starshipOptions.numRVacs) {
+            for (let i = 0; i < starshipOptions.numRVacs; i++) {
+                if (starshipRaptors[i + starshipOptions.numRSeas] != undefined && starshipRaptors[i + starshipOptions.numRSeas].isValidated) {
+                    starshipRaptors[i + starshipOptions.numRSeas].updateGimbal(telemetryValues.rVacGimbalingAngles[i], telemetryValues.rVacGimbalYs[i], sizeMult, false);
+                }
+            }
+        }
+
+        if (telemetryValues.rSeaGimbalingAngles1.length == superHeavyOptions.numRSeas1 && telemetryValues.rSeaGimbalYs1.length == superHeavyOptions.numRSeas1) {
+            for (let i = 0; i < superHeavyOptions.numRSeas1; i++) {
+                if (superHeavyRaptors[i] != undefined && superHeavyRaptors[i].isValidated) {
+                    superHeavyRaptors[i].updateGimbal(telemetryValues.rSeaGimbalingAngles1[i], telemetryValues.rSeaGimbalYs1[i], sizeMult, true);
+                }
+            }
+        }
+        if (telemetryValues.rSeaGimbalingAngles2.length == superHeavyOptions.numRSeas2 && telemetryValues.rSeaGimbalYs2.length == superHeavyOptions.numRSeas2) {
+            for (let i = 0; i < superHeavyOptions.numRSeas2; i++) {
+                if (superHeavyRaptors[i + superHeavyOptions.numRSeas1] != undefined && superHeavyRaptors[i + superHeavyOptions.numRSeas1].isValidated) {
+                    superHeavyRaptors[i + superHeavyOptions.numRSeas1].updateGimbal(telemetryValues.rSeaGimbalingAngles2[i], telemetryValues.rSeaGimbalYs2[i], sizeMult, true);
+                }
+            }
+        }
+        if (telemetryValues.rSeaGimbalingAngles3.length == superHeavyOptions.numRSeas3 && telemetryValues.rSeaGimbalYs3.length == superHeavyOptions.numRSeas3) {
+            for (let i = 0; i < superHeavyOptions.numRSeas3; i++) {
+                if (superHeavyRaptors[i + superHeavyOptions.numRSeas1 + superHeavyOptions.numRSeas2] != undefined && superHeavyRaptors[i + superHeavyOptions.numRSeas1 + superHeavyOptions.numRSeas2].isValidated) {
+                    superHeavyRaptors[i + superHeavyOptions.numRSeas1 + superHeavyOptions.numRSeas2].updateGimbal(telemetryValues.rSeaGimbalingAngles3[i], telemetryValues.rSeaGimbalYs3[i], sizeMult, true);
+                }
+            }
+        }
+
+        starshipRaptors = starshipRaptors;
+        superHeavyRaptors = superHeavyRaptors;
     }
 
     function createStarshipRaptors(): void {
@@ -173,6 +240,10 @@
         }
     }
 
+    function sendEvent(): void {
+        
+    }
+
     onMount(() => {
         setupUpdator();
     });
@@ -190,6 +261,15 @@
     @keyframes slideUp {
         from {
             transform: translateY(100%);
+        }
+        to {
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes slideDown {
+        from {
+            transform: translateY(-100%);
         }
         to {
             transform: translateY(0);
@@ -302,7 +382,103 @@
         font-weight: bold;
         font-size: 12px;
     }
+
+    .telemetry-launchevents-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 250px;
+        background-color: rgba(0, 0, 0, 0.5);
+
+        animation: slideDown 0.5s, increaseOpacity 1s;
+
+        user-select: none;
+    }
+
+    .telemetry-launchevents-title {
+        position: absolute;
+        margin-left: 8px;
+        margin-top: 8px;
+        font-size: 20px;
+        font-weight: bold;
+    }
+
+    .telemetry-launchevents-normal {
+        position: absolute;
+    }
+
+    .telemetry-launchevents-normal{
+        position: absolute;
+        width: 100%;
+        height: 32px;
+        margin-left: 0;
+        margin-top: 40px;
+        font-size: 16px;
+        border: none;
+        outline: none;
+        background-color: #009f6B80;
+        font-size: 16px;
+        color: white;
+        font-family: "M PLUS Code Latin", monospace;
+
+        transition: background-color 0.2s, color 0.2s;
+        animation: increaseOpacity 0.5s;
+
+        &:hover {
+            background-color: #009f6B;
+            cursor: pointer;
+        }
+    }
+
+    .telemetry-launchevents-urgent {
+        position: absolute;
+        width: 100%;
+        height: 32px;
+        margin-left: 0;
+        margin-top: 40px;
+        font-size: 16px;
+        border: none;
+        outline: none;
+        background-color: #ff450080;
+        font-size: 16px;
+        color: white;
+        font-family: "M PLUS Code Latin", monospace;
+
+        transition: background-color 0.2s, color 0.2s;
+        animation: increaseOpacity 0.5s;
+
+        &:hover {
+            background-color: #ff4500;
+            cursor: pointer;
+        }
+    }
+
+    .telemetry-launchevents-next {
+        position: absolute;
+        margin-left: 8px;
+        margin-top: 76px;
+        opacity: 0.5;
+    }
+
+    .telemetry-launchevents-next-text {
+        font-size: 14px;
+    }
 </style>
+{#if currEvent != null}
+    <div class="telemetry-launchevents-container" style="height: {nextEvent != null ? 100 : 72}px;">
+        <div class="telemetry-launchevents-title">Launch Events</div>
+        {#if isEventUrgent}
+            <button class="telemetry-launchevents-urgent" on:click="{sendEvent}">{currEvent} &#9664; &#9888;</button>
+        {:else}
+            <button class="telemetry-launchevents-normal" on:click="{sendEvent}">{currEvent} &#9664; &#10003;</button>
+        {/if}
+        {#if nextEvent != null}
+            <div class="telemetry-launchevents-next">
+                <span class="telemetry-launchevents-next-text">Next: {nextEvent}</span>
+            </div>
+        {/if}
+    </div>
+{/if}
 <div class="telemetry-container" style="user-select: none;">
     <div class="telemetry-time">{ LaunchHelper.getTString(telemetryValues.dt) }</div>
     <div class="telemetry-event">INTEGRATED FLIGHT TEST X</div>

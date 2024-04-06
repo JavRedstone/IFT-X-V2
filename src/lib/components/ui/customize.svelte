@@ -281,14 +281,14 @@
         if (telemetryValues.rSeaGimbalingAngles.length == starshipOptions.numRSeas && telemetryValues.rSeaGimbalYs.length  == starshipOptions.numRSeas) {
             for (let i = 0; i < starshipOptions.numRSeas; i++) {
                 if (starshipRaptors[i] != undefined && starshipRaptors[i].isValidated) {
-                    starshipRaptors[i].updateGimbal(telemetryValues.rSeaGimbalingAngles[i], telemetryValues.rSeaGimbalYs[i], sizeMult);
+                    starshipRaptors[i].updateGimbal(telemetryValues.rSeaGimbalingAngles[i], telemetryValues.rSeaGimbalYs[i], sizeMult, false);
                 }
             }
         }
         if (telemetryValues.rVacGimbalingAngles.length == starshipOptions.numRVacs && telemetryValues.rVacGimbalYs.length == starshipOptions.numRVacs) {
             for (let i = 0; i < starshipOptions.numRVacs; i++) {
                 if (starshipRaptors[i + starshipOptions.numRSeas] != undefined && starshipRaptors[i + starshipOptions.numRSeas].isValidated) {
-                    starshipRaptors[i + starshipOptions.numRSeas].updateGimbal(telemetryValues.rVacGimbalingAngles[i], telemetryValues.rVacGimbalYs[i], sizeMult);
+                    starshipRaptors[i + starshipOptions.numRSeas].updateGimbal(telemetryValues.rVacGimbalingAngles[i], telemetryValues.rVacGimbalYs[i], sizeMult, false);
                 }
             }
         }
@@ -296,21 +296,21 @@
         if (telemetryValues.rSeaGimbalingAngles1.length == superHeavyOptions.numRSeas1 && telemetryValues.rSeaGimbalYs1.length == superHeavyOptions.numRSeas1) {
             for (let i = 0; i < superHeavyOptions.numRSeas1; i++) {
                 if (superHeavyRaptors[i] != undefined && superHeavyRaptors[i].isValidated) {
-                    superHeavyRaptors[i].updateGimbal(telemetryValues.rSeaGimbalingAngles1[i], telemetryValues.rSeaGimbalYs1[i], sizeMult);
+                    superHeavyRaptors[i].updateGimbal(telemetryValues.rSeaGimbalingAngles1[i], telemetryValues.rSeaGimbalYs1[i], sizeMult, false);
                 }
             }
         }
         if (telemetryValues.rSeaGimbalingAngles2.length == superHeavyOptions.numRSeas2 && telemetryValues.rSeaGimbalYs2.length == superHeavyOptions.numRSeas2) {
             for (let i = 0; i < superHeavyOptions.numRSeas2; i++) {
                 if (superHeavyRaptors[i + superHeavyOptions.numRSeas1] != undefined && superHeavyRaptors[i + superHeavyOptions.numRSeas1].isValidated) {
-                    superHeavyRaptors[i + superHeavyOptions.numRSeas1].updateGimbal(telemetryValues.rSeaGimbalingAngles2[i], telemetryValues.rSeaGimbalYs2[i], sizeMult);
+                    superHeavyRaptors[i + superHeavyOptions.numRSeas1].updateGimbal(telemetryValues.rSeaGimbalingAngles2[i], telemetryValues.rSeaGimbalYs2[i], sizeMult, false);
                 }
             }
         }
         if (telemetryValues.rSeaGimbalingAngles3.length == superHeavyOptions.numRSeas3 && telemetryValues.rSeaGimbalYs3.length == superHeavyOptions.numRSeas3) {
             for (let i = 0; i < superHeavyOptions.numRSeas3; i++) {
                 if (superHeavyRaptors[i + superHeavyOptions.numRSeas1 + superHeavyOptions.numRSeas2] != undefined && superHeavyRaptors[i + superHeavyOptions.numRSeas1 + superHeavyOptions.numRSeas2].isValidated) {
-                    superHeavyRaptors[i + superHeavyOptions.numRSeas1 + superHeavyOptions.numRSeas2].updateGimbal(telemetryValues.rSeaGimbalingAngles3[i], telemetryValues.rSeaGimbalYs3[i], sizeMult);
+                    superHeavyRaptors[i + superHeavyOptions.numRSeas1 + superHeavyOptions.numRSeas2].updateGimbal(telemetryValues.rSeaGimbalingAngles3[i], telemetryValues.rSeaGimbalYs3[i], sizeMult, false);
                 }
             }
         }
@@ -1261,7 +1261,13 @@
 
     .customize-fueling-action {
         position: absolute;
+        left:0;
+        bottom:0;
+        width:100%;
+        height: 100%;
         border: none;
+        border-left: 1px solid white;
+        border-right: 1px solid white;
         outline: none;
         background-color: #009f6B80;
         font-size: 16px;
@@ -1273,6 +1279,30 @@
 
         &:hover {
             background-color: #009f6B;
+            cursor: pointer;
+        }
+    }
+
+    .customize-fueling-action-error {
+        position: absolute;
+        left:0;
+        bottom:0;
+        width:100%;
+        height: 100%;
+        border: none;
+        border-left: 1px solid white;
+        border-right: 1px solid white;
+        outline: none;
+        background-color: #ff450080;
+        font-size: 16px;
+        color: white;
+        font-family: "M PLUS Code Latin", monospace;
+
+        transition: background-color 0.2s, color 0.2s;
+        animation: increaseOpacity 0.5s;
+
+        &:hover {
+            background-color: #ff4500;
             cursor: pointer;
         }
     }
@@ -1328,7 +1358,7 @@
                 {/if}
             {/each}
         </div>
-        <button class="customize-action" style="left: 0; bottom: 0; width: 100%; height: 32px;" on:click={hideShowLeftBar}>&#9668; Hide Left</button>
+        <button class="customize-action" style="left: 0; bottom: 0; width: 100%; height: 32px;" on:click={hideShowLeftBar}>&#9664; Hide Left</button>
     </div>
 {/if}
 {#if hasRightBar}
@@ -1383,7 +1413,7 @@
                 {/if}
             {/each}
         </div>
-        <button class="customize-action" style="right: 0; bottom: 0; width: 100%; height: 32px;" on:click={hideShowRightBar}>Hide Right &#9658;</button>
+        <button class="customize-action" style="right: 0; bottom: 0; width: 100%; height: 32px;" on:click={hideShowRightBar}>Hide Right &#9654;</button>
     </div>
 {/if}
 <div class="customize-banner" style="top: 0; {hasLeftBar ? hasRightBar ? "left: 390px; width: calc(100vw - 390px - 340px);" : "left: 390px; width: calc(100vw - 390px);" : hasRightBar ? "left: 0; width: calc(100vw - 340px);" : "left: 0; width: 100vw;"}">
@@ -1396,8 +1426,10 @@
     <button class="customize-action" style="left:{hasLeftBar ? '0' : '25%'}; top: 0; width: {hasLeftBar && hasRightBar ? '50%' : !hasLeftBar && !hasRightBar ? '25%' : '37.5%'}; height: 100%; border-right: 1px solid white;" on:click={validate}>Test &#128504;</button>
     <button class="customize-action" style="right:{hasRightBar ? '0' : '25%'}; top: 0; width: {hasLeftBar && hasRightBar ? '50%' : !hasLeftBar && !hasRightBar ? '25%' : '37.5%'}; height: 100%;" on:click={reset}>Reset &#8634;</button>
 </div>
-{#if starshipValidated && superHeavyValidated}
-    <div class="customize-banner" style="bottom: 0; {hasLeftBar ? hasRightBar ? "left: 390px; width: calc(100vw - 390px - 340px);" : "left: 390px; width: calc(100vw - 390px);" : hasRightBar ? "left: 0; width: calc(100vw - 340px);" : "left: 0; width: 100vw;"}">
-        <button class="customize-fueling-action" style="left:0; bottom:0; width:100%; height: 100%; border-left: 1px solid white; border-right: 1px solid white;" on:click={startFueling}>Fuel &#10054;</button>
-    </div>
-{/if}
+<div class="customize-banner" style="bottom: 0; {hasLeftBar ? hasRightBar ? "left: 390px; width: calc(100vw - 390px - 340px);" : "left: 390px; width: calc(100vw - 390px);" : hasRightBar ? "left: 0; width: calc(100vw - 340px);" : "left: 0; width: 100vw;"}">
+    {#if starshipValidated && superHeavyValidated}
+        <button class="customize-fueling-action" on:click={startFueling}>Fuel &#10054;</button>
+    {:else}
+        <button class="customize-fueling-action-error" on:click={startFueling}>Fuel &#10054;</button>
+    {/if}
+</div>

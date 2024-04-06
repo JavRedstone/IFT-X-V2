@@ -18,10 +18,10 @@ export class RaptorUI {
         this.isValidated = isValidated;
     }
 
-    public updateGimbal(gimbalAngle: number, angleY: number, sizeMult: number): void {
+    public updateGimbal(gimbalAngle: number, angleY: number, sizeMult: number, left: boolean): void {
         if (gimbalAngle != undefined && angleY != undefined) {
             let radialDistance = gimbalAngle / (this.isSea ? RaptorConstants.R_SEA_GIMBAL_MAX_ANGLE : RaptorConstants.R_VAC_GIMBAL_MAX_ANGLE) * (RaptorConstants.R_SEA_GIMBAL_SPACE_PERC - 1) * sizeMult * (this.isSea ? RaptorConstants.R_SEA_RADIUS : RaptorConstants.R_VAC_RADIUS);
-            this.position = this.originalPosition.clone().add(new Vector2(radialDistance, 0).rotateAround(new Vector2(), angleY));
+            this.position = this.originalPosition.clone().add(new Vector2(radialDistance, 0).rotateAround(new Vector2(), left ? angleY + Math.PI : -angleY));
         }
     }
 }
