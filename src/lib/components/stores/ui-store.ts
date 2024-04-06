@@ -9,13 +9,13 @@ export const uiSwitches = writable({
 });
 
 export const toggles = writable({
-    isEditing: false,
+    isEditing: true,
     isEditingStarship: false,
     isEditingSuperHeavy: false,
-    isFueling: true,
+    isFueling: false,
     hasStartedFueling: false,
     doneFueling: false,
-    isLaunching: false,
+    isLaunching: true,
 });
 
 export const starshipSettings = writable({
@@ -83,7 +83,7 @@ export const telemetry = writable({
     starshipAltitude: 0,
     starshipLOX: 0,
     starshipCH4: 0,
-    starshipDisabled: true,
+    starshipDisabled: false,
     
     rSeaThrottles: [],
     rVacThrottles: [],
@@ -91,6 +91,11 @@ export const telemetry = writable({
     rVacGimbalingAngles: [],
     rSeaGimbalYs: [],
     rVacGimbalYs: [],
+
+    forwardLAngle: 0,
+    forwardRAngle: 0,
+    aftLAngle: 0,
+    aftRAngle: 0,
 
     superHeavyAngle: 0,
     superHeavySpeed: 0,
@@ -109,7 +114,7 @@ export const telemetry = writable({
     rSeaGimbalYs2: [],
     rSeaGimbalYs3: [],
 
-    separated: false,
+    separated: true,
     
     currEvent: 0,
     isEventUrgent: false,

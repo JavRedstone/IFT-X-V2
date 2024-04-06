@@ -1,4 +1,4 @@
-import { RaptorConstants } from "../constants/objects/RaptorConstants";
+import { RaptorConstants } from "../constants/controls/RaptorConstants";
 
 export class LaunchHelper {
     public static getFuelMass(radius: number, height: number, density: number): number {

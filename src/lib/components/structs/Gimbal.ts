@@ -1,10 +1,10 @@
-import { RaptorConstants } from "../constants/objects/RaptorConstants";
+import { RaptorConstants } from "../constants/controls/RaptorConstants";
 
 export class Gimbal {
-    public gimbalAngle: number;
-    public angleY: number;
-    public tGimbalAngle: number;
-    public tAngleY: number;
+    public gimbalAngle: number = 0;
+    public angleY: number = 0;
+    public tGimbalAngle: number = 0;
+    public tAngleY: number = 0;
 
     public constructor() {
         this.gimbalAngle = 0;

@@ -5,7 +5,9 @@ import { ObjectHelper } from "../helpers/ObjectHelper";
 import { superHeavySettings, telemetry, toggles } from "../stores/ui-store";
 import { LaunchConstants } from "../constants/objects/LaunchConstants";
 import { Gimbal } from "../structs/Gimbal";
-import { RaptorConstants } from "../constants/objects/RaptorConstants";
+import { RaptorConstants } from "../constants/controls/RaptorConstants";
+import { GridFin } from "../structs/GridFin";
+import { GridFinConstants } from "../constants/controls/GridFinConstants";
 
 export class SuperHeavy {
     public hsr: Group = new Group();
@@ -200,6 +202,23 @@ export class SuperHeavy {
         });
     }
 
+    public gridFinTest(delta: number): void {
+        let gridFinAngles: number[] = [];
+
+        for (let gridFin of this.gridFins) {
+            if (gridFin.userData.gridFin.angle == GridFinConstants.MAX_ANGLE) {
+                gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
+            }
+            else if (gridFin.userData.gridFin.angle == GridFinConstants.MIN_ANGLE) {
+                gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
+            }
+            gridFin.userData.gridFin.update(delta);
+            gridFin.rotation.copy(new Euler().setFromQuaternion(new Quaternion().setFromEuler(gridFin.userData.originalRotation).multiply(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), gridFin.userData.gridFin.angle))));
+        
+            gridFinAngles = [...gridFinAngles, gridFin.userData.gridFin.angle];
+        }
+    }
+
     public updateFrost(delta: number): void {
         if (this.isFueling && !this.hasStartedFueling) {
             telemetry.update((value) => {
@@ -269,6 +288,8 @@ export class SuperHeavy {
             gridFin.position.copy(gridFinPositions[i]);
             gridFin.rotation.copy(new Euler().setFromQuaternion(new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), SuperHeavyConstants.GRID_FIN_ROTATION.x).multiply(new Quaternion().setFromAxisAngle(new Vector3(0, 0, 1), gridFinRotations[i].y + SuperHeavyConstants.GRID_FIN_ROTATION.z))));
             gridFin.scale.copy(SuperHeavyConstants.GRID_FIN_SCALE.clone().multiply(SuperHeavyConstants.SUPER_HEAVY_SCALE).multiply(new Vector3(this.options.gridFinWidthScale, this.options.gridFinLengthScale, 1)));
+            gridFin.userData.originalRotation = gridFin.rotation.clone();
+            gridFin.userData.gridFin = new GridFin();
             this.gridFins = [...this.gridFins, gridFin];
         }
     }
@@ -394,6 +415,7 @@ export class SuperHeavy {
 
         if (this.isEditing) {
             this.gimbalTest(delta);
+            this.gridFinTest(delta);
         }
         if (this.isEditingSelf) {
             if (this.visibilityCooldown > 0) {

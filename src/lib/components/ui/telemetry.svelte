@@ -7,7 +7,7 @@
     import s25 from "../images/s25.png";
     import b9 from "../images/b9.png";
     import s25b9 from "../images/s25b9.png";
-    import { RaptorConstants } from "../constants/objects/RaptorConstants";
+    import { RaptorConstants } from "../constants/controls/RaptorConstants";
     import { LaunchHelper } from "../helpers/LaunchHelper";
     import { StarshipConstants } from "../constants/objects/StarshipConstants";
     import { SuperHeavyConstants } from "../constants/objects/SuperHeavyConstants";
@@ -62,6 +62,11 @@
         starshipDisabled: false,
         rSeaThrottles: [],
         rVacThrottles: [],
+
+        forwardLAngle: 0,
+        forwardRAngle: 0,
+        aftLAngle: 0,
+        aftRAngle: 0,
 
         superHeavyAngle: 0,
         superHeavySpeed: 0,
@@ -142,6 +147,11 @@
             telemetryValues.rVacGimbalingAngles = value.rVacGimbalingAngles;
             telemetryValues.rSeaGimbalYs = value.rSeaGimbalYs;
             telemetryValues.rVacGimbalYs = value.rVacGimbalYs;
+
+            telemetryValues.forwardLAngle = value.forwardLAngle;
+            telemetryValues.forwardRAngle = value.forwardRAngle;
+            telemetryValues.aftLAngle = value.aftLAngle;
+            telemetryValues.aftRAngle = value.aftRAngle;
             
             telemetryValues.rSeaGimbalingAngles1 = value.rSeaGimbalingAngles1;
             telemetryValues.rSeaGimbalingAngles2 = value.rSeaGimbalingAngles2;
@@ -292,6 +302,8 @@
         width: 100vw;
         height: 110px;
         background-color: rgba(0, 0, 0, 0.5);
+
+        user-select: none;
         
         animation: slideUp 0.5s, increaseOpacity 1s;
     }
@@ -463,6 +475,24 @@
     .telemetry-launchevents-next-text {
         font-size: 14px;
     }
+
+    .telemetry-flap-dot {
+        position: absolute;
+        right: 500px;
+        width: 20px;
+        height: 20px;
+        border-radius: 100%;
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        font-size: 10px;
+        text-align: center;
+        line-height: 20px;
+    }
+
+    .telemetry-flap {
+        position: absolute;
+        height: 0;
+        border: 1px solid white;
+    }
 </style>
 {#if currEvent != null}
     <div class="telemetry-launchevents-container" style="height: {nextEvent != null ? 100 : 72}px;">
@@ -479,7 +509,7 @@
         {/if}
     </div>
 {/if}
-<div class="telemetry-container" style="user-select: none;">
+<div class="telemetry-container">
     <div class="telemetry-time">{ LaunchHelper.getTString(telemetryValues.dt) }</div>
     <div class="telemetry-event">INTEGRATED FLIGHT TEST X</div>
     <div style="opacity: {telemetryValues.starshipDisabled ? 0.5 : 1};">
@@ -515,6 +545,12 @@
         
         <div class="telemetry-line" style="right: 337px;"></div>
         <img class="telemetry-image" style="right: 380px; transform: rotate({telemetryValues.starshipAngle}rad);" src={s25} alt="ship">
+        <div class="telemetry-flap-dot" style="top: 20px;">FWD</div>
+        <div class="telemetry-flap" style="top: 30px; right: 521px; width: 10px; transform-origin: right; transform: rotate({telemetryValues.forwardLAngle}rad);"></div>
+        <div class="telemetry-flap" style="top: 30px; right: 489px; width: 10px; transform-origin: left; transform: rotate({telemetryValues.forwardRAngle}rad);"></div>
+        <div class="telemetry-flap-dot" style="bottom: 20px;">AFT</div>
+        <div class="telemetry-flap" style="bottom: 30px; right: 521px; width: 20px; transform-origin: right; transform: rotate({telemetryValues.aftLAngle}rad);"></div>
+        <div class="telemetry-flap" style="bottom: 30px; right: 479px; width: 20px; transform-origin: left; transform: rotate({telemetryValues.aftRAngle}rad);"></div>
     </div>
     <div style="opacity: {telemetryValues.superHeavyDisabled ? 0.5 : 1};">
         {#each superHeavyRaptors as raptor}

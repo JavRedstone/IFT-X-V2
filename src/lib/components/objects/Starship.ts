@@ -6,7 +6,9 @@ import { starshipSettings, telemetry, toggles } from "../stores/ui-store";
 import { LaunchConstants } from "../constants/objects/LaunchConstants";
 import { LaunchHelper } from "../helpers/LaunchHelper";
 import { Gimbal } from "../structs/Gimbal";
-import { RaptorConstants } from "../constants/objects/RaptorConstants";
+import { RaptorConstants } from "../constants/controls/RaptorConstants";
+import { Flap } from "../structs/Flap";
+import { FlapConstants } from "../constants/controls/FlapConstants";
 
 export class Starship {
     public nosecone: Group = new Group();
@@ -172,6 +174,49 @@ export class Starship {
         });
     }
 
+    public flapTest(delta: number): void {
+        if (this.forwardL.userData.flap.angle == FlapConstants.MAX_ANGLE) {
+            this.forwardL.userData.flap.setTarget(FlapConstants.MIN_ANGLE);
+        }
+        else if (this.forwardL.userData.flap.angle == FlapConstants.MIN_ANGLE) {
+            this.forwardL.userData.flap.setTarget(FlapConstants.MAX_ANGLE);
+        }
+        this.forwardL.userData.flap.update(delta);
+        this.forwardL.rotation.copy(new Euler().setFromQuaternion(new Quaternion().setFromEuler(this.forwardL.userData.originalRotation).multiply(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), -this.forwardL.userData.flap.angle))));
+
+        if (this.forwardR.userData.flap.angle == FlapConstants.MAX_ANGLE) {
+            this.forwardR.userData.flap.setTarget(FlapConstants.MIN_ANGLE);
+        }
+        else if (this.forwardR.userData.flap.angle == FlapConstants.MIN_ANGLE) {
+            this.forwardR.userData.flap.setTarget(FlapConstants.MAX_ANGLE);
+        }
+        this.forwardR.userData.flap.update(delta);
+        this.forwardR.rotation.copy(new Euler().setFromQuaternion(new Quaternion().setFromEuler(this.forwardR.userData.originalRotation).multiply(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), this.forwardR.userData.flap.angle))));
+
+        if (this.aftL.userData.flap.angle == FlapConstants.MAX_ANGLE) {
+            this.aftL.userData.flap.setTarget(FlapConstants.MIN_ANGLE);
+        }
+        else if (this.aftL.userData.flap.angle == FlapConstants.MIN_ANGLE) {
+            this.aftL.userData.flap.setTarget(FlapConstants.MAX_ANGLE);
+        }
+        this.aftL.userData.flap.update(delta);
+        this.aftL.rotation.copy(new Euler().setFromQuaternion(new Quaternion().setFromEuler(this.aftL.userData.originalRotation).multiply(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), -this.aftL.userData.flap.angle))));
+
+        if (this.aftR.userData.flap.angle == FlapConstants.MAX_ANGLE) {
+            this.aftR.userData.flap.setTarget(FlapConstants.MIN_ANGLE);
+        }
+        else if (this.aftR.userData.flap.angle == FlapConstants.MIN_ANGLE) {
+            this.aftR.userData.flap.setTarget(FlapConstants.MAX_ANGLE);
+        }
+        this.aftR.userData.flap.update(delta);
+        this.aftR.rotation.copy(new Euler().setFromQuaternion(new Quaternion().setFromEuler(this.aftR.userData.originalRotation).multiply(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), this.aftR.userData.flap.angle))));
+
+        telemetry.update((value) => {
+            value.forwardLAngle = this.forwardL.userData.flap.angle;
+            return value;
+        });
+    }
+
     public updateFrost(delta: number): void {
         if (this.isFueling && !this.hasStartedFueling) {
             telemetry.update((value) => {
@@ -275,12 +320,27 @@ export class Starship {
 
             this.nosecone.scale.copy(StarshipConstants.NOSECONE_SCALE.clone().multiply(StarshipConstants.STARSHIP_SCALE));
             this.shipRing.scale.copy(StarshipConstants.SHIP_RING_SCALE.clone().multiply(StarshipConstants.STARSHIP_SCALE).multiply(new Vector3(1, this.options.shipRingHeight / StarshipConstants.REAL_LIFE_SCALE.y, 1)));
+            
             this.forwardL.scale.copy(StarshipConstants.FORWARD_L_SCALE.clone().multiply(StarshipConstants.STARSHIP_SCALE).multiply(new Vector3(1, this.options.forwardLHeightScale, this.options.forwardLWidthScale)));
             this.forwardL.rotation.copy(StarshipConstants.FORWARD_L_ROTATION);
+            this.forwardL.userData.originalRotation = StarshipConstants.FORWARD_L_ROTATION.clone();
+            this.forwardL.userData.flap = new Flap();
+            
             this.forwardR.scale.copy(StarshipConstants.FORWARD_R_SCALE.clone().multiply(StarshipConstants.STARSHIP_SCALE).multiply(new Vector3(1, this.options.forwardRHeightScale, this.options.forwardRWidthScale)));
             this.forwardR.rotation.copy(StarshipConstants.FORWARD_R_ROTATION);
+            this.forwardR.userData.originalRotation = StarshipConstants.FORWARD_R_ROTATION.clone();
+            this.forwardR.userData.flap = new Flap();
+
             this.aftL.scale.copy(StarshipConstants.AFT_L_SCALE.clone().multiply(StarshipConstants.STARSHIP_SCALE).multiply(new Vector3(1, this.options.aftLHeightScale, this.options.aftLWidthScale)));
+            this.aftL.rotation.copy(new Euler(0, 0, 0));
+            this.aftL.userData.originalRotation = new Euler(0, 0, 0);
+            this.aftL.userData.flap = new Flap();
+            
             this.aftR.scale.copy(StarshipConstants.AFT_R_SCALE.clone().multiply(StarshipConstants.STARSHIP_SCALE).multiply(new Vector3(1, this.options.aftRHeightScale, this.options.aftRWidthScale)));
+            this.aftR.rotation.copy(new Euler(0, 0, 0));
+            this.aftR.userData.originalRotation = new Euler(0, 0, 0);
+            this.aftR.userData.flap = new Flap();
+            
             this.thrustPuck.scale.copy(StarshipConstants.THRUST_PUCK_SCALE.clone().multiply(StarshipConstants.STARSHIP_SCALE));
             this.thrustPuck.position.copy(this.shipRing.position.clone().add(new Vector3(0, StarshipConstants.THRUST_PUCK_HEIGHT * StarshipConstants.STARSHIP_SCALE.y, 0)));
             this.hasSetupSingle = true;
@@ -315,15 +375,16 @@ export class Starship {
     public updateObjects(delta: number): void {
         if (this.nosecone != null && this.shipRing != null && this.forwardL != null && this.forwardR != null && this.aftL != null && this.aftR != null && this.nosecone.userData.aabb.getSize(new Vector3).length() != 0 && this.shipRing.userData.aabb.getSize(new Vector3).length() != 0 && this.forwardL.userData.aabb.getSize(new Vector3).length() != 0 && this.forwardR.userData.aabb.getSize(new Vector3).length() != 0 && this.aftL.userData.aabb.getSize(new Vector3).length() != 0 && this.aftR.userData.aabb.getSize(new Vector3).length() != 0) {
             this.nosecone.position.copy(this.shipRing.position.clone().add(new Vector3(0, this.shipRing.userData.aabb.getSize(new Vector3).y, 0)));
-            this.forwardL.position.copy(this.shipRing.position.clone().add(new Vector3(0, this.shipRing.userData.aabb.getSize(new Vector3).y, -StarshipConstants.STARSHIP_SCALE.z)));
-            this.forwardR.position.copy(this.shipRing.position.clone().add(new Vector3(0, this.shipRing.userData.aabb.getSize(new Vector3).y, StarshipConstants.STARSHIP_SCALE.z)));
-            this.aftL.position.copy(this.shipRing.position.clone().add(new Vector3(0, 0, -StarshipConstants.STARSHIP_SCALE.z)));
-            this.aftR.position.copy(this.shipRing.position.clone().add(new Vector3(0, 0, StarshipConstants.STARSHIP_SCALE.z)));
+            this.forwardL.position.copy(this.shipRing.position.clone().add(new Vector3(0, this.shipRing.userData.aabb.getSize(new Vector3).y, -StarshipConstants.FORWARD_L_RADIUS * StarshipConstants.STARSHIP_SCALE.z)));
+            this.forwardR.position.copy(this.shipRing.position.clone().add(new Vector3(0, this.shipRing.userData.aabb.getSize(new Vector3).y, StarshipConstants.FORWARD_R_RADIUS * StarshipConstants.STARSHIP_SCALE.z)));
+            this.aftL.position.copy(this.shipRing.position.clone().add(new Vector3(0, 0, -StarshipConstants.AFT_L_RADIUS * StarshipConstants.STARSHIP_SCALE.z)));
+            this.aftR.position.copy(this.shipRing.position.clone().add(new Vector3(0, 0, StarshipConstants.AFT_R_RADIUS * StarshipConstants.STARSHIP_SCALE.z)));
             this.hasUpdatedAABB = true;
         }
         
         if (this.isEditing) {
             this.gimbalTest(delta);
+            this.flapTest(delta);
         }
         if (this.isEditingSelf) {
             if (this.visibilityCooldown > 0) {
