@@ -1,12 +1,14 @@
 import { RaptorConstants } from "../constants/controls/RaptorConstants";
 
 export class Gimbal {
+    public isSea: boolean = true;
     public gimbalAngle: number = 0;
     public angleY: number = 0;
     public tGimbalAngle: number = 0;
     public tAngleY: number = 0;
 
-    public constructor() {
+    public constructor(isSea: boolean) {
+        this.isSea = isSea;
         this.gimbalAngle = 0;
         this.angleY = 0;
         this.tGimbalAngle = 0;
@@ -27,7 +29,7 @@ export class Gimbal {
         }
         if (this.gimbalAngle != this.tGimbalAngle) {
             let diff = this.tGimbalAngle - this.gimbalAngle;
-            let step = RaptorConstants.GIMBAL_GIMBALING_ANG_VEL * delta;
+            let step = (this.isSea ? RaptorConstants.R_SEA_GIMBAL_ANG_VEL : RaptorConstants.R_VAC_GIMBAL_ANG_VEL) * delta;
             if (Math.abs(diff) < step)
                 this.gimbalAngle = this.tGimbalAngle;
             else

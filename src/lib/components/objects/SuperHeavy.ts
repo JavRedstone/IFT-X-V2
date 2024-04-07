@@ -463,7 +463,7 @@ export class SuperHeavy {
             rSea.rotation.copy(rSeaRotations1[i]);
             rSea.scale.copy(SuperHeavyConstants.R_SEA_SCALE.clone().multiply(SuperHeavyConstants.SUPER_HEAVY_SCALE));
             rSea.userData.originalRotation = new Euler(0, 0, 0);
-            rSea.userData.gimbal = new Gimbal();
+            rSea.userData.gimbal = new Gimbal(true);
 
             this.rSeas = [...this.rSeas, rSea];
         }
@@ -477,7 +477,7 @@ export class SuperHeavy {
             rSea.rotation.copy(rSeaRotations2[i]);
             rSea.scale.copy(SuperHeavyConstants.R_SEA_SCALE.clone().multiply(SuperHeavyConstants.SUPER_HEAVY_SCALE));
             rSea.userData.originalRotation = new Euler(0, 0, 0);
-            rSea.userData.gimbal = new Gimbal();
+            rSea.userData.gimbal = new Gimbal(true);
 
             this.rSeas = [...this.rSeas, rSea];
         }
@@ -491,7 +491,7 @@ export class SuperHeavy {
             rSea.rotation.copy(rSeaRotations3[i]);
             rSea.scale.copy(SuperHeavyConstants.R_SEA_SCALE.clone().multiply(SuperHeavyConstants.SUPER_HEAVY_SCALE));
             rSea.userData.originalRotation = new Euler(0, 0, 0);
-            rSea.userData.gimbal = new Gimbal();
+            rSea.userData.gimbal = new Gimbal(true);
 
             this.rSeas = [...this.rSeas, rSea];
         }

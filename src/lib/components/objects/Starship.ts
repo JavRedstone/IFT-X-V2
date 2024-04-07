@@ -430,7 +430,7 @@ export class Starship {
             rSea.position.copy(rSeaPositions[i].clone().add(new Vector3(0, StarshipConstants.R_SEA_HEIGHT * StarshipConstants.STARSHIP_SCALE.y, 0)));
             rSea.scale.copy(StarshipConstants.R_SEA_SCALE.clone().multiply(StarshipConstants.STARSHIP_SCALE));
             rSea.userData.originalRotation = new Euler(0, 0, 0);
-            rSea.userData.gimbal = new Gimbal();
+            rSea.userData.gimbal = new Gimbal(true);
 
             this.rSeas = [...this.rSeas, rSea];
         }
@@ -444,7 +444,7 @@ export class Starship {
             rVac.position.copy(rVacPositions[i].clone().add(new Vector3(0, StarshipConstants.R_VAC_HEIGHT * StarshipConstants.STARSHIP_SCALE.y, 0)));
             rVac.scale.copy(StarshipConstants.R_VAC_SCALE.clone().multiply(StarshipConstants.STARSHIP_SCALE));
             rVac.userData.originalRotation = new Euler(0, 0, 0);
-            rVac.userData.gimbal = new Gimbal();
+            rVac.userData.gimbal = new Gimbal(false);
 
             this.rVacs = [...this.rVacs, rVac];
         }
