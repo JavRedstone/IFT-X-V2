@@ -35,6 +35,7 @@ export class Starship {
     public isFueling: boolean = false;
     public hasStartedFueling: boolean = false;
     public isLaunching: boolean = false;
+    public separated: boolean = false;
     public LOX: number = 0;
     public CH4: number = 0;
     public visibilityCooldown: number = StarshipConstants.VISIBILITY_COOLDOWN;
@@ -64,10 +65,12 @@ export class Starship {
     };
 
     public controls: any = {
-        isWPressed: false,
-        isSPressed: false,
-        isAPressed: false,
-        isDPressed: false,
+        isIPressed: false,
+        isKPressed: false,
+        isJPressed: false,
+        isLPressed: false,
+        isUPressed: false,
+        isOPressed: false
     };
 
     constructor() {
@@ -95,12 +98,15 @@ export class Starship {
         telemetry.subscribe((value) => {
             this.LOX = value.starshipLOX;
             this.CH4 = value.starshipCH4;
+            this.separated = value.separated;
         });
         keyPresses.subscribe((value) => {
-            this.controls.isWPressed = value.isWPressed;
-            this.controls.isSPressed = value.isSPressed;
-            this.controls.isAPressed = value.isAPressed;
-            this.controls.isDPressed = value.isDPressed;
+            this.controls.isIPressed = value.isIPressed;
+            this.controls.isKPressed = value.isKPressed;
+            this.controls.isJPressed = value.isJPressed;
+            this.controls.isLPressed = value.isLPressed;
+            this.controls.isUPressed = value.isUPressed;
+            this.controls.isOPressed = value.isOPressed;
         });
         starshipSettings.subscribe((value) => {
             this.options.rSeaAngularOffset = value.rSeaAngularOffset;
@@ -286,16 +292,16 @@ export class Starship {
 
     public controlGimbals(): void {
         let combinedVector: Vector2 = new Vector2(0, 0);
-        if (this.controls.isWPressed) {
+        if (this.controls.isIPressed) {
             combinedVector.y += 1;
         }
-        if (this.controls.isSPressed) {
+        if (this.controls.isKPressed) {
             combinedVector.y -= 1;
         }
-        if (this.controls.isAPressed) {
+        if (this.controls.isJPressed) {
             combinedVector.x += 1; // gimbal angle thing is broken so workaround
         }
-        if (this.controls.isDPressed) {
+        if (this.controls.isLPressed) {
             combinedVector.x -= 1; // gimbal angle thing is broken so workaround
         }
         let angleY: number = Math.atan2(combinedVector.y, combinedVector.x);
@@ -356,6 +362,54 @@ export class Starship {
             value.rSeaGimbalYs = rSeaGimbalYs;
             value.rVacGimbalingAngles = rVacGimbalingAngles;
             value.rVacGimbalYs = rVacGimbalYs;
+            return value;
+        });
+    }
+
+    public controlFlaps(): void {
+        if (this.controls.isIPressed) {
+            this.forwardL.userData.flap.setTarget(FlapConstants.MAX_ANGLE);
+            this.forwardR.userData.flap.setTarget(FlapConstants.MAX_ANGLE);
+            this.aftL.userData.flap.setTarget(FlapConstants.MIN_ANGLE);
+            this.aftR.userData.flap.setTarget(FlapConstants.MIN_ANGLE);
+        }
+        else if (this.controls.isKPressed) {
+            this.forwardL.userData.flap.setTarget(FlapConstants.MIN_ANGLE);
+            this.forwardR.userData.flap.setTarget(FlapConstants.MIN_ANGLE);
+            this.aftL.userData.flap.setTarget(FlapConstants.MAX_ANGLE);
+            this.aftR.userData.flap.setTarget(FlapConstants.MAX_ANGLE);
+        }
+        else if (this.controls.isUPressed) {
+            this.forwardL.userData.flap.setTarget(FlapConstants.MAX_ANGLE);
+            this.forwardR.userData.flap.setTarget(FlapConstants.MIN_ANGLE);
+            this.aftL.userData.flap.setTarget(FlapConstants.MAX_ANGLE);
+            this.aftR.userData.flap.setTarget(FlapConstants.MIN_ANGLE);
+        }
+        else if (this.controls.isOPressed) {
+            this.forwardL.userData.flap.setTarget(FlapConstants.MIN_ANGLE);
+            this.forwardR.userData.flap.setTarget(FlapConstants.MAX_ANGLE);
+            this.aftL.userData.flap.setTarget(FlapConstants.MIN_ANGLE);
+            this.aftR.userData.flap.setTarget(FlapConstants.MAX_ANGLE);
+        }
+        else {
+            if (this.separated) {
+                this.forwardL.userData.flap.setTarget(FlapConstants.NEUTRAL_ANGLE);
+                this.forwardR.userData.flap.setTarget(FlapConstants.NEUTRAL_ANGLE);
+                this.aftL.userData.flap.setTarget(FlapConstants.NEUTRAL_ANGLE);
+                this.aftR.userData.flap.setTarget(FlapConstants.NEUTRAL_ANGLE);
+            }
+            else {
+                this.forwardL.userData.flap.setTarget(FlapConstants.MIN_ANGLE);
+                this.forwardR.userData.flap.setTarget(FlapConstants.MIN_ANGLE);
+                this.aftL.userData.flap.setTarget(FlapConstants.MIN_ANGLE);
+                this.aftR.userData.flap.setTarget(FlapConstants.MIN_ANGLE);
+            }
+        }
+        telemetry.update((value) => {
+            value.forwardLAngle = this.forwardL.userData.flap.angle;
+            value.forwardRAngle = this.forwardR.userData.flap.angle;
+            value.aftLAngle = this.aftL.userData.flap.angle;
+            value.aftRAngle = this.aftR.userData.flap.angle;
             return value;
         });
     }
@@ -548,6 +602,7 @@ export class Starship {
         }
         if (this.isLaunching) {
             this.controlGimbals();
+            this.controlFlaps();
         }
         this.updateFrost(delta);
         this.updateGimbals(delta);

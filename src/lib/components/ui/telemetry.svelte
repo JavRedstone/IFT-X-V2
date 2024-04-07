@@ -12,6 +12,7 @@
     import { StarshipConstants } from "../constants/objects/StarshipConstants";
     import { SuperHeavyConstants } from "../constants/objects/SuperHeavyConstants";
     import { LaunchConstants } from "../constants/objects/LaunchConstants";
+    import Keybinds from "./keybinds.svelte";
 
     let starshipRaptors: RaptorUI[] = [];
     let superHeavyRaptors: RaptorUI[] = [];
@@ -275,31 +276,6 @@
 
     function setupKeybinds(): void {
         window.addEventListener("keydown", (event) => {
-            console.log(event.key)
-            if (event.key == "ArrowUp") {
-                keyPresses.update((value) => {
-                    value.isUpPressed = true;
-                    return value;
-                });
-            }
-            if (event.key == "ArrowDown") {
-                keyPresses.update((value) => {
-                    value.isDownPressed = true;
-                    return value;
-                });
-            }
-            if (event.key == "ArrowLeft") {
-                keyPresses.update((value) => {
-                    value.isLeftPressed = true;
-                    return value;
-                });
-            }
-            if (event.key == "ArrowRight") {
-                keyPresses.update((value) => {
-                    value.isRightPressed = true;
-                    return value;
-                });
-            }
             if (event.key == "w" || event.key == "W") {
                 keyPresses.update((value) => {
                     value.isWPressed = true;
@@ -324,32 +300,62 @@
                     return value;
                 });
             }
+            if (event.key == "q" || event.key == "Q") {
+                keyPresses.update((value) => {
+                    value.isQPressed = true;
+                    return value;
+                });
+            }
+            if (event.key == "e" || event.key == "E") {
+                keyPresses.update((value) => {
+                    value.isEPressed = true;
+                    return value;
+                });
+            }
+            if (event.key == "i" || event.key == "I") {
+                keyPresses.update((value) => {
+                    value.isIPressed = true;
+                    return value;
+                });
+            }
+            if (event.key == "k" || event.key == "K") {
+                keyPresses.update((value) => {
+                    value.isKPressed = true;
+                    return value;
+                });
+            }
+            if (event.key == "j" || event.key == "J") {
+                keyPresses.update((value) => {
+                    value.isJPressed = true;
+                    return value;
+                });
+            }
+            if (event.key == "l" || event.key == "L") {
+                keyPresses.update((value) => {
+                    value.isLPressed = true;
+                    return value;
+                });
+            }
+            if (event.key == "u" || event.key == "U") {
+                keyPresses.update((value) => {
+                    value.isUPressed = true;
+                    return value;
+                });
+            }
+            if (event.key == "o" || event.key == "O") {
+                keyPresses.update((value) => {
+                    value.isOPressed = true;
+                    return value;
+                });
+            }
+            if (event.key == "Space") {
+                keyPresses.update((value) => {
+                    value.isSpacePressed = true;
+                    return value;
+                });
+            }
         });
         window.addEventListener("keyup", (event) => {
-            if (event.key == "ArrowUp") {
-                keyPresses.update((value) => {
-                    value.isUpPressed = false;
-                    return value;
-                });
-            }
-            if (event.key == "ArrowDown") {
-                keyPresses.update((value) => {
-                    value.isDownPressed = false;
-                    return value;
-                });
-            }
-            if (event.key == "ArrowLeft") {
-                keyPresses.update((value) => {
-                    value.isLeftPressed = false;
-                    return value;
-                });
-            }
-            if (event.key == "ArrowRight") {
-                keyPresses.update((value) => {
-                    value.isRightPressed = false;
-                    return value;
-                });
-            }
             if (event.key == "w" || event.key == "W") {
                 keyPresses.update((value) => {
                     value.isWPressed = false;
@@ -371,6 +377,60 @@
             if (event.key == "d" || event.key == "D") {
                 keyPresses.update((value) => {
                     value.isDPressed = false;
+                    return value;
+                });
+            }
+            if (event.key == "q" || event.key == "Q") {
+                keyPresses.update((value) => {
+                    value.isQPressed = false;
+                    return value;
+                });
+            }
+            if (event.key == "e" || event.key == "E") {
+                keyPresses.update((value) => {
+                    value.isEPressed = false;
+                    return value;
+                });
+            }
+            if (event.key == "i" || event.key == "I") {
+                keyPresses.update((value) => {
+                    value.isIPressed = false;
+                    return value;
+                });
+            }
+            if (event.key == "k" || event.key == "K") {
+                keyPresses.update((value) => {
+                    value.isKPressed = false;
+                    return value;
+                });
+            }
+            if (event.key == "j" || event.key == "J") {
+                keyPresses.update((value) => {
+                    value.isJPressed = false;
+                    return value;
+                });
+            }
+            if (event.key == "l" || event.key == "L") {
+                keyPresses.update((value) => {
+                    value.isLPressed = false;
+                    return value;
+                });
+            }
+            if (event.key == "u" || event.key == "U") {
+                keyPresses.update((value) => {
+                    value.isUPressed = false;
+                    return value;
+                });
+            }
+            if (event.key == "o" || event.key == "O") {
+                keyPresses.update((value) => {
+                    value.isOPressed = false;
+                    return value;
+                });
+            }
+            if (event.key == "Space") {
+                keyPresses.update((value) => {
+                    value.isSpacePressed = false;
                     return value;
                 });
             }
@@ -710,4 +770,7 @@
         <div class="telemetry-line" style="left: 336px;"></div>
         <img class="telemetry-image" style="left: {telemetryValues.separated ? 385 : 390}px; transform: rotate({telemetryValues.superHeavyAngle}rad);" src={telemetryValues.separated ? b9 : s25b9} alt="booster">
     </div>
+</div>
+<div style="position:fixed; left: 8px; bottom: 136px;">
+    <Keybinds />
 </div>

@@ -19,6 +19,7 @@
     import { LaunchConstants } from '../constants/objects/LaunchConstants';
     import { LaunchHelper } from '../helpers/LaunchHelper';
     import { PhysicsConstants } from '../constants/PhysicsConstants';
+  import Keybinds from './keybinds.svelte';
 
     let starshipRaptors: RaptorUI[] = [];
     let superHeavyRaptors: RaptorUI[] = [];
@@ -1418,10 +1419,10 @@
 {/if}
 <div class="customize-banner" style="top: 0; {hasLeftBar ? hasRightBar ? "left: 390px; width: calc(100vw - 390px - 340px);" : "left: 390px; width: calc(100vw - 390px);" : hasRightBar ? "left: 0; width: calc(100vw - 340px);" : "left: 0; width: 100vw;"}">
     {#if !hasLeftBar}
-        <button class="customize-action" style="left:0; top: 0; width: 25%; height: 100%; border-right: 1px solid white;" on:click={hideShowLeftBar}>&#9668; Show Left</button>
+        <button class="customize-action" style="left:0; top: 0; width: 25%; height: 100%; border-right: 1px solid white;" on:click={hideShowLeftBar}>&#9664; Show Left</button>
     {/if}
     {#if !hasRightBar}
-        <button class="customize-action" style="right:0; top: 0; width: 25%; height: 100%; border-left: 1px solid white;" on:click={hideShowRightBar}>Show Right &#9658;</button>
+        <button class="customize-action" style="right:0; top: 0; width: 25%; height: 100%; border-left: 1px solid white;" on:click={hideShowRightBar}>Show Right &#9654;</button>
     {/if}
     <button class="customize-action" style="left:{hasLeftBar ? '0' : '25%'}; top: 0; width: {hasLeftBar && hasRightBar ? '50%' : !hasLeftBar && !hasRightBar ? '25%' : '37.5%'}; height: 100%; border-right: 1px solid white;" on:click={validate}>Test &#128504;</button>
     <button class="customize-action" style="right:{hasRightBar ? '0' : '25%'}; top: 0; width: {hasLeftBar && hasRightBar ? '50%' : !hasLeftBar && !hasRightBar ? '25%' : '37.5%'}; height: 100%;" on:click={reset}>Reset &#8634;</button>
@@ -1432,4 +1433,7 @@
     {:else}
         <button class="customize-fueling-action-error" on:click={startFueling}>Fuel &#10054;</button>
     {/if}
+</div>
+<div style="position:fixed; left: 8px; bottom: 58px;">
+    <Keybinds />
 </div>

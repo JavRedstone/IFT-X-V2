@@ -33,15 +33,18 @@ export class SuperHeavy {
     public isFueling: boolean = false;
     public hasStartedFueling: boolean = false;
     public isLaunching: boolean = false;
+    public separated: boolean = false;
     public LOX: number = 0;
     public CH4: number = 0;
     public visibilityCooldown: number = SuperHeavyConstants.VISIBILITY_COOLDOWN;
 
     public controls: any = {
-        isUpPressed: false,
-        isDownPressed: false,
-        isLeftPressed: false,
-        isRightPressed: false,
+        isWPressed: false,
+        isSPressed: false,
+        isAPressed: false,
+        isDPressed: false,
+        isQPressed: false,
+        isEPressed: false
     };
 
     public options: any = {
@@ -98,12 +101,15 @@ export class SuperHeavy {
         telemetry.subscribe((value) => {
             this.LOX = value.superHeavyLOX;
             this.CH4 = value.superHeavyCH4;
+            this.separated = value.separated;
         });
         keyPresses.subscribe((value) => {
-            this.controls.isUpPressed = value.isUpPressed;
-            this.controls.isDownPressed = value.isDownPressed;
-            this.controls.isLeftPressed = value.isLeftPressed;
-            this.controls.isRightPressed = value.isRightPressed;
+            this.controls.isWPressed = value.isWPressed;
+            this.controls.isSPressed = value.isSPressed;
+            this.controls.isAPressed = value.isAPressed;
+            this.controls.isDPressed = value.isDPressed;
+            this.controls.isQPressed = value.isQPressed;
+            this.controls.isEPressed = value.isEPressed;
         });
         superHeavySettings.subscribe((value) => {
             this.options.gridFinAngularOffset = value.gridFinAngularOffset;
@@ -265,16 +271,16 @@ export class SuperHeavy {
 
     public controlGimbals(): void {
         let combinedVector: Vector2 = new Vector2(0, 0);
-        if (this.controls.isUpPressed) {
+        if (this.controls.isWPressed) {
             combinedVector.y += 1;
         }
-        if (this.controls.isDownPressed) {
+        if (this.controls.isSPressed) {
             combinedVector.y -= 1;
         }
-        if (this.controls.isLeftPressed) {
+        if (this.controls.isAPressed) {
             combinedVector.x += 1; // gimbal angle thing is broken so workaround
         }
-        if (this.controls.isRightPressed) {
+        if (this.controls.isDPressed) {
             combinedVector.x -= 1; // gimbal angle thing is broken so workaround
         }
         let angleY: number = Math.atan2(combinedVector.y, combinedVector.x);
@@ -363,6 +369,54 @@ export class SuperHeavy {
             value.rSeaGimbalYs3 = rSeaGimbalYs3;
             return value;
         });
+    }
+
+    public controlGridFins(): void {
+        if (this.separated) {
+            for (let gridFin of this.gridFins) {
+                if (this.controls.isWPressed) {
+                    if (gridFin.rotation.z >= -45 * Math.PI / 180 && gridFin.rotation.z <= 45 * Math.PI / 180) {
+                        gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
+                    }
+                    if (gridFin.rotation.z >= 135 * Math.PI / 180 || gridFin.rotation.z <= -135 * Math.PI / 180) {
+                        gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
+                    }
+                }
+                else if (this.controls.isSPressed) {
+                    if (gridFin.rotation.z >= -45 * Math.PI / 180 && gridFin.rotation.z <= 45 * Math.PI / 180) {
+                        gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
+                    }
+                    if (gridFin.rotation.z >= 135 * Math.PI / 180 || gridFin.rotation.z <= -135 * Math.PI / 180) {
+                        gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
+                    }
+                }
+                else if (this.controls.isAPressed) {
+                    if (gridFin.rotation.z >= 45 * Math.PI / 180 && gridFin.rotation.z <= 135 * Math.PI / 180) {
+                        gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
+                    }
+                    if (gridFin.rotation.z >= -135 * Math.PI / 180 && gridFin.rotation.z <= -45 * Math.PI / 180) {
+                        gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
+                    }
+                }
+                else if (this.controls.isDPressed) {
+                    if (gridFin.rotation.z >= 45 * Math.PI / 180 && gridFin.rotation.z <= 135 * Math.PI / 180) {
+                        gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
+                    }
+                    if (gridFin.rotation.z >= -135 * Math.PI / 180 && gridFin.rotation.z <= -45 * Math.PI / 180) {
+                        gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
+                    }
+                }
+                else if (this.controls.isQPressed) {
+                    gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
+                }
+                else if (this.controls.isEPressed) {
+                    gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
+                }
+                else {
+                    gridFin.userData.gridFin.setTarget(GridFinConstants.NEUTRAL_ANGLE);
+                }
+            }
+        }
     }
 
     public updateFrost(delta: number): void {
@@ -582,6 +636,7 @@ export class SuperHeavy {
         }
         if (this.isLaunching) {
             this.controlGimbals();
+            this.controlGridFins();
         }
         this.updateFrost(delta);
         this.updateGimbals(delta);

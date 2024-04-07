@@ -123,16 +123,20 @@ export const telemetry = writable({
 });
 
 export const keyPresses = writable({
-    isUpPressed: false,
-    isDownPressed: false,
-    isLeftPressed: false,
-    isRightPressed: false,
     isWPressed: false,
     isAPressed: false,
     isSPressed: false,
     isDPressed: false,
     isQPressed: false,
     isEPressed: false,
+
+    isIPressed: false,
+    isKPressed: false,
+    isJPressed: false,
+    isLPressed: false,
+    isUPressed: false,
+    isOPressed: false,
+
     isSpacePressed: false,
 });
 
