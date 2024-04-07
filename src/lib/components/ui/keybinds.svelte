@@ -80,7 +80,7 @@
 
     .keybinds-useable {
         width: 100%;
-        height: calc(100% - 32px);
+        height: calc(100% - 64px);
         overflow-y: auto;
     }
 
@@ -138,9 +138,15 @@
 <button class="keybinds-toggle" on:click={() => isOpen = !isOpen}>Keybinds</button>
 {#if isOpen}
     <div class="keybinds-container">
+        {#if isEditing}
+            <div class="keybinds-title">Keybinds for Editing</div>
+        {:else if isLaunching}
+            <div class="keybinds-title">Keybinds for Launching</div>
+        {:else}
+            <div class="keybinds-title">Keybinds for General</div>
+        {/if}
         <div class="keybinds-useable">
             {#if isEditing}
-                <div class="keybinds-title">Keybinds for Editing</div>
                 <div class="keybind-keycap">&#9664;</div>
                 <p class="keybind-text">Hide / Show Left Panel</p>
                 <br>
@@ -153,7 +159,6 @@
                 <div class="keybind-keycap">R</div>
                 <p class="keybind-text">Reset</p>
             {:else if isLaunching}
-                <div class="keybinds-title">Keybinds for Launching</div>
                 <div class="keybind-keycap">W</div>
                 <p class="keybind-text">SuperHeavy Pitch Up</p>
                 <br>
@@ -192,8 +197,6 @@
                 <br>
                 <div class="keybind-keycap" style="font-size: 10px">Space</div>
                 <p class="keybind-text">Start Current Launch Event</p>
-            {:else}
-                <div class="keybinds-title">Keybinds for General</div>
             {/if}
         </div>
         <button class="keybind-exit" on:click={() => isOpen = false}>Exit</button>

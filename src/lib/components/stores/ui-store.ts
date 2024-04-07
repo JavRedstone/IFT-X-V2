@@ -9,10 +9,10 @@ export const uiSwitches = writable({
 });
 
 export const toggles = writable({
-    isEditing: true,
+    isEditing: false,
     isEditingStarship: false,
     isEditingSuperHeavy: false,
-    isFueling: false,
+    isFueling: true,
     hasStartedFueling: false,
     doneFueling: false,
     isLaunching: false,
