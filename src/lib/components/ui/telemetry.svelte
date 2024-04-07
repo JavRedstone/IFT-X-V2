@@ -2,7 +2,7 @@
     import { onMount } from "svelte";
     import { Vector2, type Vector3 } from "three";
     import { RaptorUI } from "../structs/ui/RaptorUI";
-    import { starshipSettings, superHeavySettings, telemetry } from "../stores/ui-store";
+    import { keyPresses, starshipSettings, superHeavySettings, telemetry } from "../stores/ui-store";
     import { MathHelper } from "../helpers/MathHelper";
     import s25 from "../images/s25.png";
     import b9 from "../images/b9.png";
@@ -172,7 +172,26 @@
     }
 
     function updateThrottles(): void {
+        for (let i = 0; i < starshipOptions.numRSeas; i++) {
+            // starshipRaptors[i].throttle = telemetryValues.rSeaThrottles[i];
+            starshipRaptors[i].throttle = telemetryValues.rSeaThrottles[i];
+        }
+        for (let i = 0; i < starshipOptions.numRVacs; i++) {
+            starshipRaptors[i + starshipOptions.numRSeas].throttle = telemetryValues.rVacThrottles[i];
+        }
 
+        for (let i = 0; i < superHeavyOptions.numRSeas1; i++) {
+            superHeavyRaptors[i].throttle = telemetryValues.rSeaThrottles1[i];
+        }
+        for (let i = 0; i < superHeavyOptions.numRSeas2; i++) {
+            superHeavyRaptors[i + superHeavyOptions.numRSeas1].throttle = telemetryValues.rSeaThrottles2[i];
+        }
+        for (let i = 0; i < superHeavyOptions.numRSeas3; i++) {
+            superHeavyRaptors[i + superHeavyOptions.numRSeas1 + superHeavyOptions.numRSeas2].throttle = telemetryValues.rSeaThrottles3[i];
+        }
+
+        starshipRaptors = starshipRaptors;
+        superHeavyRaptors = superHeavyRaptors;
     }
 
     function updateGimbals(): void {
@@ -254,7 +273,112 @@
         
     }
 
+    function setupKeybinds(): void {
+        window.addEventListener("keydown", (event) => {
+            console.log(event.key)
+            if (event.key == "ArrowUp") {
+                keyPresses.update((value) => {
+                    value.isUpPressed = true;
+                    return value;
+                });
+            }
+            if (event.key == "ArrowDown") {
+                keyPresses.update((value) => {
+                    value.isDownPressed = true;
+                    return value;
+                });
+            }
+            if (event.key == "ArrowLeft") {
+                keyPresses.update((value) => {
+                    value.isLeftPressed = true;
+                    return value;
+                });
+            }
+            if (event.key == "ArrowRight") {
+                keyPresses.update((value) => {
+                    value.isRightPressed = true;
+                    return value;
+                });
+            }
+            if (event.key == "w" || event.key == "W") {
+                keyPresses.update((value) => {
+                    value.isWPressed = true;
+                    return value;
+                });
+            }
+            if (event.key == "a" || event.key == "A") {
+                keyPresses.update((value) => {
+                    value.isAPressed = true;
+                    return value;
+                });
+            }
+            if (event.key == "s" || event.key == "S") {
+                keyPresses.update((value) => {
+                    value.isSPressed = true;
+                    return value;
+                });
+            }
+            if (event.key == "d" || event.key == "D") {
+                keyPresses.update((value) => {
+                    value.isDPressed = true;
+                    return value;
+                });
+            }
+        });
+        window.addEventListener("keyup", (event) => {
+            if (event.key == "ArrowUp") {
+                keyPresses.update((value) => {
+                    value.isUpPressed = false;
+                    return value;
+                });
+            }
+            if (event.key == "ArrowDown") {
+                keyPresses.update((value) => {
+                    value.isDownPressed = false;
+                    return value;
+                });
+            }
+            if (event.key == "ArrowLeft") {
+                keyPresses.update((value) => {
+                    value.isLeftPressed = false;
+                    return value;
+                });
+            }
+            if (event.key == "ArrowRight") {
+                keyPresses.update((value) => {
+                    value.isRightPressed = false;
+                    return value;
+                });
+            }
+            if (event.key == "w" || event.key == "W") {
+                keyPresses.update((value) => {
+                    value.isWPressed = false;
+                    return value;
+                });
+            }
+            if (event.key == "a" || event.key == "A") {
+                keyPresses.update((value) => {
+                    value.isAPressed = false;
+                    return value;
+                });
+            }
+            if (event.key == "s" || event.key == "S") {
+                keyPresses.update((value) => {
+                    value.isSPressed = false;
+                    return value;
+                });
+            }
+            if (event.key == "d" || event.key == "D") {
+                keyPresses.update((value) => {
+                    value.isDPressed = false;
+                    return value;
+                });
+            }
+        });
+    }
+
     onMount(() => {
+        setupKeybinds();
         setupUpdator();
     });
 </script>
@@ -478,7 +602,7 @@
 
     .telemetry-flap-dot {
         position: absolute;
-        right: 500px;
+        right: 480px;
         width: 20px;
         height: 20px;
         border-radius: 100%;
@@ -546,11 +670,11 @@
         <div class="telemetry-line" style="right: 337px;"></div>
         <img class="telemetry-image" style="right: 380px; transform: rotate({telemetryValues.starshipAngle}rad);" src={s25} alt="ship">
         <div class="telemetry-flap-dot" style="top: 20px;">FWD</div>
-        <div class="telemetry-flap" style="top: 30px; right: 521px; width: 10px; transform-origin: right; transform: rotate({telemetryValues.forwardLAngle}rad);"></div>
-        <div class="telemetry-flap" style="top: 30px; right: 489px; width: 10px; transform-origin: left; transform: rotate({telemetryValues.forwardRAngle}rad);"></div>
+        <div class="telemetry-flap" style="top: 30px; right: 501px; width: 5px; transform-origin: right; transform: rotate({telemetryValues.forwardLAngle}rad);"></div>
+        <div class="telemetry-flap" style="top: 30px; right: 474px; width: 5px; transform-origin: left; transform: rotate({telemetryValues.forwardRAngle}rad);"></div>
         <div class="telemetry-flap-dot" style="bottom: 20px;">AFT</div>
-        <div class="telemetry-flap" style="bottom: 30px; right: 521px; width: 20px; transform-origin: right; transform: rotate({telemetryValues.aftLAngle}rad);"></div>
-        <div class="telemetry-flap" style="bottom: 30px; right: 479px; width: 20px; transform-origin: left; transform: rotate({telemetryValues.aftRAngle}rad);"></div>
+        <div class="telemetry-flap" style="bottom: 30px; right: 501px; width: 10px; transform-origin: right; transform: rotate({telemetryValues.aftLAngle}rad);"></div>
+        <div class="telemetry-flap" style="bottom: 30px; right: 469px; width: 10px; transform-origin: left; transform: rotate({telemetryValues.aftRAngle}rad);"></div>
     </div>
     <div style="opacity: {telemetryValues.superHeavyDisabled ? 0.5 : 1};">
         {#each superHeavyRaptors as raptor}

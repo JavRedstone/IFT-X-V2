@@ -26,7 +26,7 @@ export class StarshipConstants {
     
     public static readonly FORWARD_L_SCALE: Vector3 = new Vector3(0.033610, 0.05, 0.033610);
     public static readonly FORWARD_L_ROTATION: Euler = new Euler(12.8405*Math.PI/180, 0, 0);
-    public static readonly FORWARD_L_MAX_HEIGHT_SCALE: number = 1.5;
+    public static readonly FORWARD_L_MAX_HEIGHT_SCALE: number = 1.25;
     public static readonly FORWARD_L_MIN_WIDTH_SCALE: number = 0;
     public static readonly FORWARD_L_MAX_WIDTH_SCALE: number = 2;
     public static readonly FORWARD_L_DRY_MASS: number = 4.5e3; // kg
@@ -34,7 +34,7 @@ export class StarshipConstants {
 
     public static readonly FORWARD_R_SCALE: Vector3 = new Vector3(0.033610, 0.05, 0.033610);
     public static readonly FORWARD_R_ROTATION: Euler = new Euler(-12.8405*Math.PI/180, 0, 0);
-    public static readonly FORWARD_R_MAX_HEIGHT_SCALE: number = 1.5;
+    public static readonly FORWARD_R_MAX_HEIGHT_SCALE: number = 1.25;
     public static readonly FORWARD_R_MIN_WIDTH_SCALE: number = 0;
     public static readonly FORWARD_R_MAX_WIDTH_SCALE: number = 2;
     public static readonly FORWARD_R_DRY_MASS: number = 4.5e3; // kg

@@ -1,8 +1,8 @@
-import { Euler, Group, Object3D, Quaternion, Vector3 } from "three";
+import { Euler, Group, Object3D, Quaternion, Vector2, Vector3 } from "three";
 import { MathHelper } from "../helpers/MathHelper";
 import { SuperHeavyConstants } from "../constants/objects/SuperHeavyConstants";
 import { ObjectHelper } from "../helpers/ObjectHelper";
-import { superHeavySettings, telemetry, toggles } from "../stores/ui-store";
+import { keyPresses, superHeavySettings, telemetry, toggles } from "../stores/ui-store";
 import { LaunchConstants } from "../constants/objects/LaunchConstants";
 import { Gimbal } from "../structs/Gimbal";
 import { RaptorConstants } from "../constants/controls/RaptorConstants";
@@ -36,6 +36,13 @@ export class SuperHeavy {
     public LOX: number = 0;
     public CH4: number = 0;
     public visibilityCooldown: number = SuperHeavyConstants.VISIBILITY_COOLDOWN;
+
+    public controls: any = {
+        isUpPressed: false,
+        isDownPressed: false,
+        isLeftPressed: false,
+        isRightPressed: false,
+    };
 
     public options: any = {
         gridFinAngularOffset: SuperHeavyConstants.GRID_FIN_ANGULAR_OFFSET,
@@ -92,6 +99,12 @@ export class SuperHeavy {
             this.LOX = value.superHeavyLOX;
             this.CH4 = value.superHeavyCH4;
         });
+        keyPresses.subscribe((value) => {
+            this.controls.isUpPressed = value.isUpPressed;
+            this.controls.isDownPressed = value.isDownPressed;
+            this.controls.isLeftPressed = value.isLeftPressed;
+            this.controls.isRightPressed = value.isRightPressed;
+        });
         superHeavySettings.subscribe((value) => {
             this.options.gridFinAngularOffset = value.gridFinAngularOffset;
             this.options.chineAngularOffset = value.chineAngularOffset;
@@ -141,10 +154,6 @@ export class SuperHeavy {
                         rSea.userData.gimbal.setTarget(RaptorConstants.R_SEA_GIMBAL_MAX_ANGLE, rSea.userData.gimbal.tAngleY + RaptorConstants.GIMBAL_Y_ANG_VEL * delta);
                     }
 
-                    rSea.userData.gimbal.update(delta);
-
-                    rSea.rotation.copy(new Euler().setFromQuaternion(new Quaternion().setFromEuler(rSea.userData.originalRotation).multiply(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), rSea.userData.gimbal.angleY).multiply(new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), rSea.userData.gimbal.gimbalAngle)))));
-
                     rSeaGimbalingAngles1 = [...rSeaGimbalingAngles1, rSea.userData.gimbal.gimbalAngle];
                     rSeaGimbalYs1 = [...rSeaGimbalYs1, rSea.userData.gimbal.angleY];
                 }
@@ -161,10 +170,6 @@ export class SuperHeavy {
                         rSea.userData.gimbal.setTarget(RaptorConstants.R_SEA_GIMBAL_MAX_ANGLE, rSea.userData.gimbal.tAngleY + RaptorConstants.GIMBAL_Y_ANG_VEL * delta);
                     }
 
-                    rSea.userData.gimbal.update(delta);
-
-                    rSea.rotation.copy(new Euler().setFromQuaternion(new Quaternion().setFromEuler(rSea.userData.originalRotation).multiply(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), rSea.userData.gimbal.angleY).multiply(new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), rSea.userData.gimbal.gimbalAngle)))));
-
                     rSeaGimbalingAngles2 = [...rSeaGimbalingAngles2, rSea.userData.gimbal.gimbalAngle];
                     rSeaGimbalYs2 = [...rSeaGimbalYs2, rSea.userData.gimbal.angleY];
                 }
@@ -180,10 +185,6 @@ export class SuperHeavy {
                     } else {
                         rSea.userData.gimbal.setTarget(RaptorConstants.R_SEA_GIMBAL_MAX_ANGLE, rSea.userData.gimbal.tAngleY + RaptorConstants.GIMBAL_Y_ANG_VEL * delta);
                     }
-
-                    rSea.userData.gimbal.update(delta);
-
-                    rSea.rotation.copy(new Euler().setFromQuaternion(new Quaternion().setFromEuler(rSea.userData.originalRotation).multiply(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), rSea.userData.gimbal.angleY).multiply(new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), rSea.userData.gimbal.gimbalAngle)))));
 
                     rSeaGimbalingAngles3 = [...rSeaGimbalingAngles3, rSea.userData.gimbal.gimbalAngle];
                     rSeaGimbalYs3 = [...rSeaGimbalYs3, rSea.userData.gimbal.angleY];
@@ -202,7 +203,7 @@ export class SuperHeavy {
         });
     }
 
-    public gridFinTest(delta: number): void {
+    public gridFinTest(): void {
         let gridFinAngles: number[] = [];
 
         for (let gridFin of this.gridFins) {
@@ -212,11 +213,156 @@ export class SuperHeavy {
             else if (gridFin.userData.gridFin.angle == GridFinConstants.MIN_ANGLE) {
                 gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
             }
-            gridFin.userData.gridFin.update(delta);
-            gridFin.rotation.copy(new Euler().setFromQuaternion(new Quaternion().setFromEuler(gridFin.userData.originalRotation).multiply(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), gridFin.userData.gridFin.angle))));
         
             gridFinAngles = [...gridFinAngles, gridFin.userData.gridFin.angle];
         }
+    }
+
+    public updateGimbals(delta: number): void {
+        for (let rSea of this.rSeas) {
+            if (rSea.userData.gimbal != null) {
+                rSea.userData.gimbal.update(delta);
+
+                rSea.rotation.copy(new Euler().setFromQuaternion(new Quaternion().setFromEuler(rSea.userData.originalRotation).multiply(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), rSea.userData.gimbal.angleY).multiply(new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), rSea.userData.gimbal.gimbalAngle)))));
+            }
+        }
+    }
+
+    public updateGridFins(delta: number): void {
+        for (let gridFin of this.gridFins) {
+            if (gridFin.userData.gridFin != null) {
+                gridFin.userData.gridFin.update(delta);
+
+                gridFin.rotation.copy(new Euler().setFromQuaternion(new Quaternion().setFromEuler(gridFin.userData.originalRotation).multiply(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), gridFin.userData.gridFin.angle))));
+            }
+        }
+    }
+
+    public resetGimbals(): void {
+        for (let rSea of this.rSeas) {
+            if (rSea.userData.gimbal != null) {
+                rSea.userData.gimbal.reset();
+            }
+        }
+        telemetry.update((value) => {
+            value.rSeaGimbalingAngles1 = [];
+            value.rSeaGimbalYs1 = [];
+            value.rSeaGimbalingAngles2 = [];
+            value.rSeaGimbalYs2 = [];
+            value.rSeaGimbalingAngles3 = [];
+            value.rSeaGimbalYs3 = [];
+            return value;
+        });
+    }
+
+    public resetGridFins(): void {
+        for (let gridFin of this.gridFins) {
+            if (gridFin.userData.gridFin != null) {
+                gridFin.userData.gridFin.reset();
+            }
+        }
+    }
+
+    public controlGimbals(): void {
+        let combinedVector: Vector2 = new Vector2(0, 0);
+        if (this.controls.isUpPressed) {
+            combinedVector.y += 1;
+        }
+        if (this.controls.isDownPressed) {
+            combinedVector.y -= 1;
+        }
+        if (this.controls.isLeftPressed) {
+            combinedVector.x += 1; // gimbal angle thing is broken so workaround
+        }
+        if (this.controls.isRightPressed) {
+            combinedVector.x -= 1; // gimbal angle thing is broken so workaround
+        }
+        let angleY: number = Math.atan2(combinedVector.y, combinedVector.x);
+        let rSeaGimbalingAngles1: number[] = [];
+        let rSeaGimbalYs1: number[] = [];
+        let rSeaGimbalingAngles2: number[] = [];
+        let rSeaGimbalYs2: number[] = [];
+        let rSeaGimbalingAngles3: number[] = [];
+        let rSeaGimbalYs3: number[] = [];
+        if (combinedVector.length() > 0) {
+            if (this.options.canRSea1Gimbal) {
+                for (let i = 0; i < this.options.numRSeas1; i++) {
+                    let rSea = this.rSeas[i];
+                    if (rSea.userData.gimbal != null) {
+                        rSea.userData.gimbal.setTarget(RaptorConstants.R_SEA_GIMBAL_MAX_ANGLE, angleY);
+
+                        rSeaGimbalingAngles1 = [...rSeaGimbalingAngles1, rSea.userData.gimbal.gimbalAngle];
+                        rSeaGimbalYs1 = [...rSeaGimbalYs1, rSea.userData.gimbal.angleY];
+                    }
+                }
+            }
+            if (this.options.canRSea2Gimbal) {
+                for (let i = 0; i < this.options.numRSeas2; i++) {
+                    let rSea = this.rSeas[i + this.options.numRSeas1];
+                    if (rSea.userData.gimbal != null) {
+                        rSea.userData.gimbal.setTarget(RaptorConstants.R_SEA_GIMBAL_MAX_ANGLE, angleY);
+
+                        rSeaGimbalingAngles2 = [...rSeaGimbalingAngles2, rSea.userData.gimbal.gimbalAngle];
+                        rSeaGimbalYs2 = [...rSeaGimbalYs2, rSea.userData.gimbal.angleY];
+                    }
+                }
+            }
+            if (this.options.canRSea3Gimbal) {
+                for (let i = 0; i < this.options.numRSeas3; i++) {
+                    let rSea = this.rSeas[i + this.options.numRSeas1 + this.options.numRSeas2];
+                    if (rSea.userData.gimbal != null) {
+                        rSea.userData.gimbal.setTarget(RaptorConstants.R_SEA_GIMBAL_MAX_ANGLE, angleY);
+
+                        rSeaGimbalingAngles3 = [...rSeaGimbalingAngles3, rSea.userData.gimbal.gimbalAngle];
+                        rSeaGimbalYs3 = [...rSeaGimbalYs3, rSea.userData.gimbal.angleY];
+                    }
+                }
+            }
+        }
+        else {
+            if (this.options.canRSea1Gimbal) {
+                for (let i = 0; i < this.options.numRSeas1; i++) {
+                    let rSea = this.rSeas[i];
+                    if (rSea.userData.gimbal != null) {
+                        rSea.userData.gimbal.setTarget(0, 0);
+
+                        rSeaGimbalingAngles1 = [...rSeaGimbalingAngles1, rSea.userData.gimbal.gimbalAngle];
+                        rSeaGimbalYs1 = [...rSeaGimbalYs1, rSea.userData.gimbal.angleY];
+                    }
+                }
+            }
+            if (this.options.canRSea2Gimbal) {
+                for (let i = 0; i < this.options.numRSeas2; i++) {
+                    let rSea = this.rSeas[i + this.options.numRSeas1];
+                    if (rSea.userData.gimbal != null) {
+                        rSea.userData.gimbal.setTarget(0, 0);
+
+                        rSeaGimbalingAngles2 = [...rSeaGimbalingAngles2, rSea.userData.gimbal.gimbalAngle];
+                        rSeaGimbalYs2 = [...rSeaGimbalYs2, rSea.userData.gimbal.angleY];
+                    }
+                }
+            }
+            if (this.options.canRSea3Gimbal) {
+                for (let i = 0; i < this.options.numRSeas3; i++) {
+                    let rSea = this.rSeas[i + this.options.numRSeas1 + this.options.numRSeas2];
+                    if (rSea.userData.gimbal != null) {
+                        rSea.userData.gimbal.setTarget(0, 0);
+
+                        rSeaGimbalingAngles3 = [...rSeaGimbalingAngles3, rSea.userData.gimbal.gimbalAngle];
+                        rSeaGimbalYs3 = [...rSeaGimbalYs3, rSea.userData.gimbal.angleY];
+                    }
+                }
+            }
+        }
+        telemetry.update((value) => {
+            value.rSeaGimbalingAngles1 = rSeaGimbalingAngles1;
+            value.rSeaGimbalYs1 = rSeaGimbalYs1;
+            value.rSeaGimbalingAngles2 = rSeaGimbalingAngles2;
+            value.rSeaGimbalYs2 = rSeaGimbalYs2;
+            value.rSeaGimbalingAngles3 = rSeaGimbalingAngles3;
+            value.rSeaGimbalYs3 = rSeaGimbalYs3;
+            return value;
+        });
     }
 
     public updateFrost(delta: number): void {
@@ -415,7 +561,11 @@ export class SuperHeavy {
 
         if (this.isEditing) {
             this.gimbalTest(delta);
-            this.gridFinTest(delta);
+            this.gridFinTest();
+        }
+        if (this.isFueling) {
+            this.resetGimbals();
+            this.resetGridFins();
         }
         if (this.isEditingSelf) {
             if (this.visibilityCooldown > 0) {
@@ -430,8 +580,12 @@ export class SuperHeavy {
             this.group.visible = true;
             this.visibilityCooldown = SuperHeavyConstants.VISIBILITY_COOLDOWN;
         }
-        
+        if (this.isLaunching) {
+            this.controlGimbals();
+        }
         this.updateFrost(delta);
+        this.updateGimbals(delta);
+        this.updateGridFins(delta);
     }
 
     public updateScene(delta: number): void {

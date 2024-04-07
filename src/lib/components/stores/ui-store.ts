@@ -15,7 +15,7 @@ export const toggles = writable({
     isFueling: false,
     hasStartedFueling: false,
     doneFueling: false,
-    isLaunching: true,
+    isLaunching: false,
 });
 
 export const starshipSettings = writable({
@@ -83,7 +83,7 @@ export const telemetry = writable({
     starshipAltitude: 0,
     starshipLOX: 0,
     starshipCH4: 0,
-    starshipDisabled: false,
+    starshipDisabled: true,
     
     rSeaThrottles: [],
     rVacThrottles: [],
@@ -114,10 +114,26 @@ export const telemetry = writable({
     rSeaGimbalYs2: [],
     rSeaGimbalYs3: [],
 
-    separated: true,
+    separated: false,
     
     currEvent: 0,
     isEventUrgent: false,
+
+    isCameraOnStarship: true,
+});
+
+export const keyPresses = writable({
+    isUpPressed: false,
+    isDownPressed: false,
+    isLeftPressed: false,
+    isRightPressed: false,
+    isWPressed: false,
+    isAPressed: false,
+    isSPressed: false,
+    isDPressed: false,
+    isQPressed: false,
+    isEPressed: false,
+    isSpacePressed: false,
 });
 
 export const gameSettings = writable({

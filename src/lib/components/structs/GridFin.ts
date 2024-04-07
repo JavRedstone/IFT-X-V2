@@ -23,4 +23,9 @@ export class GridFin {
                 this.angle += diff > 0 ? step : -step;
         }
     }
+
+    public reset(): void {
+        this.angle = GridFinConstants.MIN_ANGLE;
+        this.tAngle = GridFinConstants.MIN_ANGLE;
+    }
 }

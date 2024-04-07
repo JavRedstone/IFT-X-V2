@@ -23,4 +23,9 @@ export class Flap {
                 this.angle += diff > 0 ? step : -step;
         }
     }
+
+    public reset(): void {
+        this.angle = FlapConstants.MIN_ANGLE;
+        this.tAngle = FlapConstants.MIN_ANGLE;
+    }
 }

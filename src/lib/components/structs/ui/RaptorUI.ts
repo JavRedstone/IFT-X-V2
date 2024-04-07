@@ -20,8 +20,9 @@ export class RaptorUI {
 
     public updateGimbal(gimbalAngle: number, angleY: number, sizeMult: number, left: boolean): void {
         if (gimbalAngle != undefined && angleY != undefined) {
-            let radialDistance = gimbalAngle / (this.isSea ? RaptorConstants.R_SEA_GIMBAL_MAX_ANGLE : RaptorConstants.R_VAC_GIMBAL_MAX_ANGLE) * (RaptorConstants.R_SEA_GIMBAL_SPACE_PERC - 1) * sizeMult * (this.isSea ? RaptorConstants.R_SEA_RADIUS : RaptorConstants.R_VAC_RADIUS);
-            this.position = this.originalPosition.clone().add(new Vector2(radialDistance, 0).rotateAround(new Vector2(), left ? angleY + Math.PI : -angleY));
+            let radialDistance: number = gimbalAngle / (this.isSea ? RaptorConstants.R_SEA_GIMBAL_MAX_ANGLE : RaptorConstants.R_VAC_GIMBAL_MAX_ANGLE) * (RaptorConstants.R_SEA_GIMBAL_SPACE_PERC - 1) * sizeMult * (this.isSea ? RaptorConstants.R_SEA_RADIUS : RaptorConstants.R_VAC_RADIUS);
+            let added: Vector2 = new Vector2(radialDistance, 0).rotateAround(new Vector2(), left ? angleY + Math.PI : -angleY); // gimbal angle thing is broken so workaround
+            this.position = this.originalPosition.clone().add(new Vector2(added.x, added.y)); // keep this incase i fix gimbal
         }
     }
 }

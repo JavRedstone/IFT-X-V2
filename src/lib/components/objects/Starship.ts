@@ -1,8 +1,8 @@
-import { Euler, Group, Mesh, Object3D, Quaternion, Vector3 } from "three";
+import { Euler, Group, Mesh, Object3D, Quaternion, Vector2, Vector3 } from "three";
 import { StarshipConstants } from "../constants/objects/StarshipConstants";
 import { MathHelper } from "../helpers/MathHelper";
 import { ObjectHelper } from "../helpers/ObjectHelper";
-import { starshipSettings, telemetry, toggles } from "../stores/ui-store";
+import { keyPresses, starshipSettings, telemetry, toggles } from "../stores/ui-store";
 import { LaunchConstants } from "../constants/objects/LaunchConstants";
 import { LaunchHelper } from "../helpers/LaunchHelper";
 import { Gimbal } from "../structs/Gimbal";
@@ -63,6 +63,13 @@ export class Starship {
         canRVacGimbal: StarshipConstants.CAN_R_VAC_GIMBAL
     };
 
+    public controls: any = {
+        isWPressed: false,
+        isSPressed: false,
+        isAPressed: false,
+        isDPressed: false,
+    };
+
     constructor() {
         this.setupMultiple();
         this.setupUpdator();
@@ -88,6 +95,12 @@ export class Starship {
         telemetry.subscribe((value) => {
             this.LOX = value.starshipLOX;
             this.CH4 = value.starshipCH4;
+        });
+        keyPresses.subscribe((value) => {
+            this.controls.isWPressed = value.isWPressed;
+            this.controls.isSPressed = value.isSPressed;
+            this.controls.isAPressed = value.isAPressed;
+            this.controls.isDPressed = value.isDPressed;
         });
         starshipSettings.subscribe((value) => {
             this.options.rSeaAngularOffset = value.rSeaAngularOffset;
@@ -135,10 +148,6 @@ export class Starship {
                         rSea.userData.gimbal.setTarget(RaptorConstants.R_SEA_GIMBAL_MAX_ANGLE, rSea.userData.gimbal.tAngleY + RaptorConstants.GIMBAL_Y_ANG_VEL * delta);
                     }
 
-                    rSea.userData.gimbal.update(delta);
-
-                    rSea.rotation.copy(new Euler().setFromQuaternion(new Quaternion().setFromEuler(rSea.userData.originalRotation).multiply(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), rSea.userData.gimbal.angleY).multiply(new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), rSea.userData.gimbal.gimbalAngle)))));
-
                     rSeaGimbalingAngles = [...rSeaGimbalingAngles, rSea.userData.gimbal.gimbalAngle];
                     rSeaGimbalYs = [...rSeaGimbalYs, rSea.userData.gimbal.angleY];
                 }
@@ -155,10 +164,6 @@ export class Starship {
                         rVac.userData.gimbal.setTarget(RaptorConstants.R_VAC_GIMBAL_MAX_ANGLE, rVac.userData.gimbal.tAngleY + RaptorConstants.GIMBAL_Y_ANG_VEL * delta);
                     }
 
-                    rVac.userData.gimbal.update(delta);
-
-                    rVac.rotation.copy(new Euler().setFromQuaternion(new Quaternion().setFromEuler(rVac.userData.originalRotation).multiply(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), rVac.userData.gimbal.angleY).multiply(new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), rVac.userData.gimbal.gimbalAngle)))));
-
                     rVacGimbalingAngles = [...rVacGimbalingAngles, rVac.userData.gimbal.gimbalAngle];
                     rVacGimbalYs = [...rVacGimbalYs, rVac.userData.gimbal.angleY];
                 }
@@ -174,15 +179,13 @@ export class Starship {
         });
     }
 
-    public flapTest(delta: number): void {
+    public flapTest(): void {
         if (this.forwardL.userData.flap.angle == FlapConstants.MAX_ANGLE) {
             this.forwardL.userData.flap.setTarget(FlapConstants.MIN_ANGLE);
         }
         else if (this.forwardL.userData.flap.angle == FlapConstants.MIN_ANGLE) {
             this.forwardL.userData.flap.setTarget(FlapConstants.MAX_ANGLE);
         }
-        this.forwardL.userData.flap.update(delta);
-        this.forwardL.rotation.copy(new Euler().setFromQuaternion(new Quaternion().setFromEuler(this.forwardL.userData.originalRotation).multiply(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), -this.forwardL.userData.flap.angle))));
 
         if (this.forwardR.userData.flap.angle == FlapConstants.MAX_ANGLE) {
             this.forwardR.userData.flap.setTarget(FlapConstants.MIN_ANGLE);
@@ -190,8 +193,6 @@ export class Starship {
         else if (this.forwardR.userData.flap.angle == FlapConstants.MIN_ANGLE) {
             this.forwardR.userData.flap.setTarget(FlapConstants.MAX_ANGLE);
         }
-        this.forwardR.userData.flap.update(delta);
-        this.forwardR.rotation.copy(new Euler().setFromQuaternion(new Quaternion().setFromEuler(this.forwardR.userData.originalRotation).multiply(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), this.forwardR.userData.flap.angle))));
 
         if (this.aftL.userData.flap.angle == FlapConstants.MAX_ANGLE) {
             this.aftL.userData.flap.setTarget(FlapConstants.MIN_ANGLE);
@@ -199,8 +200,6 @@ export class Starship {
         else if (this.aftL.userData.flap.angle == FlapConstants.MIN_ANGLE) {
             this.aftL.userData.flap.setTarget(FlapConstants.MAX_ANGLE);
         }
-        this.aftL.userData.flap.update(delta);
-        this.aftL.rotation.copy(new Euler().setFromQuaternion(new Quaternion().setFromEuler(this.aftL.userData.originalRotation).multiply(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), -this.aftL.userData.flap.angle))));
 
         if (this.aftR.userData.flap.angle == FlapConstants.MAX_ANGLE) {
             this.aftR.userData.flap.setTarget(FlapConstants.MIN_ANGLE);
@@ -208,11 +207,155 @@ export class Starship {
         else if (this.aftR.userData.flap.angle == FlapConstants.MIN_ANGLE) {
             this.aftR.userData.flap.setTarget(FlapConstants.MAX_ANGLE);
         }
-        this.aftR.userData.flap.update(delta);
-        this.aftR.rotation.copy(new Euler().setFromQuaternion(new Quaternion().setFromEuler(this.aftR.userData.originalRotation).multiply(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), this.aftR.userData.flap.angle))));
 
         telemetry.update((value) => {
             value.forwardLAngle = this.forwardL.userData.flap.angle;
+            value.forwardRAngle = this.forwardR.userData.flap.angle;
+            value.aftLAngle = this.aftL.userData.flap.angle;
+            value.aftRAngle = this.aftR.userData.flap.angle;
+            return value;
+        });
+    }
+
+    public updateGimbals(delta: number): void {
+        for (let rSea of this.rSeas) {
+            if (rSea.userData.gimbal != null) {
+                rSea.userData.gimbal.update(delta);
+
+                rSea.rotation.copy(new Euler().setFromQuaternion(new Quaternion().setFromEuler(rSea.userData.originalRotation).multiply(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), rSea.userData.gimbal.angleY).multiply(new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), rSea.userData.gimbal.gimbalAngle)))));
+            }
+        }
+        for (let rVac of this.rVacs) {
+            if (rVac.userData.gimbal != null) {
+                rVac.userData.gimbal.update(delta);
+
+                rVac.rotation.copy(new Euler().setFromQuaternion(new Quaternion().setFromEuler(rVac.userData.originalRotation).multiply(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), rVac.userData.gimbal.angleY).multiply(new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), rVac.userData.gimbal.gimbalAngle)))));
+            }
+        }
+    }
+
+    public updateFlaps(delta: number): void {
+        this.forwardL.userData.flap.update(delta);
+        this.forwardL.rotation.copy(new Euler().setFromQuaternion(new Quaternion().setFromEuler(this.forwardL.userData.originalRotation).multiply(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), -this.forwardL.userData.flap.angle))));
+
+        this.forwardR.userData.flap.update(delta);
+        this.forwardR.rotation.copy(new Euler().setFromQuaternion(new Quaternion().setFromEuler(this.forwardR.userData.originalRotation).multiply(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), this.forwardR.userData.flap.angle))));
+
+        this.aftL.userData.flap.update(delta);
+        this.aftL.rotation.copy(new Euler().setFromQuaternion(new Quaternion().setFromEuler(this.aftL.userData.originalRotation).multiply(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), -this.aftL.userData.flap.angle))));
+
+        this.aftR.userData.flap.update(delta);
+        this.aftR.rotation.copy(new Euler().setFromQuaternion(new Quaternion().setFromEuler(this.aftR.userData.originalRotation).multiply(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), this.aftR.userData.flap.angle))));
+    }
+
+    public resetGimbals(): void {
+        for (let i = 0; i < this.rSeas.length; i++) {
+            if (this.rSeas[i].userData.gimbal != null) {
+                this.rSeas[i].userData.gimbal.reset();
+            }
+        }
+        for (let i = 0; i < this.rVacs.length; i++) {
+            if (this.rVacs[i].userData.gimbal != null) {
+                this.rVacs[i].userData.gimbal.reset();
+            }
+        }
+        
+        telemetry.update((value) => {
+            value.rSeaGimbalingAngles = [];
+            value.rSeaGimbalYs = [];
+            value.rVacGimbalingAngles = [];
+            value.rVacGimbalYs = [];
+            return value;
+        });
+    }
+
+    public resetFlaps(): void {
+        this.forwardL.userData.flap.reset();
+        this.forwardR.userData.flap.reset();
+        this.aftL.userData.flap.reset();
+        this.aftR.userData.flap.reset();
+
+        telemetry.update((value) => {
+            value.forwardLAngle = this.forwardL.userData.flap.angle;
+            value.forwardRAngle = this.forwardR.userData.flap.angle;
+            value.aftLAngle = this.aftL.userData.flap.angle;
+            value.aftRAngle = this.aftR.userData.flap.angle;
+            return value;
+        });
+    }
+
+    public controlGimbals(): void {
+        let combinedVector: Vector2 = new Vector2(0, 0);
+        if (this.controls.isWPressed) {
+            combinedVector.y += 1;
+        }
+        if (this.controls.isSPressed) {
+            combinedVector.y -= 1;
+        }
+        if (this.controls.isAPressed) {
+            combinedVector.x += 1; // gimbal angle thing is broken so workaround
+        }
+        if (this.controls.isDPressed) {
+            combinedVector.x -= 1; // gimbal angle thing is broken so workaround
+        }
+        let angleY: number = Math.atan2(combinedVector.y, combinedVector.x);
+        let rSeaGimbalingAngles: number[] = [];
+        let rSeaGimbalYs: number[] = [];
+        let rVacGimbalingAngles: number[] = [];
+        let rVacGimbalYs: number[] = [];
+        if (combinedVector.length() > 0) {
+            if (this.options.canRSeaGimbal) {
+                for (let i = 0; i < this.options.numRSeas; i++) {
+                    let rSea = this.rSeas[i];
+                    if (rSea.userData.gimbal != null) {
+                        rSea.userData.gimbal.setTarget(RaptorConstants.R_SEA_GIMBAL_MAX_ANGLE, angleY);
+
+                        rSeaGimbalingAngles = [...rSeaGimbalingAngles, rSea.userData.gimbal.gimbalAngle];
+                        rSeaGimbalYs = [...rSeaGimbalYs, rSea.userData.gimbal.angleY];
+                    }
+                }
+            }
+            if (this.options.canRVacGimbal) {
+                for (let i = 0; i < this.options.numRSeas2; i++) {
+                    let rVac = this.rSeas[i + this.options.numRSeas1];
+                    if (rVac.userData.gimbal != null) {
+                        rVac.userData.gimbal.setTarget(RaptorConstants.R_SEA_GIMBAL_MAX_ANGLE, angleY);
+
+                        rVacGimbalingAngles = [...rVacGimbalingAngles, rVac.userData.gimbal.gimbalAngle];
+                        rVacGimbalYs = [...rVacGimbalYs, rVac.userData.gimbal.angleY];
+                    }
+                }
+            }
+        }
+        else {
+            if (this.options.canRSeaGimbal) {
+                for (let i = 0; i < this.options.numRSeas; i++) {
+                    let rSea = this.rSeas[i];
+                    if (rSea.userData.gimbal != null) {
+                        rSea.userData.gimbal.setTarget(0, 0);
+
+                        rSeaGimbalingAngles = [...rSeaGimbalingAngles, rSea.userData.gimbal.gimbalAngle];
+                        rSeaGimbalYs = [...rSeaGimbalYs, rSea.userData.gimbal.angleY];
+                    }
+                }
+            }
+            if (this.options.canRVacGimbal) {
+                for (let i = 0; i < this.options.numRSeas2; i++) {
+                    let rVac = this.rSeas[i + this.options.numRSeas1];
+                    if (rVac.userData.gimbal != null) {
+                        rVac.userData.gimbal.setTarget(0, 0);
+
+                        rVacGimbalingAngles = [...rVacGimbalingAngles, rVac.userData.gimbal.gimbalAngle];
+                        rVacGimbalYs = [...rVacGimbalYs, rVac.userData.gimbal.angleY];
+                    }
+                }
+            }
+        }
+        telemetry.update((value) => {
+            value.rSeaGimbalingAngles = rSeaGimbalingAngles;
+            value.rSeaGimbalYs = rSeaGimbalYs;
+            value.rVacGimbalingAngles = rVacGimbalingAngles;
+            value.rVacGimbalYs = rVacGimbalYs;
             return value;
         });
     }
@@ -384,7 +527,11 @@ export class Starship {
         
         if (this.isEditing) {
             this.gimbalTest(delta);
-            this.flapTest(delta);
+            this.flapTest();
+        }
+        if (this.isFueling) {
+            this.resetGimbals();
+            this.resetFlaps();
         }
         if (this.isEditingSelf) {
             if (this.visibilityCooldown > 0) {
@@ -399,8 +546,12 @@ export class Starship {
             this.group.visible = true;
             this.visibilityCooldown = StarshipConstants.VISIBILITY_COOLDOWN;
         }
-        
+        if (this.isLaunching) {
+            this.controlGimbals();
+        }
         this.updateFrost(delta);
+        this.updateGimbals(delta);
+        this.updateFlaps(delta);
     }
 
     public updateScene(delta: number): void {

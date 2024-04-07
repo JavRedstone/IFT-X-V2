@@ -73,7 +73,7 @@ export class SuperHeavyConstants {
     public static readonly CAN_R_SEA_3_GIMBAL: boolean = false;
 
     public static readonly OUTER_CYLINDER_SCALE: Vector3 = new Vector3(0.125, 0.125, 0.125);
-    public static readonly OUTER_CYLINDER_ADDITONAL_HEIGHT: number = 0.2;
+    public static readonly OUTER_CYLINDER_ADDITONAL_HEIGHT: number = 0.225;
     public static readonly OUTER_CYLINDER_ADDITIONAL_RADIUS: number = 0.05;
     public static readonly OUTER_CYLINDER_THRESHOLD: number = 0.9;
 }
