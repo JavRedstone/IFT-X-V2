@@ -25,7 +25,7 @@ export class GridFin {
     }
 
     public reset(): void {
-        this.angle = GridFinConstants.MIN_ANGLE;
-        this.tAngle = GridFinConstants.MIN_ANGLE;
+        this.angle = GridFinConstants.NEUTRAL_ANGLE;
+        this.tAngle = GridFinConstants.NEUTRAL_ANGLE;
     }
 }
