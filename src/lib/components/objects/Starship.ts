@@ -319,7 +319,7 @@ export class Starship {
                 for (let i = 0; i < this.options.numRVacs; i++) {
                     let rVac = this.rVacs[i];
                     if (rVac.userData.gimbal != null) {
-                        rVac.userData.gimbal.setTarget(RaptorConstants.R_SEA_GIMBAL_MAX_ANGLE, angleY);
+                        rVac.userData.gimbal.setTarget(RaptorConstants.R_VAC_GIMBAL_MAX_ANGLE, angleY);
 
                         rVacGimbalingAngles = [...rVacGimbalingAngles, rVac.userData.gimbal.gimbalAngle];
                         rVacGimbalYs = [...rVacGimbalYs, rVac.userData.gimbal.angleY];
@@ -340,8 +340,8 @@ export class Starship {
                 }
             }
             if (this.options.canRVacGimbal) {
-                for (let i = 0; i < this.options.numRSeas2; i++) {
-                    let rVac = this.rSeas[i + this.options.numRSeas1];
+                for (let i = 0; i < this.options.numRVacs; i++) {
+                    let rVac = this.rVacs[i];
                     if (rVac.userData.gimbal != null) {
                         rVac.userData.gimbal.setTarget(0, 0);
 
