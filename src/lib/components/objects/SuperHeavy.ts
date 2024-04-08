@@ -514,6 +514,7 @@ export class SuperHeavy {
         return this.getMass() * LaunchHelper.getGEarth(altitude);
     }
 
+    // fix to have half length
     public getCenterofMass(): Vector3 {
         let totalMass: number = this.getMass();
         let centerOfMass: Vector3 = new Vector3(0, 0, 0);
