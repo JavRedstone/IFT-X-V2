@@ -5,7 +5,8 @@ export class StarshipConstants {
 
     public static readonly REAL_LIFE_SCALE: Vector3 = new Vector3(4.5, 4.5, 4.5);
 
-    public static readonly STARSHIP_SCALE: Vector3 = new Vector3(0.001, 0.001, 0.001);
+    public static readonly STARSHIP_SCALE_VALUE: number = 0.0001;
+    public static readonly STARSHIP_SCALE: Vector3 = new Vector3(StarshipConstants.STARSHIP_SCALE_VALUE, StarshipConstants.STARSHIP_SCALE_VALUE, StarshipConstants.STARSHIP_SCALE_VALUE);
     // public static readonly STARSHIP_SCALE: Vector3 = new Vector3(1, 1, 1);
 
     public static readonly LOX_BOTTOM_PERCENTAGE: number = 0.1;

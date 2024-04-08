@@ -83,6 +83,7 @@
     };
 
     let currEvent: string = LaunchConstants.LAUNCH_EVENTS[0];
+    let isEventEnabled: boolean = false;
     let isEventUrgent: boolean = false;
     let nextEvent: string = LaunchConstants.LAUNCH_EVENTS[1];
 
@@ -164,6 +165,7 @@
             telemetryValues.separated = value.separated;
 
             currEvent = LaunchConstants.LAUNCH_EVENTS[value.currEvent];
+            isEventEnabled = value.isEventEnabled;
             isEventUrgent = value.isEventUrgent;
             nextEvent = LaunchConstants.LAUNCH_EVENTS[value.currEvent + 1];
             
@@ -271,9 +273,15 @@
     }
 
     function sendEvent(): void {
-        
+        if (isEventEnabled) {
+            telemetry.update((value) => {
+                value.currEvent++;
+                value.isEventEnabled = false;
+                return value;
+            });
+        }
     }
-
+    
     function setupKeybinds(): void {
         window.addEventListener("keydown", (event) => {
             if (event.key == "w" || event.key == "W") {
@@ -348,11 +356,14 @@
                     return value;
                 });
             }
-            if (event.key == "Space") {
-                keyPresses.update((value) => {
-                    value.isSpacePressed = true;
+            if (event.key == "Shift") {
+                telemetry.update((value) => {
+                    value.isCameraOnStarship = !value.isCameraOnStarship;
                     return value;
                 });
+            }
+            if (event.key == "Enter") {
+                sendEvent();
             }
         });
         window.addEventListener("keyup", (event) => {
@@ -425,12 +436,6 @@
             if (event.key == "o" || event.key == "O") {
                 keyPresses.update((value) => {
                     value.isOPressed = false;
-                    return value;
-                });
-            }
-            if (event.key == "Space") {
-                keyPresses.update((value) => {
-                    value.isSpacePressed = false;
                     return value;
                 });
             }
@@ -649,6 +654,23 @@
         }
     }
 
+    .telemetry-launchevents-disabled {
+        position: absolute;
+        width: 100%;
+        height: 32px;
+        margin-left: 0;
+        margin-top: 40px;
+        font-size: 16px;
+        border: none;
+        outline: none;
+        background-color: rgba(100, 100, 100, 0.5);
+        font-size: 16px;
+        color: lightgray;
+        font-family: "M PLUS Code Latin", monospace;
+
+        animation: increaseOpacity 0.5s;
+    }
+
     .telemetry-launchevents-next {
         position: absolute;
         margin-left: 8px;
@@ -681,10 +703,14 @@
 {#if currEvent != null}
     <div class="telemetry-launchevents-container" style="height: {nextEvent != null ? 100 : 72}px;">
         <div class="telemetry-launchevents-title">Launch Events</div>
-        {#if isEventUrgent}
-            <button class="telemetry-launchevents-urgent" on:click="{sendEvent}">{currEvent} &#9664; &#9888;</button>
+        {#if isEventEnabled}
+            {#if isEventUrgent}
+                <button class="telemetry-launchevents-urgent" on:click="{sendEvent}">{currEvent} &#9664; &#9888;</button>
+            {:else}
+                <button class="telemetry-launchevents-normal" on:click="{sendEvent}">{currEvent} &#9664; &#10003;</button>
+            {/if}
         {:else}
-            <button class="telemetry-launchevents-normal" on:click="{sendEvent}">{currEvent} &#9664; &#10003;</button>
+            <button class="telemetry-launchevents-disabled">{currEvent} &#9664; &#10007;</button>
         {/if}
         {#if nextEvent != null}
             <div class="telemetry-launchevents-next">
@@ -739,7 +765,7 @@
     <div style="opacity: {telemetryValues.superHeavyDisabled ? 0.5 : 1};">
         {#each superHeavyRaptors as raptor}
             <div class="telemetry-raptor" style="border-width: {border}px; width: {raptor.isSea ? rSeaFakeRadius*2 : rVacFakeRadius*2}px; height: {raptor.isSea ? rSeaFakeRadius*2 : rVacFakeRadius*2}px; left: {raptor.position.x + posOffset + border}px; top: {raptor.position.y + posOffset + border}px;">
-                <div class="telemetry-raptor-throttle" style="width: {raptor.isSea ? raptor.throttle * rSeaFakeRadius * 2 : raptor.throttle * rVacRadius * 2}px; height: {raptor.isSea ? raptor.throttle * rSeaRadius * 2 : raptor.throttle * rVacFakeRadius * 2}px"></div>
+                <div class="telemetry-raptor-throttle" style="width: {raptor.isSea ? raptor.throttle * rSeaRadius * 2 : raptor.throttle * rVacRadius * 2}px; height: {raptor.isSea ? raptor.throttle * rSeaRadius * 2 : raptor.throttle * rVacRadius * 2}px"></div>
             </div>
         {/each}
 

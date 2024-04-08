@@ -7,6 +7,9 @@ export class PRTransients {
         sunPosition: new Vector3(0, 0, 0),
 
         groupPosition: new Vector3(0, 0, 0),
+        stackGroupPosition: new Vector3(0, 0, 0),
+        starshipPosition: new Vector3(0, 0, 0),
+        superHeavyPosition: new Vector3(0, 0, 0),
         cameraPosition: new Vector3(0, 0, 0),
         orbitControlsPosition: new Vector3(0, 0, 0)
     };
@@ -16,7 +19,10 @@ export class PRTransients {
         cloudRotation: new Euler(0, 0, 0),
         moonRotation: new Euler(0, 0, 0),
 
-        groupRotation: new Euler(0, 0, 0)
+        groupRotation: new Euler(0, 0, 0),
+        stackGroupRotation: new Euler(0, 0, 0),
+        starshipRotation: new Euler(0, 0, 0),
+        superHeavyRotation: new Euler(0, 0, 0)
     };
 
     public static fakePositions: any = {
@@ -25,6 +31,9 @@ export class PRTransients {
         sunPosition: new Vector3(0, 0, 0),
 
         groupPosition: new Vector3(0, 0, 0),
+        stackGroupPosition: new Vector3(0, 0, 0),
+        starshipPosition: new Vector3(0, 0, 0),
+        superHeavyPosition: new Vector3(0, 0, 0),
         cameraPosition: new Vector3(0, 0, 0),
         orbitControlsPosition: new Vector3(0, 0, 0)
     };
@@ -34,6 +43,9 @@ export class PRTransients {
         cloudRotation: new Euler(0, 0, 0),
         moonRotation: new Euler(0, 0, 0),
 
-        groupRotation: new Euler(0, 0, 0)
+        groupRotation: new Euler(0, 0, 0),
+        stackGroupRotation: new Euler(0, 0, 0),
+        starshipRotation: new Euler(0, 0, 0),
+        superHeavyRotation: new Euler(0, 0, 0)
     };
 }

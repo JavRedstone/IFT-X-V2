@@ -1,21 +1,35 @@
 import { RaptorConstants } from "../constants/controls/RaptorConstants";
 
-export class Gimbal {
+export class Raptor {
     public isSea: boolean = true;
+    public type: number = 0;
+
+    public throttle: number = 0;
+    public tThrottle: number = 0;
+
     public gimbalAngle: number = 0;
-    public angleY: number = 0;
     public tGimbalAngle: number = 0;
+
+    public angleY: number = 0;
     public tAngleY: number = 0;
 
-    public constructor(isSea: boolean) {
+    public constructor(isSea: boolean, type: number) {
         this.isSea = isSea;
+        this.type = type;
+
+        this.throttle = 0;
+        
         this.gimbalAngle = 0;
         this.angleY = 0;
         this.tGimbalAngle = 0;
         this.tAngleY = 0;
     }
 
-    public setTarget(tGimbalAngle: number, tAngleY: number): void {
+    public setThrottleTarget(Tthrottle: number): void {
+        this.tThrottle = Tthrottle;
+    }
+
+    public setGimbalTarget(tGimbalAngle: number, tAngleY: number): void {
         this.tGimbalAngle = tGimbalAngle;
         this.tAngleY = tAngleY;
         if (this.tGimbalAngle == 0 && this.tAngleY == 0) {
@@ -24,6 +38,26 @@ export class Gimbal {
     }
 
     public update(delta: number): void {
+        this.updateThrottle(delta);
+        this.updateGimbal(delta);
+    }
+
+    public updateThrottle(delta: number): void {
+        let diff = this.tThrottle - this.throttle;
+        let step = diff > 0 ? RaptorConstants.THROTTLE_UP_VEL * delta : RaptorConstants.THROTTLE_DOWN_VEL * delta;
+        if (this.throttle < RaptorConstants.MIN_THROTTLE && diff > 0) {
+            this.throttle = RaptorConstants.MIN_THROTTLE;
+        }
+        if (this.throttle > RaptorConstants.MIN_THROTTLE && diff < 0) {
+            this.throttle = 0;
+        }
+        if (Math.abs(diff) < step)
+            this.throttle = this.tThrottle;
+        else
+            this.throttle += diff > 0 ? step : -step;
+    }
+
+    public updateGimbal(delta: number): void {
         if (this.gimbalAngle == 0) {
             this.angleY = this.tAngleY;
         }
@@ -52,9 +86,13 @@ export class Gimbal {
     }
 
     public reset(): void {
+        this.throttle = 0;
+        this.tThrottle = 0;
+        
         this.gimbalAngle = 0;
-        this.angleY = 0;
         this.tGimbalAngle = 0;
+
+        this.angleY = 0;
         this.tAngleY = 0;
     }
 }

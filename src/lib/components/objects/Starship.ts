@@ -5,7 +5,7 @@ import { ObjectHelper } from "../helpers/ObjectHelper";
 import { keyPresses, starshipSettings, telemetry, toggles } from "../stores/ui-store";
 import { LaunchConstants } from "../constants/objects/LaunchConstants";
 import { LaunchHelper } from "../helpers/LaunchHelper";
-import { Gimbal } from "../structs/Gimbal";
+import { Raptor } from "../structs/Raptor";
 import { RaptorConstants } from "../constants/controls/RaptorConstants";
 import { Flap } from "../structs/Flap";
 import { FlapConstants } from "../constants/controls/FlapConstants";
@@ -58,9 +58,12 @@ export class Starship {
 
         rSeaRadius: StarshipConstants.R_SEA_RADIUS,
         numRSeas: StarshipConstants.NUM_R_SEAS,
+        rSeaType: StarshipConstants.R_SEA_TYPE,
         canRSeaGimbal: StarshipConstants.CAN_R_SEA_GIMBAL,
+
         rVacRadius: StarshipConstants.R_VAC_RADIUS,
         numRVacs: StarshipConstants.NUM_R_VACS,
+        rVacType: StarshipConstants.R_VAC_TYPE,
         canRVacGimbal: StarshipConstants.CAN_R_VAC_GIMBAL
     };
 
@@ -125,9 +128,12 @@ export class Starship {
 
             this.options.rSeaRadius = value.rSeaRadius;
             this.options.numRSeas = value.numRSeas;
+            this.options.rSeaType = value.rSeaType;
             this.options.canRSeaGimbal = value.canRSeaGimbal;
+
             this.options.rVacRadius = value.rVacRadius;
             this.options.numRVacs = value.numRVacs;
+            this.options.rVacType = value.rVacType;
             this.options.canRVacGimbal = value.canRVacGimbal;
 
             this.rSeas = [];
@@ -146,32 +152,32 @@ export class Starship {
         if (this.options.canRSeaGimbal) {
             for (let i = 0; i < this.options.numRSeas; i++) {
                 let rSea = this.rSeas[i];
-                if (rSea.userData.gimbal != null && rSea.userData.originalRotation != null) {
-                    if (rSea.userData.gimbal.gimbalAngle == 0) {
-                        rSea.userData.gimbal.gimbalAngle = RaptorConstants.R_SEA_GIMBAL_MAX_ANGLE;
-                        rSea.userData.gimbal.angleY = 0;
+                if (rSea.userData.raptor != null && rSea.userData.originalRotation != null) {
+                    if (rSea.userData.raptor.gimbalAngle == 0) {
+                        rSea.userData.raptor.gimbalAngle = RaptorConstants.R_SEA_GIMBAL_MAX_ANGLE;
+                        rSea.userData.raptor.angleY = 0;
                     } else {
-                        rSea.userData.gimbal.setTarget(RaptorConstants.R_SEA_GIMBAL_MAX_ANGLE, rSea.userData.gimbal.tAngleY + RaptorConstants.GIMBAL_Y_ANG_VEL * delta);
+                        rSea.userData.raptor.setGimbalTarget(RaptorConstants.R_SEA_GIMBAL_MAX_ANGLE, rSea.userData.raptor.tAngleY + RaptorConstants.GIMBAL_Y_ANG_VEL * delta);
                     }
 
-                    rSeaGimbalingAngles = [...rSeaGimbalingAngles, rSea.userData.gimbal.gimbalAngle];
-                    rSeaGimbalYs = [...rSeaGimbalYs, rSea.userData.gimbal.angleY];
+                    rSeaGimbalingAngles = [...rSeaGimbalingAngles, rSea.userData.raptor.gimbalAngle];
+                    rSeaGimbalYs = [...rSeaGimbalYs, rSea.userData.raptor.angleY];
                 }
             }
         }
         if (this.options.canRVacGimbal) {
             for (let i = 0; i < this.options.numRVacs; i++) {
                 let rVac = this.rVacs[i];
-                if (rVac.userData.gimbal != null && rVac.userData.originalRotation != null) {
-                    if (rVac.userData.gimbal.gimbalAngle == 0) {
-                        rVac.userData.gimbal.gimbalAngle = RaptorConstants.R_VAC_GIMBAL_MAX_ANGLE;
-                        rVac.userData.gimbal.angleY = 0;
+                if (rVac.userData.raptor != null && rVac.userData.originalRotation != null) {
+                    if (rVac.userData.raptor.gimbalAngle == 0) {
+                        rVac.userData.raptor.gimbalAngle = RaptorConstants.R_VAC_GIMBAL_MAX_ANGLE;
+                        rVac.userData.raptor.angleY = 0;
                     } else {
-                        rVac.userData.gimbal.setTarget(RaptorConstants.R_VAC_GIMBAL_MAX_ANGLE, rVac.userData.gimbal.tAngleY + RaptorConstants.GIMBAL_Y_ANG_VEL * delta);
+                        rVac.userData.raptor.setGimbalTarget(RaptorConstants.R_VAC_GIMBAL_MAX_ANGLE, rVac.userData.raptor.tAngleY + RaptorConstants.GIMBAL_Y_ANG_VEL * delta);
                     }
 
-                    rVacGimbalingAngles = [...rVacGimbalingAngles, rVac.userData.gimbal.gimbalAngle];
-                    rVacGimbalYs = [...rVacGimbalYs, rVac.userData.gimbal.angleY];
+                    rVacGimbalingAngles = [...rVacGimbalingAngles, rVac.userData.raptor.gimbalAngle];
+                    rVacGimbalYs = [...rVacGimbalYs, rVac.userData.raptor.angleY];
                 }
             }
         }
@@ -223,71 +229,95 @@ export class Starship {
         });
     }
 
-    public updateGimbals(delta: number): void {
-        for (let rSea of this.rSeas) {
-            if (rSea.userData.gimbal != null) {
-                rSea.userData.gimbal.update(delta);
+    public getLOXVolume(perc: number = this.LOX): number {
+        return MathHelper.getVolumeofCylinder(StarshipConstants.SHIP_RING_SCALE.x * StarshipConstants.REAL_LIFE_SCALE.x, this.options.shipRingHeight * StarshipConstants.LOX_PERCENTAGE * perc);
+    }
 
-                rSea.rotation.copy(new Euler().setFromQuaternion(new Quaternion().setFromEuler(rSea.userData.originalRotation).multiply(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), rSea.userData.gimbal.angleY).multiply(new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), rSea.userData.gimbal.gimbalAngle)))));
+    public getCH4Volume(perc: number = this.CH4): number {
+        return MathHelper.getVolumeofCylinder(StarshipConstants.SHIP_RING_SCALE.x * StarshipConstants.REAL_LIFE_SCALE.x, this.options.shipRingHeight * StarshipConstants.CH4_PERCENTAGE * perc);
+    }
+
+    public getLOXMass(perc: number = this.LOX): number {
+        return this.getLOXVolume(perc) * LaunchConstants.LOX_DENSITY;
+    }
+
+    public getCH4Mass(perc: number = this.CH4): number {
+        return this.getCH4Volume(perc) * LaunchConstants.CH4_DENSITY;
+    }
+
+    public getDryMass(): number {
+        return StarshipConstants.NOSECONE_DRY_MASS + StarshipConstants.SHIP_RING_DRY_MASS * this.options.shipRingHeight / StarshipConstants.REAL_LIFE_SCALE.y + StarshipConstants.FORWARD_L_DRY_MASS * this.options.forwardLHeightScale * this.options.forwardLWidthScale + StarshipConstants.FORWARD_R_DRY_MASS * this.options.forwardRHeightScale * this.options.forwardRWidthScale + StarshipConstants.AFT_L_DRY_MASS * this.options.aftLHeightScale * this.options.aftLWidthScale + StarshipConstants.AFT_R_DRY_MASS * this.options.aftRHeightScale * this.options.aftRWidthScale + (this.options.numRSeas + this.options.numRVacs) * RaptorConstants.DRY_MASS;
+    }
+
+    public getMass(): number {
+        return this.getLOXMass() + this.getCH4Mass() + this.getDryMass();
+    }
+
+    public getWeight(altitude: number): number {
+        return this.getMass() * LaunchHelper.getGEarth(altitude);
+    }
+
+    // TODO similar to booster
+    // public getCenterofMass(): Vector3 {
+    //     let totalMass: number = this.getMass();
+    //     let centerofMass: Vector3 = new Vector3(0, 0, 0);
+    // }
+
+    public getThrust(): number {
+        let totalThrust: number = 0;
+        for (let rSea of this.rSeas) {
+            if (rSea.userData.raptor != null) {
+                totalThrust += LaunchHelper.getThrust(true, rSea.userData.raptor.type) * rSea.userData.raptor.throttle;
             }
         }
         for (let rVac of this.rVacs) {
-            if (rVac.userData.gimbal != null) {
-                rVac.userData.gimbal.update(delta);
-
-                rVac.rotation.copy(new Euler().setFromQuaternion(new Quaternion().setFromEuler(rVac.userData.originalRotation).multiply(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), rVac.userData.gimbal.angleY).multiply(new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), rVac.userData.gimbal.gimbalAngle)))));
+            if (rVac.userData.raptor != null) {
+                totalThrust += LaunchHelper.getThrust(false, rVac.userData.raptor.type) * rVac.userData.raptor.throttle;
             }
         }
+        return totalThrust;
     }
 
-    public updateFlaps(delta: number): void {
-        this.forwardL.userData.flap.update(delta);
-        this.forwardL.rotation.copy(new Euler().setFromQuaternion(new Quaternion().setFromEuler(this.forwardL.userData.originalRotation).multiply(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), -this.forwardL.userData.flap.angle))));
-
-        this.forwardR.userData.flap.update(delta);
-        this.forwardR.rotation.copy(new Euler().setFromQuaternion(new Quaternion().setFromEuler(this.forwardR.userData.originalRotation).multiply(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), this.forwardR.userData.flap.angle))));
-
-        this.aftL.userData.flap.update(delta);
-        this.aftL.rotation.copy(new Euler().setFromQuaternion(new Quaternion().setFromEuler(this.aftL.userData.originalRotation).multiply(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), -this.aftL.userData.flap.angle))));
-
-        this.aftR.userData.flap.update(delta);
-        this.aftR.rotation.copy(new Euler().setFromQuaternion(new Quaternion().setFromEuler(this.aftR.userData.originalRotation).multiply(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), this.aftR.userData.flap.angle))));
-    }
-
-    public resetGimbals(): void {
-        for (let i = 0; i < this.rSeas.length; i++) {
-            if (this.rSeas[i].userData.gimbal != null) {
-                this.rSeas[i].userData.gimbal.reset();
+    public getGimbaledThrust(): number {
+        let totalThrust: number = 0;
+        if (this.options.canRSeaGimbal) {
+            for (let rSea of this.rSeas) {
+                if (rSea.userData.raptor != null) {
+                    totalThrust += LaunchHelper.getThrust(true, rSea.userData.raptor.type) * rSea.userData.raptor.throttle;
+                }
             }
         }
-        for (let i = 0; i < this.rVacs.length; i++) {
-            if (this.rVacs[i].userData.gimbal != null) {
-                this.rVacs[i].userData.gimbal.reset();
+        if (this.options.canRVacGimbal) {
+            for (let rVac of this.rVacs) {
+                if (rVac.userData.raptor != null) {
+                    totalThrust += LaunchHelper.getThrust(false, rVac.userData.raptor.type) * rVac.userData.raptor.throttle;
+                }
             }
         }
-        
-        telemetry.update((value) => {
-            value.rSeaGimbalingAngles = [];
-            value.rSeaGimbalYs = [];
-            value.rVacGimbalingAngles = [];
-            value.rVacGimbalYs = [];
-            return value;
-        });
+        return totalThrust;
     }
 
-    public resetFlaps(): void {
-        this.forwardL.userData.flap.reset();
-        this.forwardR.userData.flap.reset();
-        this.aftL.userData.flap.reset();
-        this.aftR.userData.flap.reset();
+    public getNonGimbaledThrust(): number {
+        return this.getThrust() - this.getGimbaledThrust();
+    }
 
-        telemetry.update((value) => {
-            value.forwardLAngle = this.forwardL.userData.flap.angle;
-            value.forwardRAngle = this.forwardR.userData.flap.angle;
-            value.aftLAngle = this.aftL.userData.flap.angle;
-            value.aftRAngle = this.aftR.userData.flap.angle;
-            return value;
-        });
+    public getRealThrust(altitude: number): number {
+        return this.getThrust() - LaunchHelper.getThrustLoss(altitude) * (this.options.numRSeas1 + this.options.numRSeas2 + this.options.numRSeas3);
+    }
+
+    public getRealGimbaledThrust(altitude: number): number {
+        let totalNumber: number = 0;
+        if (this.options.canRSeaGimbal) {
+            totalNumber += this.options.numRSeas1 + this.options.numRSeas2 + this.options.numRSeas3;
+        }
+        if (this.options.canRVacGimbal) {
+            totalNumber += this.options.numRVacs1 + this.options.numRVacs2 + this.options.numRVacs3;
+        }
+        return this.getGimbaledThrust() - LaunchHelper.getThrustLoss(altitude) * totalNumber;
+    }
+
+    public getRealNonGimbaledThrust(altitude: number): number {
+        return this.getRealThrust(altitude) - this.getRealGimbaledThrust(altitude);
     }
 
     public controlGimbals(): void {
@@ -313,22 +343,22 @@ export class Starship {
             if (this.options.canRSeaGimbal) {
                 for (let i = 0; i < this.options.numRSeas; i++) {
                     let rSea = this.rSeas[i];
-                    if (rSea.userData.gimbal != null) {
-                        rSea.userData.gimbal.setTarget(RaptorConstants.R_SEA_GIMBAL_MAX_ANGLE, angleY);
+                    if (rSea.userData.raptor != null) {
+                        rSea.userData.raptor.setGimbalTarget(RaptorConstants.R_SEA_GIMBAL_MAX_ANGLE, angleY);
 
-                        rSeaGimbalingAngles = [...rSeaGimbalingAngles, rSea.userData.gimbal.gimbalAngle];
-                        rSeaGimbalYs = [...rSeaGimbalYs, rSea.userData.gimbal.angleY];
+                        rSeaGimbalingAngles = [...rSeaGimbalingAngles, rSea.userData.raptor.gimbalAngle];
+                        rSeaGimbalYs = [...rSeaGimbalYs, rSea.userData.raptor.angleY];
                     }
                 }
             }
             if (this.options.canRVacGimbal) {
                 for (let i = 0; i < this.options.numRVacs; i++) {
                     let rVac = this.rVacs[i];
-                    if (rVac.userData.gimbal != null) {
-                        rVac.userData.gimbal.setTarget(RaptorConstants.R_VAC_GIMBAL_MAX_ANGLE, angleY);
+                    if (rVac.userData.raptor != null) {
+                        rVac.userData.raptor.setGimbalTarget(RaptorConstants.R_VAC_GIMBAL_MAX_ANGLE, angleY);
 
-                        rVacGimbalingAngles = [...rVacGimbalingAngles, rVac.userData.gimbal.gimbalAngle];
-                        rVacGimbalYs = [...rVacGimbalYs, rVac.userData.gimbal.angleY];
+                        rVacGimbalingAngles = [...rVacGimbalingAngles, rVac.userData.raptor.gimbalAngle];
+                        rVacGimbalYs = [...rVacGimbalYs, rVac.userData.raptor.angleY];
                     }
                 }
             }
@@ -337,22 +367,22 @@ export class Starship {
             if (this.options.canRSeaGimbal) {
                 for (let i = 0; i < this.options.numRSeas; i++) {
                     let rSea = this.rSeas[i];
-                    if (rSea.userData.gimbal != null) {
-                        rSea.userData.gimbal.setTarget(0, 0);
+                    if (rSea.userData.raptor != null) {
+                        rSea.userData.raptor.setGimbalTarget(0, 0);
 
-                        rSeaGimbalingAngles = [...rSeaGimbalingAngles, rSea.userData.gimbal.gimbalAngle];
-                        rSeaGimbalYs = [...rSeaGimbalYs, rSea.userData.gimbal.angleY];
+                        rSeaGimbalingAngles = [...rSeaGimbalingAngles, rSea.userData.raptor.gimbalAngle];
+                        rSeaGimbalYs = [...rSeaGimbalYs, rSea.userData.raptor.angleY];
                     }
                 }
             }
             if (this.options.canRVacGimbal) {
                 for (let i = 0; i < this.options.numRVacs; i++) {
                     let rVac = this.rVacs[i];
-                    if (rVac.userData.gimbal != null) {
-                        rVac.userData.gimbal.setTarget(0, 0);
+                    if (rVac.userData.raptor != null) {
+                        rVac.userData.raptor.setGimbalTarget(0, 0);
 
-                        rVacGimbalingAngles = [...rVacGimbalingAngles, rVac.userData.gimbal.gimbalAngle];
-                        rVacGimbalYs = [...rVacGimbalYs, rVac.userData.gimbal.angleY];
+                        rVacGimbalingAngles = [...rVacGimbalingAngles, rVac.userData.raptor.gimbalAngle];
+                        rVacGimbalYs = [...rVacGimbalYs, rVac.userData.raptor.angleY];
                     }
                 }
             }
@@ -424,8 +454,8 @@ export class Starship {
             });
         }
         if (this.hasStartedFueling) {
-            let CH4Volume: number = MathHelper.getVolumeofCylinder(StarshipConstants.SHIP_RING_SCALE.x * StarshipConstants.REAL_LIFE_SCALE.x, this.options.shipRingHeight * StarshipConstants.CH4_PERCENTAGE);   
-            let LOXVolume: number = MathHelper.getVolumeofCylinder(StarshipConstants.SHIP_RING_SCALE.x * StarshipConstants.REAL_LIFE_SCALE.x, this.options.shipRingHeight * StarshipConstants.LOX_PERCENTAGE);
+            let CH4Volume: number = this.getCH4Volume(1);
+            let LOXVolume: number = this.getLOXVolume(1);
     
             let CH4Rate: number = LaunchConstants.FUELING_RATE * LaunchConstants.FUELING_SPEEDUP * delta / CH4Volume;
             let LOXRate: number = LaunchConstants.FUELING_RATE * LaunchConstants.FUELING_SPEEDUP* delta / LOXVolume;
@@ -476,6 +506,73 @@ export class Starship {
         }
     }
 
+    public updateRaptors(delta: number): void {
+        for (let rSea of this.rSeas) {
+            if (rSea.userData.raptor != null) {
+                rSea.userData.raptor.update(delta);
+
+                rSea.rotation.copy(new Euler().setFromQuaternion(new Quaternion().setFromEuler(rSea.userData.originalRotation).multiply(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), rSea.userData.raptor.angleY).multiply(new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), rSea.userData.raptor.gimbalAngle)))));
+            }
+        }
+        for (let rVac of this.rVacs) {
+            if (rVac.userData.raptor != null) {
+                rVac.userData.raptor.update(delta);
+
+                rVac.rotation.copy(new Euler().setFromQuaternion(new Quaternion().setFromEuler(rVac.userData.originalRotation).multiply(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), rVac.userData.raptor.angleY).multiply(new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), rVac.userData.raptor.gimbalAngle)))));
+            }
+        }
+    }
+
+    public updateFlaps(delta: number): void {
+        this.forwardL.userData.flap.update(delta);
+        this.forwardL.rotation.copy(new Euler().setFromQuaternion(new Quaternion().setFromEuler(this.forwardL.userData.originalRotation).multiply(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), -this.forwardL.userData.flap.angle))));
+
+        this.forwardR.userData.flap.update(delta);
+        this.forwardR.rotation.copy(new Euler().setFromQuaternion(new Quaternion().setFromEuler(this.forwardR.userData.originalRotation).multiply(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), this.forwardR.userData.flap.angle))));
+
+        this.aftL.userData.flap.update(delta);
+        this.aftL.rotation.copy(new Euler().setFromQuaternion(new Quaternion().setFromEuler(this.aftL.userData.originalRotation).multiply(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), -this.aftL.userData.flap.angle))));
+
+        this.aftR.userData.flap.update(delta);
+        this.aftR.rotation.copy(new Euler().setFromQuaternion(new Quaternion().setFromEuler(this.aftR.userData.originalRotation).multiply(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), this.aftR.userData.flap.angle))));
+    }
+
+    public resetRaptors(): void {
+        for (let i = 0; i < this.rSeas.length; i++) {
+            if (this.rSeas[i].userData.raptor != null) {
+                this.rSeas[i].userData.raptor.reset();
+            }
+        }
+        for (let i = 0; i < this.rVacs.length; i++) {
+            if (this.rVacs[i].userData.raptor != null) {
+                this.rVacs[i].userData.raptor.reset();
+            }
+        }
+        
+        telemetry.update((value) => {
+            value.rSeaGimbalingAngles = [];
+            value.rSeaGimbalYs = [];
+            value.rVacGimbalingAngles = [];
+            value.rVacGimbalYs = [];
+            return value;
+        });
+    }
+
+    public resetFlaps(): void {
+        this.forwardL.userData.flap.reset();
+        this.forwardR.userData.flap.reset();
+        this.aftL.userData.flap.reset();
+        this.aftR.userData.flap.reset();
+
+        telemetry.update((value) => {
+            value.forwardLAngle = this.forwardL.userData.flap.angle;
+            value.forwardRAngle = this.forwardR.userData.flap.angle;
+            value.aftLAngle = this.aftL.userData.flap.angle;
+            value.aftRAngle = this.aftR.userData.flap.angle;
+            return value;
+        });
+    }
+
     public setupRSeas(): void {
         let rSeaPositions = MathHelper.getCircularPositions(this.options.numRSeas, this.options.rSeaRadius * StarshipConstants.STARSHIP_SCALE.x / StarshipConstants.REAL_LIFE_SCALE.x, this.options.rSeaAngularOffset * Math.PI / 180);
 
@@ -484,7 +581,7 @@ export class Starship {
             rSea.position.copy(rSeaPositions[i].clone().add(new Vector3(0, StarshipConstants.R_SEA_HEIGHT * StarshipConstants.STARSHIP_SCALE.y, 0)));
             rSea.scale.copy(StarshipConstants.R_SEA_SCALE.clone().multiply(StarshipConstants.STARSHIP_SCALE));
             rSea.userData.originalRotation = new Euler(0, 0, 0);
-            rSea.userData.gimbal = new Gimbal(true);
+            rSea.userData.raptor = new Raptor(true, this.options.rSeaType);
 
             this.rSeas = [...this.rSeas, rSea];
         }
@@ -498,7 +595,7 @@ export class Starship {
             rVac.position.copy(rVacPositions[i].clone().add(new Vector3(0, StarshipConstants.R_VAC_HEIGHT * StarshipConstants.STARSHIP_SCALE.y, 0)));
             rVac.scale.copy(StarshipConstants.R_VAC_SCALE.clone().multiply(StarshipConstants.STARSHIP_SCALE));
             rVac.userData.originalRotation = new Euler(0, 0, 0);
-            rVac.userData.gimbal = new Gimbal(false);
+            rVac.userData.raptor = new Raptor(false, this.options.rVacType);
 
             this.rVacs = [...this.rVacs, rVac];
         }
@@ -584,7 +681,7 @@ export class Starship {
             this.flapTest();
         }
         if (this.isFueling) {
-            this.resetGimbals();
+            this.resetRaptors();
             this.resetFlaps();
         }
         if (this.isEditingSelf) {
@@ -605,7 +702,7 @@ export class Starship {
             this.controlFlaps();
         }
         this.updateFrost(delta);
-        this.updateGimbals(delta);
+        this.updateRaptors(delta);
         this.updateFlaps(delta);
     }
 

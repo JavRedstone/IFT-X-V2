@@ -5,7 +5,8 @@ export class SuperHeavyConstants {
     
     public static readonly REAL_LIFE_SCALE: Vector3 = new Vector3(4.5, 4.5, 4.5);
 
-    public static readonly SUPER_HEAVY_SCALE: Vector3 = new Vector3(0.001, 0.001, 0.001);
+    public static readonly SUPER_HEAVY_SCALE_VALUE: number = 0.0001;
+    public static readonly SUPER_HEAVY_SCALE: Vector3 = new Vector3(SuperHeavyConstants.SUPER_HEAVY_SCALE_VALUE, SuperHeavyConstants.SUPER_HEAVY_SCALE_VALUE, SuperHeavyConstants.SUPER_HEAVY_SCALE_VALUE);
     // public static readonly SUPER_HEAVY_SCALE: Vector3 = new Vector3(1, 1, 1);
 
     public static readonly FUELING_TIME: number = 45; //mins for default

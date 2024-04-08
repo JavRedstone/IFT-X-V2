@@ -9,10 +9,10 @@ export const uiSwitches = writable({
 });
 
 export const toggles = writable({
-    isEditing: false,
+    isEditing: true,
     isEditingStarship: false,
     isEditingSuperHeavy: false,
-    isFueling: true,
+    isFueling: false,
     hasStartedFueling: false,
     doneFueling: false,
     isLaunching: false,
@@ -33,13 +33,13 @@ export const starshipSettings = writable({
     rSeaRadius: StarshipConstants.R_SEA_RADIUS * SuperHeavyConstants.REAL_LIFE_SCALE.x,
     numRSeas: StarshipConstants.NUM_R_SEAS,
     rSeaAngularOffset: StarshipConstants.R_SEA_ANGULAR_OFFSET * 180/Math.PI,
-    rSeaType: 2,
+    rSeaType: StarshipConstants.R_SEA_TYPE,
     canRSeaGimbal: StarshipConstants.CAN_R_SEA_GIMBAL,
 
     rVacRadius: StarshipConstants.R_VAC_RADIUS * SuperHeavyConstants.REAL_LIFE_SCALE.x,
     numRVacs: StarshipConstants.NUM_R_VACS,
     rVacAngularOffset: StarshipConstants.R_VAC_ANGULAR_OFFSET * 180/Math.PI,
-    rVacType: 2,
+    rVacType: StarshipConstants.R_VAC_TYPE,
     canRVacGimbal: StarshipConstants.CAN_R_VAC_GIMBAL,
 });
 
@@ -59,19 +59,19 @@ export const superHeavySettings = writable({
     rSeaRadius1: SuperHeavyConstants.R_SEA_RADIUS_1 * SuperHeavyConstants.REAL_LIFE_SCALE.x,
     numRSeas1: SuperHeavyConstants.NUM_R_SEAS_1,
     rSeaAngularOffset1: SuperHeavyConstants.R_SEA_ANGULAR_OFFSET_1 * 180/Math.PI,
-    rSeaType1: 2,
+    rSeaType1: SuperHeavyConstants.R_SEA_TYPE_1,
     canRSea1Gimbal: SuperHeavyConstants.CAN_R_SEA_1_GIMBAL,
 
     rSeaRadius2: SuperHeavyConstants.R_SEA_RADIUS_2 * SuperHeavyConstants.REAL_LIFE_SCALE.x,
     numRSeas2: SuperHeavyConstants.NUM_R_SEAS_2,
     rSeaAngularOffset2: SuperHeavyConstants.R_SEA_ANGULAR_OFFSET_2 * 180/Math.PI,
-    rSeaType2: 2,
+    rSeaType2: SuperHeavyConstants.R_SEA_TYPE_2,
     canRSea2Gimbal: SuperHeavyConstants.CAN_R_SEA_2_GIMBAL,
 
     rSeaRadius3: SuperHeavyConstants.R_SEA_RADIUS_3 * SuperHeavyConstants.REAL_LIFE_SCALE.x,
     numRSeas3: SuperHeavyConstants.NUM_R_SEAS_3,
     rSeaAngularOffset3: SuperHeavyConstants.R_SEA_ANGULAR_OFFSET_3 * 180/Math.PI,
-    rSeaType3: 2,
+    rSeaType3: SuperHeavyConstants.R_SEA_TYPE_3,
     canRSea3Gimbal: SuperHeavyConstants.CAN_R_SEA_3_GIMBAL,
 });
 
@@ -117,8 +117,10 @@ export const telemetry = writable({
     separated: false,
     
     currEvent: 0,
+    isEventEnabled: false,
     isEventUrgent: false,
 
+    isFreeView: false,
     isCameraOnStarship: true,
 });
 
@@ -136,8 +138,6 @@ export const keyPresses = writable({
     isLPressed: false,
     isUPressed: false,
     isOPressed: false,
-
-    isSpacePressed: false,
 });
 
 export const gameSettings = writable({
