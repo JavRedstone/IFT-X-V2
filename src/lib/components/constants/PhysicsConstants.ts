@@ -3,9 +3,6 @@ export class PhysicsConstants {
     public static readonly SPEED_OF_LIGHT: number = 299792458; //m/s
     public static readonly GRAVITATIONAL_CONSTANT: number = 6.67430e-11; //m^3 kg^-1 s^-2
 
-    public static readonly EARTH_GRAVITY_SURFACE: number = 9.81; //m/s^2
-    public static readonly MOON_GRAVITY_SURFACE: number = 1.625; //m/s^2
-
     public static readonly RADIUS_EARTH: number = 6371000; //m
     public static readonly RADIUS_MOON: number = 1737000; //m
     public static readonly RADIUS_MARS: number = 3389500; //m

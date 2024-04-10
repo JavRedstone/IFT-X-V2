@@ -6,7 +6,7 @@ export class CameraConstants {
     public static readonly CAMERA_FAR: number = 1e5;
     
     public static readonly CAMERA_MIN_DISTANCE: number = 0.001;
-    public static readonly CAMERA_MAX_DISTANCE: number = 0.01;
+    public static readonly CAMERA_MAX_DISTANCE: number = 0.005;
 
     public static readonly VIEW_SWITCH_PERIGEE: number = 100;
 

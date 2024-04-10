@@ -9,10 +9,11 @@ export class StarshipConstants {
     public static readonly STARSHIP_SCALE: Vector3 = new Vector3(StarshipConstants.STARSHIP_SCALE_VALUE, StarshipConstants.STARSHIP_SCALE_VALUE, StarshipConstants.STARSHIP_SCALE_VALUE);
     // public static readonly STARSHIP_SCALE: Vector3 = new Vector3(1, 1, 1);
 
-    public static readonly LOX_BOTTOM_PERCENTAGE: number = 0.1;
-    public static readonly CH4_BOTTOM_PERCENTAGE: number = 0.01;
-    public static readonly LOX_PERCENTAGE: number = 0.32; // this should be higher than ch4
-    public static readonly CH4_PERCENTAGE: number = 0.28;
+    public static readonly LOX_BOTTOM_FIXED: number = 1;
+    public static readonly LOX_CH4_GAP_FIXED: number = 0.05;
+    public static readonly CH4_TOP_FIXED: number = 2.45;
+    public static readonly LOX_PERCENTAGE: number = 0.55; // this should be higher than ch4
+    public static readonly CH4_PERCENTAGE: number = 0.45;
     public static readonly CRYOGENIC_SCALE: Vector3 = new Vector3(1.01, 1, 1.01);
     
     public static readonly NOSECONE_SCALE: Vector3 = new Vector3(1, 0.9, 1);
@@ -21,7 +22,7 @@ export class StarshipConstants {
 
     public static readonly SHIP_RING_SCALE: Vector3 = new Vector3(1, 1, 1);
     public static readonly SHIP_RING_HEIGHT: number = 8.5;
-    public static readonly MIN_SHIP_RING_HEIGHT: number = 1;
+    public static readonly MIN_SHIP_RING_HEIGHT: number = 4;
     public static readonly MAX_SHIP_RING_HEIGHT: number = 20;
     public static readonly SHIP_RING_DRY_MASS: number = 6e3; // kg
     

@@ -52,6 +52,9 @@ export class LaunchManager {
     public separated: boolean = false;
     public justSeparated: boolean = false;
 
+    public previousSSPos: Vector3 = new Vector3(0, 0, 0);
+    public previousSHPos: Vector3 = new Vector3(0, 0, 0);
+
     constructor(tc: ThrelteContext) {
         this.tc = tc;
 
@@ -143,26 +146,33 @@ export class LaunchManager {
                 if (this.hasStartedFueling) {
                     if (this.dt >= LaunchConstants.HOLD_DT) {
                         this.dt = LaunchConstants.HOLD_DT;
-                        toggles.update((value) => {
-                            value.doneFueling = true;
-                            return value;
-                        });
+                        if (this.starship.LOX == 1 && this.superHeavy.LOX == 1 && this.starship.CH4 == 1 && this.superHeavy.CH4 == 1) {
+                            toggles.update((value) => {
+                                value.doneFueling = true;
+                                return value;
+                            });
+                        }
                     }
                     else {
                         this.dt += delta * LaunchConstants.FUELING_SPEEDUP;
                     }
                 }
                 
-                if (this.OLIT.hasUpdatedAABB) {
-                    if (!this.liftedOff) {
-                        this.stackGroup.position.copy(this.OLIT.group.position.clone().add(this.OLIT.olm.position.clone().add(new Vector3(0, this.OLIT.olm.userData.aabb.getSize(new Vector3).y - OLITConstants.OLM_RING_HEIGHT * OLITConstants.OLM_SCALE.y * OLITConstants.OLIT_SCALE.y, 0))));
-                        this.starship.group.position.copy(this.superHeavy.group.position.clone().add(new Vector3(0, this.superHeavy.boosterRing.userData.aabb.getSize(new Vector3).y + this.superHeavy.hsr.userData.aabb.getSize(new Vector3).y - this.superHeavy.hsr.userData.aabb.getSize(new Vector3).y * SuperHeavyConstants.HSR_OFFSET, 0)));
-                        this.stackGroup.rotation.copy(OLITConstants.STACK_ROTATION);
-                    }
-                    if (this.isEditing || this.isFueling) {
-                        this.OLIT.body.scale.y = (this.starship.group.userData.aabb.getSize(new Vector3).y + this.superHeavy.group.userData.aabb.getSize(new Vector3).y) / (OLITConstants.BODY_SCALE.y * OLITConstants.BODY_MULTIPLIER);
-                        this.OLIT.hasSetupSingle = false;
-                    }
+                if (this.OLIT.hasUpdatedAABB && !this.liftedOff) {
+                    this.stackGroup.position.copy(this.OLIT.group.position.clone().add(this.OLIT.olm.position.clone().add(new Vector3(0, this.OLIT.olm.userData.aabb.getSize(new Vector3).y - OLITConstants.OLM_RING_HEIGHT * OLITConstants.OLM_SCALE.y * OLITConstants.OLIT_SCALE.y, 0))));
+                    this.starship.group.position.copy(this.superHeavy.group.position.clone().add(new Vector3(0, this.superHeavy.boosterRing.userData.aabb.getSize(new Vector3).y + this.superHeavy.hsr.userData.aabb.getSize(new Vector3).y - this.superHeavy.hsr.userData.aabb.getSize(new Vector3).y * SuperHeavyConstants.HSR_OFFSET, 0)));
+                    this.stackGroup.rotation.copy(OLITConstants.STACK_ROTATION);
+
+                    this.OLIT.body.scale.y = (this.starship.group.userData.aabb.getSize(new Vector3).y + this.superHeavy.group.userData.aabb.getSize(new Vector3).y) / (OLITConstants.BODY_SCALE.y * OLITConstants.BODY_MULTIPLIER);
+                    this.OLIT.qd.position.copy(this.OLIT.body.position.clone().add(new Vector3(0, this.OLIT.olm.userData.aabb.getSize(new Vector3).y - OLITConstants.OLM_RING_HEIGHT * OLITConstants.OLM_SCALE.y * OLITConstants.OLIT_SCALE.y + this.superHeavy.group.userData.aabb.getSize(new Vector3).y + StarshipConstants.LOX_BOTTOM_FIXED * StarshipConstants.STARSHIP_SCALE.y, 0)));
+                    let qdPosition: Vector3 = this.OLIT.body.position.clone().add(new Vector3(0, this.OLIT.olm.userData.aabb.getSize(new Vector3).y - OLITConstants.OLM_RING_HEIGHT * OLITConstants.OLM_SCALE.y * OLITConstants.OLIT_SCALE.y + this.superHeavy.group.userData.aabb.getSize(new Vector3).y + StarshipConstants.LOX_BOTTOM_FIXED * StarshipConstants.STARSHIP_SCALE.y, 0));
+                    this.OLIT.qd.position.copy(qdPosition);
+                    this.OLIT.carriageQd.position.copy(qdPosition);
+                    let armPosition: Vector3 = this.OLIT.body.position.clone().add(new Vector3(0, this.OLIT.olm.userData.aabb.getSize(new Vector3).y - OLITConstants.OLM_RING_HEIGHT * OLITConstants.OLM_SCALE.y * OLITConstants.OLIT_SCALE.y + this.superHeavy.group.userData.aabb.getSize(new Vector3).y + this.starship.shipRing.position.y + this.starship.shipRing.scale.y));
+                    this.OLIT.arm1.position.copy(armPosition);
+                    this.OLIT.arm2.position.copy(armPosition);
+                    this.OLIT.carriageArms.position.copy(armPosition);
+                    this.OLIT.hasSetupSingle = false;
                 }
                 if (this.isLaunching) {
                     if (this.dt < LaunchConstants.COUNTDOWN_DT) {
@@ -407,7 +417,40 @@ export class LaunchManager {
                     this.isCameraInitialized = true;
                 }
                 if (this.liftedOff) {
-                    this.camera.position.y = PRTransients.fakePositions.orbitControlsPosition.y;
+                    let ssPos: Vector3 = new Vector3(0, 0, 0);
+                    let shPos: Vector3 = new Vector3(0, 0, 0);
+                    if (this.separated && !this.justSeparated) {
+                        shPos.copy(PRTransients.fakePositions.superHeavyPosition);
+                        ssPos.copy(PRTransients.fakePositions.starshipPosition);
+                    }
+                    else if (this.liftedOff) {
+                        shPos.copy(PRTransients.fakePositions.superHeavyPosition.clone().add(PRTransients.fakePositions.stackGroupPosition.clone()));
+                        ssPos.copy(PRTransients.fakePositions.starshipPosition.clone().add(PRTransients.fakePositions.stackGroupPosition.clone()));
+                    }
+                    else {
+                        shPos.copy(PRTransients.fakePositions.superHeavyPosition.clone().add(PRTransients.fakePositions.stackGroupPosition.clone()).add(PRTransients.fakePositions.groupPosition.clone()));
+                        ssPos.copy(PRTransients.fakePositions.starshipPosition.clone().add(PRTransients.fakePositions.stackGroupPosition.clone()).add(PRTransients.fakePositions.groupPosition.clone()));
+                    }
+
+                    if (this.isCameraOnStarship) {
+                        this.camera.position.add(ssPos.clone().sub(this.previousSSPos));
+                    }
+                    else {
+                        this.camera.position.add(shPos.clone().sub(this.previousSHPos));
+                    }
+                }
+                
+                if (this.separated && !this.justSeparated) {
+                    this.previousSHPos.copy(PRTransients.fakePositions.superHeavyPosition);
+                    this.previousSSPos.copy(PRTransients.fakePositions.starshipPosition);
+                }
+                else if (this.liftedOff) {
+                    this.previousSHPos.copy(PRTransients.fakePositions.superHeavyPosition.clone().add(PRTransients.fakePositions.stackGroupPosition.clone()));
+                    this.previousSSPos.copy(PRTransients.fakePositions.starshipPosition.clone().add(PRTransients.fakePositions.stackGroupPosition.clone()));
+                }
+                else {
+                    this.previousSHPos.copy(PRTransients.fakePositions.superHeavyPosition.clone().add(PRTransients.fakePositions.stackGroupPosition.clone()).add(PRTransients.fakePositions.groupPosition.clone()));
+                    this.previousSSPos.copy(PRTransients.fakePositions.starshipPosition.clone().add(PRTransients.fakePositions.stackGroupPosition.clone()).add(PRTransients.fakePositions.groupPosition.clone()));
                 }
         }
     }

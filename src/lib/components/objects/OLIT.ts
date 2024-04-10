@@ -74,12 +74,7 @@ export class OLIT {
     public updateObjects(): void {
         if (this.top != null && this.body != null && this.arm1 != null && this.arm2 != null && this.carriageArms != null && this.qd != null && this.carriageQd != null && this.olm != null && this.top.userData.aabb.getSize(new Vector3).x != 0 && this.body.userData.aabb.getSize(new Vector3).x != 0 && this.arm1.userData.aabb.getSize(new Vector3).x != 0 && this.arm2.userData.aabb.getSize(new Vector3).x != 0 && this.carriageArms.userData.aabb.getSize(new Vector3).x != 0 && this.qd.userData.aabb.getSize(new Vector3).x != 0 && this.carriageQd.userData.aabb.getSize(new Vector3).x != 0 && this.olm.userData.aabb.getSize(new Vector3).x != 0) {
             this.top.position.copy(this.body.position.clone().add(new Vector3(0, this.body.userData.aabb.getSize(new Vector3).y, 0)));
-            this.arm1.position.copy(this.body.position.clone().add(new Vector3(0, OLITConstants.ARM_BOTTOM_OFFSET * this.body.userData.aabb.getSize(new Vector3).y, 0)));
-            this.arm2.position.copy(this.body.position.clone().add(new Vector3(0, OLITConstants.ARM_BOTTOM_OFFSET * this.body.userData.aabb.getSize(new Vector3).y, 0)));
-            this.carriageArms.position.copy(this.body.position.clone().add(new Vector3(0, OLITConstants.ARM_BOTTOM_OFFSET * this.body.userData.aabb.getSize(new Vector3).y, 0)));
-            this.qd.position.copy(this.body.position.clone().add(new Vector3(0, OLITConstants.QD_BOTTOM_OFFSET * this.body.userData.aabb.getSize(new Vector3).y, 0)));
-            this.carriageQd.position.copy(this.body.position.clone().add(new Vector3(0, OLITConstants.QD_BOTTOM_OFFSET * this.body.userData.aabb.getSize(new Vector3).y, 0)));
-            
+
             this.hasUpdatedAABB = true;
         }
     }

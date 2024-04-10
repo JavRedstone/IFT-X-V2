@@ -9,11 +9,11 @@ export class SuperHeavyConstants {
     public static readonly SUPER_HEAVY_SCALE: Vector3 = new Vector3(SuperHeavyConstants.SUPER_HEAVY_SCALE_VALUE, SuperHeavyConstants.SUPER_HEAVY_SCALE_VALUE, SuperHeavyConstants.SUPER_HEAVY_SCALE_VALUE);
     // public static readonly SUPER_HEAVY_SCALE: Vector3 = new Vector3(1, 1, 1);
 
-    public static readonly FUELING_TIME: number = 45; //mins for default
-    public static readonly LOX_BOTTOM_PERCENTAGE: number = 0.025;
-    public static readonly CH4_BOTTOM_PERCENTAGE: number = 0.01;
-    public static readonly LOX_PERCENTAGE: number = 0.525;  // this should be higher than ch4
-    public static readonly CH4_PERCENTAGE: number = 0.425;
+    public static readonly LOX_BOTTOM_FIXED: number = 0.2;
+    public static readonly LOX_CH4_GAP_FIXED: number = 0.05;
+    public static readonly CH4_TOP_FIXED: number = 0.5;
+    public static readonly LOX_PERCENTAGE: number = 0.55; // this should be higher than ch4
+    public static readonly CH4_PERCENTAGE: number = 0.45;
     public static readonly CRYOGENIC_SCALE: Vector3 = new Vector3(1.01, 1, 1.01);
 
     public static readonly HSR_SCALE: Vector3 = new Vector3(1, 1, 1);
@@ -25,7 +25,7 @@ export class SuperHeavyConstants {
 
     public static readonly BOOSTER_RING_SCALE: Vector3 = new Vector3(1, 1, 1);
     public static readonly BOOSTER_RING_HEIGHT: number = 15.25;
-    public static readonly MIN_BOOSTER_RING_HEIGHT: number = 1;
+    public static readonly MIN_BOOSTER_RING_HEIGHT: number = 2;
     public static readonly MAX_BOOSTER_RING_HEIGHT: number = 30;
     public static readonly BOOSTER_RING_DRY_MASS: number = 6e3; // kg
 

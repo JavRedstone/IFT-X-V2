@@ -327,24 +327,31 @@
     }
 
     function estimateTWR() {
-        let shipLOXMass: number = LaunchHelper.getFuelMass(StarshipConstants.SHIP_RING_SCALE.x * StarshipConstants.REAL_LIFE_SCALE.x, starshipOptions.shipRingHeight * StarshipConstants.LOX_PERCENTAGE, LaunchConstants.LOX_DENSITY);
-        let shipCH4Mass: number = LaunchHelper.getFuelMass(StarshipConstants.SHIP_RING_SCALE.x * StarshipConstants.REAL_LIFE_SCALE.x, starshipOptions.shipRingHeight * StarshipConstants.CH4_PERCENTAGE, LaunchConstants.CH4_DENSITY);
+        let shipUseableHeight: number = starshipOptions.shipRingHeight - (StarshipConstants.LOX_BOTTOM_FIXED + StarshipConstants.CH4_TOP_FIXED + StarshipConstants.LOX_CH4_GAP_FIXED) * StarshipConstants.REAL_LIFE_SCALE.y;
+
+        let shipLOXMass: number = LaunchHelper.getFuelMass(StarshipConstants.SHIP_RING_SCALE.x * StarshipConstants.REAL_LIFE_SCALE.x, shipUseableHeight * StarshipConstants.LOX_PERCENTAGE, LaunchConstants.LOX_DENSITY);
+
+        let shipCH4Mass: number = LaunchHelper.getFuelMass(StarshipConstants.SHIP_RING_SCALE.x * StarshipConstants.REAL_LIFE_SCALE.x, shipUseableHeight * StarshipConstants.CH4_PERCENTAGE, LaunchConstants.CH4_DENSITY);
+
         // these dry masses are for the real life scaled
         let shipDryMass: number = StarshipConstants.NOSECONE_DRY_MASS + StarshipConstants.SHIP_RING_DRY_MASS * starshipOptions.shipRingHeight / StarshipConstants.REAL_LIFE_SCALE.y + StarshipConstants.FORWARD_L_DRY_MASS * starshipOptions.forwardLHeightScale * starshipOptions.forwardLWidthScale + StarshipConstants.FORWARD_R_DRY_MASS * starshipOptions.forwardRHeightScale * starshipOptions.forwardRWidthScale + StarshipConstants.AFT_L_DRY_MASS * starshipOptions.aftLHeightScale * starshipOptions.aftLWidthScale + StarshipConstants.AFT_R_DRY_MASS * starshipOptions.aftRHeightScale * starshipOptions.aftRWidthScale + starshipRaptors.length * RaptorConstants.DRY_MASS;
+
         let shipWetMass: number = shipLOXMass + shipCH4Mass + shipDryMass;
 
         let shipThrust: number = starshipOptions.numRSeas * LaunchHelper.getThrust(true, starshipOptions.rSeaType) + starshipOptions.numRVacs * LaunchHelper.getThrust(false, starshipOptions.rVacType);
 
-        let boosterLOXMass: number = LaunchHelper.getFuelMass(SuperHeavyConstants.BOOSTER_RING_SCALE.x * SuperHeavyConstants.REAL_LIFE_SCALE.x, superHeavyOptions.boosterRingHeight * SuperHeavyConstants.LOX_PERCENTAGE, LaunchConstants.LOX_DENSITY);
-        let boosterCH4Mass: number = LaunchHelper.getFuelMass(SuperHeavyConstants.BOOSTER_RING_SCALE.x * SuperHeavyConstants.REAL_LIFE_SCALE.x, superHeavyOptions.boosterRingHeight * SuperHeavyConstants.CH4_PERCENTAGE, LaunchConstants.CH4_DENSITY);
+        let boosterUseableHeight: number = superHeavyOptions.boosterRingHeight - (SuperHeavyConstants.LOX_BOTTOM_FIXED + SuperHeavyConstants.CH4_TOP_FIXED + SuperHeavyConstants.LOX_CH4_GAP_FIXED) * SuperHeavyConstants.REAL_LIFE_SCALE.y;
+
+        let boosterLOXMass: number = LaunchHelper.getFuelMass(SuperHeavyConstants.BOOSTER_RING_SCALE.x * SuperHeavyConstants.REAL_LIFE_SCALE.x, boosterUseableHeight * SuperHeavyConstants.LOX_PERCENTAGE, LaunchConstants.LOX_DENSITY);
+        let boosterCH4Mass: number = LaunchHelper.getFuelMass(SuperHeavyConstants.BOOSTER_RING_SCALE.x * SuperHeavyConstants.REAL_LIFE_SCALE.x, boosterUseableHeight * SuperHeavyConstants.CH4_PERCENTAGE, LaunchConstants.CH4_DENSITY);
         let boosterDryMass: number = SuperHeavyConstants.HSR_DRY_MASS / (SuperHeavyConstants.HSR_HEIGHT * SuperHeavyConstants.REAL_LIFE_SCALE.y) * superHeavyOptions.hsrHeight + SuperHeavyConstants.BOOSTER_RING_DRY_MASS * superHeavyOptions.boosterRingHeight / SuperHeavyConstants.REAL_LIFE_SCALE.y + SuperHeavyConstants.GRID_FIN_DRY_MASS * superHeavyOptions.numGridFins * superHeavyOptions.gridFinLengthScale * superHeavyOptions.gridFinWidthScale + SuperHeavyConstants.CHINE_DRY_MASS * superHeavyOptions.numChines * superHeavyOptions.chineHeightScale + superHeavyRaptors.length * RaptorConstants.DRY_MASS;
         let boosterWetMass: number = boosterLOXMass + boosterCH4Mass + boosterDryMass;
 
         let boosterThrust: number = superHeavyOptions.numRSeas1 * LaunchHelper.getThrust(true, superHeavyOptions.rSeaType1) + superHeavyOptions.numRSeas2 * LaunchHelper.getThrust(true, superHeavyOptions.rSeaType2) + superHeavyOptions.numRSeas3 * LaunchHelper.getThrust(true, superHeavyOptions.rSeaType3);
         
-        shipTWR = StringHelper.formatNumber(LaunchHelper.getTWR(shipThrust, shipWetMass, PhysicsConstants.EARTH_GRAVITY_SURFACE), 2);
-        boosterTWR = StringHelper.formatNumber(LaunchHelper.getTWR(boosterThrust, boosterWetMass, PhysicsConstants.EARTH_GRAVITY_SURFACE), 2);
-        stackTWR = StringHelper.formatNumber(LaunchHelper.getTWR(boosterThrust, shipWetMass + boosterWetMass, PhysicsConstants.EARTH_GRAVITY_SURFACE), 2);
+        shipTWR = StringHelper.formatNumber(LaunchHelper.getTWR(shipThrust, shipWetMass, LaunchHelper.getGEarth(0)), 2);
+        boosterTWR = StringHelper.formatNumber(LaunchHelper.getTWR(boosterThrust, boosterWetMass, LaunchHelper.getGEarth(0)), 2);
+        stackTWR = StringHelper.formatNumber(LaunchHelper.getTWR(boosterThrust, shipWetMass + boosterWetMass, LaunchHelper.getGEarth(0)), 2);
     }
 
     function createStarshipRaptors() {

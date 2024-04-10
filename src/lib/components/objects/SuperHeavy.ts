@@ -487,11 +487,13 @@ export class SuperHeavy {
     }
 
     public getLOXVolume(perc: number = this.LOX): number {
-        return MathHelper.getVolumeofCylinder(SuperHeavyConstants.BOOSTER_RING_SCALE.x * SuperHeavyConstants.REAL_LIFE_SCALE.x, this.options.boosterRingHeight * SuperHeavyConstants.LOX_PERCENTAGE * perc);
+        let useableHeight: number = this.options.boosterRingHeight - (SuperHeavyConstants.LOX_BOTTOM_FIXED + SuperHeavyConstants.CH4_TOP_FIXED + SuperHeavyConstants.LOX_CH4_GAP_FIXED) * SuperHeavyConstants.REAL_LIFE_SCALE.y;
+        return MathHelper.getVolumeofCylinder(SuperHeavyConstants.BOOSTER_RING_SCALE.x * SuperHeavyConstants.REAL_LIFE_SCALE.x, useableHeight * SuperHeavyConstants.LOX_PERCENTAGE * perc);
     }
 
     public getCH4Volume(perc: number = this.CH4): number {
-        return MathHelper.getVolumeofCylinder(SuperHeavyConstants.BOOSTER_RING_SCALE.x * SuperHeavyConstants.REAL_LIFE_SCALE.x, this.options.boosterRingHeight * SuperHeavyConstants.CH4_PERCENTAGE * perc);
+        let useableHeight: number = this.options.boosterRingHeight - (SuperHeavyConstants.LOX_BOTTOM_FIXED + SuperHeavyConstants.CH4_TOP_FIXED + SuperHeavyConstants.LOX_CH4_GAP_FIXED) * SuperHeavyConstants.REAL_LIFE_SCALE.y;
+        return MathHelper.getVolumeofCylinder(SuperHeavyConstants.BOOSTER_RING_SCALE.x * SuperHeavyConstants.REAL_LIFE_SCALE.x, useableHeight * SuperHeavyConstants.CH4_PERCENTAGE * perc);
     }
 
     public getLOXMass(perc: number = this.LOX): number {
@@ -514,24 +516,13 @@ export class SuperHeavy {
         return this.getMass() * LaunchHelper.getGEarth(altitude);
     }
 
-    // fix to have half length
-    public getCenterofMass(): Vector3 {
-        let totalMass: number = this.getMass();
-        let centerOfMass: Vector3 = new Vector3(0, 0, 0);
-        centerOfMass.addScaledVector(this.hsr.position, SuperHeavyConstants.HSR_DRY_MASS / (SuperHeavyConstants.HSR_HEIGHT * SuperHeavyConstants.REAL_LIFE_SCALE.y) * this.options.hsrHeight / totalMass);
-        centerOfMass.addScaledVector(this.boosterRing.position, SuperHeavyConstants.BOOSTER_RING_DRY_MASS * this.options.boosterRingHeight / SuperHeavyConstants.REAL_LIFE_SCALE.y / totalMass);
-        for (let gridFin of this.gridFins) {
-            centerOfMass.addScaledVector(gridFin.position, SuperHeavyConstants.GRID_FIN_DRY_MASS * this.options.gridFinLengthScale * this.options.gridFinWidthScale / totalMass);
-        }
-        for (let chine of this.chines) {
-            centerOfMass.addScaledVector(chine.position, SuperHeavyConstants.CHINE_DRY_MASS * this.options.chineHeightScale / totalMass);
-        }
-        for (let rSea of this.rSeas) {
-            centerOfMass.addScaledVector(rSea.position, RaptorConstants.DRY_MASS / totalMass);
-        }
-        centerOfMass.addScaledVector(this.CH4Frost.position, this.getCH4Mass() / totalMass);
-        centerOfMass.addScaledVector(this.LOXFrost.position, this.getLOXMass() / totalMass);
-        return centerOfMass;
+    public getCOM(): Vector3 { // this is real life scale so that it is accurate in the flightcontroller. The position addition number will have to be scaled down after it is rotated and moved to the correct position
+        let COM: Vector3 = new Vector3(0, 0, 0);
+        COM.add(new Vector3(0, this.options.boosterRingHeight / 2, 0).multiplyScalar(SuperHeavyConstants.BOOSTER_RING_DRY_MASS * this.options.boosterRingHeight / SuperHeavyConstants.REAL_LIFE_SCALE.y));
+        COM.add(new Vector3(0, this.LOXFrost.position.y + this.options.boosterRingHeight * SuperHeavyConstants.LOX_PERCENTAGE / 2, 0).multiplyScalar(this.getLOXMass()))
+        COM.add(new Vector3(0, this.CH4Frost.position.y + this.options.boosterRingHeight * SuperHeavyConstants.CH4_PERCENTAGE / 2, 0).multiplyScalar(this.getCH4Mass()))
+        COM.add(new Vector3(this.hsr.position.x, this.hsr.position.y + this.options.hsrHeight / 2, this.hsr.position.z).multiplyScalar(SuperHeavyConstants.HSR_DRY_MASS / SuperHeavyConstants.REAL_LIFE_SCALE.y * this.options.hsrHeight));
+        return COM.divideScalar(this.getMass());
     }
 
     public getTotalThrust(): number {
@@ -676,8 +667,10 @@ export class SuperHeavy {
                 this.CH4Frost.scale.y = this.CH4 / 100;
             }
             
-            this.CH4Frost.scale.copy(SuperHeavyConstants.CRYOGENIC_SCALE.clone().multiply(SuperHeavyConstants.SUPER_HEAVY_SCALE).multiply(new Vector3(1, this.CH4 * SuperHeavyConstants.CH4_PERCENTAGE * this.options.boosterRingHeight / SuperHeavyConstants.REAL_LIFE_SCALE.y, 1)));
-            this.CH4Frost.position.copy(this.boosterRing.position.clone().add(new Vector3(0, SuperHeavyConstants.SUPER_HEAVY_SCALE.y * (SuperHeavyConstants.LOX_BOTTOM_PERCENTAGE + SuperHeavyConstants.LOX_PERCENTAGE + SuperHeavyConstants.CH4_BOTTOM_PERCENTAGE) * this.options.boosterRingHeight / SuperHeavyConstants.REAL_LIFE_SCALE.y, 0)));
+            let useableHeight: number = this.options.boosterRingHeight / SuperHeavyConstants.REAL_LIFE_SCALE.y - SuperHeavyConstants.LOX_BOTTOM_FIXED - SuperHeavyConstants.CH4_TOP_FIXED - SuperHeavyConstants.LOX_CH4_GAP_FIXED;
+
+            this.CH4Frost.scale.copy(SuperHeavyConstants.CRYOGENIC_SCALE.clone().multiply(SuperHeavyConstants.SUPER_HEAVY_SCALE).multiply(new Vector3(1, this.CH4 * SuperHeavyConstants.CH4_PERCENTAGE * useableHeight, 1)));
+            this.CH4Frost.position.copy(this.boosterRing.position.clone().add(new Vector3(0, SuperHeavyConstants.SUPER_HEAVY_SCALE.y * (SuperHeavyConstants.LOX_BOTTOM_FIXED + SuperHeavyConstants.LOX_PERCENTAGE * useableHeight + SuperHeavyConstants.LOX_CH4_GAP_FIXED), 0)));
 
             if (this.LOX == 0) {
                 this.LOXFrost.visible = false;
@@ -687,8 +680,8 @@ export class SuperHeavy {
                 this.LOXFrost.scale.y = this.LOX / 100;
             }
 
-            this.LOXFrost.scale.copy(SuperHeavyConstants.CRYOGENIC_SCALE.clone().multiply(SuperHeavyConstants.SUPER_HEAVY_SCALE).multiply(new Vector3(1, this.LOX * SuperHeavyConstants.LOX_PERCENTAGE * this.options.boosterRingHeight / SuperHeavyConstants.REAL_LIFE_SCALE.y, 1)));
-            this.LOXFrost.position.copy(this.boosterRing.position.clone().add(new Vector3(0, SuperHeavyConstants.SUPER_HEAVY_SCALE.y * SuperHeavyConstants.LOX_BOTTOM_PERCENTAGE * this.options.boosterRingHeight / SuperHeavyConstants.REAL_LIFE_SCALE.y, 0)));
+            this.LOXFrost.scale.copy(SuperHeavyConstants.CRYOGENIC_SCALE.clone().multiply(SuperHeavyConstants.SUPER_HEAVY_SCALE).multiply(new Vector3(1, this.LOX * SuperHeavyConstants.LOX_PERCENTAGE * useableHeight, 1)));
+            this.LOXFrost.position.copy(this.boosterRing.position.clone().add(new Vector3(0, SuperHeavyConstants.SUPER_HEAVY_SCALE.y * SuperHeavyConstants.LOX_BOTTOM_FIXED, 0)));
         }
     }
 
