@@ -9,7 +9,6 @@ export class OLITConstants {
 
     public static readonly TOP_SCALE: Vector3 = new Vector3(1, 0.25, 1);
     public static readonly BODY_SCALE: Vector3 = new Vector3(1, 1, 1);
-    public static readonly BODY_MULTIPLIER: number = 1.82;
     public static readonly ARM_SCALE: Vector3 = new Vector3(0.5, 0.5, 2.5);
     public static readonly ARM_BOTTOM_OFFSET: number = 0.9;
     public static readonly ARM_ROTATION_1: Euler = new Euler(0, -90*Math.PI/180, 0);

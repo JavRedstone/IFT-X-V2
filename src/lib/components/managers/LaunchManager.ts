@@ -163,12 +163,12 @@ export class LaunchManager {
                     this.starship.group.position.copy(this.superHeavy.group.position.clone().add(new Vector3(0, this.superHeavy.boosterRing.userData.aabb.getSize(new Vector3).y + this.superHeavy.hsr.userData.aabb.getSize(new Vector3).y - this.superHeavy.hsr.userData.aabb.getSize(new Vector3).y * SuperHeavyConstants.HSR_OFFSET, 0)));
                     this.stackGroup.rotation.copy(OLITConstants.STACK_ROTATION);
 
-                    this.OLIT.body.scale.y = (this.starship.group.userData.aabb.getSize(new Vector3).y + this.superHeavy.group.userData.aabb.getSize(new Vector3).y) / (OLITConstants.BODY_SCALE.y * OLITConstants.BODY_MULTIPLIER);
+                    this.OLIT.body.scale.y = (this.OLIT.olm.userData.aabb.getSize(new Vector3).y - OLITConstants.OLM_RING_HEIGHT * OLITConstants.OLM_SCALE.y * OLITConstants.OLIT_SCALE.y + this.superHeavy.group.userData.aabb.getSize(new Vector3).y + this.starship.group.userData.aabb.getSize(new Vector3).y) / 2;
                     this.OLIT.qd.position.copy(this.OLIT.body.position.clone().add(new Vector3(0, this.OLIT.olm.userData.aabb.getSize(new Vector3).y - OLITConstants.OLM_RING_HEIGHT * OLITConstants.OLM_SCALE.y * OLITConstants.OLIT_SCALE.y + this.superHeavy.group.userData.aabb.getSize(new Vector3).y + StarshipConstants.LOX_BOTTOM_FIXED * StarshipConstants.STARSHIP_SCALE.y, 0)));
                     let qdPosition: Vector3 = this.OLIT.body.position.clone().add(new Vector3(0, this.OLIT.olm.userData.aabb.getSize(new Vector3).y - OLITConstants.OLM_RING_HEIGHT * OLITConstants.OLM_SCALE.y * OLITConstants.OLIT_SCALE.y + this.superHeavy.group.userData.aabb.getSize(new Vector3).y + StarshipConstants.LOX_BOTTOM_FIXED * StarshipConstants.STARSHIP_SCALE.y, 0));
                     this.OLIT.qd.position.copy(qdPosition);
                     this.OLIT.carriageQd.position.copy(qdPosition);
-                    let armPosition: Vector3 = this.OLIT.body.position.clone().add(new Vector3(0, this.OLIT.olm.userData.aabb.getSize(new Vector3).y - OLITConstants.OLM_RING_HEIGHT * OLITConstants.OLM_SCALE.y * OLITConstants.OLIT_SCALE.y + this.superHeavy.group.userData.aabb.getSize(new Vector3).y + this.starship.shipRing.position.y + this.starship.shipRing.scale.y));
+                    let armPosition: Vector3 = this.OLIT.body.position.clone().add(new Vector3(0, this.OLIT.olm.userData.aabb.getSize(new Vector3).y - OLITConstants.OLM_RING_HEIGHT * OLITConstants.OLM_SCALE.y * OLITConstants.OLIT_SCALE.y + this.superHeavy.group.userData.aabb.getSize(new Vector3).y + this.starship.shipRing.position.y + this.starship.shipRing.scale.y, 0));
                     this.OLIT.arm1.position.copy(armPosition);
                     this.OLIT.arm2.position.copy(armPosition);
                     this.OLIT.carriageArms.position.copy(armPosition);
