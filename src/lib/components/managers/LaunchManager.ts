@@ -310,7 +310,7 @@ export class LaunchManager {
                         PRTransients.realPositions.orbitControlsPosition = PRTransients.realPositions.groupPosition.clone().add(this.stackGroup.position.clone().add(this.starship.group.position.clone()).add(this.starship.group.userData.aabb.getCenter(new Vector3)).applyEuler(PRTransients.realRotations.groupRotation));
                     }
                     if (!this.isRealCameraInitialized) {
-                        PRTransients.realPositions.cameraPosition = PRTransients.realPositions.groupPosition.clone().add(this.starship.group.position.clone().add(this.starship.group.userData.aabb.getCenter(new Vector3).add(new Vector3(CameraConstants.CAMERA_DEFAULT, 0, CameraConstants.CAMERA_DEFAULT))).applyEuler(PRTransients.realRotations.groupRotation));
+                        PRTransients.realPositions.cameraPosition = PRTransients.realPositions.groupPosition.clone().add(this.starship.group.position.clone().add(this.starship.group.userData.aabb.getCenter(new Vector3).add(new Vector3(CameraConstants.CAMERA_DEFAULT_DISTANCE, 0, CameraConstants.CAMERA_DEFAULT_DISTANCE))).applyEuler(PRTransients.realRotations.groupRotation));
                         this.isRealCameraInitialized = true;
                     }
                 }
@@ -325,7 +325,7 @@ export class LaunchManager {
                         PRTransients.realPositions.orbitControlsPosition = PRTransients.realPositions.groupPosition.clone().add(this.stackGroup.position.clone().add(this.superHeavy.group.position.clone()).add(this.superHeavy.group.userData.aabb.getCenter(new Vector3)).applyEuler(PRTransients.realRotations.groupRotation));
                     }
                     if (!this.isRealCameraInitialized) {
-                        PRTransients.realPositions.cameraPosition = PRTransients.realPositions.groupPosition.clone().add(this.superHeavy.group.position.clone().add(this.superHeavy.group.userData.aabb.getCenter(new Vector3).add(new Vector3(CameraConstants.CAMERA_DEFAULT, 0, CameraConstants.CAMERA_DEFAULT))).applyEuler(PRTransients.realRotations.groupRotation));
+                        PRTransients.realPositions.cameraPosition = PRTransients.realPositions.groupPosition.clone().add(this.superHeavy.group.position.clone().add(this.superHeavy.group.userData.aabb.getCenter(new Vector3).add(new Vector3(CameraConstants.CAMERA_DEFAULT_DISTANCE, 0, CameraConstants.CAMERA_DEFAULT_DISTANCE))).applyEuler(PRTransients.realRotations.groupRotation));
                         this.isRealCameraInitialized = true;
                     }
                 }
