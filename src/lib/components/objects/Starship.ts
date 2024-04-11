@@ -144,91 +144,6 @@ export class Starship {
         });
     }
 
-    public gimbalTest(delta: number): void {
-        let rSeaGimbalingAngles: number[] = [];
-        let rSeaGimbalYs: number[] = [];
-        let rVacGimbalingAngles: number[] = [];
-        let rVacGimbalYs: number[] = [];
-        if (this.options.canRSeaGimbal) {
-            for (let i = 0; i < this.options.numRSeas; i++) {
-                let rSea = this.rSeas[i];
-                if (rSea.userData.raptor != null && rSea.userData.originalRotation != null) {
-                    if (rSea.userData.raptor.gimbalAngle == 0) {
-                        rSea.userData.raptor.gimbalAngle = RaptorConstants.R_SEA_GIMBAL_MAX_ANGLE;
-                        rSea.userData.raptor.angleY = 0;
-                    } else {
-                        rSea.userData.raptor.setGimbalTarget(RaptorConstants.R_SEA_GIMBAL_MAX_ANGLE, rSea.userData.raptor.tAngleY + RaptorConstants.GIMBAL_Y_ANG_VEL * delta);
-                    }
-
-                    rSeaGimbalingAngles = [...rSeaGimbalingAngles, rSea.userData.raptor.gimbalAngle];
-                    rSeaGimbalYs = [...rSeaGimbalYs, rSea.userData.raptor.angleY];
-                }
-            }
-        }
-        if (this.options.canRVacGimbal) {
-            for (let i = 0; i < this.options.numRVacs; i++) {
-                let rVac = this.rVacs[i];
-                if (rVac.userData.raptor != null && rVac.userData.originalRotation != null) {
-                    if (rVac.userData.raptor.gimbalAngle == 0) {
-                        rVac.userData.raptor.gimbalAngle = RaptorConstants.R_VAC_GIMBAL_MAX_ANGLE;
-                        rVac.userData.raptor.angleY = 0;
-                    } else {
-                        rVac.userData.raptor.setGimbalTarget(RaptorConstants.R_VAC_GIMBAL_MAX_ANGLE, rVac.userData.raptor.tAngleY + RaptorConstants.GIMBAL_Y_ANG_VEL * delta);
-                    }
-
-                    rVacGimbalingAngles = [...rVacGimbalingAngles, rVac.userData.raptor.gimbalAngle];
-                    rVacGimbalYs = [...rVacGimbalYs, rVac.userData.raptor.angleY];
-                }
-            }
-        }
-
-        telemetry.update((value) => {
-            value.rSeaGimbalingAngles = rSeaGimbalingAngles;
-            value.rSeaGimbalYs = rSeaGimbalYs;
-            value.rVacGimbalingAngles = rVacGimbalingAngles;
-            value.rVacGimbalYs = rVacGimbalYs;
-            return value;
-        });
-    }
-
-    public flapTest(): void {
-        if (this.forwardL.userData.flap.angle == FlapConstants.MAX_ANGLE) {
-            this.forwardL.userData.flap.setTarget(FlapConstants.MIN_ANGLE);
-        }
-        else if (this.forwardL.userData.flap.angle == FlapConstants.MIN_ANGLE) {
-            this.forwardL.userData.flap.setTarget(FlapConstants.MAX_ANGLE);
-        }
-
-        if (this.forwardR.userData.flap.angle == FlapConstants.MAX_ANGLE) {
-            this.forwardR.userData.flap.setTarget(FlapConstants.MIN_ANGLE);
-        }
-        else if (this.forwardR.userData.flap.angle == FlapConstants.MIN_ANGLE) {
-            this.forwardR.userData.flap.setTarget(FlapConstants.MAX_ANGLE);
-        }
-
-        if (this.aftL.userData.flap.angle == FlapConstants.MAX_ANGLE) {
-            this.aftL.userData.flap.setTarget(FlapConstants.MIN_ANGLE);
-        }
-        else if (this.aftL.userData.flap.angle == FlapConstants.MIN_ANGLE) {
-            this.aftL.userData.flap.setTarget(FlapConstants.MAX_ANGLE);
-        }
-
-        if (this.aftR.userData.flap.angle == FlapConstants.MAX_ANGLE) {
-            this.aftR.userData.flap.setTarget(FlapConstants.MIN_ANGLE);
-        }
-        else if (this.aftR.userData.flap.angle == FlapConstants.MIN_ANGLE) {
-            this.aftR.userData.flap.setTarget(FlapConstants.MAX_ANGLE);
-        }
-
-        telemetry.update((value) => {
-            value.forwardLAngle = this.forwardL.userData.flap.angle;
-            value.forwardRAngle = this.forwardR.userData.flap.angle;
-            value.aftLAngle = this.aftL.userData.flap.angle;
-            value.aftRAngle = this.aftR.userData.flap.angle;
-            return value;
-        });
-    }
-
     public getLOXVolume(perc: number = this.LOX): number {
         let useableHeight: number = this.options.shipRingHeight - (StarshipConstants.LOX_BOTTOM_FIXED + StarshipConstants.CH4_TOP_FIXED + StarshipConstants.LOX_CH4_GAP_FIXED) * StarshipConstants.REAL_LIFE_SCALE.y;
         return MathHelper.getVolumeofCylinder(StarshipConstants.SHIP_RING_SCALE.x * StarshipConstants.REAL_LIFE_SCALE.x, useableHeight * StarshipConstants.LOX_PERCENTAGE * perc);
@@ -259,11 +174,32 @@ export class Starship {
         return this.getMass() * LaunchHelper.getGEarth(altitude);
     }
 
-    // public getCenterofMass(): Vector3 { // this is real life scale so that it is accurate in the flightcontroller. The position addition number will have to be scaled down after it is rotated and moved to the correct position
-    //     let COM: Vector3 = new Vector3(0, 0, 0);
-    //     COM.add(new Vector3(0, this.options.shipRingHeight + StarshipConstants.NOSECONE_HEIGHT / 2, 0).multiplyScalar(StarshipConstants.NOSECONE_DRY_MASS));
-    //     COM.add(new Vector3(0, this.options.shipRingHeight / 2, 0).multiplyScalar(StarshipConstants.SHIP_RING_DRY_MASS));
-    // }
+    public getCOM(): Vector3 { // this is real life scale so that it is accurate in the flightcontroller. The position addition number will have to be scaled down after it is rotated and moved to the correct position
+        let COM: Vector3 = new Vector3(0, 0, 0);
+        COM.add(new Vector3(0, this.nosecone.position.y / StarshipConstants.STARSHIP_SCALE.y * StarshipConstants.REAL_LIFE_SCALE.y + StarshipConstants.NOSECONE_HEIGHT / 2, 0).multiplyScalar(StarshipConstants.NOSECONE_DRY_MASS));
+        COM.add(new Vector3(0, this.options.shipRingHeight / 2, 0).multiplyScalar(StarshipConstants.SHIP_RING_DRY_MASS));
+        COM.add(this.forwardL.position.clone().divide(StarshipConstants.STARSHIP_SCALE).multiply(StarshipConstants.REAL_LIFE_SCALE).multiplyScalar(StarshipConstants.FORWARD_L_DRY_MASS * this.options.forwardLHeightScale * this.options.forwardLWidthScale));
+        COM.add(this.forwardR.position.clone().divide(StarshipConstants.STARSHIP_SCALE).multiply(StarshipConstants.REAL_LIFE_SCALE).multiplyScalar(StarshipConstants.FORWARD_R_DRY_MASS * this.options.forwardRHeightScale * this.options.forwardRWidthScale));
+        COM.add(this.aftL.position.clone().divide(StarshipConstants.STARSHIP_SCALE).multiply(StarshipConstants.REAL_LIFE_SCALE).multiplyScalar(StarshipConstants.AFT_L_DRY_MASS * this.options.aftLHeightScale * this.options.aftLWidthScale));
+        COM.add(this.aftR.position.clone().divide(StarshipConstants.STARSHIP_SCALE).multiply(StarshipConstants.REAL_LIFE_SCALE).multiplyScalar(StarshipConstants.AFT_R_DRY_MASS * this.options.aftRHeightScale * this.options.aftRWidthScale));
+        for (let rSea of this.rSeas) {
+            COM.add(rSea.position.clone().divide(StarshipConstants.STARSHIP_SCALE).multiply(StarshipConstants.REAL_LIFE_SCALE).multiplyScalar(RaptorConstants.DRY_MASS));
+        }
+        for (let rVac of this.rVacs) {
+            COM.add(rVac.position.clone().divide(StarshipConstants.STARSHIP_SCALE).multiply(StarshipConstants.REAL_LIFE_SCALE).multiplyScalar(RaptorConstants.DRY_MASS));
+        }
+        COM.add(new Vector3(0, this.LOXFrost.position.y / StarshipConstants.STARSHIP_SCALE.y * StarshipConstants.REAL_LIFE_SCALE.y + this.options.shipRingHeight * StarshipConstants.LOX_PERCENTAGE / 2, 0).multiplyScalar(this.getLOXMass()));
+        COM.add(new Vector3(0, this.CH4Frost.position.y / StarshipConstants.STARSHIP_SCALE.y * StarshipConstants.REAL_LIFE_SCALE.y + this.options.shipRingHeight * StarshipConstants.CH4_PERCENTAGE / 2, 0).multiplyScalar(this.getCH4Mass()));
+        return COM.divideScalar(this.getMass());
+    }
+
+    public getMomentOfInertiaRoll(): number {
+        return 1/2 * this.getMass() * Math.pow(StarshipConstants.SHIP_RING_SCALE.x * StarshipConstants.REAL_LIFE_SCALE.x, 2);
+    }
+
+    public getMomentOfInertiaPitch(): number {
+        return 1/4 * this.getMass() * Math.pow(StarshipConstants.SHIP_RING_SCALE.x * StarshipConstants.REAL_LIFE_SCALE.x, 2) + 1/12 * this.getMass() * Math.pow(this.options.shipRingHeight * StarshipConstants.REAL_LIFE_SCALE.y, 2);
+    }
 
     public getThrust(): number {
         let totalThrust: number = 0;
@@ -320,130 +256,6 @@ export class Starship {
 
     public getRealNonGimbaledThrust(altitude: number): number {
         return this.getRealThrust(altitude) - this.getRealGimbaledThrust(altitude);
-    }
-
-    public controlGimbals(): void {
-        let combinedVector: Vector2 = new Vector2(0, 0);
-        if (this.controls.isIPressed) {
-            combinedVector.y += 1;
-        }
-        if (this.controls.isKPressed) {
-            combinedVector.y -= 1;
-        }
-        if (this.controls.isJPressed) {
-            combinedVector.x += 1; // gimbal angle thing is broken so workaround
-        }
-        if (this.controls.isLPressed) {
-            combinedVector.x -= 1; // gimbal angle thing is broken so workaround
-        }
-        let angleY: number = Math.atan2(combinedVector.y, combinedVector.x);
-        let rSeaGimbalingAngles: number[] = [];
-        let rSeaGimbalYs: number[] = [];
-        let rVacGimbalingAngles: number[] = [];
-        let rVacGimbalYs: number[] = [];
-        if (combinedVector.length() > 0) {
-            if (this.options.canRSeaGimbal) {
-                for (let i = 0; i < this.options.numRSeas; i++) {
-                    let rSea = this.rSeas[i];
-                    if (rSea.userData.raptor != null) {
-                        rSea.userData.raptor.setGimbalTarget(RaptorConstants.R_SEA_GIMBAL_MAX_ANGLE, angleY);
-
-                        rSeaGimbalingAngles = [...rSeaGimbalingAngles, rSea.userData.raptor.gimbalAngle];
-                        rSeaGimbalYs = [...rSeaGimbalYs, rSea.userData.raptor.angleY];
-                    }
-                }
-            }
-            if (this.options.canRVacGimbal) {
-                for (let i = 0; i < this.options.numRVacs; i++) {
-                    let rVac = this.rVacs[i];
-                    if (rVac.userData.raptor != null) {
-                        rVac.userData.raptor.setGimbalTarget(RaptorConstants.R_VAC_GIMBAL_MAX_ANGLE, angleY);
-
-                        rVacGimbalingAngles = [...rVacGimbalingAngles, rVac.userData.raptor.gimbalAngle];
-                        rVacGimbalYs = [...rVacGimbalYs, rVac.userData.raptor.angleY];
-                    }
-                }
-            }
-        }
-        else {
-            if (this.options.canRSeaGimbal) {
-                for (let i = 0; i < this.options.numRSeas; i++) {
-                    let rSea = this.rSeas[i];
-                    if (rSea.userData.raptor != null) {
-                        rSea.userData.raptor.setGimbalTarget(0, 0);
-
-                        rSeaGimbalingAngles = [...rSeaGimbalingAngles, rSea.userData.raptor.gimbalAngle];
-                        rSeaGimbalYs = [...rSeaGimbalYs, rSea.userData.raptor.angleY];
-                    }
-                }
-            }
-            if (this.options.canRVacGimbal) {
-                for (let i = 0; i < this.options.numRVacs; i++) {
-                    let rVac = this.rVacs[i];
-                    if (rVac.userData.raptor != null) {
-                        rVac.userData.raptor.setGimbalTarget(0, 0);
-
-                        rVacGimbalingAngles = [...rVacGimbalingAngles, rVac.userData.raptor.gimbalAngle];
-                        rVacGimbalYs = [...rVacGimbalYs, rVac.userData.raptor.angleY];
-                    }
-                }
-            }
-        }
-        telemetry.update((value) => {
-            value.rSeaGimbalingAngles = rSeaGimbalingAngles;
-            value.rSeaGimbalYs = rSeaGimbalYs;
-            value.rVacGimbalingAngles = rVacGimbalingAngles;
-            value.rVacGimbalYs = rVacGimbalYs;
-            return value;
-        });
-    }
-
-    public controlFlaps(): void {
-        if (this.controls.isIPressed) {
-            this.forwardL.userData.flap.setTarget(FlapConstants.MAX_ANGLE);
-            this.forwardR.userData.flap.setTarget(FlapConstants.MAX_ANGLE);
-            this.aftL.userData.flap.setTarget(FlapConstants.MIN_ANGLE);
-            this.aftR.userData.flap.setTarget(FlapConstants.MIN_ANGLE);
-        }
-        else if (this.controls.isKPressed) {
-            this.forwardL.userData.flap.setTarget(FlapConstants.MIN_ANGLE);
-            this.forwardR.userData.flap.setTarget(FlapConstants.MIN_ANGLE);
-            this.aftL.userData.flap.setTarget(FlapConstants.MAX_ANGLE);
-            this.aftR.userData.flap.setTarget(FlapConstants.MAX_ANGLE);
-        }
-        else if (this.controls.isUPressed) {
-            this.forwardL.userData.flap.setTarget(FlapConstants.MAX_ANGLE);
-            this.forwardR.userData.flap.setTarget(FlapConstants.MIN_ANGLE);
-            this.aftL.userData.flap.setTarget(FlapConstants.MAX_ANGLE);
-            this.aftR.userData.flap.setTarget(FlapConstants.MIN_ANGLE);
-        }
-        else if (this.controls.isOPressed) {
-            this.forwardL.userData.flap.setTarget(FlapConstants.MIN_ANGLE);
-            this.forwardR.userData.flap.setTarget(FlapConstants.MAX_ANGLE);
-            this.aftL.userData.flap.setTarget(FlapConstants.MIN_ANGLE);
-            this.aftR.userData.flap.setTarget(FlapConstants.MAX_ANGLE);
-        }
-        else {
-            if (this.separated) {
-                this.forwardL.userData.flap.setTarget(FlapConstants.NEUTRAL_ANGLE);
-                this.forwardR.userData.flap.setTarget(FlapConstants.NEUTRAL_ANGLE);
-                this.aftL.userData.flap.setTarget(FlapConstants.NEUTRAL_ANGLE);
-                this.aftR.userData.flap.setTarget(FlapConstants.NEUTRAL_ANGLE);
-            }
-            else {
-                this.forwardL.userData.flap.setTarget(FlapConstants.MIN_ANGLE);
-                this.forwardR.userData.flap.setTarget(FlapConstants.MIN_ANGLE);
-                this.aftL.userData.flap.setTarget(FlapConstants.MIN_ANGLE);
-                this.aftR.userData.flap.setTarget(FlapConstants.MIN_ANGLE);
-            }
-        }
-        telemetry.update((value) => {
-            value.forwardLAngle = this.forwardL.userData.flap.angle;
-            value.forwardRAngle = this.forwardR.userData.flap.angle;
-            value.aftLAngle = this.aftL.userData.flap.angle;
-            value.aftRAngle = this.aftR.userData.flap.angle;
-            return value;
-        });
     }
 
     public updateFrost(delta: number): void {
@@ -510,12 +322,177 @@ export class Starship {
         }
     }
 
+    public gimbalTest(delta: number): void {
+        if (this.options.canRSeaGimbal) {
+            for (let i = 0; i < this.options.numRSeas; i++) {
+                let rSea = this.rSeas[i];
+                if (rSea.userData.raptor != null && rSea.userData.originalRotation != null) {
+                    if (rSea.userData.raptor.gimbalAngle == 0) {
+                        rSea.userData.raptor.gimbalAngle = RaptorConstants.R_SEA_GIMBAL_MAX_ANGLE;
+                        rSea.userData.raptor.angleY = 0;
+                    } else {
+                        rSea.userData.raptor.setGimbalTarget(RaptorConstants.R_SEA_GIMBAL_MAX_ANGLE, rSea.userData.raptor.tAngleY + RaptorConstants.GIMBAL_Y_ANG_VEL * delta);
+                    }
+                }
+            }
+        }
+        if (this.options.canRVacGimbal) {
+            for (let i = 0; i < this.options.numRVacs; i++) {
+                let rVac = this.rVacs[i];
+                if (rVac.userData.raptor != null && rVac.userData.originalRotation != null) {
+                    if (rVac.userData.raptor.gimbalAngle == 0) {
+                        rVac.userData.raptor.gimbalAngle = RaptorConstants.R_VAC_GIMBAL_MAX_ANGLE;
+                        rVac.userData.raptor.angleY = 0;
+                    } else {
+                        rVac.userData.raptor.setGimbalTarget(RaptorConstants.R_VAC_GIMBAL_MAX_ANGLE, rVac.userData.raptor.tAngleY + RaptorConstants.GIMBAL_Y_ANG_VEL * delta);
+                    }
+                }
+            }
+        }
+    }
+
+    public flapTest(): void {
+        if (this.forwardL.userData.flap.angle == FlapConstants.MAX_ANGLE) {
+            this.forwardL.userData.flap.setTarget(FlapConstants.MIN_ANGLE);
+        }
+        else if (this.forwardL.userData.flap.angle == FlapConstants.MIN_ANGLE) {
+            this.forwardL.userData.flap.setTarget(FlapConstants.MAX_ANGLE);
+        }
+
+        if (this.forwardR.userData.flap.angle == FlapConstants.MAX_ANGLE) {
+            this.forwardR.userData.flap.setTarget(FlapConstants.MIN_ANGLE);
+        }
+        else if (this.forwardR.userData.flap.angle == FlapConstants.MIN_ANGLE) {
+            this.forwardR.userData.flap.setTarget(FlapConstants.MAX_ANGLE);
+        }
+
+        if (this.aftL.userData.flap.angle == FlapConstants.MAX_ANGLE) {
+            this.aftL.userData.flap.setTarget(FlapConstants.MIN_ANGLE);
+        }
+        else if (this.aftL.userData.flap.angle == FlapConstants.MIN_ANGLE) {
+            this.aftL.userData.flap.setTarget(FlapConstants.MAX_ANGLE);
+        }
+
+        if (this.aftR.userData.flap.angle == FlapConstants.MAX_ANGLE) {
+            this.aftR.userData.flap.setTarget(FlapConstants.MIN_ANGLE);
+        }
+        else if (this.aftR.userData.flap.angle == FlapConstants.MIN_ANGLE) {
+            this.aftR.userData.flap.setTarget(FlapConstants.MAX_ANGLE);
+        }
+    }
+
+    public controlRaptors(): void {
+        let combinedVector: Vector2 = new Vector2(0, 0);
+        if (this.controls.isIPressed) {
+            combinedVector.y += 1;
+        }
+        if (this.controls.isKPressed) {
+            combinedVector.y -= 1;
+        }
+        if (this.controls.isJPressed) {
+            combinedVector.x += 1; // gimbal angle thing is broken so workaround
+        }
+        if (this.controls.isLPressed) {
+            combinedVector.x -= 1; // gimbal angle thing is broken so workaround
+        }
+        let angleY: number = Math.atan2(combinedVector.y, combinedVector.x);
+        if (combinedVector.length() > 0) {
+            if (this.options.canRSeaGimbal) {
+                for (let i = 0; i < this.options.numRSeas; i++) {
+                    let rSea = this.rSeas[i];
+                    if (rSea.userData.raptor != null) {
+                        rSea.userData.raptor.setGimbalTarget(RaptorConstants.R_SEA_GIMBAL_MAX_ANGLE, angleY);
+                    }
+                }
+            }
+            if (this.options.canRVacGimbal) {
+                for (let i = 0; i < this.options.numRVacs; i++) {
+                    let rVac = this.rVacs[i];
+                    if (rVac.userData.raptor != null) {
+                        rVac.userData.raptor.setGimbalTarget(RaptorConstants.R_VAC_GIMBAL_MAX_ANGLE, angleY);
+                    }
+                }
+            }
+        }
+        else {
+            if (this.options.canRSeaGimbal) {
+                for (let i = 0; i < this.options.numRSeas; i++) {
+                    let rSea = this.rSeas[i];
+                    if (rSea.userData.raptor != null) {
+                        rSea.userData.raptor.setGimbalTarget(0, 0);
+                    }
+                }
+            }
+            if (this.options.canRVacGimbal) {
+                for (let i = 0; i < this.options.numRVacs; i++) {
+                    let rVac = this.rVacs[i];
+                    if (rVac.userData.raptor != null) {
+                        rVac.userData.raptor.setGimbalTarget(0, 0);
+                    }
+                }
+            }
+        }
+    }
+
+    public controlFlaps(): void {
+        if (this.controls.isIPressed) {
+            this.forwardL.userData.flap.setTarget(FlapConstants.MAX_ANGLE);
+            this.forwardR.userData.flap.setTarget(FlapConstants.MAX_ANGLE);
+            this.aftL.userData.flap.setTarget(FlapConstants.MIN_ANGLE);
+            this.aftR.userData.flap.setTarget(FlapConstants.MIN_ANGLE);
+        }
+        else if (this.controls.isKPressed) {
+            this.forwardL.userData.flap.setTarget(FlapConstants.MIN_ANGLE);
+            this.forwardR.userData.flap.setTarget(FlapConstants.MIN_ANGLE);
+            this.aftL.userData.flap.setTarget(FlapConstants.MAX_ANGLE);
+            this.aftR.userData.flap.setTarget(FlapConstants.MAX_ANGLE);
+        }
+        else if (this.controls.isUPressed) {
+            this.forwardL.userData.flap.setTarget(FlapConstants.MAX_ANGLE);
+            this.forwardR.userData.flap.setTarget(FlapConstants.MIN_ANGLE);
+            this.aftL.userData.flap.setTarget(FlapConstants.MAX_ANGLE);
+            this.aftR.userData.flap.setTarget(FlapConstants.MIN_ANGLE);
+        }
+        else if (this.controls.isOPressed) {
+            this.forwardL.userData.flap.setTarget(FlapConstants.MIN_ANGLE);
+            this.forwardR.userData.flap.setTarget(FlapConstants.MAX_ANGLE);
+            this.aftL.userData.flap.setTarget(FlapConstants.MIN_ANGLE);
+            this.aftR.userData.flap.setTarget(FlapConstants.MAX_ANGLE);
+        }
+        else {
+            if (this.separated) {
+                this.forwardL.userData.flap.setTarget(FlapConstants.NEUTRAL_ANGLE);
+                this.forwardR.userData.flap.setTarget(FlapConstants.NEUTRAL_ANGLE);
+                this.aftL.userData.flap.setTarget(FlapConstants.NEUTRAL_ANGLE);
+                this.aftR.userData.flap.setTarget(FlapConstants.NEUTRAL_ANGLE);
+            }
+            else {
+                this.forwardL.userData.flap.setTarget(FlapConstants.MIN_ANGLE);
+                this.forwardR.userData.flap.setTarget(FlapConstants.MIN_ANGLE);
+                this.aftL.userData.flap.setTarget(FlapConstants.MIN_ANGLE);
+                this.aftR.userData.flap.setTarget(FlapConstants.MIN_ANGLE);
+            }
+        }
+    }
+
     public updateRaptors(delta: number): void {
+        let rSeaGimbalingAngles: number[] = [];
+        let rSeaGimbalYs: number[] = [];
+        let rVacGimbalingAngles: number[] = [];
+        let rVacGimbalYs: number[] = [];
+
+        let rSeaThrottles: number[] = [];
+        let rVacThrottles: number[] = [];
+
         for (let rSea of this.rSeas) {
             if (rSea.userData.raptor != null) {
                 rSea.userData.raptor.update(delta);
 
-                rSea.rotation.copy(new Euler().setFromQuaternion(new Quaternion().setFromEuler(rSea.userData.originalRotation).multiply(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), rSea.userData.raptor.angleY).multiply(new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), rSea.userData.raptor.gimbalAngle)))));
+                rSea.quaternion.copy(new Quaternion().setFromEuler(rSea.userData.originalRotation).multiply(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), rSea.userData.raptor.angleY).multiply(new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), rSea.userData.raptor.gimbalAngle))));
+            
+                rSeaGimbalingAngles = [...rSeaGimbalingAngles, rSea.userData.raptor.gimbalAngle];
+                rSeaGimbalYs = [...rSeaGimbalYs, rSea.userData.raptor.angleY];
+                rSeaThrottles = [...rSeaThrottles, rSea.userData.raptor.throttle];
             }
         }
         for (let rVac of this.rVacs) {
@@ -523,8 +500,22 @@ export class Starship {
                 rVac.userData.raptor.update(delta);
 
                 rVac.rotation.copy(new Euler().setFromQuaternion(new Quaternion().setFromEuler(rVac.userData.originalRotation).multiply(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), rVac.userData.raptor.angleY).multiply(new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), rVac.userData.raptor.gimbalAngle)))));
+
+                rVacGimbalingAngles = [...rVacGimbalingAngles, rVac.userData.raptor.gimbalAngle];
+                rVacGimbalYs = [...rVacGimbalYs, rVac.userData.raptor.angleY];
+                rVacThrottles = [...rVacThrottles, rVac.userData.raptor.throttle];
             }
         }
+
+        telemetry.update((value) => {
+            value.rSeaGimbalingAngles = rSeaGimbalingAngles;
+            value.rSeaGimbalYs = rSeaGimbalYs;
+            value.rVacGimbalingAngles = rVacGimbalingAngles;
+            value.rVacGimbalYs = rVacGimbalYs;
+            value.rSeaThrottles = rSeaThrottles;
+            value.rVacThrottles = rVacThrottles;
+            return value;
+        });
     }
 
     public updateFlaps(delta: number): void {
@@ -539,6 +530,14 @@ export class Starship {
 
         this.aftR.userData.flap.update(delta);
         this.aftR.rotation.copy(new Euler().setFromQuaternion(new Quaternion().setFromEuler(this.aftR.userData.originalRotation).multiply(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), this.aftR.userData.flap.angle))));
+
+        telemetry.update((value) => {
+            value.forwardLAngle = this.forwardL.userData.flap.angle;
+            value.forwardRAngle = this.forwardR.userData.flap.angle;
+            value.aftLAngle = this.aftL.userData.flap.angle;
+            value.aftRAngle = this.aftR.userData.flap.angle;
+            return value;
+        });
     }
 
     public resetRaptors(): void {
@@ -552,14 +551,6 @@ export class Starship {
                 this.rVacs[i].userData.raptor.reset();
             }
         }
-        
-        telemetry.update((value) => {
-            value.rSeaGimbalingAngles = [];
-            value.rSeaGimbalYs = [];
-            value.rVacGimbalingAngles = [];
-            value.rVacGimbalYs = [];
-            return value;
-        });
     }
 
     public resetFlaps(): void {
@@ -702,7 +693,7 @@ export class Starship {
             this.visibilityCooldown = StarshipConstants.VISIBILITY_COOLDOWN;
         }
         if (this.isLaunching) {
-            this.controlGimbals();
+            this.controlRaptors();
             this.controlFlaps();
         }
         this.updateFrost(delta);

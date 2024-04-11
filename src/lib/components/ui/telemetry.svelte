@@ -754,12 +754,12 @@
         </div>
         
         <div class="telemetry-line" style="right: 337px;"></div>
-        <img class="telemetry-image" style="right: 380px; transform: rotate({telemetryValues.starshipAngle}rad);" src={s25} alt="ship">
+        <img class="telemetry-image" style="right: 380px; transform: rotate({-telemetryValues.starshipAngle}rad);" src={s25} alt="ship">
         <div class="telemetry-flap-dot" style="top: 20px;">FWD</div>
-        <div class="telemetry-flap" style="top: 30px; right: 501px; width: 5px; transform-origin: right; transform: rotate({telemetryValues.forwardLAngle}rad);"></div>
+        <div class="telemetry-flap" style="top: 30px; right: 501px; width: 5px; transform-origin: right; transform: rotate({-telemetryValues.forwardLAngle}rad);"></div>
         <div class="telemetry-flap" style="top: 30px; right: 474px; width: 5px; transform-origin: left; transform: rotate({telemetryValues.forwardRAngle}rad);"></div>
         <div class="telemetry-flap-dot" style="bottom: 20px;">AFT</div>
-        <div class="telemetry-flap" style="bottom: 30px; right: 501px; width: 10px; transform-origin: right; transform: rotate({telemetryValues.aftLAngle}rad);"></div>
+        <div class="telemetry-flap" style="bottom: 30px; right: 501px; width: 10px; transform-origin: right; transform: rotate({-telemetryValues.aftLAngle}rad);"></div>
         <div class="telemetry-flap" style="bottom: 30px; right: 469px; width: 10px; transform-origin: left; transform: rotate({telemetryValues.aftRAngle}rad);"></div>
     </div>
     <div style="opacity: {telemetryValues.superHeavyDisabled ? 0.5 : 1};">
@@ -794,7 +794,7 @@
         </div>
         
         <div class="telemetry-line" style="left: 336px;"></div>
-        <img class="telemetry-image" style="left: {telemetryValues.separated ? 385 : 390}px; transform: rotate({telemetryValues.superHeavyAngle}rad);" src={telemetryValues.separated ? b9 : s25b9} alt="booster">
+        <img class="telemetry-image" style="left: {telemetryValues.separated ? 385 : 390}px; transform: rotate({-telemetryValues.superHeavyAngle}rad);" src={telemetryValues.separated ? b9 : s25b9} alt="booster">
     </div>
 </div>
 <div style="position:fixed; left: 8px; bottom: 136px;">

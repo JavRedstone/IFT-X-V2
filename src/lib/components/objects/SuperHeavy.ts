@@ -157,335 +157,6 @@ export class SuperHeavy {
         });
     }
 
-    public gimbalTest(delta: number): void {
-        let rSeaGimbalingAngles1: number[] = [];
-        let rSeaGimbalYs1: number[] = [];
-        let rSeaGimbalingAngles2: number[] = [];
-        let rSeaGimbalYs2: number[] = [];
-        let rSeaGimbalingAngles3: number[] = [];
-        let rSeaGimbalYs3: number[] = [];
-        if (this.options.canRSea1Gimbal) {
-            for (let i = 0; i < this.options.numRSeas1; i++) {
-                let rSea = this.rSeas[i];
-                if (rSea.userData.raptor != null && rSea.userData.originalRotation != null) {
-                    if (rSea.userData.raptor.gimbalAngle == 0) {
-                        rSea.userData.raptor.gimbalAngle = RaptorConstants.R_SEA_GIMBAL_MAX_ANGLE;
-                        rSea.userData.raptor.angleY = 0;
-                    } else {
-                        rSea.userData.raptor.setGimbalTarget(RaptorConstants.R_SEA_GIMBAL_MAX_ANGLE, rSea.userData.raptor.tAngleY + RaptorConstants.GIMBAL_Y_ANG_VEL * delta);
-                    }
-
-                    rSeaGimbalingAngles1 = [...rSeaGimbalingAngles1, rSea.userData.raptor.gimbalAngle];
-                    rSeaGimbalYs1 = [...rSeaGimbalYs1, rSea.userData.raptor.angleY];
-                }
-            }
-        }
-        if (this.options.canRSea2Gimbal) {
-            for (let i = 0; i < this.options.numRSeas2; i++) {
-                let rSea = this.rSeas[i + this.options.numRSeas1];
-                if (rSea.userData.raptor != null && rSea.userData.originalRotation != null) {
-                    if (rSea.userData.raptor.gimbalAngle == 0) {
-                        rSea.userData.raptor.gimbalAngle = RaptorConstants.R_SEA_GIMBAL_MAX_ANGLE;
-                        rSea.userData.raptor.angleY = 0;
-                    } else {
-                        rSea.userData.raptor.setGimbalTarget(RaptorConstants.R_SEA_GIMBAL_MAX_ANGLE, rSea.userData.raptor.tAngleY + RaptorConstants.GIMBAL_Y_ANG_VEL * delta);
-                    }
-
-                    rSeaGimbalingAngles2 = [...rSeaGimbalingAngles2, rSea.userData.raptor.gimbalAngle];
-                    rSeaGimbalYs2 = [...rSeaGimbalYs2, rSea.userData.raptor.angleY];
-                }
-            }
-        }
-        if (this.options.canRSea3Gimbal) {
-            for (let i = 0; i < this.options.numRSeas3; i++) {
-                let rSea = this.rSeas[i + this.options.numRSeas1 + this.options.numRSeas2];
-                if (rSea.userData.raptor != null && rSea.userData.originalRotation != null) {
-                    if (rSea.userData.raptor.gimbalAngle == 0) {
-                        rSea.userData.raptor.gimbalAngle = RaptorConstants.R_SEA_GIMBAL_MAX_ANGLE;
-                        rSea.userData.raptor.angleY = 0;
-                    } else {
-                        rSea.userData.raptor.setGimbalTarget(RaptorConstants.R_SEA_GIMBAL_MAX_ANGLE, rSea.userData.raptor.tAngleY + RaptorConstants.GIMBAL_Y_ANG_VEL * delta);
-                    }
-
-                    rSeaGimbalingAngles3 = [...rSeaGimbalingAngles3, rSea.userData.raptor.gimbalAngle];
-                    rSeaGimbalYs3 = [...rSeaGimbalYs3, rSea.userData.raptor.angleY];
-                }
-            }
-        }
-
-        telemetry.update((value) => {
-            value.rSeaGimbalingAngles1 = rSeaGimbalingAngles1;
-            value.rSeaGimbalYs1 = rSeaGimbalYs1;
-            value.rSeaGimbalingAngles2 = rSeaGimbalingAngles2;
-            value.rSeaGimbalYs2 = rSeaGimbalYs2;
-            value.rSeaGimbalingAngles3 = rSeaGimbalingAngles3;
-            value.rSeaGimbalYs3 = rSeaGimbalYs3;
-            return value;
-        });
-    }
-
-    public gridFinTest(): void {
-        let gridFinAngles: number[] = [];
-
-        for (let gridFin of this.gridFins) {
-            if (gridFin.userData.gridFin.angle == GridFinConstants.MAX_ANGLE) {
-                gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
-            }
-            else if (gridFin.userData.gridFin.angle == GridFinConstants.MIN_ANGLE) {
-                gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
-            }
-        
-            gridFinAngles = [...gridFinAngles, gridFin.userData.gridFin.angle];
-        }
-    }
-
-    public controlGimbals(): void {
-        let combinedVector: Vector2 = new Vector2(0, 0);
-        if (this.controls.isWPressed) {
-            combinedVector.y += 1;
-        }
-        if (this.controls.isSPressed) {
-            combinedVector.y -= 1;
-        }
-        if (this.controls.isAPressed) {
-            combinedVector.x += 1; // gimbal angle thing is broken so workaround
-        }
-        if (this.controls.isDPressed) {
-            combinedVector.x -= 1; // gimbal angle thing is broken so workaround
-        }
-        let angleY: number = Math.atan2(combinedVector.y, combinedVector.x);
-        let rSeaGimbalingAngles1: number[] = [];
-        let rSeaGimbalYs1: number[] = [];
-        let rSeaGimbalingAngles2: number[] = [];
-        let rSeaGimbalYs2: number[] = [];
-        let rSeaGimbalingAngles3: number[] = [];
-        let rSeaGimbalYs3: number[] = [];
-        if (combinedVector.length() > 0) {
-            if (this.options.canRSea1Gimbal) {
-                for (let i = 0; i < this.options.numRSeas1; i++) {
-                    let rSea = this.rSeas[i];
-                    if (rSea.userData.raptor != null) {
-                        rSea.userData.raptor.setGimbalTarget(RaptorConstants.R_SEA_GIMBAL_MAX_ANGLE, angleY);
-
-                        rSeaGimbalingAngles1 = [...rSeaGimbalingAngles1, rSea.userData.raptor.gimbalAngle];
-                        rSeaGimbalYs1 = [...rSeaGimbalYs1, rSea.userData.raptor.angleY];
-                    }
-                }
-            }
-            if (this.options.canRSea2Gimbal) {
-                for (let i = 0; i < this.options.numRSeas2; i++) {
-                    let rSea = this.rSeas[i + this.options.numRSeas1];
-                    if (rSea.userData.raptor != null) {
-                        rSea.userData.raptor.setGimbalTarget(RaptorConstants.R_SEA_GIMBAL_MAX_ANGLE, angleY);
-
-                        rSeaGimbalingAngles2 = [...rSeaGimbalingAngles2, rSea.userData.raptor.gimbalAngle];
-                        rSeaGimbalYs2 = [...rSeaGimbalYs2, rSea.userData.raptor.angleY];
-                    }
-                }
-            }
-            if (this.options.canRSea3Gimbal) {
-                for (let i = 0; i < this.options.numRSeas3; i++) {
-                    let rSea = this.rSeas[i + this.options.numRSeas1 + this.options.numRSeas2];
-                    if (rSea.userData.raptor != null) {
-                        rSea.userData.raptor.setGimbalTarget(RaptorConstants.R_SEA_GIMBAL_MAX_ANGLE, angleY);
-
-                        rSeaGimbalingAngles3 = [...rSeaGimbalingAngles3, rSea.userData.raptor.gimbalAngle];
-                        rSeaGimbalYs3 = [...rSeaGimbalYs3, rSea.userData.raptor.angleY];
-                    }
-                }
-            }
-        }
-        else {
-            if (this.options.canRSea1Gimbal) {
-                for (let i = 0; i < this.options.numRSeas1; i++) {
-                    let rSea = this.rSeas[i];
-                    if (rSea.userData.raptor != null) {
-                        rSea.userData.raptor.setGimbalTarget(0, 0);
-
-                        rSeaGimbalingAngles1 = [...rSeaGimbalingAngles1, rSea.userData.raptor.gimbalAngle];
-                        rSeaGimbalYs1 = [...rSeaGimbalYs1, rSea.userData.raptor.angleY];
-                    }
-                }
-            }
-            if (this.options.canRSea2Gimbal) {
-                for (let i = 0; i < this.options.numRSeas2; i++) {
-                    let rSea = this.rSeas[i + this.options.numRSeas1];
-                    if (rSea.userData.raptor != null) {
-                        rSea.userData.raptor.setGimbalTarget(0, 0);
-
-                        rSeaGimbalingAngles2 = [...rSeaGimbalingAngles2, rSea.userData.raptor.gimbalAngle];
-                        rSeaGimbalYs2 = [...rSeaGimbalYs2, rSea.userData.raptor.angleY];
-                    }
-                }
-            }
-            if (this.options.canRSea3Gimbal) {
-                for (let i = 0; i < this.options.numRSeas3; i++) {
-                    let rSea = this.rSeas[i + this.options.numRSeas1 + this.options.numRSeas2];
-                    if (rSea.userData.raptor != null) {
-                        rSea.userData.raptor.setGimbalTarget(0, 0);
-
-                        rSeaGimbalingAngles3 = [...rSeaGimbalingAngles3, rSea.userData.raptor.gimbalAngle];
-                        rSeaGimbalYs3 = [...rSeaGimbalYs3, rSea.userData.raptor.angleY];
-                    }
-                }
-            }
-        }
-        telemetry.update((value) => {
-            value.rSeaGimbalingAngles1 = rSeaGimbalingAngles1;
-            value.rSeaGimbalYs1 = rSeaGimbalYs1;
-            value.rSeaGimbalingAngles2 = rSeaGimbalingAngles2;
-            value.rSeaGimbalYs2 = rSeaGimbalYs2;
-            value.rSeaGimbalingAngles3 = rSeaGimbalingAngles3;
-            value.rSeaGimbalYs3 = rSeaGimbalYs3;
-            return value;
-        });
-    }
-
-    public controlGridFins(): void {
-        for (let gridFin of this.gridFins) {
-            if (this.controls.isWPressed) {
-                if (this.separated) {
-                    if (gridFin.rotation.z >= -45 * Math.PI / 180 && gridFin.rotation.z <= 45 * Math.PI / 180) {
-                        gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
-                    }
-                    if (gridFin.rotation.z >= 135 * Math.PI / 180 || gridFin.rotation.z <= -135 * Math.PI / 180) {
-                        gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
-                    }
-                }
-                else {
-                    if (gridFin.rotation.z >= -45 * Math.PI / 180 && gridFin.rotation.z <= 45 * Math.PI / 180) {
-                        gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
-                    }
-                    if (gridFin.rotation.z >= 135 * Math.PI / 180 || gridFin.rotation.z <= -135 * Math.PI / 180) {
-                        gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
-                    }
-                }
-            }
-            else if (this.controls.isSPressed) {
-                if (this.separated) {
-                    if (gridFin.rotation.z >= -45 * Math.PI / 180 && gridFin.rotation.z <= 45 * Math.PI / 180) {
-                        gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
-                    }
-                    if (gridFin.rotation.z >= 135 * Math.PI / 180 || gridFin.rotation.z <= -135 * Math.PI / 180) {
-                        gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
-                    }
-                }
-                else {
-                    if (gridFin.rotation.z >= -45 * Math.PI / 180 && gridFin.rotation.z <= 45 * Math.PI / 180) {
-                        gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
-                    }
-                    if (gridFin.rotation.z >= 135 * Math.PI / 180 || gridFin.rotation.z <= -135 * Math.PI / 180) {
-                        gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
-                    }
-                }
-            }
-            else if (this.controls.isAPressed) {
-                if (this.separated) {
-                    if (gridFin.rotation.z >= 45 * Math.PI / 180 && gridFin.rotation.z <= 135 * Math.PI / 180) {
-                        gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
-                    }
-                    if (gridFin.rotation.z >= -135 * Math.PI / 180 && gridFin.rotation.z <= -45 * Math.PI / 180) {
-                        gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
-                    }
-                }
-                else {
-                    if (gridFin.rotation.z >= 45 * Math.PI / 180 && gridFin.rotation.z <= 135 * Math.PI / 180) {
-                        gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
-                    }
-                    if (gridFin.rotation.z >= -135 * Math.PI / 180 && gridFin.rotation.z <= -45 * Math.PI / 180) {
-                        gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
-                    }
-                }
-            }
-            else if (this.controls.isDPressed) {
-                if (this.separated) {
-                    if (gridFin.rotation.z >= 45 * Math.PI / 180 && gridFin.rotation.z <= 135 * Math.PI / 180) {
-                        gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
-                    }
-                    if (gridFin.rotation.z >= -135 * Math.PI / 180 && gridFin.rotation.z <= -45 * Math.PI / 180) {
-                        gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
-                    }
-                }
-                else {
-                    if (gridFin.rotation.z >= 45 * Math.PI / 180 && gridFin.rotation.z <= 135 * Math.PI / 180) {
-                        gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
-                    }
-                    if (gridFin.rotation.z >= -135 * Math.PI / 180 && gridFin.rotation.z <= -45 * Math.PI / 180) {
-                        gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
-                    }
-                }
-            }
-            else if (this.controls.isQPressed) {
-                gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
-            }
-            else if (this.controls.isEPressed) {
-                gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
-            }
-            else {
-                gridFin.userData.gridFin.setTarget(GridFinConstants.NEUTRAL_ANGLE);
-            }
-        }
-    }
-    
-    public runStartupSequence(delta: number): void {
-        let rSeaThrottles1: number[] = [];
-        let rSeaThrottles2: number[] = [];
-        let rSeaThrottles3: number[] = [];
-
-        let areAllRSea1Ready: boolean = true;
-        for (let i = 0; i < this.options.numRSeas1; i++) {
-            let rSea = this.rSeas[i];
-            if (rSea.userData.raptor != null) {
-                rSea.userData.raptor.setThrottleTarget(RaptorConstants.MAX_THROTTLE);
-
-                rSeaThrottles1 = [...rSeaThrottles1, rSea.userData.raptor.throttle];
-            }
-            if (rSea.userData.raptor.throttle != RaptorConstants.MAX_THROTTLE) {
-                areAllRSea1Ready = false;
-            }
-        }
-        if (areAllRSea1Ready) {
-            let areAllRSea2Ready: boolean = true;
-            for (let i = 0; i < this.options.numRSeas2; i++) {
-                let rSea = this.rSeas[i + this.options.numRSeas1];
-                if (rSea.userData.raptor != null) {
-                    rSea.userData.raptor.setThrottleTarget(RaptorConstants.MAX_THROTTLE);
-
-                    rSeaThrottles2 = [...rSeaThrottles2, rSea.userData.raptor.throttle];
-                }
-                if (rSea.userData.raptor.throttle != RaptorConstants.MAX_THROTTLE) {
-                    areAllRSea2Ready = false;
-                }
-            }
-            if (areAllRSea2Ready) {
-                let areAllRSea3Ready: boolean = true;
-                for (let i = 0; i < this.options.numRSeas3; i++) {
-                    let rSea = this.rSeas[i + this.options.numRSeas1 + this.options.numRSeas2];
-                    if (rSea.userData.raptor != null) {
-                        rSea.userData.raptor.setThrottleTarget(RaptorConstants.MAX_THROTTLE);
-
-                        rSeaThrottles3 = [...rSeaThrottles3, rSea.userData.raptor.throttle];
-                    }
-                    if (rSea.userData.raptor.throttle != RaptorConstants.MAX_THROTTLE) {
-                        areAllRSea3Ready = false;
-                    }
-                }
-
-                if (areAllRSea3Ready) {
-                    this.runningStartupSequence = false;
-                    this.completedStartupSequence = true;
-                }
-            }
-        }
-
-        telemetry.update((value) => {
-            value.rSeaThrottles1 = rSeaThrottles1;
-            value.rSeaThrottles2 = rSeaThrottles2;
-            value.rSeaThrottles3 = rSeaThrottles3;
-            return value;
-        });
-    }
-
     public getLOXVolume(perc: number = this.LOX): number {
         let useableHeight: number = this.options.boosterRingHeight - (SuperHeavyConstants.LOX_BOTTOM_FIXED + SuperHeavyConstants.CH4_TOP_FIXED + SuperHeavyConstants.LOX_CH4_GAP_FIXED) * SuperHeavyConstants.REAL_LIFE_SCALE.y;
         return MathHelper.getVolumeofCylinder(SuperHeavyConstants.BOOSTER_RING_SCALE.x * SuperHeavyConstants.REAL_LIFE_SCALE.x, useableHeight * SuperHeavyConstants.LOX_PERCENTAGE * perc);
@@ -505,7 +176,7 @@ export class SuperHeavy {
     }
 
     public getDryMass(): number {
-        return SuperHeavyConstants.HSR_DRY_MASS / (SuperHeavyConstants.HSR_HEIGHT * SuperHeavyConstants.REAL_LIFE_SCALE.y) * this.options.hsrHeight + SuperHeavyConstants.BOOSTER_RING_DRY_MASS * this.options.boosterRingHeight / SuperHeavyConstants.REAL_LIFE_SCALE.y + SuperHeavyConstants.GRID_FIN_DRY_MASS * this.options.numGridFins * this.options.gridFinLengthScale * this.options.gridFinWidthScale + SuperHeavyConstants.CHINE_DRY_MASS * this.options.numChines * this.options.chineHeightScale + (this.options.numRSeas1 + this.options.numRSeas2 + this.options.numRSeas3) * RaptorConstants.DRY_MASS;
+        return SuperHeavyConstants.HSR_DRY_MASS * this.options.hsrHeight / (SuperHeavyConstants.HSR_HEIGHT * SuperHeavyConstants.REAL_LIFE_SCALE.y) + SuperHeavyConstants.BOOSTER_RING_DRY_MASS * this.options.boosterRingHeight / SuperHeavyConstants.REAL_LIFE_SCALE.y + SuperHeavyConstants.GRID_FIN_DRY_MASS * this.options.numGridFins * this.options.gridFinLengthScale * this.options.gridFinWidthScale + SuperHeavyConstants.CHINE_DRY_MASS * this.options.numChines * this.options.chineHeightScale + (this.options.numRSeas1 + this.options.numRSeas2 + this.options.numRSeas3) * RaptorConstants.DRY_MASS;
     }
 
     public getMass(): number {
@@ -518,30 +189,47 @@ export class SuperHeavy {
 
     public getCOM(): Vector3 { // this is real life scale so that it is accurate in the flightcontroller. The position addition number will have to be scaled down after it is rotated and moved to the correct position
         let COM: Vector3 = new Vector3(0, 0, 0);
-        COM.add(new Vector3(0, this.options.boosterRingHeight / 2, 0).multiplyScalar(SuperHeavyConstants.BOOSTER_RING_DRY_MASS * this.options.boosterRingHeight / SuperHeavyConstants.REAL_LIFE_SCALE.y));
-        COM.add(new Vector3(0, this.LOXFrost.position.y + this.options.boosterRingHeight * SuperHeavyConstants.LOX_PERCENTAGE / 2, 0).multiplyScalar(this.getLOXMass()))
-        COM.add(new Vector3(0, this.CH4Frost.position.y + this.options.boosterRingHeight * SuperHeavyConstants.CH4_PERCENTAGE / 2, 0).multiplyScalar(this.getCH4Mass()))
-        COM.add(new Vector3(this.hsr.position.x, this.hsr.position.y + this.options.hsrHeight / 2, this.hsr.position.z).multiplyScalar(SuperHeavyConstants.HSR_DRY_MASS / SuperHeavyConstants.REAL_LIFE_SCALE.y * this.options.hsrHeight));
+        COM.add(new Vector3(0, this.hsr.position.y / SuperHeavyConstants.SUPER_HEAVY_SCALE.y * SuperHeavyConstants.REAL_LIFE_SCALE.y + this.options.hsrHeight / 2, 0).multiplyScalar(SuperHeavyConstants.HSR_DRY_MASS * this.options.hsrHeight));
+        COM.add(new Vector3(0, this.options.boosterRingHeight / 2, 0).multiplyScalar(SuperHeavyConstants.BOOSTER_RING_DRY_MASS));
+        for (let gridFin of this.gridFins) {
+            COM.add(gridFin.position.clone().divide(SuperHeavyConstants.SUPER_HEAVY_SCALE).multiplyScalar(SuperHeavyConstants.GRID_FIN_DRY_MASS * this.options.gridFinLengthScale * this.options.gridFinWidthScale));
+        }
+        for (let chine of this.chines) {
+            COM.add(chine.position.clone().divide(SuperHeavyConstants.SUPER_HEAVY_SCALE).multiply(SuperHeavyConstants.REAL_LIFE_SCALE).multiplyScalar(SuperHeavyConstants.CHINE_DRY_MASS * this.options.chineHeightScale));
+        }
+        for (let rSea of this.rSeas) {
+            COM.add(rSea.position.clone().divide(SuperHeavyConstants.SUPER_HEAVY_SCALE).multiply(SuperHeavyConstants.REAL_LIFE_SCALE).multiplyScalar(RaptorConstants.DRY_MASS));
+        }
+        COM.add(new Vector3(0, this.LOXFrost.position.y / SuperHeavyConstants.SUPER_HEAVY_SCALE.y * SuperHeavyConstants.REAL_LIFE_SCALE.y + this.options.boosterRingHeight * SuperHeavyConstants.LOX_PERCENTAGE / 2, 0).multiplyScalar(this.getLOXMass()));
+        COM.add(new Vector3(0, this.CH4Frost.position.y / SuperHeavyConstants.SUPER_HEAVY_SCALE.y * SuperHeavyConstants.REAL_LIFE_SCALE.y + this.options.boosterRingHeight * SuperHeavyConstants.CH4_PERCENTAGE / 2, 0).multiplyScalar(this.getCH4Mass()));
         return COM.divideScalar(this.getMass());
     }
 
-    public getTotalThrust(): number {
+    public getMomentOfInertiaRoll(): number {
+        return 1/2 * this.getMass() * Math.pow(SuperHeavyConstants.BOOSTER_RING_SCALE.x * SuperHeavyConstants.REAL_LIFE_SCALE.x, 2);
+    }
+
+    public getMomentOfInertiaPitch(): number {
+        return 1/4 * this.getMass() * Math.pow(SuperHeavyConstants.BOOSTER_RING_SCALE.x * SuperHeavyConstants.REAL_LIFE_SCALE.x, 2) + 1/12 * this.getMass() * Math.pow(this.options.boosterRingHeight * SuperHeavyConstants.REAL_LIFE_SCALE.y, 2);
+    }
+
+    public getTotalThrust(altitude: number): number {
         let totalThrust: number = 0;
         for (let rSea of this.rSeas) {
             if (rSea.userData.raptor != null) {
-                totalThrust += LaunchHelper.getThrust(true, rSea.userData.raptor.type) * rSea.userData.raptor.throttle;
+                totalThrust += LaunchHelper.getThrust(true, rSea.userData.raptor.type) * rSea.userData.raptor.throttle - LaunchHelper.getThrustLoss(altitude);
             }
         }
         return totalThrust;
     }
 
-    public getGimbaledThrust(): number {
-        let totalThrust: number = 0;
+    public getGimbalForceVector(altitude: number): Vector3 {
+        let F: Vector3 = new Vector3(0, 0, 0);
         if (this.options.canRSea1Gimbal) {
             for (let i = 0; i < this.options.numRSeas1; i++) {
                 let rSea = this.rSeas[i];
                 if (rSea.userData.raptor != null) {
-                    totalThrust += LaunchHelper.getThrust(true, rSea.userData.raptor.type) * rSea.userData.raptor.throttle;
+                    F.add(new Vector3(0, LaunchHelper.getThrust(true, rSea.userData.raptor.type) * rSea.userData.raptor.throttle - LaunchHelper.getThrustLoss(altitude), 0).applyQuaternion(rSea.quaternion));
                 }
             }
         }
@@ -549,7 +237,7 @@ export class SuperHeavy {
             for (let i = 0; i < this.options.numRSeas2; i++) {
                 let rSea = this.rSeas[i + this.options.numRSeas1];
                 if (rSea.userData.raptor != null) {
-                    totalThrust += LaunchHelper.getThrust(true, rSea.userData.raptor.type) * rSea.userData.raptor.throttle;
+                    F.add(new Vector3(0, LaunchHelper.getThrust(true, rSea.userData.raptor.type) * rSea.userData.raptor.throttle - LaunchHelper.getThrustLoss(altitude), 0).applyQuaternion(rSea.quaternion));
                 }
             }
         }
@@ -557,37 +245,19 @@ export class SuperHeavy {
             for (let i = 0; i < this.options.numRSeas3; i++) {
                 let rSea = this.rSeas[i + this.options.numRSeas1 + this.options.numRSeas2];
                 if (rSea.userData.raptor != null) {
-                    totalThrust += LaunchHelper.getThrust(true, rSea.userData.raptor.type) * rSea.userData.raptor.throttle;
+                    F.add(new Vector3(0, LaunchHelper.getThrust(true, rSea.userData.raptor.type) * rSea.userData.raptor.throttle - LaunchHelper.getThrustLoss(altitude), 0).applyQuaternion(rSea.quaternion));
                 }
             }
         }
-        return totalThrust;
+        return F;
     }
 
-    public getNonGimbaledThrust(): number {
-        return this.getTotalThrust() - this.getGimbaledThrust();
+    public getGimbaledThrust(altitude: number): number {
+        return this.getGimbalForceVector(altitude).y;
     }
 
-    public getRealTotalThrust(altitude: number): number {
-        return this.getTotalThrust() - LaunchHelper.getThrustLoss(altitude) * (this.options.numRSeas1 + this.options.numRSeas2 + this.options.numRSeas3);
-    }
-
-    public getRealGimbaledThrust(altitude: number): number {
-        let totalNumber: number = 0;
-        if (this.options.canRSea1Gimbal) {
-            totalNumber += this.options.numRSeas1;
-        }
-        if (this.options.canRSea2Gimbal) {
-            totalNumber += this.options.numRSeas2;
-        }
-        if (this.options.canRSea3Gimbal) {
-            totalNumber += this.options.numRSeas3;
-        }
-        return this.getGimbaledThrust() - LaunchHelper.getThrustLoss(altitude) * totalNumber;
-    }
-
-    public getRealNonGimbaledThrust(altitude: number): number {
-        return this.getRealTotalThrust(altitude) - this.getRealGimbaledThrust(altitude);
+    public getNonGimbaledThrust(altitude: number): number {
+        return this.getTotalThrust(altitude) - this.getGimbaledThrust(altitude);
     }
 
     public updateFuel(delta: number): void {
@@ -685,14 +355,334 @@ export class SuperHeavy {
         }
     }
 
-    public updateRaptors(delta: number): void {
+    public gimbalTest(delta: number): void {
+        let rSeaGimbalingAngles1: number[] = [];
+        let rSeaGimbalYs1: number[] = [];
+        let rSeaGimbalingAngles2: number[] = [];
+        let rSeaGimbalYs2: number[] = [];
+        let rSeaGimbalingAngles3: number[] = [];
+        let rSeaGimbalYs3: number[] = [];
+        if (this.options.canRSea1Gimbal) {
+            for (let i = 0; i < this.options.numRSeas1; i++) {
+                let rSea = this.rSeas[i];
+                if (rSea.userData.raptor != null && rSea.userData.originalRotation != null) {
+                    if (rSea.userData.raptor.gimbalAngle == 0) {
+                        rSea.userData.raptor.gimbalAngle = RaptorConstants.R_SEA_GIMBAL_MAX_ANGLE;
+                        rSea.userData.raptor.angleY = 0;
+                    } else {
+                        rSea.userData.raptor.setGimbalTarget(RaptorConstants.R_SEA_GIMBAL_MAX_ANGLE, rSea.userData.raptor.tAngleY + RaptorConstants.GIMBAL_Y_ANG_VEL * delta);
+                    }
+
+                    rSeaGimbalingAngles1 = [...rSeaGimbalingAngles1, rSea.userData.raptor.gimbalAngle];
+                    rSeaGimbalYs1 = [...rSeaGimbalYs1, rSea.userData.raptor.angleY];
+                }
+            }
+        }
+        if (this.options.canRSea2Gimbal) {
+            for (let i = 0; i < this.options.numRSeas2; i++) {
+                let rSea = this.rSeas[i + this.options.numRSeas1];
+                if (rSea.userData.raptor != null && rSea.userData.originalRotation != null) {
+                    if (rSea.userData.raptor.gimbalAngle == 0) {
+                        rSea.userData.raptor.gimbalAngle = RaptorConstants.R_SEA_GIMBAL_MAX_ANGLE;
+                        rSea.userData.raptor.angleY = 0;
+                    } else {
+                        rSea.userData.raptor.setGimbalTarget(RaptorConstants.R_SEA_GIMBAL_MAX_ANGLE, rSea.userData.raptor.tAngleY + RaptorConstants.GIMBAL_Y_ANG_VEL * delta);
+                    }
+
+                    rSeaGimbalingAngles2 = [...rSeaGimbalingAngles2, rSea.userData.raptor.gimbalAngle];
+                    rSeaGimbalYs2 = [...rSeaGimbalYs2, rSea.userData.raptor.angleY];
+                }
+            }
+        }
+        if (this.options.canRSea3Gimbal) {
+            for (let i = 0; i < this.options.numRSeas3; i++) {
+                let rSea = this.rSeas[i + this.options.numRSeas1 + this.options.numRSeas2];
+                if (rSea.userData.raptor != null && rSea.userData.originalRotation != null) {
+                    if (rSea.userData.raptor.gimbalAngle == 0) {
+                        rSea.userData.raptor.gimbalAngle = RaptorConstants.R_SEA_GIMBAL_MAX_ANGLE;
+                        rSea.userData.raptor.angleY = 0;
+                    } else {
+                        rSea.userData.raptor.setGimbalTarget(RaptorConstants.R_SEA_GIMBAL_MAX_ANGLE, rSea.userData.raptor.tAngleY + RaptorConstants.GIMBAL_Y_ANG_VEL * delta);
+                    }
+
+                    rSeaGimbalingAngles3 = [...rSeaGimbalingAngles3, rSea.userData.raptor.gimbalAngle];
+                    rSeaGimbalYs3 = [...rSeaGimbalYs3, rSea.userData.raptor.angleY];
+                }
+            }
+        }
+    }
+
+    public gridFinTest(): void {
+        for (let gridFin of this.gridFins) {
+            if (gridFin.userData.gridFin.angle == GridFinConstants.MAX_ANGLE) {
+                gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
+            }
+            else if (gridFin.userData.gridFin.angle == GridFinConstants.MIN_ANGLE) {
+                gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
+            }
+        }
+    }
+
+    public controlRaptors(): void {
+        let combinedVector: Vector2 = new Vector2(0, 0);
+        if (this.controls.isWPressed) {
+            combinedVector.y += 1;
+        }
+        if (this.controls.isSPressed) {
+            combinedVector.y -= 1;
+        }
+        if (this.controls.isAPressed) {
+            combinedVector.x += 1; // gimbal angle thing is broken so workaround
+        }
+        if (this.controls.isDPressed) {
+            combinedVector.x -= 1; // gimbal angle thing is broken so workaround
+        }
+        let angleY: number = Math.atan2(combinedVector.y, combinedVector.x);
+        if (combinedVector.length() > 0) {
+            if (this.options.canRSea1Gimbal) {
+                for (let i = 0; i < this.options.numRSeas1; i++) {
+                    let rSea = this.rSeas[i];
+                    if (rSea.userData.raptor != null) {
+                        rSea.userData.raptor.setGimbalTarget(RaptorConstants.R_SEA_GIMBAL_MAX_ANGLE, angleY);
+                    }
+                }
+            }
+            if (this.options.canRSea2Gimbal) {
+                for (let i = 0; i < this.options.numRSeas2; i++) {
+                    let rSea = this.rSeas[i + this.options.numRSeas1];
+                    if (rSea.userData.raptor != null) {
+                        rSea.userData.raptor.setGimbalTarget(RaptorConstants.R_SEA_GIMBAL_MAX_ANGLE, angleY);
+                    }
+                }
+            }
+            if (this.options.canRSea3Gimbal) {
+                for (let i = 0; i < this.options.numRSeas3; i++) {
+                    let rSea = this.rSeas[i + this.options.numRSeas1 + this.options.numRSeas2];
+                    if (rSea.userData.raptor != null) {
+                        rSea.userData.raptor.setGimbalTarget(RaptorConstants.R_SEA_GIMBAL_MAX_ANGLE, angleY);
+                    }
+                }
+            }
+        }
+        else {
+            if (this.options.canRSea1Gimbal) {
+                for (let i = 0; i < this.options.numRSeas1; i++) {
+                    let rSea = this.rSeas[i];
+                    if (rSea.userData.raptor != null) {
+                        rSea.userData.raptor.setGimbalTarget(0, 0);
+                    }
+                }
+            }
+            if (this.options.canRSea2Gimbal) {
+                for (let i = 0; i < this.options.numRSeas2; i++) {
+                    let rSea = this.rSeas[i + this.options.numRSeas1];
+                    if (rSea.userData.raptor != null) {
+                        rSea.userData.raptor.setGimbalTarget(0, 0);
+                    }
+                }
+            }
+            if (this.options.canRSea3Gimbal) {
+                for (let i = 0; i < this.options.numRSeas3; i++) {
+                    let rSea = this.rSeas[i + this.options.numRSeas1 + this.options.numRSeas2];
+                    if (rSea.userData.raptor != null) {
+                        rSea.userData.raptor.setGimbalTarget(0, 0);
+                    }
+                }
+            }
+        }
+    }
+
+    public controlGridFins(): void {
+        for (let gridFin of this.gridFins) {
+            if (this.controls.isWPressed) {
+                if (this.separated) {
+                    if (gridFin.rotation.z >= -45 * Math.PI / 180 && gridFin.rotation.z <= 45 * Math.PI / 180) {
+                        gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
+                    }
+                    if (gridFin.rotation.z >= 135 * Math.PI / 180 || gridFin.rotation.z <= -135 * Math.PI / 180) {
+                        gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
+                    }
+                }
+                else {
+                    if (gridFin.rotation.z >= -45 * Math.PI / 180 && gridFin.rotation.z <= 45 * Math.PI / 180) {
+                        gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
+                    }
+                    if (gridFin.rotation.z >= 135 * Math.PI / 180 || gridFin.rotation.z <= -135 * Math.PI / 180) {
+                        gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
+                    }
+                }
+            }
+            else if (this.controls.isSPressed) {
+                if (this.separated) {
+                    if (gridFin.rotation.z >= -45 * Math.PI / 180 && gridFin.rotation.z <= 45 * Math.PI / 180) {
+                        gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
+                    }
+                    if (gridFin.rotation.z >= 135 * Math.PI / 180 || gridFin.rotation.z <= -135 * Math.PI / 180) {
+                        gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
+                    }
+                }
+                else {
+                    if (gridFin.rotation.z >= -45 * Math.PI / 180 && gridFin.rotation.z <= 45 * Math.PI / 180) {
+                        gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
+                    }
+                    if (gridFin.rotation.z >= 135 * Math.PI / 180 || gridFin.rotation.z <= -135 * Math.PI / 180) {
+                        gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
+                    }
+                }
+            }
+            else if (this.controls.isAPressed) {
+                if (this.separated) {
+                    if (gridFin.rotation.z >= 45 * Math.PI / 180 && gridFin.rotation.z <= 135 * Math.PI / 180) {
+                        gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
+                    }
+                    if (gridFin.rotation.z >= -135 * Math.PI / 180 && gridFin.rotation.z <= -45 * Math.PI / 180) {
+                        gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
+                    }
+                }
+                else {
+                    if (gridFin.rotation.z >= 45 * Math.PI / 180 && gridFin.rotation.z <= 135 * Math.PI / 180) {
+                        gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
+                    }
+                    if (gridFin.rotation.z >= -135 * Math.PI / 180 && gridFin.rotation.z <= -45 * Math.PI / 180) {
+                        gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
+                    }
+                }
+            }
+            else if (this.controls.isDPressed) {
+                if (this.separated) {
+                    if (gridFin.rotation.z >= 45 * Math.PI / 180 && gridFin.rotation.z <= 135 * Math.PI / 180) {
+                        gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
+                    }
+                    if (gridFin.rotation.z >= -135 * Math.PI / 180 && gridFin.rotation.z <= -45 * Math.PI / 180) {
+                        gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
+                    }
+                }
+                else {
+                    if (gridFin.rotation.z >= 45 * Math.PI / 180 && gridFin.rotation.z <= 135 * Math.PI / 180) {
+                        gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
+                    }
+                    if (gridFin.rotation.z >= -135 * Math.PI / 180 && gridFin.rotation.z <= -45 * Math.PI / 180) {
+                        gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
+                    }
+                }
+            }
+            else if (this.controls.isQPressed) {
+                gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
+            }
+            else if (this.controls.isEPressed) {
+                gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
+            }
+            else {
+                gridFin.userData.gridFin.setTarget(GridFinConstants.NEUTRAL_ANGLE);
+            }
+        }
+    }
+
+    public runForceShutdown(): void {
         for (let rSea of this.rSeas) {
+            if (rSea.userData.raptor != null) {
+                rSea.userData.raptor.setThrottleTarget(0);
+            }
+        }
+    }
+    
+    public runStartupSequence(): void {
+        let areAllRSea1Ready: boolean = true;
+        for (let i = 0; i < this.options.numRSeas1; i++) {
+            let rSea = this.rSeas[i];
+            if (rSea.userData.raptor != null) {
+                rSea.userData.raptor.setThrottleTarget(RaptorConstants.MAX_THROTTLE);
+            }
+            if (rSea.userData.raptor.throttle != RaptorConstants.MAX_THROTTLE) {
+                areAllRSea1Ready = false;
+            }
+        }
+        if (areAllRSea1Ready) {
+            let areAllRSea2Ready: boolean = true;
+            for (let i = 0; i < this.options.numRSeas2; i++) {
+                let rSea = this.rSeas[i + this.options.numRSeas1];
+                if (rSea.userData.raptor != null) {
+                    rSea.userData.raptor.setThrottleTarget(RaptorConstants.MAX_THROTTLE);
+                }
+                if (rSea.userData.raptor.throttle != RaptorConstants.MAX_THROTTLE) {
+                    areAllRSea2Ready = false;
+                }
+            }
+            if (areAllRSea2Ready) {
+                let areAllRSea3Ready: boolean = true;
+                for (let i = 0; i < this.options.numRSeas3; i++) {
+                    let rSea = this.rSeas[i + this.options.numRSeas1 + this.options.numRSeas2];
+                    if (rSea.userData.raptor != null) {
+                        rSea.userData.raptor.setThrottleTarget(RaptorConstants.MAX_THROTTLE);
+                    }
+                    if (rSea.userData.raptor.throttle != RaptorConstants.MAX_THROTTLE) {
+                        areAllRSea3Ready = false;
+                    }
+                }
+
+                if (areAllRSea3Ready) {
+                    this.runningStartupSequence = false;
+                    this.completedStartupSequence = true;
+                }
+            }
+        }
+    }
+
+    public updateRaptors(delta: number): void {
+        let rSeaGimbalingAngles1: number[] = [];
+        let rSeaGimbalYs1: number[] = [];
+        let rSeaGimbalingAngles2: number[] = [];
+        let rSeaGimbalYs2: number[] = [];
+        let rSeaGimbalingAngles3: number[] = [];
+        let rSeaGimbalYs3: number[] = [];
+
+        let rSeaThrottles1: number[] = [];
+        let rSeaThrottles2: number[] = [];
+        let rSeaThrottles3: number[] = [];
+
+        for (let i = 0; i < this.rSeas.length; i++) {
+            let rSea = this.rSeas[i];
             if (rSea.userData.raptor != null) {
                 rSea.userData.raptor.update(delta);
 
-                rSea.rotation.copy(new Euler().setFromQuaternion(new Quaternion().setFromEuler(rSea.userData.originalRotation).multiply(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), rSea.userData.raptor.angleY).multiply(new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), rSea.userData.raptor.gimbalAngle)))));
+                rSea.quaternion.copy(new Quaternion().setFromEuler(rSea.userData.originalRotation).multiply(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), rSea.userData.raptor.angleY).multiply(new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), rSea.userData.raptor.gimbalAngle))));
+            
+                if (i < this.options.numRSeas1) {
+                    if (this.options.canRSea1Gimbal) {
+                        rSeaGimbalingAngles1 = [...rSeaGimbalingAngles1, rSea.userData.raptor.gimbalAngle];
+                        rSeaGimbalYs1 = [...rSeaGimbalYs1, rSea.userData.raptor.angleY];
+                    }
+                    rSeaThrottles1 = [...rSeaThrottles1, rSea.userData.raptor.throttle];
+                }
+                else if (i < this.options.numRSeas1 + this.options.numRSeas2) {
+                    if (this.options.canRSea2Gimbal) {
+                        rSeaGimbalingAngles2 = [...rSeaGimbalingAngles2, rSea.userData.raptor.gimbalAngle];
+                        rSeaGimbalYs2 = [...rSeaGimbalYs2, rSea.userData.raptor.angleY];
+                    }
+                    rSeaThrottles2 = [...rSeaThrottles2, rSea.userData.raptor.throttle];
+                }
+                else {
+                    if (this.options.canRSea3Gimbal) {
+                        rSeaGimbalingAngles3 = [...rSeaGimbalingAngles3, rSea.userData.raptor.gimbalAngle];
+                        rSeaGimbalYs3 = [...rSeaGimbalYs3, rSea.userData.raptor.angleY];
+                    }
+                    rSeaThrottles3 = [...rSeaThrottles3, rSea.userData.raptor.throttle];
+                }
             }
         }
+        telemetry.update((value) => {
+            value.rSeaGimbalingAngles1 = rSeaGimbalingAngles1;
+            value.rSeaGimbalYs1 = rSeaGimbalYs1;
+            value.rSeaGimbalingAngles2 = rSeaGimbalingAngles2;
+            value.rSeaGimbalYs2 = rSeaGimbalYs2;
+            value.rSeaGimbalingAngles3 = rSeaGimbalingAngles3;
+            value.rSeaGimbalYs3 = rSeaGimbalYs3;
+
+            value.rSeaThrottles1 = rSeaThrottles1;
+            value.rSeaThrottles2 = rSeaThrottles2;
+            value.rSeaThrottles3 = rSeaThrottles3;
+            return value;
+        });
     }
 
     public updateGridFins(delta: number): void {
@@ -711,15 +701,6 @@ export class SuperHeavy {
                 rSea.userData.raptor.reset();
             }
         }
-        telemetry.update((value) => {
-            value.rSeaGimbalingAngles1 = [];
-            value.rSeaGimbalYs1 = [];
-            value.rSeaGimbalingAngles2 = [];
-            value.rSeaGimbalYs2 = [];
-            value.rSeaGimbalingAngles3 = [];
-            value.rSeaGimbalYs3 = [];
-            return value;
-        });
     }
 
     public resetGridFins(): void {
@@ -886,7 +867,7 @@ export class SuperHeavy {
             this.visibilityCooldown = SuperHeavyConstants.VISIBILITY_COOLDOWN;
         }
         if (this.isLaunching) {
-            this.controlGimbals();
+            this.controlRaptors();
             this.controlGridFins();
         }
         this.updateFuel(delta);

@@ -8,12 +8,13 @@ export class CelestialConstants {
 
     public static readonly EARTH_RADIUS: number = 360;
     public static readonly REAL_SCALE: number = PhysicsConstants.RADIUS_EARTH / CelestialConstants.EARTH_RADIUS;
-    public static readonly EARTH_EFFECTIVE_MULTIPLIER: number = 0.999966;
+    public static readonly EARTH_EFFECTIVE_MULTIPLIER: number = 0.9999662;
     public static readonly EARTH_EFFECTIVE_RADIUS: number = CelestialConstants.EARTH_RADIUS * CelestialConstants.EARTH_EFFECTIVE_MULTIPLIER;
     public static readonly EARTH_VIEW_RADIUS: number = CelestialConstants.EARTH_RADIUS * 1.1;
     public static readonly CLOUDS_RADIUS: number = CelestialConstants.EARTH_RADIUS * 1.0025;
     public static readonly ATMOSPHERE_RADIUS: number = CelestialConstants.EARTH_RADIUS * 1.075;
-    public static readonly EARTH_ROTATION_SPEED: number = 0.0001;
+    // public static readonly EARTH_ROTATION_SPEED: number = 0.0001;
+    public static readonly EARTH_ROTATION_SPEED: number = 0;
     public static readonly CLOUDS_ROTATION_SPEED: number = CelestialConstants.EARTH_ROTATION_SPEED * 100;
 
     public static readonly EARTH_VERTICES: number = 360;

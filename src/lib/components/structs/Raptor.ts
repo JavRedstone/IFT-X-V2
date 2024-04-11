@@ -45,16 +45,18 @@ export class Raptor {
     public updateThrottle(delta: number): void {
         let diff = this.tThrottle - this.throttle;
         let step = diff > 0 ? RaptorConstants.THROTTLE_UP_VEL * delta : RaptorConstants.THROTTLE_DOWN_VEL * delta;
-        if (this.throttle < RaptorConstants.MIN_THROTTLE && diff > 0) {
+        if (this.throttle <= RaptorConstants.MIN_THROTTLE && this.tThrottle >= RaptorConstants.MIN_THROTTLE && diff > 0) {
             this.throttle = RaptorConstants.MIN_THROTTLE;
         }
-        if (this.throttle > RaptorConstants.MIN_THROTTLE && diff < 0) {
-            this.throttle = 0;
-        }
+        
         if (Math.abs(diff) < step)
             this.throttle = this.tThrottle;
         else
             this.throttle += diff > 0 ? step : -step;
+
+        if (this.throttle <= RaptorConstants.MIN_THROTTLE && this.tThrottle <= RaptorConstants.MIN_THROTTLE) {
+            this.throttle = 0;
+        }
     }
 
     public updateGimbal(delta: number): void {

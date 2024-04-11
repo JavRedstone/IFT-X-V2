@@ -7,15 +7,14 @@ export class LaunchConstants {
 
     public static readonly FUELING_SPEEDUP: number = 2000;
     public static readonly COUNTDOWN_SPEEDUP: number = 20;
-    public static readonly LAUNCH_SPEEDUP: number = 1;
+    public static readonly LAUNCH_SPEEDUP: number = 10;
 
     public static readonly STOP_DT: number = -150; //s
     public static readonly HOLD_DT: number = -40; //s
     public static readonly COUNTDOWN_DT: number = -11; //s
     public static readonly STARTUP_DT: number = -2; //s
-    public static readonly MECO_DT: number = 10; //s
-
-    public static readonly MAX_STAY_ON_PAD: number = 10; //s
+    public static readonly PAD_DT: number = 10; //s
+    public static readonly MECO_DT: number = 30; //s
 
     public static readonly LAUNCH_EVENTS: string[] = [
         "Booster Engine Cutoff",

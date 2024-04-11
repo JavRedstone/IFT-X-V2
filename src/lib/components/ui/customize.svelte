@@ -1274,8 +1274,6 @@
         width:100%;
         height: 100%;
         border: none;
-        border-left: 1px solid white;
-        border-right: 1px solid white;
         outline: none;
         background-color: #009f6B80;
         font-size: 16px;
@@ -1298,8 +1296,6 @@
         width:100%;
         height: 100%;
         border: none;
-        border-left: 1px solid white;
-        border-right: 1px solid white;
         outline: none;
         background-color: #ff450080;
         font-size: 16px;
@@ -1436,9 +1432,9 @@
 </div>
 <div class="customize-banner" style="bottom: 0; {hasLeftBar ? hasRightBar ? "left: 390px; width: calc(100vw - 390px - 340px);" : "left: 390px; width: calc(100vw - 390px);" : hasRightBar ? "left: 0; width: calc(100vw - 340px);" : "left: 0; width: 100vw;"}">
     {#if starshipValidated && superHeavyValidated}
-        <button class="customize-fueling-action" on:click={startFueling}>Fuel &#10054;</button>
+        <button class="customize-fueling-action" style="border-left: {hasLeftBar ? '1px solid white' : ''}; border-right: {hasRightBar ? '1px solid white' : ''}" on:click={startFueling}>Fuel &#10054;</button>
     {:else}
-        <button class="customize-fueling-action-error" on:click={startFueling}>Fuel &#10054;</button>
+        <button class="customize-fueling-action-error" style="border-left: {hasLeftBar ? '1px solid white' : ''}; border-right: {hasRightBar ? '1px solid white' : ''}" on:click={startFueling}>Fuel &#10054;</button>
     {/if}
 </div>
 <div style="position:fixed; left: 8px; bottom: 58px;">
