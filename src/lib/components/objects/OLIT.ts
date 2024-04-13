@@ -21,7 +21,18 @@ export class OLIT {
     public hasSetupSingle: boolean = false;
     public hasUpdatedAABB: boolean = false;
 
+    public startQDSwing: boolean = false;
+
     constructor() {
+    }
+
+    public swingQD(delta: number): void {
+        if (this.qd != null && this.qd.rotation.y > OLITConstants.QD_MAX_ROTATION.y) {
+            this.qd.rotation.y -= OLITConstants.QD_SWING_RATE * delta;
+        }
+        else {
+            this.startQDSwing = false;
+        }
     }
 
     public setupSingle(): void {
@@ -86,6 +97,11 @@ export class OLIT {
         else {
             this.updateAABB();
             this.updateObjects();
+
+
+            if (this.startQDSwing) {
+                this.swingQD(delta);
+            }
         }
     }
 }

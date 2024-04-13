@@ -293,6 +293,7 @@ export class LaunchManager {
                             let altitude: number = LaunchHelper.getAltitude(this.group.position.clone().add(this.stackGroup.position.clone().add(this.superHeavy.group.position)));
                             if (this.superHeavy.getThrustVector(altitude).y - this.getStackWeight(altitude) > 0) {
                                 this.canLiftOff = true;
+                                this.OLIT.startQDSwing = true;
                             }
                         }
                     }
@@ -377,7 +378,7 @@ export class LaunchManager {
         }
     }
 
-    public updateView(delta: number): void {
+    public updateView(): void {
         if (MathHelper.isInRadiusOf(PRTransients.fakePositions.earthPosition, CelestialConstants.EARTH_VIEW_RADIUS, this.orbitControls.target)) {
             this.targetPos = PRTransients.realPositions.earthPosition;
             this.isFreeView = true;
@@ -410,7 +411,7 @@ export class LaunchManager {
             this.orbitControls != null && this.camera != null &&
             this.starship.group.userData.aabb != null && this.superHeavy.group.userData.aabb != null &&
             this.starship.group.userData.aabb.getSize(new Vector3).length() != 0 && this.superHeavy.group.userData.aabb.getSize(new Vector3).length() != 0) {
-                this.updateView(delta);
+                this.updateView();
         }
     }
 

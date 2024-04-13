@@ -253,7 +253,6 @@ export class SuperHeavy {
             let force: Vector3 = new Vector3(forceScalar, 0, 0).applyEuler(forceDirection);
             force.z = -force.z; // same issue with the gimbal for some reason
             // if aligned, negative, if not, positive
-            // console.log(this.gridFins.indexOf(gridFin), gridFin.rotation.z * 180 / Math.PI, Math.sign(gridFin.userData.gridFin.angle), Math.sign(forceScalar), force.clone().normalize())
             if (orientation.dot(velocity) >= 0) {
                 force.negate();
             }
