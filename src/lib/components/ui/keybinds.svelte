@@ -160,10 +160,10 @@
                 <p class="keybind-text">Reset</p>
             {:else if isLaunching}
                 <div class="keybind-keycap">W</div>
-                <p class="keybind-text">SuperHeavy Pitch Forward</p>
+                <p class="keybind-text">SuperHeavy Pitch Backward</p>
                 <br>
                 <div class="keybind-keycap">S</div>
-                <p class="keybind-text">SuperHeavy Pitch Backward</p>
+                <p class="keybind-text">SuperHeavy Pitch Forward</p>
                 <br>
                 <div class="keybind-keycap">A</div>
                 <p class="keybind-text">SuperHeavy Yaw Left</p>
@@ -178,10 +178,10 @@
                 <p class="keybind-text">SuperHeavy Roll Right</p>
                 <br>
                 <div class="keybind-keycap">I</div>
-                <p class="keybind-text">Starship Pitch Forward</p>
+                <p class="keybind-text">Starship Pitch Backward</p>
                 <br>
                 <div class="keybind-keycap">K</div>
-                <p class="keybind-text">Starship Pitch Backward</p>
+                <p class="keybind-text">Starship Pitch Forward</p>
                 <br>
                 <div class="keybind-keycap">J</div>
                 <p class="keybind-text">Starship Yaw Left</p>

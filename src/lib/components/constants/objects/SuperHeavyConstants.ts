@@ -31,6 +31,7 @@ export class SuperHeavyConstants {
 
     public static readonly GRID_FIN_SCALE: Vector3 = new Vector3(0.082328, 0.082328, 0.082328);
     public static readonly GRID_FIN_RADIUS: number = 1;
+    public static readonly GRID_FIN_SURFACE_RADIUS: number = 1.1;
     public static readonly GRID_FIN_WIDTH_PERC: number = 0.25;
     public static readonly GRID_FIN_MAX_LENGTH_SCALE: number = 2;
     public static readonly GRID_FIN_MAX_WIDTH_SCALE: number = 2;
@@ -39,6 +40,7 @@ export class SuperHeavyConstants {
     public static readonly GRID_FIN_TOP_OFFSET: number = 0.1;
     public static readonly NUM_GRID_FINS: number = 4;
     public static readonly GRID_FIN_DRY_MASS: number = 3e3; // kg
+    public static readonly GRID_FIN_ANGLE_LEEWAY: number = 5 * Math.PI / 180;
 
     public static readonly CHINE_SCALE: Vector3 = new Vector3(1, 1, 1);
     public static readonly CHINE_RADIUS: number = 0.975;
@@ -54,24 +56,23 @@ export class SuperHeavyConstants {
     public static readonly R_SEA_SCALE: Vector3 = new Vector3(0.045206, 0.045206, 0.045206);
     public static readonly R_SEA_RADIUS_1: number = 0.175;
     public static readonly R_SEA_ANGULAR_OFFSET_1: number = 60*Math.PI/180;
-    public static readonly R_SEA_HEIGHT_1: number = 0.1;
     public static readonly NUM_R_SEAS_1: number = 3;
     public static readonly R_SEA_TYPE_1: number = 2;
     public static readonly CAN_R_SEA_1_GIMBAL: boolean = true;
 
     public static readonly R_SEA_RADIUS_2: number = 0.525;
     public static readonly R_SEA_ANGULAR_OFFSET_2: number = 45*Math.PI/180;
-    public static readonly R_SEA_HEIGHT_2: number = 0.1;
     public static readonly NUM_R_SEAS_2: number = 10;
     public static readonly R_SEA_TYPE_2: number = 2;
     public static readonly CAN_R_SEA_2_GIMBAL: boolean = true;
 
     public static readonly R_SEA_RADIUS_3: number = 0.925;
     public static readonly R_SEA_ANGULAR_OFFSET_3: number = 0;
-    public static readonly R_SEA_HEIGHT_3: number = 0.1;
     public static readonly NUM_R_SEAS_3: number = 20;
     public static readonly R_SEA_TYPE_3: number = 2;
     public static readonly CAN_R_SEA_3_GIMBAL: boolean = false;
+    
+    public static readonly R_HEIGHT: number = 0.1;
 
     public static readonly OUTER_CYLINDER_SCALE: Vector3 = new Vector3(0.125, 0.125, 0.125);
     public static readonly OUTER_CYLINDER_ADDITONAL_HEIGHT: number = 0.225;

@@ -3,4 +3,9 @@ export class GridFinConstants {
     public static readonly NEUTRAL_ANGLE: number = 0;
     public static readonly MIN_ANGLE: number = -45 * Math.PI / 180;
     public static readonly MAX_ANGLE: number = 45 * Math.PI / 180;
+    
+    public static readonly GRID_FIN_FORCE_MULTIPLIER: number = 1000;
+
+    public static readonly FORCE_LOSS: number = 0.00001;
+    public static readonly MAX_FORCE_LOSS: number = 1;
 }

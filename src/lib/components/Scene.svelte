@@ -27,7 +27,7 @@
   import Olm from './models/olm.svelte';
   import OuterCylinder from './models/outer_cylinder.svelte';
   import { SceneConstants } from './constants/SceneConstants';
-  import type { Object3D } from 'three';
+  import type { Object3D, SphereGeometry } from 'three';
 
   const TC: ThrelteContext = useThrelte();  
   let sceneManager: SceneManager = new SceneManager(TC);
@@ -238,3 +238,8 @@
   <Carriage bind:ref={sceneManager.launchManager.OLIT.carriageQd}/>
   <Olm bind:ref={sceneManager.launchManager.OLIT.olm}/>
 </T.Group>
+
+<!-- <T.Mesh>
+  <T.SphereGeometry args={[0.0002, 32, 32]} />
+  <T.MeshBasicMaterial color="red" />
+</T.Mesh> -->

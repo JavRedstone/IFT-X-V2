@@ -193,69 +193,27 @@ export class Starship {
         return COM.divideScalar(this.getMass());
     }
 
-    public getMomentOfInertiaRoll(): number {
+    public getMOIRoll(): number {
         return 1/2 * this.getMass() * Math.pow(StarshipConstants.SHIP_RING_SCALE.x * StarshipConstants.REAL_LIFE_SCALE.x, 2);
     }
 
-    public getMomentOfInertiaPitch(): number {
+    public getMOIPitch(): number {
         return 1/4 * this.getMass() * Math.pow(StarshipConstants.SHIP_RING_SCALE.x * StarshipConstants.REAL_LIFE_SCALE.x, 2) + 1/12 * this.getMass() * Math.pow(this.options.shipRingHeight * StarshipConstants.REAL_LIFE_SCALE.y, 2);
     }
 
-    public getThrust(): number {
-        let totalThrust: number = 0;
+    public getThrustVector(altitude: number): Vector3 {
+        let F: Vector3 = new Vector3(0, 0, 0);
         for (let rSea of this.rSeas) {
             if (rSea.userData.raptor != null) {
-                totalThrust += LaunchHelper.getThrust(true, rSea.userData.raptor.type) * rSea.userData.raptor.throttle;
+                F.add(new Vector3(0, LaunchHelper.getThrust(true, rSea.userData.raptor.type) * rSea.userData.raptor.throttle * (1 -  LaunchHelper.getThrustLoss(altitude)), 0).applyQuaternion(rSea.quaternion));
             }
         }
         for (let rVac of this.rVacs) {
             if (rVac.userData.raptor != null) {
-                totalThrust += LaunchHelper.getThrust(false, rVac.userData.raptor.type) * rVac.userData.raptor.throttle;
+                F.add(new Vector3(0, LaunchHelper.getThrust(false, rVac.userData.raptor.type) * rVac.userData.raptor.throttle * (1 -  LaunchHelper.getThrustLoss(altitude)), 0).applyQuaternion(rVac.quaternion));
             }
         }
-        return totalThrust;
-    }
-
-    public getGimbaledThrust(): number {
-        let totalThrust: number = 0;
-        if (this.options.canRSeaGimbal) {
-            for (let rSea of this.rSeas) {
-                if (rSea.userData.raptor != null) {
-                    totalThrust += LaunchHelper.getThrust(true, rSea.userData.raptor.type) * rSea.userData.raptor.throttle;
-                }
-            }
-        }
-        if (this.options.canRVacGimbal) {
-            for (let rVac of this.rVacs) {
-                if (rVac.userData.raptor != null) {
-                    totalThrust += LaunchHelper.getThrust(false, rVac.userData.raptor.type) * rVac.userData.raptor.throttle;
-                }
-            }
-        }
-        return totalThrust;
-    }
-
-    public getNonGimbaledThrust(): number {
-        return this.getThrust() - this.getGimbaledThrust();
-    }
-
-    public getRealThrust(altitude: number): number {
-        return this.getThrust() - LaunchHelper.getThrustLoss(altitude) * (this.options.numRSeas1 + this.options.numRSeas2 + this.options.numRSeas3);
-    }
-
-    public getRealGimbaledThrust(altitude: number): number {
-        let totalNumber: number = 0;
-        if (this.options.canRSeaGimbal) {
-            totalNumber += this.options.numRSeas1 + this.options.numRSeas2 + this.options.numRSeas3;
-        }
-        if (this.options.canRVacGimbal) {
-            totalNumber += this.options.numRVacs1 + this.options.numRVacs2 + this.options.numRVacs3;
-        }
-        return this.getGimbaledThrust() - LaunchHelper.getThrustLoss(altitude) * totalNumber;
-    }
-
-    public getRealNonGimbaledThrust(altitude: number): number {
-        return this.getRealThrust(altitude) - this.getRealGimbaledThrust(altitude);
+        return F;
     }
 
     public updateFrost(delta: number): void {
@@ -435,25 +393,39 @@ export class Starship {
     }
 
     public controlFlaps(): void {
-        if (this.controls.isIPressed) {
+        let isIPressed: boolean = this.controls.isIPressed;
+        let isKPressed: boolean = this.controls.isKPressed;
+        let isUPressed: boolean = this.controls.isUPressed;
+        let isOPressed: boolean = this.controls.isOPressed;
+
+        if (isIPressed && isKPressed) {
+            isIPressed = false;
+            isKPressed = false;
+        }
+        if (isUPressed && isOPressed) {
+            isUPressed = false;
+            isOPressed = false;
+        }
+
+        if (isIPressed) {
             this.forwardL.userData.flap.setTarget(FlapConstants.MAX_ANGLE);
             this.forwardR.userData.flap.setTarget(FlapConstants.MAX_ANGLE);
             this.aftL.userData.flap.setTarget(FlapConstants.MIN_ANGLE);
             this.aftR.userData.flap.setTarget(FlapConstants.MIN_ANGLE);
         }
-        else if (this.controls.isKPressed) {
+        else if (isKPressed) {
             this.forwardL.userData.flap.setTarget(FlapConstants.MIN_ANGLE);
             this.forwardR.userData.flap.setTarget(FlapConstants.MIN_ANGLE);
             this.aftL.userData.flap.setTarget(FlapConstants.MAX_ANGLE);
             this.aftR.userData.flap.setTarget(FlapConstants.MAX_ANGLE);
         }
-        else if (this.controls.isUPressed) {
+        else if (isUPressed) {
             this.forwardL.userData.flap.setTarget(FlapConstants.MAX_ANGLE);
             this.forwardR.userData.flap.setTarget(FlapConstants.MIN_ANGLE);
             this.aftL.userData.flap.setTarget(FlapConstants.MAX_ANGLE);
             this.aftR.userData.flap.setTarget(FlapConstants.MIN_ANGLE);
         }
-        else if (this.controls.isOPressed) {
+        else if (isOPressed) {
             this.forwardL.userData.flap.setTarget(FlapConstants.MIN_ANGLE);
             this.forwardR.userData.flap.setTarget(FlapConstants.MAX_ANGLE);
             this.aftL.userData.flap.setTarget(FlapConstants.MIN_ANGLE);
@@ -573,7 +545,7 @@ export class Starship {
 
         for (let i = 0; i < this.options.numRSeas; i++) {
             let rSea = new Object3D();
-            rSea.position.copy(rSeaPositions[i].clone().add(new Vector3(0, StarshipConstants.R_SEA_HEIGHT * StarshipConstants.STARSHIP_SCALE.y, 0)));
+            rSea.position.copy(rSeaPositions[i].clone().add(new Vector3(0, StarshipConstants.R_HEIGHT * StarshipConstants.STARSHIP_SCALE.y, 0)));
             rSea.scale.copy(StarshipConstants.R_SEA_SCALE.clone().multiply(StarshipConstants.STARSHIP_SCALE));
             rSea.userData.originalRotation = new Euler(0, 0, 0);
             rSea.userData.raptor = new Raptor(true, this.options.rSeaType);
@@ -587,7 +559,7 @@ export class Starship {
 
         for (let i = 0; i < this.options.numRVacs; i++) {
             let rVac = new Object3D();
-            rVac.position.copy(rVacPositions[i].clone().add(new Vector3(0, StarshipConstants.R_VAC_HEIGHT * StarshipConstants.STARSHIP_SCALE.y, 0)));
+            rVac.position.copy(rVacPositions[i].clone().add(new Vector3(0, StarshipConstants.R_HEIGHT * StarshipConstants.STARSHIP_SCALE.y, 0)));
             rVac.scale.copy(StarshipConstants.R_VAC_SCALE.clone().multiply(StarshipConstants.STARSHIP_SCALE));
             rVac.userData.originalRotation = new Euler(0, 0, 0);
             rVac.userData.raptor = new Raptor(false, this.options.rVacType);

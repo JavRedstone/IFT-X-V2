@@ -205,59 +205,79 @@ export class SuperHeavy {
         return COM.divideScalar(this.getMass());
     }
 
-    public getMomentOfInertiaRoll(): number {
+    public getMOIRoll(): number {
         return 1/2 * this.getMass() * Math.pow(SuperHeavyConstants.BOOSTER_RING_SCALE.x * SuperHeavyConstants.REAL_LIFE_SCALE.x, 2);
     }
 
-    public getMomentOfInertiaPitch(): number {
+    public getMOIPitch(): number {
         return 1/4 * this.getMass() * Math.pow(SuperHeavyConstants.BOOSTER_RING_SCALE.x * SuperHeavyConstants.REAL_LIFE_SCALE.x, 2) + 1/12 * this.getMass() * Math.pow(this.options.boosterRingHeight * SuperHeavyConstants.REAL_LIFE_SCALE.y, 2);
     }
 
-    public getTotalThrust(altitude: number): number {
-        let totalThrust: number = 0;
-        for (let rSea of this.rSeas) {
-            if (rSea.userData.raptor != null) {
-                totalThrust += LaunchHelper.getThrust(true, rSea.userData.raptor.type) * rSea.userData.raptor.throttle - LaunchHelper.getThrustLoss(altitude);
-            }
-        }
-        return totalThrust;
-    }
-
-    public getGimbalForceVector(altitude: number): Vector3 {
+    public getThrustVector(altitude: number): Vector3 {
         let F: Vector3 = new Vector3(0, 0, 0);
-        if (this.options.canRSea1Gimbal) {
-            for (let i = 0; i < this.options.numRSeas1; i++) {
-                let rSea = this.rSeas[i];
-                if (rSea.userData.raptor != null) {
-                    F.add(new Vector3(0, LaunchHelper.getThrust(true, rSea.userData.raptor.type) * rSea.userData.raptor.throttle - LaunchHelper.getThrustLoss(altitude), 0).applyQuaternion(rSea.quaternion));
-                }
+        for (let i = 0; i < this.options.numRSeas1; i++) {
+            let rSea = this.rSeas[i];
+            if (rSea.userData.raptor != null) {
+                F.add(new Vector3(0, LaunchHelper.getThrust(true, rSea.userData.raptor.type) * rSea.userData.raptor.throttle * (1 -  LaunchHelper.getThrustLoss(altitude)), 0).applyQuaternion(rSea.quaternion));
             }
         }
-        if (this.options.canRSea2Gimbal) {
-            for (let i = 0; i < this.options.numRSeas2; i++) {
-                let rSea = this.rSeas[i + this.options.numRSeas1];
-                if (rSea.userData.raptor != null) {
-                    F.add(new Vector3(0, LaunchHelper.getThrust(true, rSea.userData.raptor.type) * rSea.userData.raptor.throttle - LaunchHelper.getThrustLoss(altitude), 0).applyQuaternion(rSea.quaternion));
-                }
+        for (let i = 0; i < this.options.numRSeas2; i++) {
+            let rSea = this.rSeas[i + this.options.numRSeas1];
+            if (rSea.userData.raptor != null) {
+                F.add(new Vector3(0, LaunchHelper.getThrust(true, rSea.userData.raptor.type) * rSea.userData.raptor.throttle * (1 -  LaunchHelper.getThrustLoss(altitude)), 0).applyQuaternion(rSea.quaternion));
             }
         }
-        if (this.options.canRSea3Gimbal) {
-            for (let i = 0; i < this.options.numRSeas3; i++) {
-                let rSea = this.rSeas[i + this.options.numRSeas1 + this.options.numRSeas2];
-                if (rSea.userData.raptor != null) {
-                    F.add(new Vector3(0, LaunchHelper.getThrust(true, rSea.userData.raptor.type) * rSea.userData.raptor.throttle - LaunchHelper.getThrustLoss(altitude), 0).applyQuaternion(rSea.quaternion));
-                }
+        for (let i = 0; i < this.options.numRSeas3; i++) {
+            let rSea = this.rSeas[i + this.options.numRSeas1 + this.options.numRSeas2];
+            if (rSea.userData.raptor != null) {
+                F.add(new Vector3(0, LaunchHelper.getThrust(true, rSea.userData.raptor.type) * rSea.userData.raptor.throttle * (1 -  LaunchHelper.getThrustLoss(altitude)), 0).applyQuaternion(rSea.quaternion));
             }
         }
         return F;
     }
 
-    public getGimbaledThrust(altitude: number): number {
-        return this.getGimbalForceVector(altitude).y;
+    public getThrustTorque(COM: Vector3, altitude: number): Vector3 {
+        let R = new Vector3(0, SuperHeavyConstants.R_HEIGHT * SuperHeavyConstants.REAL_LIFE_SCALE.y, 0).sub(COM);
+        let F: Vector3 = this.getThrustVector(altitude);
+        return R.clone().cross(F);
     }
 
-    public getNonGimbaledThrust(altitude: number): number {
-        return this.getTotalThrust(altitude) - this.getGimbaledThrust(altitude);
+    public getGridFinPitchTorque(rotation: Quaternion, velocity: Vector3, COM: Vector3, altitude: number): Vector3 {
+        let orientation: Vector3 = new Vector3(0, 1, 0).applyQuaternion(rotation);
+        let generic_R = new Vector3(0, this.options.boosterRingHeight - SuperHeavyConstants.GRID_FIN_TOP_OFFSET * SuperHeavyConstants.REAL_LIFE_SCALE.y, 0).sub(COM);
+        let T: Vector3 = new Vector3(0, 0, 0);
+        for (let gridFin of this.gridFins) {
+            let R: Vector3 = generic_R.clone().add(new Vector3(0, 0, SuperHeavyConstants.GRID_FIN_SURFACE_RADIUS).applyEuler(new Euler(0, gridFin.rotation.z, 0)));
+            let forceScalar: number = gridFin.userData.gridFin.angle * GridFinConstants.GRID_FIN_FORCE_MULTIPLIER * (1 - LaunchHelper.getGridFinForceLoss(altitude)) * velocity.length();
+            let forceDirection: Euler = new Euler(0, gridFin.rotation.z, 0);
+            let force: Vector3 = new Vector3(forceScalar, 0, 0).applyEuler(forceDirection);
+            force.z = -force.z; // same issue with the gimbal for some reason
+            // if aligned, negative, if not, positive
+            // console.log(this.gridFins.indexOf(gridFin), gridFin.rotation.z * 180 / Math.PI, Math.sign(gridFin.userData.gridFin.angle), Math.sign(forceScalar), force.clone().normalize())
+            if (orientation.dot(velocity) >= 0) {
+                force.negate();
+            }
+            T.add(R.clone().cross(force));
+        }
+        return T;
+    }
+
+    public getGridFinRollTorque(rotation: Quaternion, velocity: Vector3, altitude: number): Vector3 {
+        let orientation: Vector3 = new Vector3(0, 1, 0).applyQuaternion(rotation);
+        let generic_R = new Vector3(0, 0, SuperHeavyConstants.GRID_FIN_SURFACE_RADIUS);
+        let T: Vector3 = new Vector3(0, 0, 0);
+        for (let gridFin of this.gridFins) {
+            let R: Vector3 = generic_R.clone().applyEuler(new Euler(0, gridFin.rotation.z, 0));
+            let forceScalar: number = gridFin.userData.gridFin.angle * GridFinConstants.GRID_FIN_FORCE_MULTIPLIER * (1 - LaunchHelper.getGridFinForceLoss(altitude)) * velocity.length();
+            let forceDirection: Euler = new Euler(0, gridFin.rotation.z, 0);
+            let force: Vector3 = new Vector3(forceScalar, 0, 0).applyEuler(forceDirection);
+            // if aligned, negative, if not, positive
+            if (orientation.dot(velocity) >= 0) {
+                force.negate();
+            }
+            T.add(R.clone().cross(force));
+        }
+        return T;
     }
 
     public updateFuel(delta: number): void {
@@ -493,87 +513,228 @@ export class SuperHeavy {
     }
 
     public controlGridFins(): void {
+        let isWPressed: boolean = this.controls.isWPressed;
+        let isSPressed: boolean = this.controls.isSPressed;
+        let isAPressed: boolean = this.controls.isAPressed;
+        let isDPressed: boolean = this.controls.isDPressed;
+        let isQPressed: boolean = this.controls.isQPressed;
+        let isEPressed: boolean = this.controls.isEPressed;
+
+        if (this.controls.isWPressed && this.controls.isSPressed) {
+            isWPressed = false;
+            isSPressed = false;
+        }
+        if (this.controls.isAPressed && this.controls.isDPressed) {
+            isAPressed = false;
+            isDPressed = false;
+        }
+        if (this.controls.isQPressed && this.controls.isEPressed) {
+            isQPressed = false;
+            isEPressed = false;
+        }
+
         for (let gridFin of this.gridFins) {
-            if (this.controls.isWPressed) {
+            if (isWPressed) {
                 if (this.separated) {
-                    if (gridFin.rotation.z >= -45 * Math.PI / 180 && gridFin.rotation.z <= 45 * Math.PI / 180) {
+                    if (gridFin.rotation.z >= -45 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY && gridFin.rotation.z <= 45 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
                         gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
                     }
-                    if (gridFin.rotation.z >= 135 * Math.PI / 180 || gridFin.rotation.z <= -135 * Math.PI / 180) {
+                    else if (gridFin.rotation.z >= 135 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY || gridFin.rotation.z <= -135 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
                         gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
+                    }
+                    else {
+                        gridFin.userData.gridFin.setTarget(GridFinConstants.NEUTRAL_ANGLE);
                     }
                 }
                 else {
-                    if (gridFin.rotation.z >= -45 * Math.PI / 180 && gridFin.rotation.z <= 45 * Math.PI / 180) {
+                    if (gridFin.rotation.z >= -45 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY && gridFin.rotation.z <= 45 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
                         gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
                     }
-                    if (gridFin.rotation.z >= 135 * Math.PI / 180 || gridFin.rotation.z <= -135 * Math.PI / 180) {
+                    else if (gridFin.rotation.z >= 135 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY || gridFin.rotation.z <= -135 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
                         gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
+                    }
+                    else {
+                        gridFin.userData.gridFin.setTarget(GridFinConstants.NEUTRAL_ANGLE);
                     }
                 }
             }
-            else if (this.controls.isSPressed) {
+            else if (isSPressed) {
                 if (this.separated) {
-                    if (gridFin.rotation.z >= -45 * Math.PI / 180 && gridFin.rotation.z <= 45 * Math.PI / 180) {
+                    if (gridFin.rotation.z >= -45 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY && gridFin.rotation.z <= 45 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
                         gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
                     }
-                    if (gridFin.rotation.z >= 135 * Math.PI / 180 || gridFin.rotation.z <= -135 * Math.PI / 180) {
+                    else if (gridFin.rotation.z >= 135 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY || gridFin.rotation.z <= -135 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
                         gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
+                    }
+                    else {
+                        gridFin.userData.gridFin.setTarget(GridFinConstants.NEUTRAL_ANGLE);
                     }
                 }
                 else {
-                    if (gridFin.rotation.z >= -45 * Math.PI / 180 && gridFin.rotation.z <= 45 * Math.PI / 180) {
+                    if (gridFin.rotation.z >= -45 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY && gridFin.rotation.z <= 45 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
                         gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
                     }
-                    if (gridFin.rotation.z >= 135 * Math.PI / 180 || gridFin.rotation.z <= -135 * Math.PI / 180) {
+                    else if (gridFin.rotation.z >= 135 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY || gridFin.rotation.z <= -135 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
                         gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
+                    }
+                    else {
+                        gridFin.userData.gridFin.setTarget(GridFinConstants.NEUTRAL_ANGLE);
                     }
                 }
             }
-            else if (this.controls.isAPressed) {
+            else if (isAPressed) {
                 if (this.separated) {
-                    if (gridFin.rotation.z >= 45 * Math.PI / 180 && gridFin.rotation.z <= 135 * Math.PI / 180) {
+                    if (gridFin.rotation.z >= 45 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY && gridFin.rotation.z <= 135 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
                         gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
                     }
-                    if (gridFin.rotation.z >= -135 * Math.PI / 180 && gridFin.rotation.z <= -45 * Math.PI / 180) {
+                    else if (gridFin.rotation.z >= -135 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY && gridFin.rotation.z <= -45 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
                         gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
+                    }
+                    else {
+                        gridFin.userData.gridFin.setTarget(GridFinConstants.NEUTRAL_ANGLE);
                     }
                 }
                 else {
-                    if (gridFin.rotation.z >= 45 * Math.PI / 180 && gridFin.rotation.z <= 135 * Math.PI / 180) {
+                    if (gridFin.rotation.z >= 45 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY && gridFin.rotation.z <= 135 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
                         gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
                     }
-                    if (gridFin.rotation.z >= -135 * Math.PI / 180 && gridFin.rotation.z <= -45 * Math.PI / 180) {
+                    else if (gridFin.rotation.z >= -135 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY && gridFin.rotation.z <= -45 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
                         gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
+                    }
+                    else {
+                        gridFin.userData.gridFin.setTarget(GridFinConstants.NEUTRAL_ANGLE);
                     }
                 }
             }
-            else if (this.controls.isDPressed) {
+            else if (isDPressed) {
                 if (this.separated) {
-                    if (gridFin.rotation.z >= 45 * Math.PI / 180 && gridFin.rotation.z <= 135 * Math.PI / 180) {
+                    if (gridFin.rotation.z >= 45 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY && gridFin.rotation.z <= 135 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
                         gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
                     }
-                    if (gridFin.rotation.z >= -135 * Math.PI / 180 && gridFin.rotation.z <= -45 * Math.PI / 180) {
+                    else if (gridFin.rotation.z >= -135 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY && gridFin.rotation.z <= -45 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
                         gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
+                    }
+                    else {
+                        gridFin.userData.gridFin.setTarget(GridFinConstants.NEUTRAL_ANGLE);
                     }
                 }
                 else {
-                    if (gridFin.rotation.z >= 45 * Math.PI / 180 && gridFin.rotation.z <= 135 * Math.PI / 180) {
+                    if (gridFin.rotation.z >= 45 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY && gridFin.rotation.z <= 135 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
                         gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
                     }
-                    if (gridFin.rotation.z >= -135 * Math.PI / 180 && gridFin.rotation.z <= -45 * Math.PI / 180) {
+                    else if (gridFin.rotation.z >= -135 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY && gridFin.rotation.z <= -45 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
                         gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
+                    }
+                    else {
+                        gridFin.userData.gridFin.setTarget(GridFinConstants.NEUTRAL_ANGLE);
                     }
                 }
             }
-            else if (this.controls.isQPressed) {
+            else if (isQPressed) {
                 gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
             }
-            else if (this.controls.isEPressed) {
+            else if (isEPressed) {
                 gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
             }
             else {
                 gridFin.userData.gridFin.setTarget(GridFinConstants.NEUTRAL_ANGLE);
+            }
+            
+            if (isWPressed && isAPressed) {
+                if (this.separated) {
+                    if (gridFin.rotation.z >= 0 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY && gridFin.rotation.z <= 90 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
+                        gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
+                    }
+                    else if (gridFin.rotation.z >= 180 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY || gridFin.rotation.z <= -90 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
+                        gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
+                    }
+                    else {
+                        gridFin.userData.gridFin.setTarget(GridFinConstants.NEUTRAL_ANGLE);
+                    }
+                }
+                else {
+                    if (gridFin.rotation.z >= 0 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY && gridFin.rotation.z <= 90 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
+                        gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
+                    }
+                    else if (gridFin.rotation.z >= 180 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY || gridFin.rotation.z <= -90 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
+                        gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
+                    }
+                    else {
+                        gridFin.userData.gridFin.setTarget(GridFinConstants.NEUTRAL_ANGLE);
+                    }
+                }
+            }
+            else if (isSPressed && isDPressed) {
+                if (this.separated) {
+                    if (gridFin.rotation.z >= 0 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY && gridFin.rotation.z <= 90 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
+                        gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
+                    }
+                    else if (gridFin.rotation.z >= 180 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY || gridFin.rotation.z <= -90 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
+                        gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
+                    }
+                    else {
+                        gridFin.userData.gridFin.setTarget(GridFinConstants.NEUTRAL_ANGLE);
+                    }
+                }
+                else {
+                    if (gridFin.rotation.z >= 0 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY && gridFin.rotation.z <= 90 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
+                        gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
+                    }
+                    else if (gridFin.rotation.z >= 180 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY || gridFin.rotation.z <= -90 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
+                        gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
+                    }
+                    else {
+                        gridFin.userData.gridFin.setTarget(GridFinConstants.NEUTRAL_ANGLE);
+                    }
+                }
+            }
+            else if (isWPressed && isDPressed) {
+                if (this.separated) {
+                    if (gridFin.rotation.z >= 90 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY || gridFin.rotation.z <= -180 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
+                        gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
+                    }
+                    else if (gridFin.rotation.z >= -90 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY && gridFin.rotation.z <= 0 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
+                        gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
+                    }
+                    else {
+                        gridFin.userData.gridFin.setTarget(GridFinConstants.NEUTRAL_ANGLE);
+                    }
+                }
+                else {
+                    if (gridFin.rotation.z >= 90 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY || gridFin.rotation.z <= -180 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
+                        gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
+                    }
+                    else if (gridFin.rotation.z >= -90 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY && gridFin.rotation.z <= 0 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
+                        gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
+                    }
+                    else {
+                        gridFin.userData.gridFin.setTarget(GridFinConstants.NEUTRAL_ANGLE);
+                    }
+                }
+            }
+            else if (isSPressed && isAPressed) {
+                if (this.separated) {
+                    if (gridFin.rotation.z >= 90 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY || gridFin.rotation.z <= -180 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
+                        gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
+                    }
+                    else if (gridFin.rotation.z >= -90 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY && gridFin.rotation.z <= 0 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
+                        gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
+                    }
+                    else {
+                        gridFin.userData.gridFin.setTarget(GridFinConstants.NEUTRAL_ANGLE);
+                    }
+                }
+                else {
+                    if (gridFin.rotation.z >= 90 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY || gridFin.rotation.z <= -180 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
+                        gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
+                    }
+                    else if (gridFin.rotation.z >= -90 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY && gridFin.rotation.z <= 0 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
+                        gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
+                    }
+                    else {
+                        gridFin.userData.gridFin.setTarget(GridFinConstants.NEUTRAL_ANGLE);
+                    }
+                }
             }
         }
     }
@@ -745,7 +906,7 @@ export class SuperHeavy {
 
         for (let i = 0; i < this.options.numRSeas1; i++) {
             let rSea = new Object3D();
-            rSea.position.copy(rSeaPositions1[i].clone().add(new Vector3(0, SuperHeavyConstants.R_SEA_HEIGHT_1 * SuperHeavyConstants.SUPER_HEAVY_SCALE.y, 0)));
+            rSea.position.copy(rSeaPositions1[i].clone().add(new Vector3(0, SuperHeavyConstants.R_HEIGHT * SuperHeavyConstants.SUPER_HEAVY_SCALE.y, 0)));
             rSea.rotation.copy(rSeaRotations1[i]);
             rSea.scale.copy(SuperHeavyConstants.R_SEA_SCALE.clone().multiply(SuperHeavyConstants.SUPER_HEAVY_SCALE));
             rSea.userData.originalRotation = new Euler(0, 0, 0);
@@ -759,7 +920,7 @@ export class SuperHeavy {
 
         for (let i = 0; i < this.options.numRSeas2; i++) {
             let rSea = new Object3D();
-            rSea.position.copy(rSeaPositions2[i].clone().add(new Vector3(0, SuperHeavyConstants.R_SEA_HEIGHT_2 * SuperHeavyConstants.SUPER_HEAVY_SCALE.y, 0)));
+            rSea.position.copy(rSeaPositions2[i].clone().add(new Vector3(0, SuperHeavyConstants.R_HEIGHT * SuperHeavyConstants.SUPER_HEAVY_SCALE.y, 0)));
             rSea.rotation.copy(rSeaRotations2[i]);
             rSea.scale.copy(SuperHeavyConstants.R_SEA_SCALE.clone().multiply(SuperHeavyConstants.SUPER_HEAVY_SCALE));
             rSea.userData.originalRotation = new Euler(0, 0, 0);
@@ -773,7 +934,7 @@ export class SuperHeavy {
 
         for (let i = 0; i < this.options.numRSeas3; i++) {
             let rSea = new Object3D();
-            rSea.position.copy(rSeaPositions3[i].clone().add(new Vector3(0, SuperHeavyConstants.R_SEA_HEIGHT_3 * SuperHeavyConstants.SUPER_HEAVY_SCALE.y, 0)));
+            rSea.position.copy(rSeaPositions3[i].clone().add(new Vector3(0, SuperHeavyConstants.R_HEIGHT * SuperHeavyConstants.SUPER_HEAVY_SCALE.y, 0)));
             rSea.rotation.copy(rSeaRotations3[i]);
             rSea.scale.copy(SuperHeavyConstants.R_SEA_SCALE.clone().multiply(SuperHeavyConstants.SUPER_HEAVY_SCALE));
             rSea.userData.originalRotation = new Euler(0, 0, 0);
@@ -790,7 +951,7 @@ export class SuperHeavy {
             
             for (let i = 0; i < this.options.numRSeas3; i++) {
                 let outerCylinder = new Object3D();
-                outerCylinder.position.copy(outerCylinderPositions[i].clone().add(new Vector3(0, SuperHeavyConstants.R_SEA_HEIGHT_3 * SuperHeavyConstants.SUPER_HEAVY_SCALE.y + SuperHeavyConstants.OUTER_CYLINDER_ADDITONAL_HEIGHT * SuperHeavyConstants.SUPER_HEAVY_SCALE.y, 0)));
+                outerCylinder.position.copy(outerCylinderPositions[i].clone().add(new Vector3(0, SuperHeavyConstants.R_HEIGHT * SuperHeavyConstants.SUPER_HEAVY_SCALE.y + SuperHeavyConstants.OUTER_CYLINDER_ADDITONAL_HEIGHT * SuperHeavyConstants.SUPER_HEAVY_SCALE.y, 0)));
                 outerCylinder.rotation.copy(outerCylinderRotations[i]);
                 outerCylinder.scale.copy(SuperHeavyConstants.OUTER_CYLINDER_SCALE.clone().multiply(SuperHeavyConstants.SUPER_HEAVY_SCALE));
                 this.outerCylinders = [...this.outerCylinders, outerCylinder];

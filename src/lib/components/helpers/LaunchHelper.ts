@@ -1,7 +1,8 @@
-import { Vector3 } from "three";
+import { Quaternion, Vector3 } from "three";
 import { RaptorConstants } from "../constants/controls/RaptorConstants";
 import { PhysicsConstants } from "../constants/PhysicsConstants";
 import { CelestialConstants } from "../constants/CelestialConstants";
+import { GridFinConstants } from "../constants/controls/GridFinConstants";
 
 export class LaunchHelper {
     public static getFuelMass(radius: number, height: number, density: number): number {
@@ -54,7 +55,19 @@ export class LaunchHelper {
     }
 
     public static getThrustLoss(altitude: number): number {
-        return RaptorConstants.THRUST_LOSS * altitude;
+        let thrustLoss: number = RaptorConstants.THRUST_LOSS * altitude;
+        if (thrustLoss > RaptorConstants.MAX_THRUST_LOSS) {
+            thrustLoss = RaptorConstants.MAX_THRUST_LOSS;
+        }
+        return thrustLoss;
+    }
+
+    public static getGridFinForceLoss(altitude: number): number {
+        let forceLoss: number = GridFinConstants.FORCE_LOSS * altitude;
+        if (forceLoss > GridFinConstants.MAX_FORCE_LOSS) {
+            forceLoss = GridFinConstants.MAX_FORCE_LOSS;
+        }
+        return forceLoss;
     }
 
     public static getAltitude(position: Vector3): number {

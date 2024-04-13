@@ -14,7 +14,9 @@ export class LaunchConstants {
     public static readonly COUNTDOWN_DT: number = -11; //s
     public static readonly STARTUP_DT: number = -2; //s
     public static readonly PAD_DT: number = 10; //s
-    public static readonly MECO_DT: number = 30; //s
+    public static readonly MECO_DT: number = 10; //s
+
+    public static readonly TRAIL_RATE: number = 10; //ticks
 
     public static readonly LAUNCH_EVENTS: string[] = [
         "Booster Engine Cutoff",

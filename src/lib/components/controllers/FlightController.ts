@@ -5,13 +5,18 @@ import { PhysicsConstants } from "../constants/PhysicsConstants";
 export class FlightController {
     public initialPosition: Vector3 = new Vector3(0, 0, 0);
     public position: Vector3 = new Vector3(0, 0, 0);
+    public relPosition: Vector3 = new Vector3(0, 0, 0);
+    public fakePosition: Vector3 = new Vector3(0, 0, 0);
 
     public initialVelocity: Vector3 = new Vector3(0, 0, 0);
     public velocity: Vector3 = new Vector3(0, 0, 0);
+    public relVelocity: Vector3 = new Vector3(0, 0, 0);
     public acceleration: Vector3 = new Vector3(0, 0, 0);
 
     public initialRotation: Quaternion = new Quaternion();
     public rotation: Quaternion = new Quaternion();
+    public relRotation: Quaternion = new Quaternion();
+    public fakeRotation: Vector3 = new Vector3();
     public angularVelocity: Vector3 = new Vector3();
     public angularAcceleration: Vector3 = new Vector3();
 
@@ -26,37 +31,38 @@ export class FlightController {
         this.rotation = new Quaternion().setFromEuler(initialRotation);
     }
 
-    public update(delta: number): void {
+    public update(delta: number, COM: Vector3): void {
         this.updateLinear(delta);
-        this.updateAngular(delta);
+        this.updateAngular(delta, COM);
     }
 
     public updateLinear(delta: number): void {
         this.velocity.add(this.acceleration.clone().multiplyScalar(delta));
+        this.relVelocity.add(this.acceleration.clone().multiplyScalar(delta));
         this.position.add(this.velocity.clone().multiplyScalar(delta));
+        this.relPosition.add(this.relVelocity.clone().multiplyScalar(delta));
     }
 
-    public updateAngular(delta: number): void {
+    public updateAngular(delta: number, COM: Vector3): void {
         this.angularVelocity.add(this.angularAcceleration.clone().multiplyScalar(delta));
-        this.rotation.multiply(new Quaternion().setFromEuler(new Euler(
+        let angVelQuat: Quaternion = new Quaternion().setFromEuler(new Euler(
             this.angularVelocity.x * delta,
             this.angularVelocity.y * delta,
-            this.angularVelocity.z * delta
-        )));
+            this.angularVelocity.z * delta,
+        ));
+        this.rotation.multiply(angVelQuat);
+        this.relRotation.multiply(angVelQuat);
+        this.fakeRotation.add(this.angularVelocity.clone().multiplyScalar(delta));
+
+        let iRotatedCOM: Vector3 = COM.clone().applyQuaternion(this.initialRotation);
+        let iActualCOM: Vector3 = this.position.clone().add(iRotatedCOM);
+        let rotatedCOM: Vector3 = COM.clone().applyQuaternion(this.rotation);
+        let actualCOM: Vector3 = this.position.clone().add(rotatedCOM);
+        this.fakePosition = this.position.clone().sub(actualCOM).add(iActualCOM); // this works
     }
 
-    public getRelativeVelocity(): Vector3 {
-        return this.velocity.clone().sub(this.initialVelocity);
-    }
-
-    public getRelativeRotation(): Euler {
-        let initialEuler: Euler = new Euler().setFromQuaternion(this.initialRotation);
-        let currentEuler: Euler = new Euler().setFromQuaternion(this.rotation);
-        return new Euler(
-            currentEuler.x - initialEuler.x,
-            currentEuler.y - initialEuler.y,
-            currentEuler.z - initialEuler.z
-        );
+    public getDisplayAngle(): number {
+        return this.fakeRotation.x;
     }
 
     public getAltitude(): number {
