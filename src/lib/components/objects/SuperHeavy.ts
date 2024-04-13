@@ -9,6 +9,7 @@ import { RaptorConstants } from "../constants/controls/RaptorConstants";
 import { GridFin } from "../structs/GridFin";
 import { GridFinConstants } from "../constants/controls/GridFinConstants";
 import { LaunchHelper } from "../helpers/LaunchHelper";
+import { FlightController } from "../controllers/FlightController";
 
 export class SuperHeavy {
     public hsr: Group = new Group();
@@ -42,6 +43,8 @@ export class SuperHeavy {
 
     public startStartupSequence: boolean = false;
     public startMECOSequence: boolean = false;
+    
+    public flightController: FlightController = null;
 
     public controls: any = {
         isWPressed: false,
@@ -276,6 +279,18 @@ export class SuperHeavy {
             }
             T.add(R.clone().cross(force));
         }
+        return T;
+    }
+
+    public getDragPitchTorque(rotation: Quaternion, velocity: Vector3, COM: Vector3, altitude: number): Vector3 {
+        let orientation: Vector3 = new Vector3(0, 1, 0).applyQuaternion(rotation);
+        let T: Vector3 = new Vector3(0, 0, 0);
+        return T;
+    }
+
+    public getDragRollTorque(rotation: Quaternion, velocity: Vector3, altitude: number): Vector3 {
+        let orientation: Vector3 = new Vector3(0, 1, 0).applyQuaternion(rotation);
+        let T: Vector3 = new Vector3(0, 0, 0);
         return T;
     }
 
@@ -827,7 +842,7 @@ export class SuperHeavy {
     
                     if (areAllRSea1Ready) {
                         this.startMECOSequence = false;
-                    }
+                    }   
                 }
             }
         }

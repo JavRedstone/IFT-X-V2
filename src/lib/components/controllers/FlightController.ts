@@ -20,12 +20,19 @@ export class FlightController {
     public angularVelocity: Vector3 = new Vector3();
     public angularAcceleration: Vector3 = new Vector3();
 
-    public constructor(initialPosition: Vector3, initialVelocity: Vector3, initialRotation: Euler) {
+    public constructor(initialPosition: Vector3, initialVelocity: Vector3, initialRotation: Euler, velocity: Vector3 = null) {
         this.initialPosition = initialPosition.clone().multiplyScalar(CelestialConstants.REAL_SCALE);
         this.position = initialPosition.clone().multiplyScalar(CelestialConstants.REAL_SCALE);
 
         this.initialVelocity = initialVelocity.clone().multiplyScalar(CelestialConstants.REAL_SCALE);
-        this.velocity = initialVelocity.clone().multiplyScalar(CelestialConstants.REAL_SCALE);
+        if (velocity == null) {
+            this.velocity = initialVelocity.clone().multiplyScalar(CelestialConstants.REAL_SCALE);
+            this.relVelocity = new Vector3(0, 0, 0);
+        }
+        else {
+            this.velocity = velocity.clone().multiplyScalar(CelestialConstants.REAL_SCALE);
+            this.relVelocity = velocity.clone().multiplyScalar(CelestialConstants.REAL_SCALE);
+        }
 
         this.initialRotation = new Quaternion().setFromEuler(initialRotation);
         this.rotation = new Quaternion().setFromEuler(initialRotation);

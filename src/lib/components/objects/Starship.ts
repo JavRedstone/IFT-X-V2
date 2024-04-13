@@ -9,6 +9,7 @@ import { Raptor } from "../structs/Raptor";
 import { RaptorConstants } from "../constants/controls/RaptorConstants";
 import { Flap } from "../structs/Flap";
 import { FlapConstants } from "../constants/controls/FlapConstants";
+import { FlightController } from "../controllers/FlightController";
 
 export class Starship {
     public nosecone: Group = new Group();
@@ -39,6 +40,10 @@ export class Starship {
     public LOX: number = 0;
     public CH4: number = 0;
     public visibilityCooldown: number = StarshipConstants.VISIBILITY_COOLDOWN;
+
+    public startStartupSequence: boolean = false;
+
+    public flightController: FlightController = null;
 
     public options: any = {
         rSeaAngularOffset: StarshipConstants.R_SEA_ANGULAR_OFFSET,
@@ -216,7 +221,25 @@ export class Starship {
         return F;
     }
 
-    public updateFrost(delta: number): void {
+    public getThrustTorque(COM: Vector3, altitude: number): Vector3 {
+        let R = new Vector3(0, StarshipConstants.R_HEIGHT * StarshipConstants.REAL_LIFE_SCALE.y, 0).sub(COM);
+        let F: Vector3 = this.getThrustVector(altitude);
+        return R.clone().cross(F);
+    }
+
+    public getDragPitchTorque(rotation: Quaternion, velocity: Vector3, COM: Vector3, altitude: number): Vector3 {
+        let orientation: Vector3 = new Vector3(0, 1, 0).applyQuaternion(rotation);
+        let T: Vector3 = new Vector3(0, 0, 0);
+        return T;
+    }
+
+    public getDragRollTorque(rotation: Quaternion, velocity: Vector3, altitude: number): Vector3 {
+        let orientation: Vector3 = new Vector3(0, 1, 0).applyQuaternion(rotation);
+        let T: Vector3 = new Vector3(0, 0, 0);
+        return T;
+    }
+
+    public updateFuel(delta: number): void {
         if (this.isFueling && !this.hasStartedFueling) {
             telemetry.update((value) => {
                 value.starshipCH4 = 0;
@@ -252,7 +275,45 @@ export class Starship {
                 return value;
             });
         }
+        if (this.isLaunching) {
+            let totalMassFlowCH4: number = 0;
+            let totalMassFlowLOX: number = 0;
+            for (let rSea of this.rSeas) {
+                if (rSea.userData.raptor != null) {
+                    totalMassFlowCH4 += RaptorConstants.MASS_FLOW_CH4 * rSea.userData.raptor.throttle;
+                    totalMassFlowLOX += RaptorConstants.MASS_FLOW_LOX * rSea.userData.raptor.throttle;
+                }
+            }
+            for (let rVac of this.rVacs) {
+                if (rVac.userData.raptor != null) {
+                    totalMassFlowCH4 += RaptorConstants.MASS_FLOW_CH4 * rVac.userData.raptor.throttle;
+                    totalMassFlowLOX += RaptorConstants.MASS_FLOW_LOX * rVac.userData.raptor.throttle;
+                }
+            }
 
+            let CH4Rate: number = totalMassFlowCH4 / this.getCH4Mass(1) * delta;
+            let LOXRate: number = totalMassFlowLOX / this.getLOXMass(1) * delta;
+
+            if (this.CH4 > 0) {
+                this.CH4 -= CH4Rate;
+            }
+            else {
+                this.CH4 = 0;
+            }
+
+            if (this.LOX > 0) {
+                this.LOX -= LOXRate;
+            }
+            else {
+                this.LOX = 0;
+            }
+
+            telemetry.update((value) => {
+                value.starshipCH4 = this.CH4;
+                value.starshipLOX = this.LOX;
+                return value;
+            });
+        }
         if (this.CH4Frost != null && this.LOXFrost != null) {
             if (this.CH4 == 0) {
                 this.CH4Frost.visible = false;
@@ -443,6 +504,46 @@ export class Starship {
                 this.forwardR.userData.flap.setTarget(FlapConstants.MIN_ANGLE);
                 this.aftL.userData.flap.setTarget(FlapConstants.MIN_ANGLE);
                 this.aftR.userData.flap.setTarget(FlapConstants.MIN_ANGLE);
+            }
+        }
+    }
+
+    public runForceShutdown(): void {
+        for (let rSea of this.rSeas) {
+            if (rSea.userData.raptor != null) {
+                rSea.userData.raptor.setThrottleTarget(0);
+            }
+        }
+        for (let rVac of this.rVacs) {
+            if (rVac.userData.raptor != null) {
+                rVac.userData.raptor.setThrottleTarget(0);
+            }
+        }
+    }
+    
+    public runStartupSequence(): void {
+        let areAllRVacReady: boolean = true;
+        for (let rVac of this.rVacs) {
+            if (rVac.userData.raptor != null) {
+                rVac.userData.raptor.setThrottleTarget(RaptorConstants.MAX_THROTTLE);
+            }
+            if (rVac.userData.raptor.throttle != RaptorConstants.MAX_THROTTLE) {
+                areAllRVacReady = false;
+            }
+        }
+        if (areAllRVacReady) {
+            let areAllRSeaReady: boolean = true;
+            for (let rSea of this.rSeas) {
+                if (rSea.userData.raptor != null) {
+                    rSea.userData.raptor.setThrottleTarget(RaptorConstants.MAX_THROTTLE);
+                }
+                if (rSea.userData.raptor.throttle != RaptorConstants.MAX_THROTTLE) {
+                    areAllRSeaReady = false;
+                }
+            }
+
+            if (areAllRSeaReady) {
+                this.startStartupSequence = false;
             }
         }
     }
@@ -667,8 +768,12 @@ export class Starship {
         if (this.isLaunching) {
             this.controlRaptors();
             this.controlFlaps();
+
+            if (this.startStartupSequence) {
+                this.runStartupSequence();
+            }
         }
-        this.updateFrost(delta);
+        this.updateFuel(delta);
         this.updateRaptors(delta);
         this.updateFlaps(delta);
     }
