@@ -275,8 +275,7 @@
     function sendEvent(): void {
         if (isEventEnabled) {
             telemetry.update((value) => {
-                value.currEvent++;
-                value.isEventEnabled = false;
+                value.isEventClicked = true;
                 return value;
             });
         }

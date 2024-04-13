@@ -40,8 +40,8 @@ export class SuperHeavy {
 
     public visibilityCooldown: number = SuperHeavyConstants.VISIBILITY_COOLDOWN;
 
-    public runningStartupSequence: boolean = false;
-    public completedStartupSequence: boolean = false;
+    public startStartupSequence: boolean = false;
+    public startMECOSequence: boolean = false;
 
     public controls: any = {
         isWPressed: false,
@@ -781,8 +781,53 @@ export class SuperHeavy {
                 }
 
                 if (areAllRSea3Ready) {
-                    this.runningStartupSequence = false;
-                    this.completedStartupSequence = true;
+                    this.startStartupSequence = false;
+                }
+            }
+        }
+    }
+
+    public runMECOSequence(): void {
+        let areAllRSea3Ready: boolean = true;
+        for (let i = 0; i < this.options.numRSeas3; i++) {
+            let rSea = this.rSeas[i + this.options.numRSeas1 + this.options.numRSeas2];
+            if (rSea.userData.raptor != null) {
+                rSea.userData.raptor.setThrottleTarget(0);
+            }
+            if (rSea.userData.raptor.throttle != 0) {
+                areAllRSea3Ready = false;
+            }
+        }
+        if (areAllRSea3Ready) {
+            let areAllRSea2Ready: boolean = true;
+            for (let i = 0; i < this.options.numRSeas2; i++) {
+                let rSea = this.rSeas[i + this.options.numRSeas1];
+                if (rSea.userData.raptor != null) {
+                    rSea.userData.raptor.setThrottleTarget(0);
+                }
+                if (rSea.userData.raptor.throttle != 0) {
+                    areAllRSea2Ready = false;
+                }
+            }
+            if (areAllRSea2Ready) {
+                if (this.options.hsrHeight > SuperHeavyConstants.MIN_HSR_HEIGHT) {
+                    this.startMECOSequence = false;
+                }
+                else {
+                    let areAllRSea1Ready: boolean = true;
+                    for (let i = 0; i < this.options.numRSeas1; i++) {
+                        let rSea = this.rSeas[i];
+                        if (rSea.userData.raptor != null) {
+                            rSea.userData.raptor.setThrottleTarget(0);
+                        }
+                        if (rSea.userData.raptor.throttle != 0) {
+                            areAllRSea1Ready = false;
+                        }
+                    }
+    
+                    if (areAllRSea1Ready) {
+                        this.startMECOSequence = false;
+                    }
                 }
             }
         }
@@ -1029,6 +1074,13 @@ export class SuperHeavy {
         if (this.isLaunching) {
             this.controlRaptors();
             this.controlGridFins();
+
+            if (this.startStartupSequence) {
+                this.runStartupSequence();
+            }
+            if (this.startMECOSequence) {
+                this.runMECOSequence();
+            }
         }
         this.updateFuel(delta);
         this.updateRaptors(delta);

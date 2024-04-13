@@ -119,6 +119,7 @@ export const telemetry = writable({
     currEvent: 0,
     isEventEnabled: false,
     isEventUrgent: false,
+    isEventClicked: false,
 
     isFreeView: false,
     isCameraOnStarship: true,

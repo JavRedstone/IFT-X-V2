@@ -47,9 +47,12 @@ export class LaunchManager {
     public isFueling: boolean = false;
     public hasStartedFueling: boolean = false;
     public isLaunching: boolean = false;
+
     public currEvent: number = 0;
     public isEventEnabled: boolean = false;
     public isEventUrgent: boolean = false;
+    public isEventClicked: boolean = false;
+
     public canLiftOff: boolean = false;
     public liftedOff: boolean = false;
     public separated: boolean = false;
@@ -84,7 +87,10 @@ export class LaunchManager {
         });
         telemetry.subscribe((value) => {
             this.isCameraOnStarship = value.isCameraOnStarship;
-            this.currEvent = value.currEvent;
+            this.isEventClicked = value.isEventClicked;
+            if (this.isEventClicked) {
+                this.handleEventClick();
+            }
         });
         starshipSettings.subscribe((value) => {
             this.AABBUpdateRequests += LaunchConstants.AABB_REQUEST_AMOUNT;
@@ -219,12 +225,8 @@ export class LaunchManager {
 
                         this.justSeparated = false;
                     }
-                    if (this.dt >= LaunchConstants.STARTUP_DT && !this.superHeavy.runningStartupSequence) {
-                        this.superHeavy.runningStartupSequence = true;
-                    }
-                    
-                    if (this.superHeavy.runningStartupSequence && !this.superHeavy.completedStartupSequence) {
-                        this.superHeavy.runStartupSequence();
+                    if (this.dt >= LaunchConstants.STARTUP_DT && this.dt < LaunchConstants.MECO_DT && !this.superHeavy.startStartupSequence) {
+                        this.superHeavy.startStartupSequence = true;
                     }
 
                     if (this.liftedOff) {
@@ -261,9 +263,7 @@ export class LaunchManager {
                             this.superHeavy.runForceShutdown();
                         }
 
-                        if (this.dt >= LaunchConstants.MECO_DT && this.currEvent == 0) {
-                            this.isEventEnabled = true;
-                        }
+                        this.handleEventEnable();
 
                         telemetry.update((value) => {
                             value.starshipSpeed = Math.round(this.stackGroup.userData.flightController.relVelocity.length() * 3.6);
@@ -302,6 +302,7 @@ export class LaunchManager {
                         value.currEvent = this.currEvent;
                         value.isEventEnabled = this.isEventEnabled;
                         value.isEventUrgent = this.isEventUrgent;
+                        value.isEventClicked = this.isEventClicked;
                         return value;
                     });
                 }
@@ -517,5 +518,22 @@ export class LaunchManager {
 
     public getStackMOIPitch(): number {
         return 1/4 * this.getStackMass() * Math.pow(SuperHeavyConstants.BOOSTER_RING_SCALE.x * SuperHeavyConstants.REAL_LIFE_SCALE.x + StarshipConstants.SHIP_RING_SCALE.x * StarshipConstants.REAL_LIFE_SCALE.x, 2) + 1/12 * this.getStackMass() * Math.pow(this.superHeavy.options.boosterRingHeight * SuperHeavyConstants.REAL_LIFE_SCALE.y + this.starship.options.shipRingHeight * StarshipConstants.REAL_LIFE_SCALE.y, 2);
+    }
+
+    public handleEventEnable(): void {
+        if (this.dt >= LaunchConstants.MECO_DT && this.currEvent == 0) {
+            this.isEventEnabled = true;
+        }
+    }
+
+    public handleEventClick(): void {
+        this.isEventClicked = false;
+        if (this.isEventEnabled) {
+            this.isEventEnabled = false;
+            if (this.currEvent == 0) {
+                this.superHeavy.startMECOSequence = true;
+            }
+            this.currEvent++;
+        }
     }
 }
