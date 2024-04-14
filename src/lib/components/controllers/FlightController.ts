@@ -20,7 +20,7 @@ export class FlightController {
     public angularVelocity: Vector3 = new Vector3();
     public angularAcceleration: Vector3 = new Vector3();
 
-    public constructor(initialPosition: Vector3, initialVelocity: Vector3, initialRotation: Euler, velocity: Vector3 = null) {
+    public constructor(initialPosition: Vector3, initialVelocity: Vector3, initialRotation: Euler, velocity: Vector3 = null, angularVelocity: Vector3 = null) {
         this.initialPosition = initialPosition.clone().multiplyScalar(CelestialConstants.REAL_SCALE);
         this.position = initialPosition.clone().multiplyScalar(CelestialConstants.REAL_SCALE);
 
@@ -36,6 +36,13 @@ export class FlightController {
 
         this.initialRotation = new Quaternion().setFromEuler(initialRotation);
         this.rotation = new Quaternion().setFromEuler(initialRotation);
+
+        if (angularVelocity == null) {
+            this.angularVelocity = new Vector3(0, 0, 0);
+        }
+        else {
+            this.angularVelocity = angularVelocity.clone();
+        }
     }
 
     public update(delta: number, COM: Vector3): void {

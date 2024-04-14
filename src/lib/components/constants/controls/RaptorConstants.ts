@@ -21,7 +21,7 @@ export class RaptorConstants {
     public static readonly MAX_THROTTLE: number = 1;
 
     public static readonly THRUST_LOSS: number = 0.00001;
-    public static readonly MAX_THRUST_LOSS: number = 0.5;
+    public static readonly MAX_THRUST_LOSS: number = 0.3;
     
     public static readonly DRY_MASS: number = 1600; //kg
 
