@@ -42,6 +42,7 @@ export class Starship {
     public visibilityCooldown: number = StarshipConstants.VISIBILITY_COOLDOWN;
 
     public startStartupSequence: boolean = false;
+    public endStartupSequence: boolean = false;
 
     public flightController: FlightController = null;
 
@@ -544,6 +545,7 @@ export class Starship {
 
             if (areAllRSeaReady) {
                 this.startStartupSequence = false;
+                this.endStartupSequence = true;
             }
         }
     }

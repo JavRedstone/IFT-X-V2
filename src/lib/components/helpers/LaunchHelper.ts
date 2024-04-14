@@ -3,6 +3,7 @@ import { RaptorConstants } from "../constants/controls/RaptorConstants";
 import { PhysicsConstants } from "../constants/PhysicsConstants";
 import { CelestialConstants } from "../constants/CelestialConstants";
 import { GridFinConstants } from "../constants/controls/GridFinConstants";
+import { LaunchConstants } from "../constants/objects/LaunchConstants";
 
 export class LaunchHelper {
     public static getFuelMass(radius: number, height: number, density: number): number {
@@ -66,6 +67,14 @@ export class LaunchHelper {
         let forceLoss: number = GridFinConstants.FORCE_LOSS * altitude;
         if (forceLoss > GridFinConstants.MAX_FORCE_LOSS) {
             forceLoss = GridFinConstants.MAX_FORCE_LOSS;
+        }
+        return forceLoss;
+    }
+
+    public static getDragForceLoss(altitude: number): number {
+        let forceLoss: number = LaunchConstants.DRAG_FORCE_LOSS * altitude;
+        if (forceLoss > LaunchConstants.DRAG_MAX_FORCE_LOSS) {
+            forceLoss = LaunchConstants.DRAG_MAX_FORCE_LOSS;
         }
         return forceLoss;
     }

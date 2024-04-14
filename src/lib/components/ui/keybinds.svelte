@@ -159,6 +159,18 @@
                 <div class="keybind-keycap">R</div>
                 <p class="keybind-text">Reset</p>
             {:else if isLaunching}
+                <div class="keybind-keycap" style="font-size: 10px">Shift</div>
+                <p class="keybind-text">Switch Camera Target</p>
+                <br>
+                <div class="keybind-keycap" style="font-size: 10px">Enter</div>
+                <p class="keybind-text">Start Current Launch Event</p>
+                <br>
+                <div class="keybind-keycap">+</div>
+                <p class="keybind-text">Speed Up Scene</p>
+                <br>
+                <div class="keybind-keycap">-</div>
+                <p class="keybind-text">Slow Down Scene</p>
+                <br>
                 <div class="keybind-keycap">W</div>
                 <p class="keybind-text">SuperHeavy Pitch Backward</p>
                 <br>
@@ -194,12 +206,6 @@
                 <br>
                 <div class="keybind-keycap">O</div>
                 <p class="keybind-text">Starship Roll Right</p>
-                <br>
-                <div class="keybind-keycap" style="font-size: 10px">Shift</div>
-                <p class="keybind-text">Switch Camera Target</p>
-                <br>
-                <div class="keybind-keycap" style="font-size: 10px">Enter</div>
-                <p class="keybind-text">Start Current Launch Event</p>
             {/if}
         </div>
         <button class="keybind-exit" on:click={() => isOpen = false}>Exit</button>

@@ -50,7 +50,6 @@ export class LaunchManager {
 
     public currEvent: number = 0;
     public isEventEnabled: boolean = false;
-    public isEventUrgent: boolean = false;
     public isEventClicked: boolean = false;
 
     public canLiftOff: boolean = false;
@@ -227,7 +226,9 @@ export class LaunchManager {
                         PRTransients.realRotations.superHeavyRotation.copy(new Euler().setFromQuaternion(new Quaternion().setFromEuler(PRTransients.realRotations.stackGroupRotation).multiply(new Quaternion().setFromEuler(shOriginalRot))));
 
                         this.starship.flightController = new FlightController(PRTransients.realPositions.starshipPosition, this.stackGroup.userData.flightController.initialVelocity.clone().divideScalar(CelestialConstants.REAL_SCALE), PRTransients.realRotations.starshipRotation, this.stackGroup.userData.flightController.velocity.clone().divideScalar(CelestialConstants.REAL_SCALE), this.stackGroup.userData.flightController.angularVelocity.clone());
-                        this.superHeavy.flightController = new FlightController(PRTransients.realPositions.superHeavyPosition, this.stackGroup.userData.flightController.initialVelocity.clone().divideScalar(CelestialConstants.REAL_SCALE), PRTransients.realRotations.superHeavyRotation, this.stackGroup.userData.flightController.velocity.clone().divideScalar(CelestialConstants.REAL_SCALE), this.stackGroup.userData.flightController.angularVelocity.clone());
+                        this.superHeavy.flightController = new FlightController(PRTransients.realPositions.superHeavyPosition, this.stackGroup.userData.flightController.initialVelocity.clone().divideScalar(CelestialConstants.REAL_SCALE), PRTransients.realRotations.superHeavyRotation, this.stackGroup.userData.flightController.velocity.clone().divideScalar(CelestialConstants.REAL_SCALE), this.stackGroup.userData.flightController.angularVelocity.clone().add(LaunchConstants.SEPARATION_ANG_VEL));
+
+                        this.superHeavy.flightController.acceleration.sub(this.starship.getThrustVector(this.stackGroup.userData.flightController.getAltitude()).applyQuaternion(this.stackGroup.userData.flightController.rotation).divideScalar(this.superHeavy.getMass()));
 
                         this.justSeparated = false;
                     }
@@ -240,11 +241,16 @@ export class LaunchManager {
                         if (!this.separated) {
                             let altitude: number = this.stackGroup.userData.flightController.getAltitude();
 
+                            if (this.starship.endStartupSequence) {
+                                this.separated = true;
+                                this.justSeparated = true;
+                            }
+
                             // thrust
 
                             this.stackGroup.userData.flightController.acceleration = new Vector3(0, 0, 0);
 
-                            this.stackGroup.userData.flightController.acceleration.add(new Vector3(0, this.superHeavy.getThrustVector(altitude).y / (this.superHeavy.getMass() + this.starship.getMass()), 0).applyEuler(PRTransients.realRotations.stackGroupRotation));
+                            this.stackGroup.userData.flightController.acceleration.add(new Vector3(0, this.superHeavy.getThrustVector(altitude).y / (this.superHeavy.getMass() + this.starship.getMass()), 0).applyQuaternion(this.stackGroup.userData.flightController.rotation));
 
                             // torque
                             this.stackGroup.userData.flightController.angularAcceleration = new Vector3(0, 0, 0);
@@ -296,8 +302,8 @@ export class LaunchManager {
                             this.superHeavy.flightController.acceleration = new Vector3(0, 0, 0);
                             this.starship.flightController.acceleration = new Vector3(0, 0, 0);
 
-                            this.superHeavy.flightController.acceleration.add(new Vector3(0, this.superHeavy.getThrustVector(shAltitude).y / this.superHeavy.getMass(), 0).applyEuler(PRTransients.realRotations.superHeavyRotation));
-                            this.starship.flightController.acceleration.add(new Vector3(0, this.starship.getThrustVector(ssAltitude).y / this.starship.getMass(), 0).applyEuler(PRTransients.realRotations.starshipRotation));
+                            this.superHeavy.flightController.acceleration.add(new Vector3(0, this.superHeavy.getThrustVector(shAltitude).y / this.superHeavy.getMass(), 0).applyQuaternion(this.superHeavy.flightController.rotation));
+                            this.starship.flightController.acceleration.add(new Vector3(0, this.starship.getThrustVector(ssAltitude).y / this.starship.getMass(), 0).applyQuaternion(this.starship.flightController.rotation));
 
                             // torque
                             this.superHeavy.flightController.angularAcceleration = new Vector3(0, 0, 0);
@@ -373,7 +379,7 @@ export class LaunchManager {
                 this.hasSetInitialPosition = true;
             }
             PRTransients.realPositions.groupPosition.applyEuler(new Euler(0, CelestialConstants.EARTH_ROTATION_SPEED * delta, 0)); // this is normal
-            PRTransients.realRotations.groupRotation.copy(new Euler().setFromQuaternion(new Quaternion().setFromUnitVectors(new Vector3(0, 1, 0), PRTransients.realPositions.groupPosition.clone().normalize()).multiply(new Quaternion().setFromEuler(this.earthRot))));
+            PRTransients.realRotations.groupRotation.copy(new Euler().setFromQuaternion(new Quaternion().setFromUnitVectors(new Vector3(0, 1, 0), PRTransients.realPositions.groupPosition.clone().normalize()).multiply(new Quaternion().setFromEuler(this.earthRot)).multiply(new Quaternion().setFromEuler(LaunchConstants.ROTATION_GROUP))));
         }
         telemetry.update((value) => {
             value.dt = this.dt;
@@ -590,27 +596,26 @@ export class LaunchManager {
                 this.currEvent = 1;
                 this.isEventEnabled = true;
             }
-            else if (this.currEvent == 2 || this.currEvent == 3 || this.currEvent == 4 || this.currEvent == 5) {
-                this.currEvent = 6;
+            else if (this.currEvent == 2 || this.currEvent == 3 || this.currEvent == 4 || this.currEvent == 5 || this.currEvent == 6) {
+                this.currEvent = 7;
                 this.isEventEnabled = true;
             }
         }
 
         if (this.starship.LOX <= 0 || this.starship.CH4 <= 0) {
             this.starship.runForceShutdown();
-            if (this.currEvent == 6) {
-                this.currEvent = 7;
+            if (this.currEvent == 7) {
+                this.currEvent = 8;
                 this.isEventEnabled = true;
             }
-            else if (this.currEvent == 9) {
-                this.currEvent = 10; // hide
+            else if (this.currEvent == 10) {
+                this.currEvent = 11; // hide
             }
         }
         
         telemetry.update((value) => {
             value.currEvent = this.currEvent;
             value.isEventEnabled = this.isEventEnabled;
-            value.isEventUrgent = this.isEventUrgent;
             value.isEventClicked = this.isEventClicked;
             return value;
         });
@@ -624,10 +629,22 @@ export class LaunchManager {
                 this.superHeavy.startMECOSequence = true;
             }
             else if (this.currEvent == 1) {
-                this.separated = true;
-                this.justSeparated = true;
-
                 this.starship.startStartupSequence = true;
+            }
+            else if (this.currEvent == 2) {
+                this.superHeavy.startBoostbackSequence = true;
+            }
+            else if (this.currEvent == 3) {
+                this.superHeavy.startBoostbackShutdownSequence = true;
+            }
+            else if (this.currEvent == 4) {
+                this.superHeavy.startFirstLandingSequence = true;
+            }
+            else if (this.currEvent == 5) {
+                this.superHeavy.startSecondLandingSequence = true;
+            }
+            else if (this.currEvent == 6) {
+                this.superHeavy.runForceShutdown();
             }
             this.currEvent++;
         }
@@ -636,7 +653,6 @@ export class LaunchManager {
             value.separated = this.separated;
             value.currEvent = this.currEvent;
             value.isEventEnabled = this.isEventEnabled;
-            value.isEventUrgent = this.isEventUrgent;
             value.isEventClicked = this.isEventClicked;
             return value;
         });

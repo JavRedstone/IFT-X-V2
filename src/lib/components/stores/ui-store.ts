@@ -118,7 +118,6 @@ export const telemetry = writable({
     
     currEvent: 0,
     isEventEnabled: false,
-    isEventUrgent: false,
     isEventClicked: false,
 
     isFreeView: false,
@@ -145,4 +144,5 @@ export const gameSettings = writable({
     textureResolution: 1,
     volume: 1,
     muted: false,
+    speedUp: 1,
 });

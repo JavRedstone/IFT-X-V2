@@ -4,6 +4,7 @@ import { PostprocessingManager } from "./PostprocessingManager";
 import { PerspectiveCamera } from "three";
 import { SkyManager } from "./SkyManager";
 import { LaunchManager } from "./LaunchManager";
+import { gameSettings } from "../stores/ui-store";
 
 export class SceneManager {
     public tc: ThrelteContext;
@@ -14,9 +15,12 @@ export class SceneManager {
     public launchManager: LaunchManager;
     public postprocessingManager: PostprocessingManager;
 
+    public speedUp: number = 1;
+
     constructor(tc: ThrelteContext) {
         this.tc = tc;
         this.setup();
+        this.setupUpdator();
     }
 
     public setup(): void {
@@ -24,6 +28,12 @@ export class SceneManager {
         this.skyManager = new SkyManager(this.tc);
         this.launchManager = new LaunchManager(this.tc);
         this.postprocessingManager = new PostprocessingManager(this.tc);
+    }
+
+    public setupUpdator(): void {
+        gameSettings.subscribe((value) => {
+            this.speedUp = value.speedUp;
+        });
     }
 
     public updateReals(delta: number): void {
@@ -38,8 +48,9 @@ export class SceneManager {
     }
 
     public updateAll(delta: number): void {
-        this.updateReals(delta);
-        this.launchManager.updateTransients(delta);
-        this.updateScene(delta);
+        let dt: number = delta * this.speedUp;
+        this.updateReals(dt);
+        this.launchManager.updateTransients(dt);
+        this.updateScene(dt);
     }
 }

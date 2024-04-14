@@ -43,6 +43,11 @@ export class SuperHeavy {
 
     public startStartupSequence: boolean = false;
     public startMECOSequence: boolean = false;
+    public startSepGridFinSequence: boolean = false;
+    public startBoostbackSequence: boolean = false;
+    public startBoostbackShutdownSequence: boolean = false;
+    public startFirstLandingSequence: boolean = false;
+    public startSecondLandingSequence: boolean = false;
     
     public flightController: FlightController = null;
 
@@ -251,7 +256,7 @@ export class SuperHeavy {
         let T: Vector3 = new Vector3(0, 0, 0);
         for (let gridFin of this.gridFins) {
             let R: Vector3 = generic_R.clone().add(new Vector3(0, 0, SuperHeavyConstants.GRID_FIN_SURFACE_RADIUS).applyEuler(new Euler(0, gridFin.rotation.z, 0)));
-            let forceScalar: number = gridFin.userData.gridFin.angle * GridFinConstants.GRID_FIN_FORCE_MULTIPLIER * (1 - LaunchHelper.getGridFinForceLoss(altitude)) * velocity.length();
+            let forceScalar: number = gridFin.userData.gridFin.angle * GridFinConstants.FORCE_MULTIPLIER * (1 - LaunchHelper.getGridFinForceLoss(altitude)) * velocity.length();
             let forceDirection: Euler = new Euler(0, gridFin.rotation.z, 0);
             let force: Vector3 = new Vector3(forceScalar, 0, 0).applyEuler(forceDirection);
             force.z = -force.z; // same issue with the gimbal for some reason
@@ -270,7 +275,7 @@ export class SuperHeavy {
         let T: Vector3 = new Vector3(0, 0, 0);
         for (let gridFin of this.gridFins) {
             let R: Vector3 = generic_R.clone().applyEuler(new Euler(0, gridFin.rotation.z, 0));
-            let forceScalar: number = gridFin.userData.gridFin.angle * GridFinConstants.GRID_FIN_FORCE_MULTIPLIER * (1 - LaunchHelper.getGridFinForceLoss(altitude)) * velocity.length();
+            let forceScalar: number = gridFin.userData.gridFin.angle * GridFinConstants.FORCE_MULTIPLIER * (1 - LaunchHelper.getGridFinForceLoss(altitude)) * velocity.length();
             let forceDirection: Euler = new Euler(0, gridFin.rotation.z, 0);
             let force: Vector3 = new Vector3(forceScalar, 0, 0).applyEuler(forceDirection);
             // if aligned, negative, if not, positive
@@ -547,6 +552,10 @@ export class SuperHeavy {
             isEPressed = false;
         }
 
+        if (this.startSepGridFinSequence) {
+            isWPressed = true;
+        }
+
         for (let gridFin of this.gridFins) {
             if (isWPressed) {
                 if (this.separated) {
@@ -645,10 +654,20 @@ export class SuperHeavy {
                 }
             }
             else if (isQPressed) {
-                gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
+                if (this.separated) {
+                    gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
+                }
+                else {
+                    gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
+                }
             }
             else if (isEPressed) {
-                gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
+                if (this.separated) {
+                    gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
+                }
+                else {
+                    gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
+                }
             }
             else {
                 gridFin.userData.gridFin.setTarget(GridFinConstants.NEUTRAL_ANGLE);
@@ -705,10 +724,10 @@ export class SuperHeavy {
             else if (isWPressed && isDPressed) {
                 if (this.separated) {
                     if (gridFin.rotation.z >= 90 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY || gridFin.rotation.z <= -180 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
-                        gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
+                        gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
                     }
                     else if (gridFin.rotation.z >= -90 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY && gridFin.rotation.z <= 0 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
-                        gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
+                        gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
                     }
                     else {
                         gridFin.userData.gridFin.setTarget(GridFinConstants.NEUTRAL_ANGLE);
@@ -827,6 +846,7 @@ export class SuperHeavy {
             if (areAllRSea2Ready) {
                 if (this.options.hsrHeight > SuperHeavyConstants.MIN_HSR_HEIGHT) {
                     this.startMECOSequence = false;
+                    this.startSepGridFinSequence = true;
                 }
                 else {
                     let areAllRSea1Ready: boolean = true;
@@ -842,8 +862,124 @@ export class SuperHeavy {
     
                     if (areAllRSea1Ready) {
                         this.startMECOSequence = false;
+                        this.startSepGridFinSequence = true;
                     }   
                 }
+            }
+        }
+    }
+
+    public runBoostbackSequence(): void {
+        let areAllRSea1Ready: boolean = true;
+        for (let i = 0; i < this.options.numRSeas1; i++) {
+            let rSea = this.rSeas[i];
+            if (rSea.userData.raptor != null) {
+                rSea.userData.raptor.setThrottleTarget(RaptorConstants.MAX_THROTTLE);
+            }
+            if (rSea.userData.raptor.throttle != RaptorConstants.MAX_THROTTLE) {
+                areAllRSea1Ready = false;
+            }
+        }
+        if (areAllRSea1Ready) {
+            let areAllRSea2Ready: boolean = true;
+            for (let i = 0; i < this.options.numRSeas2; i++) {
+                let rSea = this.rSeas[i + this.options.numRSeas1];
+                if (rSea.userData.raptor != null) {
+                    rSea.userData.raptor.setThrottleTarget(RaptorConstants.MAX_THROTTLE);
+                }
+                if (rSea.userData.raptor.throttle != RaptorConstants.MAX_THROTTLE) {
+                    areAllRSea2Ready = false;
+                }
+            }
+            if (areAllRSea2Ready) {
+                this.startBoostbackSequence = false;
+                this.startSepGridFinSequence = false;
+            }
+        }
+    }
+
+    public runBoostbackShutdownSequence(): void {
+        let areAllRSea2Ready: boolean = true;
+        for (let i = 0; i < this.options.numRSeas2; i++) {
+            let rSea = this.rSeas[i + this.options.numRSeas1];
+            if (rSea.userData.raptor != null) {
+                rSea.userData.raptor.setThrottleTarget(0);
+            }
+            if (rSea.userData.raptor.throttle != 0) {
+                areAllRSea2Ready = false;
+            }
+        }
+        if (areAllRSea2Ready) {
+            let areAllRSea1Ready: boolean = true;
+            for (let i = 0; i < this.options.numRSeas1; i++) {
+                let rSea = this.rSeas[i];
+                if (rSea.userData.raptor != null) {
+                    rSea.userData.raptor.setThrottleTarget(0);
+                }
+                if (rSea.userData.raptor.throttle != 0) {
+                    areAllRSea1Ready = false;
+                }
+            }
+
+            if (areAllRSea1Ready) {
+                this.startBoostbackShutdownSequence = false;
+            }
+        }
+    }
+
+    public runFirstLandingSequence(): void {
+        let areAllRSea1Ready: boolean = true;
+        for (let i = 0; i < this.options.numRSeas1; i++) {
+            let rSea = this.rSeas[i];
+            if (rSea.userData.raptor != null) {
+                rSea.userData.raptor.setThrottleTarget(RaptorConstants.MAX_THROTTLE);
+            }
+            if (rSea.userData.raptor.throttle != RaptorConstants.MAX_THROTTLE) {
+                areAllRSea1Ready = false;
+            }
+        }
+        if (areAllRSea1Ready) {
+            let areAllRSea2Ready: boolean = true;
+            for (let i = 0; i < this.options.numRSeas2; i++) {
+                let rSea = this.rSeas[i + this.options.numRSeas1];
+                if (rSea.userData.raptor != null) {
+                    rSea.userData.raptor.setThrottleTarget(RaptorConstants.MAX_THROTTLE);
+                }
+                if (rSea.userData.raptor.throttle != RaptorConstants.MAX_THROTTLE) {
+                    areAllRSea2Ready = false;
+                }
+            }
+            if (areAllRSea2Ready) {
+                this.startFirstLandingSequence = false;
+            }
+        }
+    }
+
+    public runSecondLandingSequence(): void {
+        let areAllRSea2Ready: boolean = true;
+        for (let i = 0; i < this.options.numRSeas2; i++) {
+            let rSea = this.rSeas[i + this.options.numRSeas1];
+            if (rSea.userData.raptor != null) {
+                rSea.userData.raptor.setThrottleTarget(0);
+            }
+            if (rSea.userData.raptor.throttle != 0) {
+                areAllRSea2Ready = false;
+            }
+        }
+        if (areAllRSea2Ready) {
+            let areAllRSea1Ready: boolean = true;
+            for (let i = 0; i < this.options.numRSeas1; i++) {
+                let rSea = this.rSeas[i];
+                if (rSea.userData.raptor != null) {
+                    rSea.userData.raptor.setThrottleTarget(RaptorConstants.MAX_THROTTLE);
+                }
+                if (rSea.userData.raptor.throttle != RaptorConstants.MAX_THROTTLE) {
+                    areAllRSea1Ready = false;
+                }
+            }
+
+            if (areAllRSea1Ready) {
+                this.startSecondLandingSequence = false;
             }
         }
     }
@@ -1093,8 +1229,20 @@ export class SuperHeavy {
             if (this.startStartupSequence) {
                 this.runStartupSequence();
             }
-            if (this.startMECOSequence) {
+            else if (this.startMECOSequence) {
                 this.runMECOSequence();
+            }
+            else if (this.startBoostbackSequence) {
+                this.runBoostbackSequence();
+            }
+            else if (this.startBoostbackShutdownSequence) {
+                this.runBoostbackShutdownSequence();
+            }
+            else if (this.startFirstLandingSequence) {
+                this.runFirstLandingSequence();
+            }
+            else if (this.startSecondLandingSequence) {
+                this.runSecondLandingSequence();
             }
         }
         this.updateFuel(delta);

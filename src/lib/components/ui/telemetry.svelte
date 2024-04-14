@@ -2,7 +2,7 @@
     import { onMount } from "svelte";
     import { Vector2, type Vector3 } from "three";
     import { RaptorUI } from "../structs/ui/RaptorUI";
-    import { keyPresses, starshipSettings, superHeavySettings, telemetry } from "../stores/ui-store";
+    import { gameSettings, keyPresses, starshipSettings, superHeavySettings, telemetry } from "../stores/ui-store";
     import { MathHelper } from "../helpers/MathHelper";
     import s25 from "../images/s25.png";
     import b9 from "../images/b9.png";
@@ -13,9 +13,11 @@
     import { SuperHeavyConstants } from "../constants/objects/SuperHeavyConstants";
     import { LaunchConstants } from "../constants/objects/LaunchConstants";
     import Keybinds from "./keybinds.svelte";
+    import { SceneConstants } from "../constants/SceneConstants";
 
     let starshipRaptors: RaptorUI[] = [];
     let superHeavyRaptors: RaptorUI[] = [];
+    let speedUp: number = SceneConstants.SPEEDUP_DEFAULT;
 
     const sizeMult = 44;
     const posOffset = 12;
@@ -84,7 +86,6 @@
 
     let currEvent: string = LaunchConstants.LAUNCH_EVENTS[0];
     let isEventEnabled: boolean = false;
-    let isEventUrgent: boolean = false;
     let nextEvent: string = LaunchConstants.LAUNCH_EVENTS[1];
 
     function setupUpdator() {
@@ -166,7 +167,6 @@
 
             currEvent = LaunchConstants.LAUNCH_EVENTS[value.currEvent];
             isEventEnabled = value.isEventEnabled;
-            isEventUrgent = value.isEventUrgent;
             nextEvent = LaunchConstants.LAUNCH_EVENTS[value.currEvent + 1];
             
             updateThrottles();
@@ -280,6 +280,27 @@
             });
         }
     }
+
+    function setSpeedUp(): void {
+        if (speedUp == Math.round(speedUp) && speedUp >= SceneConstants.SPEEDUP_MIN && speedUp <= SceneConstants.SPEEDUP_MAX) {
+            speedUp = Math.round(speedUp);
+        }
+        else {
+            if (speedUp >= SceneConstants.SPEEDUP_MAX) {
+                speedUp = SceneConstants.SPEEDUP_MAX;
+            }
+            else if (speedUp <= SceneConstants.SPEEDUP_MIN) {
+                speedUp = SceneConstants.SPEEDUP_MIN;
+            }
+            else {
+                speedUp = SceneConstants.SPEEDUP_DEFAULT;
+            }
+        }
+        gameSettings.update((value) => {
+            value.speedUp = speedUp;
+            return value;
+        });
+    }
     
     function setupKeybinds(): void {
         window.addEventListener("keydown", (event) => {
@@ -363,6 +384,14 @@
             }
             if (event.key == "Enter") {
                 sendEvent();
+            }
+            if (event.key == "-") {
+                speedUp -= SceneConstants.SPEEDUP_STEP;
+                setSpeedUp();
+            }
+            if (event.key == "=") {
+                speedUp += SceneConstants.SPEEDUP_STEP;
+                setSpeedUp();
             }
         });
         window.addEventListener("keyup", (event) => {
@@ -630,29 +659,6 @@
         }
     }
 
-    .telemetry-launchevents-urgent {
-        position: absolute;
-        width: 100%;
-        height: 32px;
-        margin-left: 0;
-        margin-top: 40px;
-        font-size: 16px;
-        border: none;
-        outline: none;
-        background-color: #ff450080;
-        font-size: 16px;
-        color: white;
-        font-family: "M PLUS Code Latin", monospace;
-
-        transition: background-color 0.2s, color 0.2s;
-        animation: increaseOpacity 0.5s;
-
-        &:hover {
-            background-color: #ff4500;
-            cursor: pointer;
-        }
-    }
-
     .telemetry-launchevents-disabled {
         position: absolute;
         width: 100%;
@@ -698,16 +704,34 @@
         height: 0;
         border: 1px solid white;
     }
+
+    .telemetry-speedup-slider {
+        -webkit-appearance: none;
+        position: absolute;
+        bottom: 120px;
+        right: 8px;
+        width: 100px;
+        height: 10px;
+        background: rgba(255, 255, 255, 0.5);
+        outline: none;
+
+        animation: increaseOpacity 1s;
+
+        &::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 10px;
+            height: 10px;
+            background: white;
+            cursor: pointer;
+        }
+    }
 </style>
 {#if currEvent != null}
     <div class="telemetry-launchevents-container" style="height: {nextEvent != null ? 100 : 72}px;">
         <div class="telemetry-launchevents-title">Launch Events</div>
         {#if isEventEnabled}
-            {#if isEventUrgent}
-                <button class="telemetry-launchevents-urgent" on:click="{sendEvent}">{currEvent} &#9664; &#9888;</button>
-            {:else}
-                <button class="telemetry-launchevents-normal" on:click="{sendEvent}">{currEvent} &#9664; &#10003;</button>
-            {/if}
+            <button class="telemetry-launchevents-normal" on:click="{sendEvent}">{currEvent} &#9664; &#10003;</button>
         {:else}
             <button class="telemetry-launchevents-disabled">{currEvent} &#9664; &#10007;</button>
         {/if}
@@ -799,3 +823,5 @@
 <div style="position:fixed; left: 8px; bottom: 136px;">
     <Keybinds />
 </div>
+<input type="range" class="telemetry-speedup-slider" min={SceneConstants.SPEEDUP_MIN} max={SceneConstants.SPEEDUP_MAX} step={SceneConstants.SPEEDUP_STEP} bind:value={speedUp} on:input={setSpeedUp}>
+<div style="position:fixed; right: 115px; bottom: 118px; color: white; font-size: 16px;">{speedUp}X</div>

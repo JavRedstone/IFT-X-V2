@@ -44,7 +44,7 @@
             setTimeout(() => {
                 setTelemetry = true;
                 // make sure the dt is updated first
-            }, 0);
+            }, 100);
         });
     }
 
