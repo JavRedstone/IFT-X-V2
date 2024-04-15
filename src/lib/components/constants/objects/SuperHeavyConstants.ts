@@ -2,12 +2,9 @@ import { Euler, Vector3 } from "three";
 
 export class SuperHeavyConstants {
     public static readonly VISIBILITY_COOLDOWN: number = 0.25;
-    
-    public static readonly REAL_LIFE_SCALE: Vector3 = new Vector3(4.5, 4.5, 4.5);
 
     public static readonly SUPER_HEAVY_SCALE_VALUE: number = 0.0001;
     public static readonly SUPER_HEAVY_SCALE: Vector3 = new Vector3(SuperHeavyConstants.SUPER_HEAVY_SCALE_VALUE, SuperHeavyConstants.SUPER_HEAVY_SCALE_VALUE, SuperHeavyConstants.SUPER_HEAVY_SCALE_VALUE);
-    // public static readonly SUPER_HEAVY_SCALE: Vector3 = new Vector3(1, 1, 1);
 
     public static readonly LOX_BOTTOM_FIXED: number = 0.2;
     public static readonly LOX_CH4_GAP_FIXED: number = 0.05;

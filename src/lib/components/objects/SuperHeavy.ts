@@ -42,12 +42,23 @@ export class SuperHeavy {
     public visibilityCooldown: number = SuperHeavyConstants.VISIBILITY_COOLDOWN;
 
     public startStartupSequence: boolean = false;
+
     public startMECOSequence: boolean = false;
+    public endMECOSequence: boolean = false;
+
     public startSepGridFinSequence: boolean = false;
+
     public startBoostbackSequence: boolean = false;
+    public endBoostbackSequence: boolean = false;
+
     public startBoostbackShutdownSequence: boolean = false;
+    public endBoostbackShutdownSequence: boolean = false;
+
     public startFirstLandingSequence: boolean = false;
+    public endFirstLandingSequence: boolean = false;
+
     public startSecondLandingSequence: boolean = false;
+    public endSecondLandingSequence: boolean = false;
     
     public flightController: FlightController = null;
 
@@ -166,13 +177,13 @@ export class SuperHeavy {
     }
 
     public getLOXVolume(perc: number = this.LOX): number {
-        let useableHeight: number = this.options.boosterRingHeight - (SuperHeavyConstants.LOX_BOTTOM_FIXED + SuperHeavyConstants.CH4_TOP_FIXED + SuperHeavyConstants.LOX_CH4_GAP_FIXED) * SuperHeavyConstants.REAL_LIFE_SCALE.y;
-        return MathHelper.getVolumeofCylinder(SuperHeavyConstants.BOOSTER_RING_SCALE.x * SuperHeavyConstants.REAL_LIFE_SCALE.x, useableHeight * SuperHeavyConstants.LOX_PERCENTAGE * perc);
+        let useableHeight: number = this.options.boosterRingHeight - (SuperHeavyConstants.LOX_BOTTOM_FIXED + SuperHeavyConstants.CH4_TOP_FIXED + SuperHeavyConstants.LOX_CH4_GAP_FIXED) * LaunchConstants.REAL_LIFE_SCALE.y;
+        return MathHelper.getVolumeofCylinder(SuperHeavyConstants.BOOSTER_RING_SCALE.x * LaunchConstants.REAL_LIFE_SCALE.x, useableHeight * SuperHeavyConstants.LOX_PERCENTAGE * perc);
     }
 
     public getCH4Volume(perc: number = this.CH4): number {
-        let useableHeight: number = this.options.boosterRingHeight - (SuperHeavyConstants.LOX_BOTTOM_FIXED + SuperHeavyConstants.CH4_TOP_FIXED + SuperHeavyConstants.LOX_CH4_GAP_FIXED) * SuperHeavyConstants.REAL_LIFE_SCALE.y;
-        return MathHelper.getVolumeofCylinder(SuperHeavyConstants.BOOSTER_RING_SCALE.x * SuperHeavyConstants.REAL_LIFE_SCALE.x, useableHeight * SuperHeavyConstants.CH4_PERCENTAGE * perc);
+        let useableHeight: number = this.options.boosterRingHeight - (SuperHeavyConstants.LOX_BOTTOM_FIXED + SuperHeavyConstants.CH4_TOP_FIXED + SuperHeavyConstants.LOX_CH4_GAP_FIXED) * LaunchConstants.REAL_LIFE_SCALE.y;
+        return MathHelper.getVolumeofCylinder(SuperHeavyConstants.BOOSTER_RING_SCALE.x * LaunchConstants.REAL_LIFE_SCALE.x, useableHeight * SuperHeavyConstants.CH4_PERCENTAGE * perc);
     }
 
     public getLOXMass(perc: number = this.LOX): number {
@@ -184,7 +195,7 @@ export class SuperHeavy {
     }
 
     public getDryMass(): number {
-        return SuperHeavyConstants.HSR_DRY_MASS * this.options.hsrHeight / (SuperHeavyConstants.HSR_HEIGHT * SuperHeavyConstants.REAL_LIFE_SCALE.y) + SuperHeavyConstants.BOOSTER_RING_DRY_MASS * this.options.boosterRingHeight / SuperHeavyConstants.REAL_LIFE_SCALE.y + SuperHeavyConstants.GRID_FIN_DRY_MASS * this.options.numGridFins * this.options.gridFinLengthScale * this.options.gridFinWidthScale + SuperHeavyConstants.CHINE_DRY_MASS * this.options.numChines * this.options.chineHeightScale + (this.options.numRSeas1 + this.options.numRSeas2 + this.options.numRSeas3) * RaptorConstants.DRY_MASS;
+        return SuperHeavyConstants.HSR_DRY_MASS * this.options.hsrHeight / (SuperHeavyConstants.HSR_HEIGHT * LaunchConstants.REAL_LIFE_SCALE.y) + SuperHeavyConstants.BOOSTER_RING_DRY_MASS * this.options.boosterRingHeight / LaunchConstants.REAL_LIFE_SCALE.y + SuperHeavyConstants.GRID_FIN_DRY_MASS * this.options.numGridFins * this.options.gridFinLengthScale * this.options.gridFinWidthScale + SuperHeavyConstants.CHINE_DRY_MASS * this.options.numChines * this.options.chineHeightScale + (this.options.numRSeas1 + this.options.numRSeas2 + this.options.numRSeas3) * RaptorConstants.DRY_MASS;
     }
 
     public getMass(): number {
@@ -197,28 +208,28 @@ export class SuperHeavy {
 
     public getCOM(): Vector3 { // this is real life scale so that it is accurate in the flightcontroller. The position addition number will have to be scaled down after it is rotated and moved to the correct position
         let COM: Vector3 = new Vector3(0, 0, 0);
-        COM.add(new Vector3(0, this.hsr.position.y / SuperHeavyConstants.SUPER_HEAVY_SCALE.y * SuperHeavyConstants.REAL_LIFE_SCALE.y + this.options.hsrHeight / 2, 0).multiplyScalar(SuperHeavyConstants.HSR_DRY_MASS * this.options.hsrHeight));
+        COM.add(new Vector3(0, this.hsr.position.y / SuperHeavyConstants.SUPER_HEAVY_SCALE.y * LaunchConstants.REAL_LIFE_SCALE.y + this.options.hsrHeight / 2, 0).multiplyScalar(SuperHeavyConstants.HSR_DRY_MASS * this.options.hsrHeight));
         COM.add(new Vector3(0, this.options.boosterRingHeight / 2, 0).multiplyScalar(SuperHeavyConstants.BOOSTER_RING_DRY_MASS));
         for (let gridFin of this.gridFins) {
             COM.add(gridFin.position.clone().divide(SuperHeavyConstants.SUPER_HEAVY_SCALE).multiplyScalar(SuperHeavyConstants.GRID_FIN_DRY_MASS * this.options.gridFinLengthScale * this.options.gridFinWidthScale));
         }
         for (let chine of this.chines) {
-            COM.add(chine.position.clone().divide(SuperHeavyConstants.SUPER_HEAVY_SCALE).multiply(SuperHeavyConstants.REAL_LIFE_SCALE).multiplyScalar(SuperHeavyConstants.CHINE_DRY_MASS * this.options.chineHeightScale));
+            COM.add(chine.position.clone().divide(SuperHeavyConstants.SUPER_HEAVY_SCALE).multiply(LaunchConstants.REAL_LIFE_SCALE).multiplyScalar(SuperHeavyConstants.CHINE_DRY_MASS * this.options.chineHeightScale));
         }
         for (let rSea of this.rSeas) {
-            COM.add(rSea.position.clone().divide(SuperHeavyConstants.SUPER_HEAVY_SCALE).multiply(SuperHeavyConstants.REAL_LIFE_SCALE).multiplyScalar(RaptorConstants.DRY_MASS));
+            COM.add(rSea.position.clone().divide(SuperHeavyConstants.SUPER_HEAVY_SCALE).multiply(LaunchConstants.REAL_LIFE_SCALE).multiplyScalar(RaptorConstants.DRY_MASS));
         }
-        COM.add(new Vector3(0, this.LOXFrost.position.y / SuperHeavyConstants.SUPER_HEAVY_SCALE.y * SuperHeavyConstants.REAL_LIFE_SCALE.y + this.options.boosterRingHeight * SuperHeavyConstants.LOX_PERCENTAGE / 2, 0).multiplyScalar(this.getLOXMass()));
-        COM.add(new Vector3(0, this.CH4Frost.position.y / SuperHeavyConstants.SUPER_HEAVY_SCALE.y * SuperHeavyConstants.REAL_LIFE_SCALE.y + this.options.boosterRingHeight * SuperHeavyConstants.CH4_PERCENTAGE / 2, 0).multiplyScalar(this.getCH4Mass()));
+        COM.add(new Vector3(0, this.LOXFrost.position.y / SuperHeavyConstants.SUPER_HEAVY_SCALE.y * LaunchConstants.REAL_LIFE_SCALE.y + this.options.boosterRingHeight * SuperHeavyConstants.LOX_PERCENTAGE / 2, 0).multiplyScalar(this.getLOXMass()));
+        COM.add(new Vector3(0, this.CH4Frost.position.y / SuperHeavyConstants.SUPER_HEAVY_SCALE.y * LaunchConstants.REAL_LIFE_SCALE.y + this.options.boosterRingHeight * SuperHeavyConstants.CH4_PERCENTAGE / 2, 0).multiplyScalar(this.getCH4Mass()));
         return COM.divideScalar(this.getMass());
     }
 
     public getMOIRoll(): number {
-        return 1/2 * this.getMass() * Math.pow(SuperHeavyConstants.BOOSTER_RING_SCALE.x * SuperHeavyConstants.REAL_LIFE_SCALE.x, 2);
+        return 1/2 * this.getMass() * Math.pow(SuperHeavyConstants.BOOSTER_RING_SCALE.x * LaunchConstants.REAL_LIFE_SCALE.x, 2);
     }
 
     public getMOIPitch(): number {
-        return 1/4 * this.getMass() * Math.pow(SuperHeavyConstants.BOOSTER_RING_SCALE.x * SuperHeavyConstants.REAL_LIFE_SCALE.x, 2) + 1/12 * this.getMass() * Math.pow(this.options.boosterRingHeight * SuperHeavyConstants.REAL_LIFE_SCALE.y, 2);
+        return 1/4 * this.getMass() * Math.pow(SuperHeavyConstants.BOOSTER_RING_SCALE.x * LaunchConstants.REAL_LIFE_SCALE.x, 2) + 1/12 * this.getMass() * Math.pow(this.options.boosterRingHeight * LaunchConstants.REAL_LIFE_SCALE.y, 2);
     }
 
     public getThrustVector(altitude: number): Vector3 {
@@ -245,14 +256,14 @@ export class SuperHeavy {
     }
 
     public getThrustTorque(COM: Vector3, altitude: number): Vector3 {
-        let R = new Vector3(0, SuperHeavyConstants.R_HEIGHT * SuperHeavyConstants.REAL_LIFE_SCALE.y, 0).sub(COM);
+        let R = new Vector3(0, SuperHeavyConstants.R_HEIGHT * LaunchConstants.REAL_LIFE_SCALE.y, 0).sub(COM);
         let F: Vector3 = this.getThrustVector(altitude);
         return R.clone().cross(F);
     }
 
     public getGridFinPitchTorque(rotation: Quaternion, velocity: Vector3, COM: Vector3, altitude: number): Vector3 {
         let orientation: Vector3 = new Vector3(0, 1, 0).applyQuaternion(rotation);
-        let generic_R = new Vector3(0, this.options.boosterRingHeight - SuperHeavyConstants.GRID_FIN_TOP_OFFSET * SuperHeavyConstants.REAL_LIFE_SCALE.y, 0).sub(COM);
+        let generic_R = new Vector3(0, this.options.boosterRingHeight - SuperHeavyConstants.GRID_FIN_TOP_OFFSET * LaunchConstants.REAL_LIFE_SCALE.y, 0).sub(COM);
         let T: Vector3 = new Vector3(0, 0, 0);
         for (let gridFin of this.gridFins) {
             let R: Vector3 = generic_R.clone().add(new Vector3(0, 0, SuperHeavyConstants.GRID_FIN_SURFACE_RADIUS).applyEuler(new Euler(0, gridFin.rotation.z, 0)));
@@ -376,7 +387,7 @@ export class SuperHeavy {
                 this.CH4Frost.scale.y = this.CH4 / 100;
             }
             
-            let useableHeight: number = this.options.boosterRingHeight / SuperHeavyConstants.REAL_LIFE_SCALE.y - SuperHeavyConstants.LOX_BOTTOM_FIXED - SuperHeavyConstants.CH4_TOP_FIXED - SuperHeavyConstants.LOX_CH4_GAP_FIXED;
+            let useableHeight: number = this.options.boosterRingHeight / LaunchConstants.REAL_LIFE_SCALE.y - SuperHeavyConstants.LOX_BOTTOM_FIXED - SuperHeavyConstants.CH4_TOP_FIXED - SuperHeavyConstants.LOX_CH4_GAP_FIXED;
 
             this.CH4Frost.scale.copy(SuperHeavyConstants.CRYOGENIC_SCALE.clone().multiply(SuperHeavyConstants.SUPER_HEAVY_SCALE).multiply(new Vector3(1, this.CH4 * SuperHeavyConstants.CH4_PERCENTAGE * useableHeight, 1)));
             this.CH4Frost.position.copy(this.boosterRing.position.clone().add(new Vector3(0, SuperHeavyConstants.SUPER_HEAVY_SCALE.y * (SuperHeavyConstants.LOX_BOTTOM_FIXED + SuperHeavyConstants.LOX_PERCENTAGE * useableHeight + SuperHeavyConstants.LOX_CH4_GAP_FIXED), 0)));
@@ -844,7 +855,7 @@ export class SuperHeavy {
                 }
             }
             if (areAllRSea2Ready) {
-                if (this.options.hsrHeight > SuperHeavyConstants.MIN_HSR_HEIGHT) {
+                if (this.options.hsrHeight > SuperHeavyConstants.MIN_HSR_HEIGHT * LaunchConstants.REAL_LIFE_SCALE.y) {
                     this.startMECOSequence = false;
                     this.startSepGridFinSequence = true;
                 }
@@ -862,6 +873,7 @@ export class SuperHeavy {
     
                     if (areAllRSea1Ready) {
                         this.startMECOSequence = false;
+                        this.endMECOSequence = true;
                         this.startSepGridFinSequence = true;
                     }   
                 }
@@ -893,6 +905,7 @@ export class SuperHeavy {
             }
             if (areAllRSea2Ready) {
                 this.startBoostbackSequence = false;
+                this.endBoostbackSequence = true;
                 this.startSepGridFinSequence = false;
             }
         }
@@ -923,6 +936,7 @@ export class SuperHeavy {
 
             if (areAllRSea1Ready) {
                 this.startBoostbackShutdownSequence = false;
+                this.endBoostbackShutdownSequence = true;
             }
         }
     }
@@ -951,6 +965,7 @@ export class SuperHeavy {
             }
             if (areAllRSea2Ready) {
                 this.startFirstLandingSequence = false;
+                this.endFirstLandingSequence = true;
             }
         }
     }
@@ -980,6 +995,7 @@ export class SuperHeavy {
 
             if (areAllRSea1Ready) {
                 this.startSecondLandingSequence = false;
+                this.endSecondLandingSequence = true;
             }
         }
     }
@@ -1096,7 +1112,7 @@ export class SuperHeavy {
     }
 
     public setupRSeas(): void {
-        let rSeaPositions1 = MathHelper.getCircularPositions(this.options.numRSeas1, this.options.rSeaRadius1 * SuperHeavyConstants.SUPER_HEAVY_SCALE.x / SuperHeavyConstants.REAL_LIFE_SCALE.y, this.options.rSeaAngularOffset1 * Math.PI / 180);
+        let rSeaPositions1 = MathHelper.getCircularPositions(this.options.numRSeas1, this.options.rSeaRadius1 * SuperHeavyConstants.SUPER_HEAVY_SCALE.x / LaunchConstants.REAL_LIFE_SCALE.y, this.options.rSeaAngularOffset1 * Math.PI / 180);
         let rSeaRotations1 = MathHelper.getCircularRotations(this.options.numRSeas1, this.options.rSeaAngularOffset1 * Math.PI / 180);
 
         for (let i = 0; i < this.options.numRSeas1; i++) {
@@ -1110,7 +1126,7 @@ export class SuperHeavy {
             this.rSeas = [...this.rSeas, rSea];
         }
 
-        let rSeaPositions2 = MathHelper.getCircularPositions(this.options.numRSeas2, this.options.rSeaRadius2 * SuperHeavyConstants.SUPER_HEAVY_SCALE.x / SuperHeavyConstants.REAL_LIFE_SCALE.y, this.options.rSeaAngularOffset2 * Math.PI / 180);
+        let rSeaPositions2 = MathHelper.getCircularPositions(this.options.numRSeas2, this.options.rSeaRadius2 * SuperHeavyConstants.SUPER_HEAVY_SCALE.x / LaunchConstants.REAL_LIFE_SCALE.y, this.options.rSeaAngularOffset2 * Math.PI / 180);
         let rSeaRotations2 = MathHelper.getCircularRotations(this.options.numRSeas2, this.options.rSeaAngularOffset2 * Math.PI / 180);
 
         for (let i = 0; i < this.options.numRSeas2; i++) {
@@ -1124,7 +1140,7 @@ export class SuperHeavy {
             this.rSeas = [...this.rSeas, rSea];
         }
 
-        let rSeaPositions3 = MathHelper.getCircularPositions(this.options.numRSeas3, this.options.rSeaRadius3 * SuperHeavyConstants.SUPER_HEAVY_SCALE.x / SuperHeavyConstants.REAL_LIFE_SCALE.y, this.options.rSeaAngularOffset3 * Math.PI / 180);
+        let rSeaPositions3 = MathHelper.getCircularPositions(this.options.numRSeas3, this.options.rSeaRadius3 * SuperHeavyConstants.SUPER_HEAVY_SCALE.x / LaunchConstants.REAL_LIFE_SCALE.y, this.options.rSeaAngularOffset3 * Math.PI / 180);
         let rSeaRotations3 = MathHelper.getCircularRotations(this.options.numRSeas3, this.options.rSeaAngularOffset3 * Math.PI / 180);
 
         for (let i = 0; i < this.options.numRSeas3; i++) {
@@ -1141,7 +1157,7 @@ export class SuperHeavy {
 
     public setupOuterCylinders(): void {
         if (this.options.rSeaRadius3 > SuperHeavyConstants.OUTER_CYLINDER_THRESHOLD) {
-            let outerCylinderPositions = MathHelper.getCircularPositions(this.options.numRSeas3, (this.options.rSeaRadius3 / SuperHeavyConstants.REAL_LIFE_SCALE.y + SuperHeavyConstants.OUTER_CYLINDER_ADDITIONAL_RADIUS) * SuperHeavyConstants.SUPER_HEAVY_SCALE.x, this.options.rSeaAngularOffset3 * Math.PI / 180);
+            let outerCylinderPositions = MathHelper.getCircularPositions(this.options.numRSeas3, (this.options.rSeaRadius3 / LaunchConstants.REAL_LIFE_SCALE.y + SuperHeavyConstants.OUTER_CYLINDER_ADDITIONAL_RADIUS) * SuperHeavyConstants.SUPER_HEAVY_SCALE.x, this.options.rSeaAngularOffset3 * Math.PI / 180);
             let outerCylinderRotations = MathHelper.getCircularRotations(this.options.numRSeas3, this.options.rSeaAngularOffset3 * Math.PI / 180);
             
             for (let i = 0; i < this.options.numRSeas3; i++) {
@@ -1160,8 +1176,8 @@ export class SuperHeavy {
             this.boosterRing.userData.aabb = null;
             this.hasUpdatedAABB = false;
 
-            this.hsr.scale.copy(SuperHeavyConstants.HSR_SCALE.clone().multiply(SuperHeavyConstants.SUPER_HEAVY_SCALE).multiply(new Vector3(1, (this.options.hsrHeight < SuperHeavyConstants.MIN_HSR_HEIGHT ? SuperHeavyConstants.MIN_HSR_HEIGHT : this.options.hsrHeight) / (SuperHeavyConstants.HSR_HEIGHT * SuperHeavyConstants.REAL_LIFE_SCALE.y), 1)));
-            this.boosterRing.scale.copy(SuperHeavyConstants.BOOSTER_RING_SCALE.clone().multiply(SuperHeavyConstants.SUPER_HEAVY_SCALE).multiply(new Vector3(1, this.options.boosterRingHeight / SuperHeavyConstants.REAL_LIFE_SCALE.y, 1)));
+            this.hsr.scale.copy(SuperHeavyConstants.HSR_SCALE.clone().multiply(SuperHeavyConstants.SUPER_HEAVY_SCALE).multiply(new Vector3(1, (this.options.hsrHeight < SuperHeavyConstants.MIN_HSR_HEIGHT ? SuperHeavyConstants.MIN_HSR_HEIGHT : this.options.hsrHeight) / (SuperHeavyConstants.HSR_HEIGHT * LaunchConstants.REAL_LIFE_SCALE.y), 1)));
+            this.boosterRing.scale.copy(SuperHeavyConstants.BOOSTER_RING_SCALE.clone().multiply(SuperHeavyConstants.SUPER_HEAVY_SCALE).multiply(new Vector3(1, this.options.boosterRingHeight / LaunchConstants.REAL_LIFE_SCALE.y, 1)));
             this.hasSetupSingle = true;
         }
     }

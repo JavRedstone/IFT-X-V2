@@ -39,7 +39,8 @@ export class LaunchManager {
     public targetPos: Vector3 = new Vector3(0, 0, 0);
 
     public isCameraOnStarship: boolean = true;
-    public isFreeView: boolean = true;
+    public
+    public isGroundView: boolean = true;
 
     public dt: number = 0;
     public ticks: number = 0;
@@ -144,11 +145,11 @@ export class LaunchManager {
             }
             else if (this.starship.hasUpdatedAABB && this.superHeavy.hasUpdatedAABB) {
                 if (this.isFueling && !this.hasStartedFueling) {
-                    let ssCH4Volume: number = MathHelper.getVolumeofCylinder(StarshipConstants.SHIP_RING_SCALE.x * StarshipConstants.REAL_LIFE_SCALE.x, this.starship.options.shipRingHeight * StarshipConstants.CH4_PERCENTAGE);   
-                    let ssLOXVolume: number = MathHelper.getVolumeofCylinder(StarshipConstants.SHIP_RING_SCALE.x * StarshipConstants.REAL_LIFE_SCALE.x, this.starship.options.shipRingHeight * StarshipConstants.LOX_PERCENTAGE);
+                    let ssCH4Volume: number = MathHelper.getVolumeofCylinder(StarshipConstants.SHIP_RING_SCALE.x * LaunchConstants.REAL_LIFE_SCALE.x, this.starship.options.shipRingHeight * StarshipConstants.CH4_PERCENTAGE);   
+                    let ssLOXVolume: number = MathHelper.getVolumeofCylinder(StarshipConstants.SHIP_RING_SCALE.x * LaunchConstants.REAL_LIFE_SCALE.x, this.starship.options.shipRingHeight * StarshipConstants.LOX_PERCENTAGE);
                 
-                    let shCH4Volume: number = MathHelper.getVolumeofCylinder(SuperHeavyConstants.BOOSTER_RING_SCALE.x * SuperHeavyConstants.REAL_LIFE_SCALE.x, this.superHeavy.options.boosterRingHeight * SuperHeavyConstants.CH4_PERCENTAGE);
-                    let shLOXVolume: number = MathHelper.getVolumeofCylinder(SuperHeavyConstants.BOOSTER_RING_SCALE.x * SuperHeavyConstants.REAL_LIFE_SCALE.x, this.superHeavy.options.boosterRingHeight * SuperHeavyConstants.LOX_PERCENTAGE);
+                    let shCH4Volume: number = MathHelper.getVolumeofCylinder(SuperHeavyConstants.BOOSTER_RING_SCALE.x * LaunchConstants.REAL_LIFE_SCALE.x, this.superHeavy.options.boosterRingHeight * SuperHeavyConstants.CH4_PERCENTAGE);
+                    let shLOXVolume: number = MathHelper.getVolumeofCylinder(SuperHeavyConstants.BOOSTER_RING_SCALE.x * LaunchConstants.REAL_LIFE_SCALE.x, this.superHeavy.options.boosterRingHeight * SuperHeavyConstants.LOX_PERCENTAGE);
 
                     this.dt = -Math.round(-LaunchConstants.STOP_DT + Math.max(ssCH4Volume, ssLOXVolume, shCH4Volume, shLOXVolume) / LaunchConstants.FUELING_RATE);
                 }
@@ -241,7 +242,7 @@ export class LaunchManager {
                         if (!this.separated) {
                             let altitude: number = this.stackGroup.userData.flightController.getAltitude();
 
-                            if (this.starship.endStartupSequence) {
+                            if ((this.superHeavy.options.hsrHeight > SuperHeavyConstants.MIN_HSR_HEIGHT * LaunchConstants.REAL_LIFE_SCALE.y && this.starship.endStartupSequence) || (this.superHeavy.options.hsrHeight <= SuperHeavyConstants.MIN_HSR_HEIGHT * LaunchConstants.REAL_LIFE_SCALE.y && this.superHeavy.endMECOSequence)) {
                                 this.separated = true;
                                 this.justSeparated = true;
                             }
@@ -268,7 +269,7 @@ export class LaunchManager {
 
                             // gravity
 
-                            this.stackGroup.userData.flightController.acceleration.add(new Vector3(0, -LaunchHelper.getGEarth(altitude), 0).applyQuaternion(new Quaternion().setFromUnitVectors(new Vector3(0, 1, 0), PRTransients.realPositions.groupPosition.clone().normalize()).multiply(new Quaternion().setFromEuler(this.earthRot))));
+                            this.stackGroup.userData.flightController.acceleration.add(this.stackGroup.userData.flightController.position.clone().normalize().multiplyScalar(-LaunchHelper.getGEarth(altitude)));
 
                             // update flight controller
 
@@ -323,8 +324,8 @@ export class LaunchManager {
 
                             // gravity
 
-                            this.superHeavy.flightController.acceleration.add(new Vector3(0, -LaunchHelper.getGEarth(shAltitude), 0).applyQuaternion(new Quaternion().setFromUnitVectors(new Vector3(0, 1, 0), PRTransients.realPositions.groupPosition.clone().normalize()).multiply(new Quaternion().setFromEuler(this.earthRot))));
-                            this.starship.flightController.acceleration.add(new Vector3(0, -LaunchHelper.getGEarth(ssAltitude), 0).applyQuaternion(new Quaternion().setFromUnitVectors(new Vector3(0, 1, 0), PRTransients.realPositions.groupPosition.clone().normalize()).multiply(new Quaternion().setFromEuler(this.earthRot))));
+                            this.superHeavy.flightController.acceleration.add(this.superHeavy.flightController.position.clone().normalize().multiplyScalar(-LaunchHelper.getGEarth(shAltitude)));
+                            this.starship.flightController.acceleration.add(this.starship.flightController.position.clone().normalize().multiplyScalar(-LaunchHelper.getGEarth(ssAltitude)));
 
                             // update flight controller
 
@@ -448,14 +449,14 @@ export class LaunchManager {
     public updateView(): void {
         if (MathHelper.isInRadiusOf(PRTransients.fakePositions.earthPosition, CelestialConstants.EARTH_VIEW_RADIUS, this.orbitControls.target)) {
             this.targetPos = PRTransients.realPositions.earthPosition;
-            this.isFreeView = true;
+            this.isGroundView = true;
         }
         else if (MathHelper.isInRadiusOf(PRTransients.fakePositions.moonPosition, CelestialConstants.MOON_VIEW_RADIUS, this.orbitControls.target)) {
             this.targetPos = PRTransients.realPositions.moonPosition;
-            this.isFreeView = true;
+            this.isGroundView = true;
         }
 
-        if (this.isFreeView) {
+        if (this.isGroundView) {
             let rot: Quaternion = MathHelper.getAngleBetweenVectors(PRTransients.realPositions.orbitControlsPosition.clone().sub(this.targetPos).normalize(), new Vector3(0, 1, 0));
             for (let key of Object.keys(PRTransients.realPositions)) {
                 PRTransients.fakePositions[key].copy(this.targetPos.clone().add(PRTransients.realPositions[key].clone().sub(this.targetPos).applyQuaternion(rot)));
@@ -572,24 +573,25 @@ export class LaunchManager {
     public getStackCOM(): Vector3 {
         let COM: Vector3 = new Vector3(0, 0, 0);
         COM.add(this.superHeavy.getCOM().clone().multiplyScalar(this.superHeavy.getMass()));
-        COM.add(this.starship.getCOM().clone().add(new Vector3(0, this.superHeavy.group.userData.aabb.getSize(new Vector3).y * StarshipConstants.REAL_LIFE_SCALE.y, 0)).multiplyScalar(this.starship.getMass()));
+        COM.add(this.starship.getCOM().clone().add(new Vector3(0, this.superHeavy.group.userData.aabb.getSize(new Vector3).y * LaunchConstants.REAL_LIFE_SCALE.y, 0)).multiplyScalar(this.starship.getMass()));
         COM.x = 0;
         COM.z = 0;
         return COM.divideScalar(this.getStackMass());
     }
 
     public getStackMOIRoll(): number {
-        return 1/2 * this.getStackMass() * Math.pow(SuperHeavyConstants.BOOSTER_RING_SCALE.x * SuperHeavyConstants.REAL_LIFE_SCALE.x, 2); // the ring scale is the same anyway
+        return 1/2 * this.getStackMass() * Math.pow(SuperHeavyConstants.BOOSTER_RING_SCALE.x * LaunchConstants.REAL_LIFE_SCALE.x, 2); // the ring scale is the same anyway
     }
 
     public getStackMOIPitch(): number {
-        return 1/4 * this.getStackMass() * Math.pow(SuperHeavyConstants.BOOSTER_RING_SCALE.x * SuperHeavyConstants.REAL_LIFE_SCALE.x + StarshipConstants.SHIP_RING_SCALE.x * StarshipConstants.REAL_LIFE_SCALE.x, 2) + 1/12 * this.getStackMass() * Math.pow(this.superHeavy.options.boosterRingHeight * SuperHeavyConstants.REAL_LIFE_SCALE.y + this.starship.options.shipRingHeight * StarshipConstants.REAL_LIFE_SCALE.y, 2);
+        return 1/4 * this.getStackMass() * Math.pow(SuperHeavyConstants.BOOSTER_RING_SCALE.x * LaunchConstants.REAL_LIFE_SCALE.x + StarshipConstants.SHIP_RING_SCALE.x * LaunchConstants.REAL_LIFE_SCALE.x, 2) + 1/12 * this.getStackMass() * Math.pow(this.superHeavy.options.boosterRingHeight * LaunchConstants.REAL_LIFE_SCALE.y + this.starship.options.shipRingHeight * LaunchConstants.REAL_LIFE_SCALE.y, 2);
     }
 
     public handleEventEnable(): void {
         if (this.dt >= LaunchConstants.MECO_DT) {
             this.isEventEnabled = true;
         }
+
         if (this.superHeavy.LOX <= 0 || this.superHeavy.CH4 <= 0) {
             this.superHeavy.runForceShutdown();
             if (this.currEvent == 0) {
@@ -611,6 +613,17 @@ export class LaunchManager {
             else if (this.currEvent == 10) {
                 this.currEvent = 11; // hide
             }
+        }
+
+        if (
+            (this.currEvent == 0 && this.superHeavy.startMECOSequence && !this.superHeavy.endMECOSequence) ||
+            (this.currEvent == 1 && this.starship.startStartupSequence && !this.starship.endStartupSequence) ||
+            (this.currEvent == 2 && this.superHeavy.startBoostbackSequence && !this.superHeavy.endBoostbackSequence) ||
+            (this.currEvent == 3 && this.superHeavy.startBoostbackShutdownSequence && !this.superHeavy.endBoostbackShutdownSequence) ||
+            (this.currEvent == 4 && this.superHeavy.startFirstLandingSequence && !this.superHeavy.endFirstLandingSequence) ||
+            (this.currEvent == 5 && this.superHeavy.startSecondLandingSequence && !this.superHeavy.endSecondLandingSequence)
+        ) {
+            this.isEventEnabled = false;
         }
         
         telemetry.update((value) => {

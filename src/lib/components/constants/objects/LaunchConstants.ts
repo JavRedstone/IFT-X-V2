@@ -6,6 +6,8 @@ export class LaunchConstants {
 
     public static readonly ROTATION_GROUP: Euler = new Euler(0, -90 * Math.PI / 180, 0, "XYZ");
     
+    public static readonly REAL_LIFE_SCALE: Vector3 = new Vector3(4.5, 4.5, 4.5);
+
     public static readonly LOX_DENSITY: number = 1141; //kg/m^3
     public static readonly CH4_DENSITY: number = 422; //kg/m^3
     public static readonly FUELING_RATE: number = 0.75; //m^3/s
@@ -14,10 +16,10 @@ export class LaunchConstants {
     public static readonly DRAG_FORCE_LOSS: number = 0.0001;
     public static readonly DRAG_MAX_FORCE_LOSS: number = 1000000;
 
-    public static readonly SEPARATION_ANG_VEL: Vector3 = new Vector3(0, 0, 0.25);
+    public static readonly SEPARATION_ANG_VEL: Vector3 = new Vector3(0, 0, 0.15);
 
     public static readonly FUELING_SPEEDUP: number = 2000;
-    public static readonly COUNTDOWN_SPEEDUP: number = 10;
+    public static readonly COUNTDOWN_SPEEDUP: number = 20;
     public static readonly LAUNCH_SPEEDUP: number = 1;
 
     public static readonly STOP_DT: number = -150; //s

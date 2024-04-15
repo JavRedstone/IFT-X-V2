@@ -3,11 +3,8 @@ import { Euler, Vector3 } from "three";
 export class StarshipConstants {
     public static readonly VISIBILITY_COOLDOWN: number = 0.25;
 
-    public static readonly REAL_LIFE_SCALE: Vector3 = new Vector3(4.5, 4.5, 4.5);
-
     public static readonly STARSHIP_SCALE_VALUE: number = 0.0001;
     public static readonly STARSHIP_SCALE: Vector3 = new Vector3(StarshipConstants.STARSHIP_SCALE_VALUE, StarshipConstants.STARSHIP_SCALE_VALUE, StarshipConstants.STARSHIP_SCALE_VALUE);
-    // public static readonly STARSHIP_SCALE: Vector3 = new Vector3(1, 1, 1);
 
     public static readonly LOX_BOTTOM_FIXED: number = 1;
     public static readonly LOX_CH4_GAP_FIXED: number = 0.05;

@@ -64,7 +64,7 @@
         rSeaGimbalYs3: [],
     };
     let starshipOptions: any = {
-        shipRingHeight: StarshipConstants.SHIP_RING_HEIGHT * StarshipConstants.REAL_LIFE_SCALE.y,
+        shipRingHeight: StarshipConstants.SHIP_RING_HEIGHT * LaunchConstants.REAL_LIFE_SCALE.y,
 
         forwardLHeightScale: 1,
         forwardLWidthScale: 1,
@@ -75,13 +75,13 @@
         aftRHeightScale: 1,
         aftRWidthScale: 1,
 
-        rSeaRadius: StarshipConstants.R_SEA_RADIUS * SuperHeavyConstants.REAL_LIFE_SCALE.x,
+        rSeaRadius: StarshipConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x,
         numRSeas: StarshipConstants.NUM_R_SEAS,
         rSeaAngularOffset: StarshipConstants.R_SEA_ANGULAR_OFFSET * 180/Math.PI,
         rSeaType: 2,
         canRSeaGimbal: StarshipConstants.CAN_R_SEA_GIMBAL,
 
-        rVacRadius: StarshipConstants.R_VAC_RADIUS * SuperHeavyConstants.REAL_LIFE_SCALE.x,
+        rVacRadius: StarshipConstants.R_VAC_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x,
         numRVacs: StarshipConstants.NUM_R_VACS,
         rVacAngularOffset: StarshipConstants.R_VAC_ANGULAR_OFFSET * 180/Math.PI,
         rVacType: 2,
@@ -111,8 +111,8 @@
     }
     let superHeavyOptions: any = {
         hasHsr: true,
-        hsrHeight: SuperHeavyConstants.HSR_HEIGHT * SuperHeavyConstants.REAL_LIFE_SCALE.y,
-        boosterRingHeight: SuperHeavyConstants.BOOSTER_RING_HEIGHT * SuperHeavyConstants.REAL_LIFE_SCALE.y,
+        hsrHeight: SuperHeavyConstants.HSR_HEIGHT * LaunchConstants.REAL_LIFE_SCALE.y,
+        boosterRingHeight: SuperHeavyConstants.BOOSTER_RING_HEIGHT * LaunchConstants.REAL_LIFE_SCALE.y,
         
         numGridFins: SuperHeavyConstants.NUM_GRID_FINS,
         gridFinAngularOffset: SuperHeavyConstants.GRID_FIN_ANGULAR_OFFSET * 180/Math.PI,
@@ -123,19 +123,19 @@
         chineAngularOffset: SuperHeavyConstants.CHINE_ANGULAR_OFFSET * 180/Math.PI,
         chineHeightScale: 1,
         
-        rSeaRadius1: SuperHeavyConstants.R_SEA_RADIUS_1 * SuperHeavyConstants.REAL_LIFE_SCALE.x,
+        rSeaRadius1: SuperHeavyConstants.R_SEA_RADIUS_1 * LaunchConstants.REAL_LIFE_SCALE.x,
         numRSeas1: SuperHeavyConstants.NUM_R_SEAS_1,
         rSeaAngularOffset1: SuperHeavyConstants.R_SEA_ANGULAR_OFFSET_1 * 180/Math.PI,
         rSeaType1: 2,
         canRSea1Gimbal: SuperHeavyConstants.CAN_R_SEA_1_GIMBAL,
 
-        rSeaRadius2: SuperHeavyConstants.R_SEA_RADIUS_2 * SuperHeavyConstants.REAL_LIFE_SCALE.x,
+        rSeaRadius2: SuperHeavyConstants.R_SEA_RADIUS_2 * LaunchConstants.REAL_LIFE_SCALE.x,
         numRSeas2: SuperHeavyConstants.NUM_R_SEAS_2,
         rSeaAngularOffset2: SuperHeavyConstants.R_SEA_ANGULAR_OFFSET_2 * 180/Math.PI,
         rSeaType2: 2,
         canRSea2Gimbal: SuperHeavyConstants.CAN_R_SEA_2_GIMBAL,
 
-        rSeaRadius3: SuperHeavyConstants.R_SEA_RADIUS_3 * SuperHeavyConstants.REAL_LIFE_SCALE.x,
+        rSeaRadius3: SuperHeavyConstants.R_SEA_RADIUS_3 * LaunchConstants.REAL_LIFE_SCALE.x,
         numRSeas3: SuperHeavyConstants.NUM_R_SEAS_3,
         rSeaAngularOffset3: SuperHeavyConstants.R_SEA_ANGULAR_OFFSET_3 * 180/Math.PI,
         rSeaType3: 2,
@@ -321,30 +321,30 @@
     }
 
     function estimateHeight(): void {
-        shipHeight = Math.round(starshipOptions.shipRingHeight * StarshipConstants.SHIP_RING_SCALE.y + StarshipConstants.NOSECONE_HEIGHT * SuperHeavyConstants.REAL_LIFE_SCALE.y);
+        shipHeight = Math.round(starshipOptions.shipRingHeight * StarshipConstants.SHIP_RING_SCALE.y + StarshipConstants.NOSECONE_HEIGHT * LaunchConstants.REAL_LIFE_SCALE.y);
         boosterHeight = Math.round(superHeavyOptions.boosterRingHeight * SuperHeavyConstants.BOOSTER_RING_SCALE.y + superHeavyOptions.hsrHeight * SuperHeavyConstants.HSR_SCALE.y);
         stackHeight = Math.round(shipHeight + boosterHeight);
     }
 
     function estimateTWR() {
-        let shipUseableHeight: number = starshipOptions.shipRingHeight - (StarshipConstants.LOX_BOTTOM_FIXED + StarshipConstants.CH4_TOP_FIXED + StarshipConstants.LOX_CH4_GAP_FIXED) * StarshipConstants.REAL_LIFE_SCALE.y;
+        let shipUseableHeight: number = starshipOptions.shipRingHeight - (StarshipConstants.LOX_BOTTOM_FIXED + StarshipConstants.CH4_TOP_FIXED + StarshipConstants.LOX_CH4_GAP_FIXED) * LaunchConstants.REAL_LIFE_SCALE.y;
 
-        let shipLOXMass: number = LaunchHelper.getFuelMass(StarshipConstants.SHIP_RING_SCALE.x * StarshipConstants.REAL_LIFE_SCALE.x, shipUseableHeight * StarshipConstants.LOX_PERCENTAGE, LaunchConstants.LOX_DENSITY);
+        let shipLOXMass: number = LaunchHelper.getFuelMass(StarshipConstants.SHIP_RING_SCALE.x * LaunchConstants.REAL_LIFE_SCALE.x, shipUseableHeight * StarshipConstants.LOX_PERCENTAGE, LaunchConstants.LOX_DENSITY);
 
-        let shipCH4Mass: number = LaunchHelper.getFuelMass(StarshipConstants.SHIP_RING_SCALE.x * StarshipConstants.REAL_LIFE_SCALE.x, shipUseableHeight * StarshipConstants.CH4_PERCENTAGE, LaunchConstants.CH4_DENSITY);
+        let shipCH4Mass: number = LaunchHelper.getFuelMass(StarshipConstants.SHIP_RING_SCALE.x * LaunchConstants.REAL_LIFE_SCALE.x, shipUseableHeight * StarshipConstants.CH4_PERCENTAGE, LaunchConstants.CH4_DENSITY);
 
         // these dry masses are for the real life scaled
-        let shipDryMass: number = StarshipConstants.NOSECONE_DRY_MASS + StarshipConstants.SHIP_RING_DRY_MASS * starshipOptions.shipRingHeight / StarshipConstants.REAL_LIFE_SCALE.y + StarshipConstants.FORWARD_L_DRY_MASS * starshipOptions.forwardLHeightScale * starshipOptions.forwardLWidthScale + StarshipConstants.FORWARD_R_DRY_MASS * starshipOptions.forwardRHeightScale * starshipOptions.forwardRWidthScale + StarshipConstants.AFT_L_DRY_MASS * starshipOptions.aftLHeightScale * starshipOptions.aftLWidthScale + StarshipConstants.AFT_R_DRY_MASS * starshipOptions.aftRHeightScale * starshipOptions.aftRWidthScale + starshipRaptors.length * RaptorConstants.DRY_MASS;
+        let shipDryMass: number = StarshipConstants.NOSECONE_DRY_MASS + StarshipConstants.SHIP_RING_DRY_MASS * starshipOptions.shipRingHeight / LaunchConstants.REAL_LIFE_SCALE.y + StarshipConstants.FORWARD_L_DRY_MASS * starshipOptions.forwardLHeightScale * starshipOptions.forwardLWidthScale + StarshipConstants.FORWARD_R_DRY_MASS * starshipOptions.forwardRHeightScale * starshipOptions.forwardRWidthScale + StarshipConstants.AFT_L_DRY_MASS * starshipOptions.aftLHeightScale * starshipOptions.aftLWidthScale + StarshipConstants.AFT_R_DRY_MASS * starshipOptions.aftRHeightScale * starshipOptions.aftRWidthScale + starshipRaptors.length * RaptorConstants.DRY_MASS;
 
         let shipWetMass: number = shipLOXMass + shipCH4Mass + shipDryMass;
 
         let shipThrust: number = starshipOptions.numRSeas * LaunchHelper.getThrust(true, starshipOptions.rSeaType) + starshipOptions.numRVacs * LaunchHelper.getThrust(false, starshipOptions.rVacType);
 
-        let boosterUseableHeight: number = superHeavyOptions.boosterRingHeight - (SuperHeavyConstants.LOX_BOTTOM_FIXED + SuperHeavyConstants.CH4_TOP_FIXED + SuperHeavyConstants.LOX_CH4_GAP_FIXED) * SuperHeavyConstants.REAL_LIFE_SCALE.y;
+        let boosterUseableHeight: number = superHeavyOptions.boosterRingHeight - (SuperHeavyConstants.LOX_BOTTOM_FIXED + SuperHeavyConstants.CH4_TOP_FIXED + SuperHeavyConstants.LOX_CH4_GAP_FIXED) * LaunchConstants.REAL_LIFE_SCALE.y;
 
-        let boosterLOXMass: number = LaunchHelper.getFuelMass(SuperHeavyConstants.BOOSTER_RING_SCALE.x * SuperHeavyConstants.REAL_LIFE_SCALE.x, boosterUseableHeight * SuperHeavyConstants.LOX_PERCENTAGE, LaunchConstants.LOX_DENSITY);
-        let boosterCH4Mass: number = LaunchHelper.getFuelMass(SuperHeavyConstants.BOOSTER_RING_SCALE.x * SuperHeavyConstants.REAL_LIFE_SCALE.x, boosterUseableHeight * SuperHeavyConstants.CH4_PERCENTAGE, LaunchConstants.CH4_DENSITY);
-        let boosterDryMass: number = SuperHeavyConstants.HSR_DRY_MASS / (SuperHeavyConstants.HSR_HEIGHT * SuperHeavyConstants.REAL_LIFE_SCALE.y) * superHeavyOptions.hsrHeight + SuperHeavyConstants.BOOSTER_RING_DRY_MASS * superHeavyOptions.boosterRingHeight / SuperHeavyConstants.REAL_LIFE_SCALE.y + SuperHeavyConstants.GRID_FIN_DRY_MASS * superHeavyOptions.numGridFins * superHeavyOptions.gridFinLengthScale * superHeavyOptions.gridFinWidthScale + SuperHeavyConstants.CHINE_DRY_MASS * superHeavyOptions.numChines * superHeavyOptions.chineHeightScale + superHeavyRaptors.length * RaptorConstants.DRY_MASS;
+        let boosterLOXMass: number = LaunchHelper.getFuelMass(SuperHeavyConstants.BOOSTER_RING_SCALE.x * LaunchConstants.REAL_LIFE_SCALE.x, boosterUseableHeight * SuperHeavyConstants.LOX_PERCENTAGE, LaunchConstants.LOX_DENSITY);
+        let boosterCH4Mass: number = LaunchHelper.getFuelMass(SuperHeavyConstants.BOOSTER_RING_SCALE.x * LaunchConstants.REAL_LIFE_SCALE.x, boosterUseableHeight * SuperHeavyConstants.CH4_PERCENTAGE, LaunchConstants.CH4_DENSITY);
+        let boosterDryMass: number = SuperHeavyConstants.HSR_DRY_MASS / (SuperHeavyConstants.HSR_HEIGHT * LaunchConstants.REAL_LIFE_SCALE.y) * superHeavyOptions.hsrHeight + SuperHeavyConstants.BOOSTER_RING_DRY_MASS * superHeavyOptions.boosterRingHeight / LaunchConstants.REAL_LIFE_SCALE.y + SuperHeavyConstants.GRID_FIN_DRY_MASS * superHeavyOptions.numGridFins * superHeavyOptions.gridFinLengthScale * superHeavyOptions.gridFinWidthScale + SuperHeavyConstants.CHINE_DRY_MASS * superHeavyOptions.numChines * superHeavyOptions.chineHeightScale + superHeavyRaptors.length * RaptorConstants.DRY_MASS;
         let boosterWetMass: number = boosterLOXMass + boosterCH4Mass + boosterDryMass;
 
         let boosterThrust: number = superHeavyOptions.numRSeas1 * LaunchHelper.getThrust(true, superHeavyOptions.rSeaType1) + superHeavyOptions.numRSeas2 * LaunchHelper.getThrust(true, superHeavyOptions.rSeaType2) + superHeavyOptions.numRSeas3 * LaunchHelper.getThrust(true, superHeavyOptions.rSeaType3);
@@ -355,26 +355,26 @@
     }
 
     function createStarshipRaptors() {
-        let rSeaPositions: Vector3[] = MathHelper.getCircularPositions(starshipOptions.numRSeas, starshipOptions.rSeaRadius / StarshipConstants.REAL_LIFE_SCALE.x * sizeMult, starshipOptions.rSeaAngularOffset * Math.PI / 180);
+        let rSeaPositions: Vector3[] = MathHelper.getCircularPositions(starshipOptions.numRSeas, starshipOptions.rSeaRadius / LaunchConstants.REAL_LIFE_SCALE.x * sizeMult, starshipOptions.rSeaAngularOffset * Math.PI / 180);
         for (let i = 0; i < starshipOptions.numRSeas; i++) {
             starshipRaptors = [...starshipRaptors, new RaptorUI(true, starshipOptions.rSeaType, defaultThrottle, new Vector2(sizeMult - rSeaPositions[i].z - rSeaRadius, rSeaPositions[i].x + sizeMult - rSeaRadius), validatedStarship.rSeaRadius && validatedStarship.rSeaAngularOffset && validatedStarship.rSeaType && validatedStarship.numRSeas)];
         }
-        let rVacPositions: Vector3[] = MathHelper.getCircularPositions(starshipOptions.numRVacs, starshipOptions.rVacRadius / StarshipConstants.REAL_LIFE_SCALE.x * sizeMult, starshipOptions.rVacAngularOffset * Math.PI / 180);
+        let rVacPositions: Vector3[] = MathHelper.getCircularPositions(starshipOptions.numRVacs, starshipOptions.rVacRadius / LaunchConstants.REAL_LIFE_SCALE.x * sizeMult, starshipOptions.rVacAngularOffset * Math.PI / 180);
         for (let i = 0; i < starshipOptions.numRVacs; i++) {
             starshipRaptors = [...starshipRaptors, new RaptorUI(false, starshipOptions.rVacType, defaultThrottle, new Vector2(sizeMult - rVacPositions[i].z - rVacRadius, rVacPositions[i].x + sizeMult - rVacRadius), validatedStarship.rVacRadius && validatedStarship.rVacAngularOffset && validatedStarship.rVacType && validatedStarship.numRVacs)];
         }
     }
 
     function createSuperHeavyRaptors() {
-        let rSeaPositions1: Vector3[] = MathHelper.getCircularPositions(superHeavyOptions.numRSeas1, superHeavyOptions.rSeaRadius1 / SuperHeavyConstants.REAL_LIFE_SCALE.x * sizeMult, superHeavyOptions.rSeaAngularOffset1 * Math.PI / 180);
+        let rSeaPositions1: Vector3[] = MathHelper.getCircularPositions(superHeavyOptions.numRSeas1, superHeavyOptions.rSeaRadius1 / LaunchConstants.REAL_LIFE_SCALE.x * sizeMult, superHeavyOptions.rSeaAngularOffset1 * Math.PI / 180);
         for (let i = 0; i < superHeavyOptions.numRSeas1; i++) {
             superHeavyRaptors = [...superHeavyRaptors, new RaptorUI(true, superHeavyOptions.rSeaType1, defaultThrottle, new Vector2(sizeMult - rSeaRadius - rSeaPositions1[i].z, rSeaPositions1[i].x + sizeMult - rSeaRadius), validatedSuperHeavy.rSeaRadius1 && validatedSuperHeavy.rSeaAngularOffset1 && validatedSuperHeavy.rSeaType1 && validatedSuperHeavy.numRSeas1)];
         }
-        let rSeaPositions2: Vector3[] = MathHelper.getCircularPositions(superHeavyOptions.numRSeas2, superHeavyOptions.rSeaRadius2 / SuperHeavyConstants.REAL_LIFE_SCALE.x * sizeMult, superHeavyOptions.rSeaAngularOffset2 * Math.PI / 180);
+        let rSeaPositions2: Vector3[] = MathHelper.getCircularPositions(superHeavyOptions.numRSeas2, superHeavyOptions.rSeaRadius2 / LaunchConstants.REAL_LIFE_SCALE.x * sizeMult, superHeavyOptions.rSeaAngularOffset2 * Math.PI / 180);
         for (let i = 0; i < superHeavyOptions.numRSeas2; i++) {
             superHeavyRaptors = [...superHeavyRaptors, new RaptorUI(true, superHeavyOptions.rSeaType2, defaultThrottle, new Vector2(sizeMult - rSeaRadius - rSeaPositions2[i].z, rSeaPositions2[i].x + sizeMult - rSeaRadius), validatedSuperHeavy.rSeaRadius2 && validatedSuperHeavy.rSeaAngularOffset2 && validatedSuperHeavy.rSeaType2 && validatedSuperHeavy.numRSeas2)];
         }
-        let rSeaPositions3: Vector3[] = MathHelper.getCircularPositions(superHeavyOptions.numRSeas3, superHeavyOptions.rSeaRadius3 / SuperHeavyConstants.REAL_LIFE_SCALE.x * sizeMult, superHeavyOptions.rSeaAngularOffset3 * Math.PI / 180);
+        let rSeaPositions3: Vector3[] = MathHelper.getCircularPositions(superHeavyOptions.numRSeas3, superHeavyOptions.rSeaRadius3 / LaunchConstants.REAL_LIFE_SCALE.x * sizeMult, superHeavyOptions.rSeaAngularOffset3 * Math.PI / 180);
         for (let i = 0; i < superHeavyOptions.numRSeas3; i++) {
             superHeavyRaptors = [...superHeavyRaptors, new RaptorUI(true, superHeavyOptions.rSeaType3, defaultThrottle, new Vector2(sizeMult - rSeaRadius - rSeaPositions3[i].z, rSeaPositions3[i].x + sizeMult - rSeaRadius), validatedSuperHeavy.rSeaRadius3 && validatedSuperHeavy.rSeaAngularOffset3 && validatedSuperHeavy.rSeaType3 && validatedSuperHeavy.numRSeas3)];
         }
@@ -408,7 +408,7 @@
 
     function validateStarship(): void {
         starshipValidated = true;
-        if (starshipOptions.shipRingHeight < StarshipConstants.MIN_SHIP_RING_HEIGHT * StarshipConstants.REAL_LIFE_SCALE.y || starshipOptions.shipRingHeight > StarshipConstants.MAX_SHIP_RING_HEIGHT * StarshipConstants.REAL_LIFE_SCALE.y) {
+        if (starshipOptions.shipRingHeight < StarshipConstants.MIN_SHIP_RING_HEIGHT * LaunchConstants.REAL_LIFE_SCALE.y || starshipOptions.shipRingHeight > StarshipConstants.MAX_SHIP_RING_HEIGHT * LaunchConstants.REAL_LIFE_SCALE.y) {
             validatedStarship.shipRingHeight = false;
             starshipValidated = false;
         } else {
@@ -464,7 +464,7 @@
             validatedStarship.aftRWidthScale = true;
         }
 
-        if (starshipOptions.rSeaRadius < 0 || (starshipOptions.numRSeas > 1 && starshipOptions.rSeaRadius < RaptorConstants.R_SEA_RADIUS * StarshipConstants.REAL_LIFE_SCALE.x * RaptorConstants.PACKING_RADIUS_PERC)) {
+        if (starshipOptions.rSeaRadius < 0 || (starshipOptions.numRSeas > 1 && starshipOptions.rSeaRadius < RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.PACKING_RADIUS_PERC)) {
             validatedStarship.rSeaRadius = false;
             starshipValidated = false;
         } else {
@@ -472,27 +472,27 @@
             if (starshipOptions.canRSeaGimbal) {
                 if (starshipOptions.numRVacs > 0) {
                     if (starshipOptions.canRVacGimbal) {
-                        outerRadius = starshipOptions.rVacRadius - RaptorConstants.R_VAC_RADIUS * StarshipConstants.REAL_LIFE_SCALE.x - RaptorConstants.R_SEA_RADIUS * StarshipConstants.REAL_LIFE_SCALE.x;
+                        outerRadius = starshipOptions.rVacRadius - RaptorConstants.R_VAC_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x - RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x;
                     }
                     else {
-                        outerRadius = starshipOptions.rVacRadius - RaptorConstants.R_VAC_RADIUS * StarshipConstants.REAL_LIFE_SCALE.x - RaptorConstants.R_SEA_RADIUS * StarshipConstants.REAL_LIFE_SCALE.x * RaptorConstants.R_SEA_GIMBAL_SPACE_PERC;
+                        outerRadius = starshipOptions.rVacRadius - RaptorConstants.R_VAC_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x - RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.R_SEA_GIMBAL_SPACE_PERC;
                     }
                 }
                 else {
-                    outerRadius = StarshipConstants.REAL_LIFE_SCALE.x - RaptorConstants.R_SEA_RADIUS * StarshipConstants.REAL_LIFE_SCALE.x * RaptorConstants.R_SEA_GIMBAL_SPACE_PERC;
+                    outerRadius = LaunchConstants.REAL_LIFE_SCALE.x - RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.R_SEA_GIMBAL_SPACE_PERC;
                 }
             }
             else {
                 if (starshipOptions.numRVacs > 0) {
                     if (starshipOptions.canRVacGimbal) {
-                        outerRadius = starshipOptions.rVacRadius - RaptorConstants.R_VAC_RADIUS * StarshipConstants.REAL_LIFE_SCALE.x * RaptorConstants.R_VAC_GIMBAL_SPACE_PERC - RaptorConstants.R_SEA_RADIUS * StarshipConstants.REAL_LIFE_SCALE.x;
+                        outerRadius = starshipOptions.rVacRadius - RaptorConstants.R_VAC_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.R_VAC_GIMBAL_SPACE_PERC - RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x;
                     }
                     else {
-                        outerRadius = starshipOptions.rVacRadius - RaptorConstants.R_VAC_RADIUS * StarshipConstants.REAL_LIFE_SCALE.x - RaptorConstants.R_SEA_RADIUS * StarshipConstants.REAL_LIFE_SCALE.x;
+                        outerRadius = starshipOptions.rVacRadius - RaptorConstants.R_VAC_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x - RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x;
                     }
                 }
                 else {
-                    outerRadius = StarshipConstants.REAL_LIFE_SCALE.x - RaptorConstants.R_SEA_RADIUS * StarshipConstants.REAL_LIFE_SCALE.x;
+                    outerRadius = LaunchConstants.REAL_LIFE_SCALE.x - RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x;
                 }
             }
             if (starshipOptions.rSeaRadius > outerRadius) {
@@ -503,7 +503,7 @@
             }
         }
 
-        if (starshipOptions.numRSeas < 0 || (starshipOptions.numRSeas > 1 && (starshipOptions.numRSeas > MathHelper.getMaxCirclesAroundCircle(starshipOptions.rSeaRadius, RaptorConstants.R_SEA_RADIUS * StarshipConstants.REAL_LIFE_SCALE.x * RaptorConstants.PACKING_RADIUS_PERC) || starshipOptions.rSeaRadius < RaptorConstants.R_SEA_RADIUS * StarshipConstants.REAL_LIFE_SCALE.x * RaptorConstants.PACKING_RADIUS_PERC))) {
+        if (starshipOptions.numRSeas < 0 || (starshipOptions.numRSeas > 1 && (starshipOptions.numRSeas > MathHelper.getMaxCirclesAroundCircle(starshipOptions.rSeaRadius, RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.PACKING_RADIUS_PERC) || starshipOptions.rSeaRadius < RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.PACKING_RADIUS_PERC))) {
             validatedStarship.numRSeas = false;
             starshipValidated = false;
         } else {
@@ -524,20 +524,20 @@
             validatedStarship.rSeaType = true;
         }
 
-        if (starshipOptions.rVacRadius < 0 || (starshipOptions.numRVacs > 1 && starshipOptions.rVacRadius < RaptorConstants.R_VAC_RADIUS * StarshipConstants.REAL_LIFE_SCALE.x * RaptorConstants.PACKING_RADIUS_PERC)) {
+        if (starshipOptions.rVacRadius < 0 || (starshipOptions.numRVacs > 1 && starshipOptions.rVacRadius < RaptorConstants.R_VAC_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.PACKING_RADIUS_PERC)) {
             validatedStarship.rVacRadius = false;
             starshipValidated = false;
         } else {
             let outerRadius: number = 0;
             let innerRadius: number = 0;
             if (starshipOptions.canRVacGimbal) {
-                outerRadius = StarshipConstants.REAL_LIFE_SCALE.x - RaptorConstants.R_VAC_RADIUS * StarshipConstants.REAL_LIFE_SCALE.x * RaptorConstants.R_VAC_GIMBAL_SPACE_PERC;
+                outerRadius = LaunchConstants.REAL_LIFE_SCALE.x - RaptorConstants.R_VAC_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.R_VAC_GIMBAL_SPACE_PERC;
                 if (starshipOptions.numRSeas > 0) {
                     if (starshipOptions.canRSeaGimbal) {
-                        innerRadius = starshipOptions.rSeaRadius + RaptorConstants.R_SEA_RADIUS * StarshipConstants.REAL_LIFE_SCALE.x + RaptorConstants.R_VAC_RADIUS * StarshipConstants.REAL_LIFE_SCALE.x;
+                        innerRadius = starshipOptions.rSeaRadius + RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x + RaptorConstants.R_VAC_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x;
                     }
                     else {
-                        innerRadius = starshipOptions.rSeaRadius + RaptorConstants.R_SEA_RADIUS * StarshipConstants.REAL_LIFE_SCALE.x + RaptorConstants.R_VAC_RADIUS * StarshipConstants.REAL_LIFE_SCALE.x * RaptorConstants.R_VAC_GIMBAL_SPACE_PERC;
+                        innerRadius = starshipOptions.rSeaRadius + RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x + RaptorConstants.R_VAC_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.R_VAC_GIMBAL_SPACE_PERC;
                     }
                 }
                 else {
@@ -545,13 +545,13 @@
                 }
             }
             else {
-                outerRadius = StarshipConstants.REAL_LIFE_SCALE.x - RaptorConstants.R_VAC_RADIUS * StarshipConstants.REAL_LIFE_SCALE.x;
+                outerRadius = LaunchConstants.REAL_LIFE_SCALE.x - RaptorConstants.R_VAC_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x;
                 if (starshipOptions.numRSeas > 0) {
                     if (starshipOptions.canRSeaGimbal) {
-                        innerRadius = starshipOptions.rSeaRadius + RaptorConstants.R_SEA_RADIUS * StarshipConstants.REAL_LIFE_SCALE.x * RaptorConstants.R_SEA_GIMBAL_SPACE_PERC + RaptorConstants.R_VAC_RADIUS * StarshipConstants.REAL_LIFE_SCALE.x;
+                        innerRadius = starshipOptions.rSeaRadius + RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.R_SEA_GIMBAL_SPACE_PERC + RaptorConstants.R_VAC_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x;
                     }
                     else {
-                        innerRadius = starshipOptions.rSeaRadius + RaptorConstants.R_SEA_RADIUS * StarshipConstants.REAL_LIFE_SCALE.x + RaptorConstants.R_VAC_RADIUS * StarshipConstants.REAL_LIFE_SCALE.x;
+                        innerRadius = starshipOptions.rSeaRadius + RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x + RaptorConstants.R_VAC_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x;
                     }
                 }
                 else {
@@ -566,7 +566,7 @@
             }
         }
 
-        if (starshipOptions.numRVacs < 0 || (starshipOptions.numRVacs > 1 && (starshipOptions.numRVacs > MathHelper.getMaxCirclesAroundCircle(starshipOptions.rVacRadius, RaptorConstants.R_VAC_RADIUS * StarshipConstants.REAL_LIFE_SCALE.x * RaptorConstants.PACKING_RADIUS_PERC) || starshipOptions.rVacRadius < RaptorConstants.R_VAC_RADIUS * StarshipConstants.REAL_LIFE_SCALE.x * RaptorConstants.PACKING_RADIUS_PERC))) {
+        if (starshipOptions.numRVacs < 0 || (starshipOptions.numRVacs > 1 && (starshipOptions.numRVacs > MathHelper.getMaxCirclesAroundCircle(starshipOptions.rVacRadius, RaptorConstants.R_VAC_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.PACKING_RADIUS_PERC) || starshipOptions.rVacRadius < RaptorConstants.R_VAC_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.PACKING_RADIUS_PERC))) {
             validatedStarship.numRVacs = false;
             starshipValidated = false;
         } else {
@@ -627,7 +627,7 @@
 
     function resetStarship(): void {
         starshipOptions = {
-            shipRingHeight: StarshipConstants.SHIP_RING_HEIGHT * StarshipConstants.REAL_LIFE_SCALE.y,
+            shipRingHeight: StarshipConstants.SHIP_RING_HEIGHT * LaunchConstants.REAL_LIFE_SCALE.y,
 
             forwardLHeightScale: 1,
             forwardLWidthScale: 1,
@@ -638,13 +638,13 @@
             aftRHeightScale: 1,
             aftRWidthScale: 1,
 
-            rSeaRadius: StarshipConstants.R_SEA_RADIUS * SuperHeavyConstants.REAL_LIFE_SCALE.x,
+            rSeaRadius: StarshipConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x,
             numRSeas: StarshipConstants.NUM_R_SEAS,
             rSeaAngularOffset: StarshipConstants.R_SEA_ANGULAR_OFFSET * 180/Math.PI,
             rSeaType: 2,
             canRSeaGimbal: StarshipConstants.CAN_R_SEA_GIMBAL,
 
-            rVacRadius: StarshipConstants.R_VAC_RADIUS * SuperHeavyConstants.REAL_LIFE_SCALE.x,
+            rVacRadius: StarshipConstants.R_VAC_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x,
             numRVacs: StarshipConstants.NUM_R_VACS,
             rVacAngularOffset: StarshipConstants.R_VAC_ANGULAR_OFFSET * 180/Math.PI,
             rVacType: 2,
@@ -656,21 +656,21 @@
     function validateSuperHeavy(): void {
         superHeavyValidated = true;
 
-        if (superHeavyOptions.hsrHeight < 0 || superHeavyOptions.hsrHeight > SuperHeavyConstants.MAX_HSR_HEIGHT * SuperHeavyConstants.REAL_LIFE_SCALE.y) {
+        if (superHeavyOptions.hsrHeight < 0 || superHeavyOptions.hsrHeight > SuperHeavyConstants.MAX_HSR_HEIGHT * LaunchConstants.REAL_LIFE_SCALE.y) {
             validatedSuperHeavy.hsrHeight = false;
             superHeavyValidated = false;
         } else {
             validatedSuperHeavy.hsrHeight = true;
         }
 
-        if (superHeavyOptions.boosterRingHeight < SuperHeavyConstants.MIN_BOOSTER_RING_HEIGHT * SuperHeavyConstants.REAL_LIFE_SCALE.y || superHeavyOptions.boosterRingHeight > SuperHeavyConstants.MAX_BOOSTER_RING_HEIGHT * SuperHeavyConstants.REAL_LIFE_SCALE.y) {
+        if (superHeavyOptions.boosterRingHeight < SuperHeavyConstants.MIN_BOOSTER_RING_HEIGHT * LaunchConstants.REAL_LIFE_SCALE.y || superHeavyOptions.boosterRingHeight > SuperHeavyConstants.MAX_BOOSTER_RING_HEIGHT * LaunchConstants.REAL_LIFE_SCALE.y) {
             validatedSuperHeavy.boosterRingHeight = false;
             superHeavyValidated = false;
         } else {
             validatedSuperHeavy.boosterRingHeight = true;
         }
 
-        if (superHeavyOptions.numGridFins < 0 || Math.round(superHeavyOptions.numGridFins) != superHeavyOptions.numGridFins || superHeavyOptions.numGridFins > MathHelper.getMaxCirclesAroundCircle(SuperHeavyConstants.GRID_FIN_RADIUS * SuperHeavyConstants.REAL_LIFE_SCALE.x, superHeavyOptions.gridFinWidthScale * StarshipConstants.REAL_LIFE_SCALE.x * SuperHeavyConstants.GRID_FIN_WIDTH_PERC)) {
+        if (superHeavyOptions.numGridFins < 0 || Math.round(superHeavyOptions.numGridFins) != superHeavyOptions.numGridFins || superHeavyOptions.numGridFins > MathHelper.getMaxCirclesAroundCircle(SuperHeavyConstants.GRID_FIN_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x, superHeavyOptions.gridFinWidthScale * LaunchConstants.REAL_LIFE_SCALE.x * SuperHeavyConstants.GRID_FIN_WIDTH_PERC)) {
             validatedSuperHeavy.numGridFins = false;
             superHeavyValidated = false;
         } else {
@@ -698,7 +698,7 @@
             validatedSuperHeavy.gridFinWidthScale = true;
         }
 
-        if (superHeavyOptions.numChines < 0 || Math.round(superHeavyOptions.numChines) != superHeavyOptions.numChines || superHeavyOptions.numChines > MathHelper.getMaxCirclesAroundCircle(SuperHeavyConstants.CHINE_RADIUS * SuperHeavyConstants.REAL_LIFE_SCALE.x, StarshipConstants.REAL_LIFE_SCALE.x * SuperHeavyConstants.CHINE_WIDTH_PERC)) {
+        if (superHeavyOptions.numChines < 0 || Math.round(superHeavyOptions.numChines) != superHeavyOptions.numChines || superHeavyOptions.numChines > MathHelper.getMaxCirclesAroundCircle(SuperHeavyConstants.CHINE_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x, LaunchConstants.REAL_LIFE_SCALE.x * SuperHeavyConstants.CHINE_WIDTH_PERC)) {
             validatedSuperHeavy.numChines = false;
             superHeavyValidated = false;
         } else {
@@ -719,7 +719,7 @@
             validatedSuperHeavy.chineHeightScale = true;
         }
 
-        if (superHeavyOptions.rSeaRadius1 < 0 || (superHeavyOptions.numRSeas1 > 1 && superHeavyOptions.rSeaRadius1 < RaptorConstants.R_SEA_RADIUS * SuperHeavyConstants.REAL_LIFE_SCALE.x * RaptorConstants.PACKING_RADIUS_PERC)) {
+        if (superHeavyOptions.rSeaRadius1 < 0 || (superHeavyOptions.numRSeas1 > 1 && superHeavyOptions.rSeaRadius1 < RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.PACKING_RADIUS_PERC)) {
             validatedSuperHeavy.rSeaRadius1 = false;
             superHeavyValidated = false;
         } else {
@@ -727,27 +727,27 @@
             if (superHeavyOptions.canRSea1Gimbal) {
                 if (superHeavyOptions.numRSeas2 > 0) {
                     if (superHeavyOptions.canRSea2Gimbal) {
-                        outerRadius = superHeavyOptions.rSeaRadius2 - RaptorConstants.R_SEA_RADIUS * SuperHeavyConstants.REAL_LIFE_SCALE.x - RaptorConstants.R_SEA_RADIUS * SuperHeavyConstants.REAL_LIFE_SCALE.x;
+                        outerRadius = superHeavyOptions.rSeaRadius2 - RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x - RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x;
                     }
                     else {
-                        outerRadius = superHeavyOptions.rSeaRadius2 - RaptorConstants.R_SEA_RADIUS * SuperHeavyConstants.REAL_LIFE_SCALE.x - RaptorConstants.R_SEA_RADIUS * SuperHeavyConstants.REAL_LIFE_SCALE.x * RaptorConstants.R_SEA_GIMBAL_SPACE_PERC;
+                        outerRadius = superHeavyOptions.rSeaRadius2 - RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x - RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.R_SEA_GIMBAL_SPACE_PERC;
                     }
                 }
                 else {
-                    outerRadius = SuperHeavyConstants.REAL_LIFE_SCALE.x - RaptorConstants.R_SEA_RADIUS * SuperHeavyConstants.REAL_LIFE_SCALE.x * RaptorConstants.R_SEA_GIMBAL_SPACE_PERC;
+                    outerRadius = LaunchConstants.REAL_LIFE_SCALE.x - RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.R_SEA_GIMBAL_SPACE_PERC;
                 }
             }
             else {
                 if (superHeavyOptions.numRSeas2 > 0) {
                     if (superHeavyOptions.canRSea2Gimbal) {
-                        outerRadius = superHeavyOptions.rSeaRadius2 - RaptorConstants.R_SEA_RADIUS * SuperHeavyConstants.REAL_LIFE_SCALE.x * RaptorConstants.R_SEA_GIMBAL_SPACE_PERC - RaptorConstants.R_SEA_RADIUS * SuperHeavyConstants.REAL_LIFE_SCALE.x;
+                        outerRadius = superHeavyOptions.rSeaRadius2 - RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.R_SEA_GIMBAL_SPACE_PERC - RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x;
                     }
                     else {
-                        outerRadius = superHeavyOptions.rSeaRadius2 - RaptorConstants.R_SEA_RADIUS * SuperHeavyConstants.REAL_LIFE_SCALE.x - RaptorConstants.R_SEA_RADIUS * SuperHeavyConstants.REAL_LIFE_SCALE.x;
+                        outerRadius = superHeavyOptions.rSeaRadius2 - RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x - RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x;
                     }
                 }
                 else {
-                    outerRadius = SuperHeavyConstants.REAL_LIFE_SCALE.x - RaptorConstants.R_SEA_RADIUS * SuperHeavyConstants.REAL_LIFE_SCALE.x;
+                    outerRadius = LaunchConstants.REAL_LIFE_SCALE.x - RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x;
                 }
             }
             if (superHeavyOptions.rSeaRadius1 > outerRadius) {
@@ -758,7 +758,7 @@
             }
         }
 
-        if (superHeavyOptions.numRSeas1 < 0 || (superHeavyOptions.numRSeas1 > 1 && (superHeavyOptions.numRSeas1 > MathHelper.getMaxCirclesAroundCircle(superHeavyOptions.rSeaRadius1, RaptorConstants.R_SEA_RADIUS * SuperHeavyConstants.REAL_LIFE_SCALE.x * RaptorConstants.PACKING_RADIUS_PERC) || superHeavyOptions.rSeaRadius1 < RaptorConstants.R_SEA_RADIUS * SuperHeavyConstants.REAL_LIFE_SCALE.x * RaptorConstants.PACKING_RADIUS_PERC))) {
+        if (superHeavyOptions.numRSeas1 < 0 || (superHeavyOptions.numRSeas1 > 1 && (superHeavyOptions.numRSeas1 > MathHelper.getMaxCirclesAroundCircle(superHeavyOptions.rSeaRadius1, RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.PACKING_RADIUS_PERC) || superHeavyOptions.rSeaRadius1 < RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.PACKING_RADIUS_PERC))) {
             validatedSuperHeavy.numRSeas1 = false;
             superHeavyValidated = false;
         } else {
@@ -779,7 +779,7 @@
             validatedSuperHeavy.rSeaType1 = true;
         }
         
-        if (superHeavyOptions.rSeaRadius2 < 0 || (superHeavyOptions.numRSeas2 > 1 && superHeavyOptions.rSeaRadius2 < RaptorConstants.R_SEA_RADIUS * SuperHeavyConstants.REAL_LIFE_SCALE.x * RaptorConstants.PACKING_RADIUS_PERC)) {
+        if (superHeavyOptions.rSeaRadius2 < 0 || (superHeavyOptions.numRSeas2 > 1 && superHeavyOptions.rSeaRadius2 < RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.PACKING_RADIUS_PERC)) {
             validatedSuperHeavy.rSeaRadius2 = false;
             superHeavyValidated = false;
         } else {
@@ -788,10 +788,10 @@
             if (superHeavyOptions.canRSea2Gimbal) {
                 if (superHeavyOptions.numRSeas1 > 0) {
                     if (superHeavyOptions.canRSea1Gimbal) {
-                        innerRadius = superHeavyOptions.rSeaRadius1 + RaptorConstants.R_SEA_RADIUS * SuperHeavyConstants.REAL_LIFE_SCALE.x + RaptorConstants.R_SEA_RADIUS * SuperHeavyConstants.REAL_LIFE_SCALE.x;
+                        innerRadius = superHeavyOptions.rSeaRadius1 + RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x + RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x;
                     }
                     else {
-                        innerRadius = superHeavyOptions.rSeaRadius1 + RaptorConstants.R_SEA_RADIUS * SuperHeavyConstants.REAL_LIFE_SCALE.x + RaptorConstants.R_SEA_RADIUS * SuperHeavyConstants.REAL_LIFE_SCALE.x * RaptorConstants.R_SEA_GIMBAL_SPACE_PERC;
+                        innerRadius = superHeavyOptions.rSeaRadius1 + RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x + RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.R_SEA_GIMBAL_SPACE_PERC;
                     }
                 }
                 else {
@@ -799,23 +799,23 @@
                 }
                 if (superHeavyOptions.numRSeas3 > 0) {
                     if (superHeavyOptions.canRSea3Gimbal) {
-                        outerRadius = superHeavyOptions.rSeaRadius3 - RaptorConstants.R_SEA_RADIUS * SuperHeavyConstants.REAL_LIFE_SCALE.x - RaptorConstants.R_SEA_RADIUS * SuperHeavyConstants.REAL_LIFE_SCALE.x;
+                        outerRadius = superHeavyOptions.rSeaRadius3 - RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x - RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x;
                     }
                     else {
-                        outerRadius = superHeavyOptions.rSeaRadius3 - RaptorConstants.R_SEA_RADIUS * SuperHeavyConstants.REAL_LIFE_SCALE.x - RaptorConstants.R_SEA_RADIUS * SuperHeavyConstants.REAL_LIFE_SCALE.x * RaptorConstants.R_SEA_GIMBAL_SPACE_PERC;
+                        outerRadius = superHeavyOptions.rSeaRadius3 - RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x - RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.R_SEA_GIMBAL_SPACE_PERC;
                     }
                 }
                 else {
-                    outerRadius = SuperHeavyConstants.REAL_LIFE_SCALE.x - RaptorConstants.R_SEA_RADIUS * SuperHeavyConstants.REAL_LIFE_SCALE.x * RaptorConstants.R_SEA_GIMBAL_SPACE_PERC;
+                    outerRadius = LaunchConstants.REAL_LIFE_SCALE.x - RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.R_SEA_GIMBAL_SPACE_PERC;
                 }
             }
             else {
                 if (superHeavyOptions.numRSeas1 > 0) {
                     if (superHeavyOptions.canRSea1Gimbal) {
-                        innerRadius = superHeavyOptions.rSeaRadius1 + RaptorConstants.R_SEA_RADIUS * SuperHeavyConstants.REAL_LIFE_SCALE.x * RaptorConstants.R_SEA_GIMBAL_SPACE_PERC + RaptorConstants.R_SEA_RADIUS * SuperHeavyConstants.REAL_LIFE_SCALE.x;
+                        innerRadius = superHeavyOptions.rSeaRadius1 + RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.R_SEA_GIMBAL_SPACE_PERC + RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x;
                     }
                     else {
-                        innerRadius = superHeavyOptions.rSeaRadius1 + RaptorConstants.R_SEA_RADIUS * SuperHeavyConstants.REAL_LIFE_SCALE.x + RaptorConstants.R_SEA_RADIUS * SuperHeavyConstants.REAL_LIFE_SCALE.x;
+                        innerRadius = superHeavyOptions.rSeaRadius1 + RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x + RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x;
                     }
                 }
                 else {
@@ -823,14 +823,14 @@
                 }
                 if (superHeavyOptions.numRSeas3 > 0) {
                     if (superHeavyOptions.canRSea3Gimbal) {
-                        outerRadius = superHeavyOptions.rSeaRadius3 - RaptorConstants.R_SEA_RADIUS * SuperHeavyConstants.REAL_LIFE_SCALE.x * RaptorConstants.R_SEA_GIMBAL_SPACE_PERC - RaptorConstants.R_SEA_RADIUS * SuperHeavyConstants.REAL_LIFE_SCALE.x;
+                        outerRadius = superHeavyOptions.rSeaRadius3 - RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.R_SEA_GIMBAL_SPACE_PERC - RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x;
                     }
                     else {
-                        outerRadius = superHeavyOptions.rSeaRadius3 - RaptorConstants.R_SEA_RADIUS * SuperHeavyConstants.REAL_LIFE_SCALE.x - RaptorConstants.R_SEA_RADIUS * SuperHeavyConstants.REAL_LIFE_SCALE.x;
+                        outerRadius = superHeavyOptions.rSeaRadius3 - RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x - RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x;
                     }
                 }
                 else {
-                    outerRadius = SuperHeavyConstants.REAL_LIFE_SCALE.x - RaptorConstants.R_SEA_RADIUS * SuperHeavyConstants.REAL_LIFE_SCALE.x;
+                    outerRadius = LaunchConstants.REAL_LIFE_SCALE.x - RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x;
                 }
             }
             if (superHeavyOptions.rSeaRadius2 > outerRadius || superHeavyOptions.rSeaRadius2 < innerRadius) {
@@ -841,7 +841,7 @@
             }
         }
 
-        if (superHeavyOptions.numRSeas2 < 0 || (superHeavyOptions.numRSeas2 > 1 && (superHeavyOptions.numRSeas2 > MathHelper.getMaxCirclesAroundCircle(superHeavyOptions.rSeaRadius2, RaptorConstants.R_SEA_RADIUS * SuperHeavyConstants.REAL_LIFE_SCALE.x * RaptorConstants.PACKING_RADIUS_PERC) || superHeavyOptions.rSeaRadius2 < RaptorConstants.R_SEA_RADIUS * SuperHeavyConstants.REAL_LIFE_SCALE.x * RaptorConstants.PACKING_RADIUS_PERC))) {
+        if (superHeavyOptions.numRSeas2 < 0 || (superHeavyOptions.numRSeas2 > 1 && (superHeavyOptions.numRSeas2 > MathHelper.getMaxCirclesAroundCircle(superHeavyOptions.rSeaRadius2, RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.PACKING_RADIUS_PERC) || superHeavyOptions.rSeaRadius2 < RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.PACKING_RADIUS_PERC))) {
             validatedSuperHeavy.numRSeas2 = false;
             superHeavyValidated = false;
         } else {
@@ -862,7 +862,7 @@
             validatedSuperHeavy.rSeaType2 = true;
         }
 
-        if (superHeavyOptions.rSeaRadius3 < 0 || (superHeavyOptions.numRSeas3 > 1 && superHeavyOptions.rSeaRadius3 < RaptorConstants.R_SEA_RADIUS * SuperHeavyConstants.REAL_LIFE_SCALE.x * RaptorConstants.PACKING_RADIUS_PERC)) {
+        if (superHeavyOptions.rSeaRadius3 < 0 || (superHeavyOptions.numRSeas3 > 1 && superHeavyOptions.rSeaRadius3 < RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.PACKING_RADIUS_PERC)) {
             validatedSuperHeavy.rSeaRadius3 = false;
             superHeavyValidated = false;
         } else {
@@ -870,10 +870,10 @@
             if (superHeavyOptions.canRSea3Gimbal) {
                 if (superHeavyOptions.numRSeas2 > 0) {
                     if (superHeavyOptions.canRSea2Gimbal) {
-                        innerRadius = superHeavyOptions.rSeaRadius2 + RaptorConstants.R_SEA_RADIUS * SuperHeavyConstants.REAL_LIFE_SCALE.x + RaptorConstants.R_SEA_RADIUS * SuperHeavyConstants.REAL_LIFE_SCALE.x;
+                        innerRadius = superHeavyOptions.rSeaRadius2 + RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x + RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x;
                     }
                     else {
-                        innerRadius = superHeavyOptions.rSeaRadius2 + RaptorConstants.R_SEA_RADIUS * SuperHeavyConstants.REAL_LIFE_SCALE.x + RaptorConstants.R_SEA_RADIUS * SuperHeavyConstants.REAL_LIFE_SCALE.x * RaptorConstants.R_SEA_GIMBAL_SPACE_PERC;
+                        innerRadius = superHeavyOptions.rSeaRadius2 + RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x + RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.R_SEA_GIMBAL_SPACE_PERC;
                     }
                 }
                 else {
@@ -883,17 +883,17 @@
             else {
                 if (superHeavyOptions.numRSeas2 > 0) {
                     if (superHeavyOptions.canRSea2Gimbal) {
-                        innerRadius = superHeavyOptions.rSeaRadius2 + RaptorConstants.R_SEA_RADIUS * SuperHeavyConstants.REAL_LIFE_SCALE.x * RaptorConstants.R_SEA_GIMBAL_SPACE_PERC + RaptorConstants.R_SEA_RADIUS * SuperHeavyConstants.REAL_LIFE_SCALE.x;
+                        innerRadius = superHeavyOptions.rSeaRadius2 + RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.R_SEA_GIMBAL_SPACE_PERC + RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x;
                     }
                     else {
-                        innerRadius = superHeavyOptions.rSeaRadius2 + RaptorConstants.R_SEA_RADIUS * SuperHeavyConstants.REAL_LIFE_SCALE.x + RaptorConstants.R_SEA_RADIUS * SuperHeavyConstants.REAL_LIFE_SCALE.x;
+                        innerRadius = superHeavyOptions.rSeaRadius2 + RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x + RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x;
                     }
                 }
                 else {
                     innerRadius = 0; // technically it is not, but the above if statement already covers it                    
                 }
             }
-            if (superHeavyOptions.rSeaRadius3 > SuperHeavyConstants.REAL_LIFE_SCALE.x || superHeavyOptions.rSeaRadius3 < innerRadius) {
+            if (superHeavyOptions.rSeaRadius3 > LaunchConstants.REAL_LIFE_SCALE.x || superHeavyOptions.rSeaRadius3 < innerRadius) {
                 validatedSuperHeavy.rSeaRadius3 = false;
                 superHeavyValidated = false;
             } else {
@@ -901,7 +901,7 @@
             }
         }
 
-        if (superHeavyOptions.numRSeas3 < 0 || (superHeavyOptions.numRSeas3 > 1 && (superHeavyOptions.numRSeas3 > MathHelper.getMaxCirclesAroundCircle(superHeavyOptions.rSeaRadius3, RaptorConstants.R_SEA_RADIUS * SuperHeavyConstants.REAL_LIFE_SCALE.x * RaptorConstants.PACKING_RADIUS_PERC) || superHeavyOptions.rSeaRadius3 < RaptorConstants.R_SEA_RADIUS * SuperHeavyConstants.REAL_LIFE_SCALE.x * RaptorConstants.PACKING_RADIUS_PERC))) {
+        if (superHeavyOptions.numRSeas3 < 0 || (superHeavyOptions.numRSeas3 > 1 && (superHeavyOptions.numRSeas3 > MathHelper.getMaxCirclesAroundCircle(superHeavyOptions.rSeaRadius3, RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.PACKING_RADIUS_PERC) || superHeavyOptions.rSeaRadius3 < RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.PACKING_RADIUS_PERC))) {
             validatedSuperHeavy.numRSeas3 = false;
             superHeavyValidated = false;
         } else {
@@ -969,8 +969,8 @@
     function resetSuperHeavy(): void {
         superHeavyOptions = {
             hasHsr: true,
-            hsrHeight: SuperHeavyConstants.HSR_HEIGHT * SuperHeavyConstants.REAL_LIFE_SCALE.y,
-            boosterRingHeight: SuperHeavyConstants.BOOSTER_RING_HEIGHT * SuperHeavyConstants.REAL_LIFE_SCALE.y,
+            hsrHeight: SuperHeavyConstants.HSR_HEIGHT * LaunchConstants.REAL_LIFE_SCALE.y,
+            boosterRingHeight: SuperHeavyConstants.BOOSTER_RING_HEIGHT * LaunchConstants.REAL_LIFE_SCALE.y,
             
             numGridFins: SuperHeavyConstants.NUM_GRID_FINS,
             gridFinAngularOffset: SuperHeavyConstants.GRID_FIN_ANGULAR_OFFSET * 180/Math.PI,
@@ -981,19 +981,19 @@
             chineAngularOffset: SuperHeavyConstants.CHINE_ANGULAR_OFFSET * 180/Math.PI,
             chineHeightScale: 1,
             
-            rSeaRadius1: SuperHeavyConstants.R_SEA_RADIUS_1 * SuperHeavyConstants.REAL_LIFE_SCALE.x,
+            rSeaRadius1: SuperHeavyConstants.R_SEA_RADIUS_1 * LaunchConstants.REAL_LIFE_SCALE.x,
             numRSeas1: SuperHeavyConstants.NUM_R_SEAS_1,
             rSeaAngularOffset1: SuperHeavyConstants.R_SEA_ANGULAR_OFFSET_1 * 180/Math.PI,
             rSeaType1: 2,
             canRSea1Gimbal: SuperHeavyConstants.CAN_R_SEA_1_GIMBAL,
 
-            rSeaRadius2: SuperHeavyConstants.R_SEA_RADIUS_2 * SuperHeavyConstants.REAL_LIFE_SCALE.x,
+            rSeaRadius2: SuperHeavyConstants.R_SEA_RADIUS_2 * LaunchConstants.REAL_LIFE_SCALE.x,
             numRSeas2: SuperHeavyConstants.NUM_R_SEAS_2,
             rSeaAngularOffset2: SuperHeavyConstants.R_SEA_ANGULAR_OFFSET_2 * 180/Math.PI,
             rSeaType2: 2,
             canRSea2Gimbal: SuperHeavyConstants.CAN_R_SEA_2_GIMBAL,
 
-            rSeaRadius3: SuperHeavyConstants.R_SEA_RADIUS_3 * SuperHeavyConstants.REAL_LIFE_SCALE.x,
+            rSeaRadius3: SuperHeavyConstants.R_SEA_RADIUS_3 * LaunchConstants.REAL_LIFE_SCALE.x,
             numRSeas3: SuperHeavyConstants.NUM_R_SEAS_3,
             rSeaAngularOffset3: SuperHeavyConstants.R_SEA_ANGULAR_OFFSET_3 * 180/Math.PI,
             rSeaType3: 2,
@@ -1010,7 +1010,7 @@
         setTimeout(
             () => {
                 if (superHeavyOptions.hasHsr && superHeavyOptions.hsrHeight === 0) {
-                    superHeavyOptions.hsrHeight = SuperHeavyConstants.HSR_HEIGHT * SuperHeavyConstants.REAL_LIFE_SCALE.y;
+                    superHeavyOptions.hsrHeight = SuperHeavyConstants.HSR_HEIGHT * LaunchConstants.REAL_LIFE_SCALE.y;
                 }
                 // wait until the html catches up
             }

@@ -1,6 +1,7 @@
 import { writable } from "svelte/store";
 import { StarshipConstants } from "../constants/objects/StarshipConstants";
 import { SuperHeavyConstants } from "../constants/objects/SuperHeavyConstants";
+import { LaunchConstants } from "../constants/objects/LaunchConstants";
 
 export const uiSwitches = writable({
     paused: false,
@@ -19,7 +20,7 @@ export const toggles = writable({
 });
 
 export const starshipSettings = writable({
-    shipRingHeight: StarshipConstants.SHIP_RING_HEIGHT * StarshipConstants.REAL_LIFE_SCALE.y,
+    shipRingHeight: StarshipConstants.SHIP_RING_HEIGHT * LaunchConstants.REAL_LIFE_SCALE.y,
 
     forwardLHeightScale: 1,
     forwardLWidthScale: 1,
@@ -30,13 +31,13 @@ export const starshipSettings = writable({
     aftRHeightScale: 1,
     aftRWidthScale: 1,
 
-    rSeaRadius: StarshipConstants.R_SEA_RADIUS * SuperHeavyConstants.REAL_LIFE_SCALE.x,
+    rSeaRadius: StarshipConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x,
     numRSeas: StarshipConstants.NUM_R_SEAS,
     rSeaAngularOffset: StarshipConstants.R_SEA_ANGULAR_OFFSET * 180/Math.PI,
     rSeaType: StarshipConstants.R_SEA_TYPE,
     canRSeaGimbal: StarshipConstants.CAN_R_SEA_GIMBAL,
 
-    rVacRadius: StarshipConstants.R_VAC_RADIUS * SuperHeavyConstants.REAL_LIFE_SCALE.x,
+    rVacRadius: StarshipConstants.R_VAC_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x,
     numRVacs: StarshipConstants.NUM_R_VACS,
     rVacAngularOffset: StarshipConstants.R_VAC_ANGULAR_OFFSET * 180/Math.PI,
     rVacType: StarshipConstants.R_VAC_TYPE,
@@ -44,8 +45,8 @@ export const starshipSettings = writable({
 });
 
 export const superHeavySettings = writable({    
-    hsrHeight: SuperHeavyConstants.HSR_HEIGHT * SuperHeavyConstants.REAL_LIFE_SCALE.y,
-    boosterRingHeight: SuperHeavyConstants.BOOSTER_RING_HEIGHT * SuperHeavyConstants.REAL_LIFE_SCALE.y,
+    hsrHeight: SuperHeavyConstants.HSR_HEIGHT * LaunchConstants.REAL_LIFE_SCALE.y,
+    boosterRingHeight: SuperHeavyConstants.BOOSTER_RING_HEIGHT * LaunchConstants.REAL_LIFE_SCALE.y,
     
     numGridFins: SuperHeavyConstants.NUM_GRID_FINS,
     gridFinAngularOffset: SuperHeavyConstants.GRID_FIN_ANGULAR_OFFSET * 180/Math.PI,
@@ -56,19 +57,19 @@ export const superHeavySettings = writable({
     chineAngularOffset: SuperHeavyConstants.CHINE_ANGULAR_OFFSET * 180/Math.PI,
     chineHeightScale: 1,
     
-    rSeaRadius1: SuperHeavyConstants.R_SEA_RADIUS_1 * SuperHeavyConstants.REAL_LIFE_SCALE.x,
+    rSeaRadius1: SuperHeavyConstants.R_SEA_RADIUS_1 * LaunchConstants.REAL_LIFE_SCALE.x,
     numRSeas1: SuperHeavyConstants.NUM_R_SEAS_1,
     rSeaAngularOffset1: SuperHeavyConstants.R_SEA_ANGULAR_OFFSET_1 * 180/Math.PI,
     rSeaType1: SuperHeavyConstants.R_SEA_TYPE_1,
     canRSea1Gimbal: SuperHeavyConstants.CAN_R_SEA_1_GIMBAL,
 
-    rSeaRadius2: SuperHeavyConstants.R_SEA_RADIUS_2 * SuperHeavyConstants.REAL_LIFE_SCALE.x,
+    rSeaRadius2: SuperHeavyConstants.R_SEA_RADIUS_2 * LaunchConstants.REAL_LIFE_SCALE.x,
     numRSeas2: SuperHeavyConstants.NUM_R_SEAS_2,
     rSeaAngularOffset2: SuperHeavyConstants.R_SEA_ANGULAR_OFFSET_2 * 180/Math.PI,
     rSeaType2: SuperHeavyConstants.R_SEA_TYPE_2,
     canRSea2Gimbal: SuperHeavyConstants.CAN_R_SEA_2_GIMBAL,
 
-    rSeaRadius3: SuperHeavyConstants.R_SEA_RADIUS_3 * SuperHeavyConstants.REAL_LIFE_SCALE.x,
+    rSeaRadius3: SuperHeavyConstants.R_SEA_RADIUS_3 * LaunchConstants.REAL_LIFE_SCALE.x,
     numRSeas3: SuperHeavyConstants.NUM_R_SEAS_3,
     rSeaAngularOffset3: SuperHeavyConstants.R_SEA_ANGULAR_OFFSET_3 * 180/Math.PI,
     rSeaType3: SuperHeavyConstants.R_SEA_TYPE_3,

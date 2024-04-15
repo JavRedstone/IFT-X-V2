@@ -1,4 +1,4 @@
-import { Euler, Group, Mesh, Object3D, Quaternion, Vector2, Vector3 } from "three";
+import { Euler, Group, Object3D, Quaternion, Vector2, Vector3 } from "three";
 import { StarshipConstants } from "../constants/objects/StarshipConstants";
 import { MathHelper } from "../helpers/MathHelper";
 import { ObjectHelper } from "../helpers/ObjectHelper";
@@ -151,13 +151,13 @@ export class Starship {
     }
 
     public getLOXVolume(perc: number = this.LOX): number {
-        let useableHeight: number = this.options.shipRingHeight - (StarshipConstants.LOX_BOTTOM_FIXED + StarshipConstants.CH4_TOP_FIXED + StarshipConstants.LOX_CH4_GAP_FIXED) * StarshipConstants.REAL_LIFE_SCALE.y;
-        return MathHelper.getVolumeofCylinder(StarshipConstants.SHIP_RING_SCALE.x * StarshipConstants.REAL_LIFE_SCALE.x, useableHeight * StarshipConstants.LOX_PERCENTAGE * perc);
+        let useableHeight: number = this.options.shipRingHeight - (StarshipConstants.LOX_BOTTOM_FIXED + StarshipConstants.CH4_TOP_FIXED + StarshipConstants.LOX_CH4_GAP_FIXED) * LaunchConstants.REAL_LIFE_SCALE.y;
+        return MathHelper.getVolumeofCylinder(StarshipConstants.SHIP_RING_SCALE.x * LaunchConstants.REAL_LIFE_SCALE.x, useableHeight * StarshipConstants.LOX_PERCENTAGE * perc);
     }
 
     public getCH4Volume(perc: number = this.CH4): number {
-        let useableHeight: number = this.options.shipRingHeight - (StarshipConstants.LOX_BOTTOM_FIXED + StarshipConstants.CH4_TOP_FIXED + StarshipConstants.LOX_CH4_GAP_FIXED) * StarshipConstants.REAL_LIFE_SCALE.y;
-        return MathHelper.getVolumeofCylinder(StarshipConstants.SHIP_RING_SCALE.x * StarshipConstants.REAL_LIFE_SCALE.x, useableHeight * StarshipConstants.CH4_PERCENTAGE * perc);
+        let useableHeight: number = this.options.shipRingHeight - (StarshipConstants.LOX_BOTTOM_FIXED + StarshipConstants.CH4_TOP_FIXED + StarshipConstants.LOX_CH4_GAP_FIXED) * LaunchConstants.REAL_LIFE_SCALE.y;
+        return MathHelper.getVolumeofCylinder(StarshipConstants.SHIP_RING_SCALE.x * LaunchConstants.REAL_LIFE_SCALE.x, useableHeight * StarshipConstants.CH4_PERCENTAGE * perc);
     }
 
     public getLOXMass(perc: number = this.LOX): number {
@@ -169,7 +169,7 @@ export class Starship {
     }
 
     public getDryMass(): number {
-        return StarshipConstants.NOSECONE_DRY_MASS + StarshipConstants.SHIP_RING_DRY_MASS * this.options.shipRingHeight / StarshipConstants.REAL_LIFE_SCALE.y + StarshipConstants.FORWARD_L_DRY_MASS * this.options.forwardLHeightScale * this.options.forwardLWidthScale + StarshipConstants.FORWARD_R_DRY_MASS * this.options.forwardRHeightScale * this.options.forwardRWidthScale + StarshipConstants.AFT_L_DRY_MASS * this.options.aftLHeightScale * this.options.aftLWidthScale + StarshipConstants.AFT_R_DRY_MASS * this.options.aftRHeightScale * this.options.aftRWidthScale + (this.options.numRSeas + this.options.numRVacs) * RaptorConstants.DRY_MASS;
+        return StarshipConstants.NOSECONE_DRY_MASS + StarshipConstants.SHIP_RING_DRY_MASS * this.options.shipRingHeight / LaunchConstants.REAL_LIFE_SCALE.y + StarshipConstants.FORWARD_L_DRY_MASS * this.options.forwardLHeightScale * this.options.forwardLWidthScale + StarshipConstants.FORWARD_R_DRY_MASS * this.options.forwardRHeightScale * this.options.forwardRWidthScale + StarshipConstants.AFT_L_DRY_MASS * this.options.aftLHeightScale * this.options.aftLWidthScale + StarshipConstants.AFT_R_DRY_MASS * this.options.aftRHeightScale * this.options.aftRWidthScale + (this.options.numRSeas + this.options.numRVacs) * RaptorConstants.DRY_MASS;
     }
 
     public getMass(): number {
@@ -182,29 +182,29 @@ export class Starship {
 
     public getCOM(): Vector3 { // this is real life scale so that it is accurate in the flightcontroller. The position addition number will have to be scaled down after it is rotated and moved to the correct position
         let COM: Vector3 = new Vector3(0, 0, 0);
-        COM.add(new Vector3(0, this.nosecone.position.y / StarshipConstants.STARSHIP_SCALE.y * StarshipConstants.REAL_LIFE_SCALE.y + StarshipConstants.NOSECONE_HEIGHT / 2, 0).multiplyScalar(StarshipConstants.NOSECONE_DRY_MASS));
+        COM.add(new Vector3(0, this.nosecone.position.y / StarshipConstants.STARSHIP_SCALE.y * LaunchConstants.REAL_LIFE_SCALE.y + StarshipConstants.NOSECONE_HEIGHT / 2, 0).multiplyScalar(StarshipConstants.NOSECONE_DRY_MASS));
         COM.add(new Vector3(0, this.options.shipRingHeight / 2, 0).multiplyScalar(StarshipConstants.SHIP_RING_DRY_MASS));
-        COM.add(this.forwardL.position.clone().divide(StarshipConstants.STARSHIP_SCALE).multiply(StarshipConstants.REAL_LIFE_SCALE).multiplyScalar(StarshipConstants.FORWARD_L_DRY_MASS * this.options.forwardLHeightScale * this.options.forwardLWidthScale));
-        COM.add(this.forwardR.position.clone().divide(StarshipConstants.STARSHIP_SCALE).multiply(StarshipConstants.REAL_LIFE_SCALE).multiplyScalar(StarshipConstants.FORWARD_R_DRY_MASS * this.options.forwardRHeightScale * this.options.forwardRWidthScale));
-        COM.add(this.aftL.position.clone().divide(StarshipConstants.STARSHIP_SCALE).multiply(StarshipConstants.REAL_LIFE_SCALE).multiplyScalar(StarshipConstants.AFT_L_DRY_MASS * this.options.aftLHeightScale * this.options.aftLWidthScale));
-        COM.add(this.aftR.position.clone().divide(StarshipConstants.STARSHIP_SCALE).multiply(StarshipConstants.REAL_LIFE_SCALE).multiplyScalar(StarshipConstants.AFT_R_DRY_MASS * this.options.aftRHeightScale * this.options.aftRWidthScale));
+        COM.add(this.forwardL.position.clone().divide(StarshipConstants.STARSHIP_SCALE).multiply(LaunchConstants.REAL_LIFE_SCALE).multiplyScalar(StarshipConstants.FORWARD_L_DRY_MASS * this.options.forwardLHeightScale * this.options.forwardLWidthScale));
+        COM.add(this.forwardR.position.clone().divide(StarshipConstants.STARSHIP_SCALE).multiply(LaunchConstants.REAL_LIFE_SCALE).multiplyScalar(StarshipConstants.FORWARD_R_DRY_MASS * this.options.forwardRHeightScale * this.options.forwardRWidthScale));
+        COM.add(this.aftL.position.clone().divide(StarshipConstants.STARSHIP_SCALE).multiply(LaunchConstants.REAL_LIFE_SCALE).multiplyScalar(StarshipConstants.AFT_L_DRY_MASS * this.options.aftLHeightScale * this.options.aftLWidthScale));
+        COM.add(this.aftR.position.clone().divide(StarshipConstants.STARSHIP_SCALE).multiply(LaunchConstants.REAL_LIFE_SCALE).multiplyScalar(StarshipConstants.AFT_R_DRY_MASS * this.options.aftRHeightScale * this.options.aftRWidthScale));
         for (let rSea of this.rSeas) {
-            COM.add(rSea.position.clone().divide(StarshipConstants.STARSHIP_SCALE).multiply(StarshipConstants.REAL_LIFE_SCALE).multiplyScalar(RaptorConstants.DRY_MASS));
+            COM.add(rSea.position.clone().divide(StarshipConstants.STARSHIP_SCALE).multiply(LaunchConstants.REAL_LIFE_SCALE).multiplyScalar(RaptorConstants.DRY_MASS));
         }
         for (let rVac of this.rVacs) {
-            COM.add(rVac.position.clone().divide(StarshipConstants.STARSHIP_SCALE).multiply(StarshipConstants.REAL_LIFE_SCALE).multiplyScalar(RaptorConstants.DRY_MASS));
+            COM.add(rVac.position.clone().divide(StarshipConstants.STARSHIP_SCALE).multiply(LaunchConstants.REAL_LIFE_SCALE).multiplyScalar(RaptorConstants.DRY_MASS));
         }
-        COM.add(new Vector3(0, this.LOXFrost.position.y / StarshipConstants.STARSHIP_SCALE.y * StarshipConstants.REAL_LIFE_SCALE.y + this.options.shipRingHeight * StarshipConstants.LOX_PERCENTAGE / 2, 0).multiplyScalar(this.getLOXMass()));
-        COM.add(new Vector3(0, this.CH4Frost.position.y / StarshipConstants.STARSHIP_SCALE.y * StarshipConstants.REAL_LIFE_SCALE.y + this.options.shipRingHeight * StarshipConstants.CH4_PERCENTAGE / 2, 0).multiplyScalar(this.getCH4Mass()));
+        COM.add(new Vector3(0, this.LOXFrost.position.y / StarshipConstants.STARSHIP_SCALE.y * LaunchConstants.REAL_LIFE_SCALE.y + this.options.shipRingHeight * StarshipConstants.LOX_PERCENTAGE / 2, 0).multiplyScalar(this.getLOXMass()));
+        COM.add(new Vector3(0, this.CH4Frost.position.y / StarshipConstants.STARSHIP_SCALE.y * LaunchConstants.REAL_LIFE_SCALE.y + this.options.shipRingHeight * StarshipConstants.CH4_PERCENTAGE / 2, 0).multiplyScalar(this.getCH4Mass()));
         return COM.divideScalar(this.getMass());
     }
 
     public getMOIRoll(): number {
-        return 1/2 * this.getMass() * Math.pow(StarshipConstants.SHIP_RING_SCALE.x * StarshipConstants.REAL_LIFE_SCALE.x, 2);
+        return 1/2 * this.getMass() * Math.pow(StarshipConstants.SHIP_RING_SCALE.x * LaunchConstants.REAL_LIFE_SCALE.x, 2);
     }
 
     public getMOIPitch(): number {
-        return 1/4 * this.getMass() * Math.pow(StarshipConstants.SHIP_RING_SCALE.x * StarshipConstants.REAL_LIFE_SCALE.x, 2) + 1/12 * this.getMass() * Math.pow(this.options.shipRingHeight * StarshipConstants.REAL_LIFE_SCALE.y, 2);
+        return 1/4 * this.getMass() * Math.pow(StarshipConstants.SHIP_RING_SCALE.x * LaunchConstants.REAL_LIFE_SCALE.x, 2) + 1/12 * this.getMass() * Math.pow(this.options.shipRingHeight * LaunchConstants.REAL_LIFE_SCALE.y, 2);
     }
 
     public getThrustVector(altitude: number): Vector3 {
@@ -223,7 +223,7 @@ export class Starship {
     }
 
     public getThrustTorque(COM: Vector3, altitude: number): Vector3 {
-        let R = new Vector3(0, StarshipConstants.R_HEIGHT * StarshipConstants.REAL_LIFE_SCALE.y, 0).sub(COM);
+        let R = new Vector3(0, StarshipConstants.R_HEIGHT * LaunchConstants.REAL_LIFE_SCALE.y, 0).sub(COM);
         let F: Vector3 = this.getThrustVector(altitude);
         return R.clone().cross(F);
     }
@@ -324,7 +324,7 @@ export class Starship {
                 this.CH4Frost.scale.y = this.CH4 / 100;
             }
             
-            let useableHeight: number = this.options.shipRingHeight / StarshipConstants.REAL_LIFE_SCALE.y - StarshipConstants.LOX_BOTTOM_FIXED - StarshipConstants.CH4_TOP_FIXED - StarshipConstants.LOX_CH4_GAP_FIXED;
+            let useableHeight: number = this.options.shipRingHeight / LaunchConstants.REAL_LIFE_SCALE.y - StarshipConstants.LOX_BOTTOM_FIXED - StarshipConstants.CH4_TOP_FIXED - StarshipConstants.LOX_CH4_GAP_FIXED;
 
             this.CH4Frost.scale.copy(StarshipConstants.CRYOGENIC_SCALE.clone().multiply(StarshipConstants.STARSHIP_SCALE).multiply(new Vector3(1, this.CH4 * StarshipConstants.CH4_PERCENTAGE * useableHeight, 1)));
             this.CH4Frost.position.copy(this.shipRing.position.clone().add(new Vector3(0, StarshipConstants.STARSHIP_SCALE.y * (StarshipConstants.LOX_BOTTOM_FIXED + StarshipConstants.LOX_PERCENTAGE * useableHeight + StarshipConstants.LOX_CH4_GAP_FIXED), 0)));
@@ -644,7 +644,7 @@ export class Starship {
     }
 
     public setupRSeas(): void {
-        let rSeaPositions = MathHelper.getCircularPositions(this.options.numRSeas, this.options.rSeaRadius * StarshipConstants.STARSHIP_SCALE.x / StarshipConstants.REAL_LIFE_SCALE.x, this.options.rSeaAngularOffset * Math.PI / 180);
+        let rSeaPositions = MathHelper.getCircularPositions(this.options.numRSeas, this.options.rSeaRadius * StarshipConstants.STARSHIP_SCALE.x / LaunchConstants.REAL_LIFE_SCALE.x, this.options.rSeaAngularOffset * Math.PI / 180);
 
         for (let i = 0; i < this.options.numRSeas; i++) {
             let rSea = new Object3D();
@@ -658,7 +658,7 @@ export class Starship {
     }
 
     public setupRVacs(): void {
-        let rVacPositions = MathHelper.getCircularPositions(this.options.numRVacs, this.options.rVacRadius * StarshipConstants.STARSHIP_SCALE.x / StarshipConstants.REAL_LIFE_SCALE.x, this.options.rVacAngularOffset * Math.PI / 180);
+        let rVacPositions = MathHelper.getCircularPositions(this.options.numRVacs, this.options.rVacRadius * StarshipConstants.STARSHIP_SCALE.x / LaunchConstants.REAL_LIFE_SCALE.x, this.options.rVacAngularOffset * Math.PI / 180);
 
         for (let i = 0; i < this.options.numRVacs; i++) {
             let rVac = new Object3D();
@@ -683,7 +683,7 @@ export class Starship {
             this.hasUpdatedAABB = false;
 
             this.nosecone.scale.copy(StarshipConstants.NOSECONE_SCALE.clone().multiply(StarshipConstants.STARSHIP_SCALE));
-            this.shipRing.scale.copy(StarshipConstants.SHIP_RING_SCALE.clone().multiply(StarshipConstants.STARSHIP_SCALE).multiply(new Vector3(1, this.options.shipRingHeight / StarshipConstants.REAL_LIFE_SCALE.y, 1)));
+            this.shipRing.scale.copy(StarshipConstants.SHIP_RING_SCALE.clone().multiply(StarshipConstants.STARSHIP_SCALE).multiply(new Vector3(1, this.options.shipRingHeight / LaunchConstants.REAL_LIFE_SCALE.y, 1)));
             
             this.forwardL.scale.copy(StarshipConstants.FORWARD_L_SCALE.clone().multiply(StarshipConstants.STARSHIP_SCALE).multiply(new Vector3(1, this.options.forwardLHeightScale, this.options.forwardLWidthScale)));
             this.forwardL.rotation.copy(StarshipConstants.FORWARD_L_ROTATION);
