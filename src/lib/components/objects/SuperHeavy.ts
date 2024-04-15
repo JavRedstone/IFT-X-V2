@@ -906,7 +906,6 @@ export class SuperHeavy {
             if (areAllRSea2Ready) {
                 this.startBoostbackSequence = false;
                 this.endBoostbackSequence = true;
-                this.startSepGridFinSequence = false;
             }
         }
     }

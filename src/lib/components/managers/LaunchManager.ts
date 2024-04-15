@@ -230,6 +230,7 @@ export class LaunchManager {
                         this.superHeavy.flightController = new FlightController(PRTransients.realPositions.superHeavyPosition, this.stackGroup.userData.flightController.initialVelocity.clone().divideScalar(CelestialConstants.REAL_SCALE), PRTransients.realRotations.superHeavyRotation, this.stackGroup.userData.flightController.velocity.clone().divideScalar(CelestialConstants.REAL_SCALE), this.stackGroup.userData.flightController.angularVelocity.clone().add(LaunchConstants.SEPARATION_ANG_VEL));
 
                         this.superHeavy.flightController.acceleration.sub(this.starship.getThrustVector(this.stackGroup.userData.flightController.getAltitude()).applyQuaternion(this.stackGroup.userData.flightController.rotation).divideScalar(this.superHeavy.getMass()));
+                        this.superHeavy.startSepGridFinSequence = false;
 
                         this.justSeparated = false;
                     }
