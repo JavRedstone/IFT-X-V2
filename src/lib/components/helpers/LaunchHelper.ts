@@ -56,6 +56,7 @@ export class LaunchHelper {
     }
 
     public static getThrustLoss(altitude: number): number {
+        if (altitude < 0) { altitude = 0; }
         let thrustLoss: number = RaptorConstants.THRUST_LOSS * altitude;
         if (thrustLoss > RaptorConstants.MAX_THRUST_LOSS) {
             thrustLoss = RaptorConstants.MAX_THRUST_LOSS;
@@ -64,6 +65,7 @@ export class LaunchHelper {
     }
 
     public static getGridFinForceLoss(altitude: number): number {
+        if (altitude < 0) { altitude = 0; }
         let forceLoss: number = GridFinConstants.FORCE_LOSS * altitude;
         if (forceLoss > GridFinConstants.MAX_FORCE_LOSS) {
             forceLoss = GridFinConstants.MAX_FORCE_LOSS;
@@ -72,6 +74,7 @@ export class LaunchHelper {
     }
 
     public static getDragForceLoss(altitude: number): number {
+        if (altitude < 0) { altitude = 0; }
         let forceLoss: number = LaunchConstants.DRAG_FORCE_LOSS * altitude;
         if (forceLoss > LaunchConstants.DRAG_MAX_FORCE_LOSS) {
             forceLoss = LaunchConstants.DRAG_MAX_FORCE_LOSS;
