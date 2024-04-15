@@ -44,6 +44,9 @@ export class Starship {
     public startStartupSequence: boolean = false;
     public endStartupSequence: boolean = false;
 
+    public startLandingSequence: boolean = false;
+    public endLandingSequence: boolean = false;
+
     public flightController: FlightController = null;
 
     public options: any = {
@@ -550,6 +553,23 @@ export class Starship {
         }
     }
 
+    public runLandingSequence(): void {
+        let areAllRSeaReady: boolean = true;
+        for (let rSea of this.rSeas) {
+            if (rSea.userData.raptor != null) {
+                rSea.userData.raptor.setThrottleTarget(RaptorConstants.MAX_THROTTLE);
+            }
+            if (rSea.userData.raptor.throttle != RaptorConstants.MAX_THROTTLE) {
+                areAllRSeaReady = false;
+            }
+        }
+
+        if (areAllRSeaReady) {
+            this.startLandingSequence = false;
+            this.endLandingSequence = true;
+        }
+    }
+
     public updateRaptors(delta: number): void {
         let rSeaGimbalingAngles: number[] = [];
         let rSeaGimbalYs: number[] = [];
@@ -773,6 +793,9 @@ export class Starship {
 
             if (this.startStartupSequence) {
                 this.runStartupSequence();
+            }
+            if (this.startLandingSequence) {
+                this.runLandingSequence();
             }
         }
         this.updateFuel(delta);

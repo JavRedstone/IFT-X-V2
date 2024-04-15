@@ -598,7 +598,7 @@ export class LaunchManager {
                 this.currEvent = 1;
                 this.isEventEnabled = true;
             }
-            else if (this.currEvent == 2 || this.currEvent == 3 || this.currEvent == 4 || this.currEvent == 5 || this.currEvent == 6) {
+            else if (this.currEvent >= 2 && this.currEvent <= 6) {
                 this.currEvent = 7;
                 this.isEventEnabled = true;
             }
@@ -606,22 +606,19 @@ export class LaunchManager {
 
         if (this.starship.LOX <= 0 || this.starship.CH4 <= 0) {
             this.starship.runForceShutdown();
-            if (this.currEvent == 7) {
-                this.currEvent = 8;
-                this.isEventEnabled = true;
-            }
-            else if (this.currEvent == 10) {
-                this.currEvent = 11; // hide
+            if (this.currEvent >= 7 && this.currEvent <= 9) {
+                this.currEvent = 10; // hide
             }
         }
 
         if (
-            (this.currEvent == 0 && this.superHeavy.startMECOSequence && !this.superHeavy.endMECOSequence) ||
-            (this.currEvent == 1 && this.starship.startStartupSequence && !this.starship.endStartupSequence) ||
-            (this.currEvent == 2 && this.superHeavy.startBoostbackSequence && !this.superHeavy.endBoostbackSequence) ||
-            (this.currEvent == 3 && this.superHeavy.startBoostbackShutdownSequence && !this.superHeavy.endBoostbackShutdownSequence) ||
-            (this.currEvent == 4 && this.superHeavy.startFirstLandingSequence && !this.superHeavy.endFirstLandingSequence) ||
-            (this.currEvent == 5 && this.superHeavy.startSecondLandingSequence && !this.superHeavy.endSecondLandingSequence)
+            (this.currEvent == 1 && this.superHeavy.startMECOSequence && !this.superHeavy.endMECOSequence) ||
+            (this.currEvent == 2 && this.starship.startStartupSequence && !this.starship.endStartupSequence) ||
+            (this.currEvent == 3 && this.superHeavy.startBoostbackSequence && !this.superHeavy.endBoostbackSequence) ||
+            (this.currEvent == 4 && this.superHeavy.startBoostbackShutdownSequence && !this.superHeavy.endBoostbackShutdownSequence) ||
+            (this.currEvent == 5 && this.superHeavy.startFirstLandingSequence && !this.superHeavy.endFirstLandingSequence) ||
+            (this.currEvent == 6 && this.superHeavy.startSecondLandingSequence && !this.superHeavy.endSecondLandingSequence) ||
+            (this.currEvent == 8 && this.starship.startLandingSequence && !this.starship.endLandingSequence)
         ) {
             this.isEventEnabled = false;
         }
@@ -658,6 +655,15 @@ export class LaunchManager {
             }
             else if (this.currEvent == 6) {
                 this.superHeavy.runForceShutdown();
+            }
+            else if (this.currEvent == 7) {
+                this.starship.runForceShutdown();
+            }
+            else if (this.currEvent == 8) {
+                this.starship.startLandingSequence = true;
+            }
+            else if (this.currEvent == 9) {
+                this.starship.runForceShutdown();
             }
             this.currEvent++;
         }

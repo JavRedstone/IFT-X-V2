@@ -31,15 +31,14 @@ export class LaunchConstants {
 
     public static readonly LAUNCH_EVENTS: string[] = [
         "Booster Engine Cutoff",
-        "Stage Separation",
+        "Ship Engine Startup",
         "Boostback Startup",
         "Boostback Shutdown",
-        "First Landing Burn",
-        "Second Landing Burn",
-        "Landing Burn Shutdown",
+        "Booster Main Landing Burn",
+        "Booster Secondary Landing Burn",
+        "Booster Landing Burn Shutdown",
         "Second Engine Cutoff",
-        "Start Flip Maneuver",
-        "Deploy Landing Legs",
-        "Ship Landing Shutdown",
+        "Ship Landing Burn Startup",
+        "Ship Landing Burn Shutdown",
     ];
 }

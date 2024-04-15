@@ -616,7 +616,7 @@
         position: fixed;
         top: 0;
         left: 0;
-        width: 250px;
+        width: 300px;
         background-color: rgba(0, 0, 0, 0.5);
 
         animation: slideDown 0.5s, increaseOpacity 1s;
