@@ -10,6 +10,7 @@ import { GridFin } from "../structs/GridFin";
 import { GridFinConstants } from "../constants/controls/GridFinConstants";
 import { LaunchHelper } from "../helpers/LaunchHelper";
 import { FlightController } from "../controllers/FlightController";
+import { CelestialConstants } from "../constants/CelestialConstants";
 
 export class SuperHeavy {
     public hsr: Group = new Group();
@@ -221,7 +222,7 @@ export class SuperHeavy {
         }
         COM.add(new Vector3(0, this.LOXFrost.position.y / SuperHeavyConstants.SUPER_HEAVY_SCALE.y * LaunchConstants.REAL_LIFE_SCALE.y + this.options.boosterRingHeight * SuperHeavyConstants.LOX_PERCENTAGE / 2, 0).multiplyScalar(this.getLOXMass()));
         COM.add(new Vector3(0, this.CH4Frost.position.y / SuperHeavyConstants.SUPER_HEAVY_SCALE.y * LaunchConstants.REAL_LIFE_SCALE.y + this.options.boosterRingHeight * SuperHeavyConstants.CH4_PERCENTAGE / 2, 0).multiplyScalar(this.getCH4Mass()));
-        return COM.divideScalar(this.getMass());
+        return COM.divide(LaunchConstants.REAL_LIFE_SCALE).divideScalar(this.getMass());
     }
 
     public getMOIRoll(): number {
@@ -271,10 +272,10 @@ export class SuperHeavy {
             let forceDirection: Euler = new Euler(0, gridFin.rotation.z, 0);
             let force: Vector3 = new Vector3(forceScalar, 0, 0).applyEuler(forceDirection);
             force.z = -force.z; // same issue with the gimbal for some reason
-            // if aligned, negative, if not, positive
-            if (orientation.dot(velocity) >= 0) {
-                force.negate();
-            }
+            // if aligned, negative, if not, positive (removed because hard to control practically)
+            // if (orientation.dot(velocity.clone().normalize()) >= 0.5 || orientation.dot(velocity.clone().normalize()) >= -0.5) {
+            //     force.negate();
+            // }
             T.add(R.clone().cross(force));
         }
         return T;
@@ -289,24 +290,30 @@ export class SuperHeavy {
             let forceScalar: number = gridFin.userData.gridFin.angle * GridFinConstants.FORCE_MULTIPLIER * (1 - LaunchHelper.getGridFinForceLoss(altitude)) * velocity.length();
             let forceDirection: Euler = new Euler(0, gridFin.rotation.z, 0);
             let force: Vector3 = new Vector3(forceScalar, 0, 0).applyEuler(forceDirection);
-            // if aligned, negative, if not, positive
-            if (orientation.dot(velocity) >= 0) {
-                force.negate();
-            }
+            // if aligned, negative, if not, positive (removed because hard to control practically)
+            // if (orientation.dot(velocity.clone().normalize()) >= 0.5 || orientation.dot(velocity.clone().normalize()) >= -0.5) {
+            //     force.negate();
+            // }
             T.add(R.clone().cross(force));
         }
         return T;
     }
 
-    public getDragPitchTorque(rotation: Quaternion, velocity: Vector3, COM: Vector3, altitude: number): Vector3 {
+    public getDragPitchTorque(rotation: Quaternion, velocity: Vector3, angVel: Vector3, COM: Vector3, altitude: number): Vector3 {
         let orientation: Vector3 = new Vector3(0, 1, 0).applyQuaternion(rotation);
         let T: Vector3 = new Vector3(0, 0, 0);
+        let currentAngVelPitch: number = angVel.x;
+        let currentAngVelYaw: number = angVel.z;
         return T;
     }
 
-    public getDragRollTorque(rotation: Quaternion, velocity: Vector3, altitude: number): Vector3 {
+    public getDragRollTorque(rotation: Quaternion, velocity: Vector3, angVel: Vector3, altitude: number): Vector3 {
         let orientation: Vector3 = new Vector3(0, 1, 0).applyQuaternion(rotation);
         let T: Vector3 = new Vector3(0, 0, 0);
+        let currentAngVelRoll: number = angVel.y;
+        let dot: number = orientation.normalize().dot(velocity.clone().normalize());
+        if (dot < 0) dot = -dot;
+        // console.log(dot)
         return T;
     }
 
@@ -569,7 +576,7 @@ export class SuperHeavy {
 
         for (let gridFin of this.gridFins) {
             if (isWPressed) {
-                if (this.separated) {
+                // if (this.separated) {
                     if (gridFin.rotation.z >= -45 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY && gridFin.rotation.z <= 45 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
                         gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
                     }
@@ -579,21 +586,21 @@ export class SuperHeavy {
                     else {
                         gridFin.userData.gridFin.setTarget(GridFinConstants.NEUTRAL_ANGLE);
                     }
-                }
-                else {
-                    if (gridFin.rotation.z >= -45 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY && gridFin.rotation.z <= 45 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
-                        gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
-                    }
-                    else if (gridFin.rotation.z >= 135 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY || gridFin.rotation.z <= -135 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
-                        gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
-                    }
-                    else {
-                        gridFin.userData.gridFin.setTarget(GridFinConstants.NEUTRAL_ANGLE);
-                    }
-                }
+                // }
+                // else {
+                //     if (gridFin.rotation.z >= -45 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY && gridFin.rotation.z <= 45 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
+                //         gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
+                //     }
+                //     else if (gridFin.rotation.z >= 135 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY || gridFin.rotation.z <= -135 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
+                //         gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
+                //     }
+                //     else {
+                //         gridFin.userData.gridFin.setTarget(GridFinConstants.NEUTRAL_ANGLE);
+                //     }
+                // }
             }
             else if (isSPressed) {
-                if (this.separated) {
+                // if (this.separated) {
                     if (gridFin.rotation.z >= -45 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY && gridFin.rotation.z <= 45 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
                         gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
                     }
@@ -603,21 +610,21 @@ export class SuperHeavy {
                     else {
                         gridFin.userData.gridFin.setTarget(GridFinConstants.NEUTRAL_ANGLE);
                     }
-                }
-                else {
-                    if (gridFin.rotation.z >= -45 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY && gridFin.rotation.z <= 45 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
-                        gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
-                    }
-                    else if (gridFin.rotation.z >= 135 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY || gridFin.rotation.z <= -135 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
-                        gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
-                    }
-                    else {
-                        gridFin.userData.gridFin.setTarget(GridFinConstants.NEUTRAL_ANGLE);
-                    }
-                }
+                // }
+                // else {
+                //     if (gridFin.rotation.z >= -45 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY && gridFin.rotation.z <= 45 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
+                //         gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
+                //     }
+                //     else if (gridFin.rotation.z >= 135 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY || gridFin.rotation.z <= -135 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
+                //         gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
+                //     }
+                //     else {
+                //         gridFin.userData.gridFin.setTarget(GridFinConstants.NEUTRAL_ANGLE);
+                //     }
+                // }
             }
             else if (isAPressed) {
-                if (this.separated) {
+                // if (this.separated) {
                     if (gridFin.rotation.z >= 45 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY && gridFin.rotation.z <= 135 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
                         gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
                     }
@@ -627,21 +634,21 @@ export class SuperHeavy {
                     else {
                         gridFin.userData.gridFin.setTarget(GridFinConstants.NEUTRAL_ANGLE);
                     }
-                }
-                else {
-                    if (gridFin.rotation.z >= 45 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY && gridFin.rotation.z <= 135 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
-                        gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
-                    }
-                    else if (gridFin.rotation.z >= -135 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY && gridFin.rotation.z <= -45 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
-                        gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
-                    }
-                    else {
-                        gridFin.userData.gridFin.setTarget(GridFinConstants.NEUTRAL_ANGLE);
-                    }
-                }
+                // }
+                // else {
+                //     if (gridFin.rotation.z >= 45 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY && gridFin.rotation.z <= 135 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
+                //         gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
+                //     }
+                //     else if (gridFin.rotation.z >= -135 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY && gridFin.rotation.z <= -45 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
+                //         gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
+                //     }
+                //     else {
+                //         gridFin.userData.gridFin.setTarget(GridFinConstants.NEUTRAL_ANGLE);
+                //     }
+                // }
             }
             else if (isDPressed) {
-                if (this.separated) {
+                // if (this.separated) {
                     if (gridFin.rotation.z >= 45 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY && gridFin.rotation.z <= 135 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
                         gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
                     }
@@ -651,41 +658,41 @@ export class SuperHeavy {
                     else {
                         gridFin.userData.gridFin.setTarget(GridFinConstants.NEUTRAL_ANGLE);
                     }
-                }
-                else {
-                    if (gridFin.rotation.z >= 45 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY && gridFin.rotation.z <= 135 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
-                        gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
-                    }
-                    else if (gridFin.rotation.z >= -135 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY && gridFin.rotation.z <= -45 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
-                        gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
-                    }
-                    else {
-                        gridFin.userData.gridFin.setTarget(GridFinConstants.NEUTRAL_ANGLE);
-                    }
-                }
+                // }
+                // else {
+                //     if (gridFin.rotation.z >= 45 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY && gridFin.rotation.z <= 135 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
+                //         gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
+                //     }
+                //     else if (gridFin.rotation.z >= -135 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY && gridFin.rotation.z <= -45 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
+                //         gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
+                //     }
+                //     else {
+                //         gridFin.userData.gridFin.setTarget(GridFinConstants.NEUTRAL_ANGLE);
+                //     }
+                // }
             }
             else if (isQPressed) {
-                if (this.separated) {
+                // if (this.separated) {
                     gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
-                }
-                else {
-                    gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
-                }
+                // }
+                // else {
+                //     gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
+                // }
             }
             else if (isEPressed) {
-                if (this.separated) {
+                // if (this.separated) {
                     gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
-                }
-                else {
-                    gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
-                }
+                // }
+                // else {
+                //     gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
+                // }
             }
             else {
                 gridFin.userData.gridFin.setTarget(GridFinConstants.NEUTRAL_ANGLE);
             }
             
             if (isWPressed && isAPressed) {
-                if (this.separated) {
+                // if (this.separated) {
                     if (gridFin.rotation.z >= 0 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY && gridFin.rotation.z <= 90 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
                         gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
                     }
@@ -695,21 +702,21 @@ export class SuperHeavy {
                     else {
                         gridFin.userData.gridFin.setTarget(GridFinConstants.NEUTRAL_ANGLE);
                     }
-                }
-                else {
-                    if (gridFin.rotation.z >= 0 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY && gridFin.rotation.z <= 90 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
-                        gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
-                    }
-                    else if (gridFin.rotation.z >= 180 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY || gridFin.rotation.z <= -90 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
-                        gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
-                    }
-                    else {
-                        gridFin.userData.gridFin.setTarget(GridFinConstants.NEUTRAL_ANGLE);
-                    }
-                }
+                // }
+                // else {
+                //     if (gridFin.rotation.z >= 0 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY && gridFin.rotation.z <= 90 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
+                //         gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
+                //     }
+                //     else if (gridFin.rotation.z >= 180 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY || gridFin.rotation.z <= -90 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
+                //         gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
+                //     }
+                //     else {
+                //         gridFin.userData.gridFin.setTarget(GridFinConstants.NEUTRAL_ANGLE);
+                //     }
+                // }
             }
             else if (isSPressed && isDPressed) {
-                if (this.separated) {
+                // if (this.separated) {
                     if (gridFin.rotation.z >= 0 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY && gridFin.rotation.z <= 90 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
                         gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
                     }
@@ -719,21 +726,21 @@ export class SuperHeavy {
                     else {
                         gridFin.userData.gridFin.setTarget(GridFinConstants.NEUTRAL_ANGLE);
                     }
-                }
-                else {
-                    if (gridFin.rotation.z >= 0 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY && gridFin.rotation.z <= 90 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
-                        gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
-                    }
-                    else if (gridFin.rotation.z >= 180 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY || gridFin.rotation.z <= -90 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
-                        gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
-                    }
-                    else {
-                        gridFin.userData.gridFin.setTarget(GridFinConstants.NEUTRAL_ANGLE);
-                    }
-                }
+                // }
+                // else {
+                //     if (gridFin.rotation.z >= 0 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY && gridFin.rotation.z <= 90 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
+                //         gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
+                //     }
+                //     else if (gridFin.rotation.z >= 180 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY || gridFin.rotation.z <= -90 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
+                //         gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
+                //     }
+                //     else {
+                //         gridFin.userData.gridFin.setTarget(GridFinConstants.NEUTRAL_ANGLE);
+                //     }
+                // }
             }
             else if (isWPressed && isDPressed) {
-                if (this.separated) {
+                // if (this.separated) {
                     if (gridFin.rotation.z >= 90 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY || gridFin.rotation.z <= -180 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
                         gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
                     }
@@ -743,21 +750,21 @@ export class SuperHeavy {
                     else {
                         gridFin.userData.gridFin.setTarget(GridFinConstants.NEUTRAL_ANGLE);
                     }
-                }
-                else {
-                    if (gridFin.rotation.z >= 90 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY || gridFin.rotation.z <= -180 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
-                        gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
-                    }
-                    else if (gridFin.rotation.z >= -90 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY && gridFin.rotation.z <= 0 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
-                        gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
-                    }
-                    else {
-                        gridFin.userData.gridFin.setTarget(GridFinConstants.NEUTRAL_ANGLE);
-                    }
-                }
+                // }
+                // else {
+                //     if (gridFin.rotation.z >= 90 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY || gridFin.rotation.z <= -180 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
+                //         gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
+                //     }
+                //     else if (gridFin.rotation.z >= -90 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY && gridFin.rotation.z <= 0 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
+                //         gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
+                //     }
+                //     else {
+                //         gridFin.userData.gridFin.setTarget(GridFinConstants.NEUTRAL_ANGLE);
+                //     }
+                // }
             }
             else if (isSPressed && isAPressed) {
-                if (this.separated) {
+                // if (this.separated) {
                     if (gridFin.rotation.z >= 90 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY || gridFin.rotation.z <= -180 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
                         gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
                     }
@@ -767,18 +774,18 @@ export class SuperHeavy {
                     else {
                         gridFin.userData.gridFin.setTarget(GridFinConstants.NEUTRAL_ANGLE);
                     }
-                }
-                else {
-                    if (gridFin.rotation.z >= 90 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY || gridFin.rotation.z <= -180 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
-                        gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
-                    }
-                    else if (gridFin.rotation.z >= -90 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY && gridFin.rotation.z <= 0 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
-                        gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
-                    }
-                    else {
-                        gridFin.userData.gridFin.setTarget(GridFinConstants.NEUTRAL_ANGLE);
-                    }
-                }
+                // }
+                // else {
+                //     if (gridFin.rotation.z >= 90 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY || gridFin.rotation.z <= -180 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
+                //         gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
+                //     }
+                //     else if (gridFin.rotation.z >= -90 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY && gridFin.rotation.z <= 0 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
+                //         gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
+                //     }
+                //     else {
+                //         gridFin.userData.gridFin.setTarget(GridFinConstants.NEUTRAL_ANGLE);
+                //     }
+                // }
             }
         }
     }

@@ -715,7 +715,7 @@
         background: rgba(255, 255, 255, 0.5);
         outline: none;
 
-        animation: increaseOpacity 1s;
+        animation: increaseOpacity 0.5s;
 
         &::-webkit-slider-thumb {
             -webkit-appearance: none;
@@ -725,6 +725,16 @@
             background: white;
             cursor: pointer;
         }
+    }
+
+    .telemetry-speedup-number {
+        position: fixed;
+        right: 115px;
+        bottom: 118px;
+        color: white;
+        font-size: 16px;
+
+        animation: increaseOpacity 0.5s;
     }
 </style>
 {#if currEvent != null}
@@ -777,7 +787,7 @@
         </div>
         
         <div class="telemetry-line" style="right: 337px;"></div>
-        <img class="telemetry-image" style="right: 380px; transform: rotate({telemetryValues.starshipAngle}rad);" src={s25} alt="ship">
+        <img class="telemetry-image" style="right: 380px; transform: rotate({-telemetryValues.starshipAngle}rad);" src={s25} alt="ship">
         <div class="telemetry-flap-dot" style="top: 20px;">FWD</div>
         <div class="telemetry-flap" style="top: 30px; right: 501px; width: 5px; transform-origin: right; transform: rotate({-telemetryValues.forwardLAngle}rad);"></div>
         <div class="telemetry-flap" style="top: 30px; right: 474px; width: 5px; transform-origin: left; transform: rotate({telemetryValues.forwardRAngle}rad);"></div>
@@ -817,11 +827,11 @@
         </div>
         
         <div class="telemetry-line" style="left: 336px;"></div>
-        <img class="telemetry-image" style="left: {telemetryValues.separated ? 385 : 390}px; transform: rotate({telemetryValues.superHeavyAngle}rad);" src={telemetryValues.separated ? b9 : s25b9} alt="booster">
+        <img class="telemetry-image" style="left: {telemetryValues.separated ? 385 : 390}px; transform: rotate({-telemetryValues.superHeavyAngle}rad);" src={telemetryValues.separated ? b9 : s25b9} alt="booster">
     </div>
 </div>
 <div style="position:fixed; left: 8px; bottom: 136px;">
     <Keybinds />
 </div>
 <input type="range" class="telemetry-speedup-slider" min={SceneConstants.SPEEDUP_MIN} max={SceneConstants.SPEEDUP_MAX} step={SceneConstants.SPEEDUP_STEP} bind:value={speedUp} on:input={setSpeedUp}>
-<div style="position:fixed; right: 115px; bottom: 118px; color: white; font-size: 16px;">{speedUp}X</div>
+<div class="telemetry-speedup-number">{speedUp}X</div>

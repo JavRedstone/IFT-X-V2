@@ -16,7 +16,10 @@ export class LaunchConstants {
     public static readonly DRAG_FORCE_LOSS: number = 0.0001;
     public static readonly DRAG_MAX_FORCE_LOSS: number = 1000000;
 
-    public static readonly SEPARATION_ANG_VEL: Vector3 = new Vector3(0, 0, 0.15);
+    public static readonly SEPARATION_ANG_VEL: Vector3 = new Vector3(0, 0, 0.2);
+
+    public static readonly VEL_ARROW_LENGTH: number = 0.005;
+    public static readonly VEL_ARROW_COLOR: number = 0x00ff00;
 
     public static readonly FUELING_SPEEDUP: number = 2000;
     public static readonly COUNTDOWN_SPEEDUP: number = 20;

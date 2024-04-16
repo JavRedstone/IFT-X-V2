@@ -76,7 +76,7 @@ export class FlightController {
     }
 
     public getDisplayAngle(): number {
-        return this.fakeRotation.x;
+        return this.fakeRotation.z; // more necessary
     }
 
     public getAltitude(): number {

@@ -1,5 +1,5 @@
 import type { ThrelteContext } from "@threlte/core";
-import { BufferAttribute, BufferGeometry, Euler, Group, Line, LineBasicMaterial, PerspectiveCamera, Quaternion, Vector3 } from "three";
+import { ArrowHelper, BufferAttribute, BufferGeometry, Euler, Group, Line, LineBasicMaterial, PerspectiveCamera, Quaternion, Vector3 } from "three";
 import { OLIT } from "../objects/OLIT";
 import { Starship } from "../objects/Starship";
 import { SuperHeavy } from "../objects/SuperHeavy";
@@ -39,7 +39,6 @@ export class LaunchManager {
     public targetPos: Vector3 = new Vector3(0, 0, 0);
 
     public isCameraOnStarship: boolean = true;
-    public
     public isGroundView: boolean = true;
 
     public dt: number = 0;
@@ -63,6 +62,9 @@ export class LaunchManager {
 
     public starshipDisabled: boolean = true;
     public superHeavyDisabled: boolean = false;
+
+    public starshipVelArrow: ArrowHelper = new ArrowHelper(new Vector3(0, 0, 0), new Vector3(0, 0, 0), LaunchConstants.VEL_ARROW_LENGTH, LaunchConstants.VEL_ARROW_COLOR);
+    public superHeavyVelArrow: ArrowHelper = new ArrowHelper(new Vector3(0, 0, 0), new Vector3(0, 0, 0), LaunchConstants.VEL_ARROW_LENGTH, LaunchConstants.VEL_ARROW_COLOR);
 
     constructor(tc: ThrelteContext) {
         this.tc = tc;
@@ -207,6 +209,9 @@ export class LaunchManager {
 
                         this.stackGroup.userData.flightController = new FlightController(PRTransients.realPositions.stackGroupPosition, initialVelocity, PRTransients.realRotations.stackGroupRotation);
 
+                        this.tc.scene.add(this.starshipVelArrow);
+                        this.tc.scene.add(this.superHeavyVelArrow);
+
                         this.liftedOff = true;
                     }
                     if (this.separated && this.justSeparated) {
@@ -262,11 +267,11 @@ export class LaunchManager {
                             this.stackGroup.userData.flightController.angularAcceleration.add(this.superHeavy.getGridFinPitchTorque(this.stackGroup.userData.flightController.rotation, this.stackGroup.userData.flightController.relVelocity, this.getStackCOM(), altitude).divideScalar(this.getStackMOIPitch()));
                             this.stackGroup.userData.flightController.angularAcceleration.add(this.superHeavy.getGridFinRollTorque(this.stackGroup.userData.flightController.rotation, this.stackGroup.userData.flightController.relVelocity, altitude).divideScalar(this.getStackMOIRoll()));
                             // drag sh
-                            this.stackGroup.userData.flightController.angularAcceleration.add(this.superHeavy.getDragPitchTorque(this.stackGroup.userData.flightController.rotation, this.stackGroup.userData.flightController.relVelocity, this.getStackCOM(), altitude).divideScalar(this.getStackMOIPitch()));
-                            this.stackGroup.userData.flightController.angularAcceleration.add(this.superHeavy.getDragRollTorque(this.stackGroup.userData.flightController.rotation, this.stackGroup.userData.flightController.relVelocity, altitude).divideScalar(this.getStackMOIRoll()));
+                            this.stackGroup.userData.flightController.angularAcceleration.add(this.superHeavy.getDragPitchTorque(this.stackGroup.userData.flightController.rotation, this.stackGroup.userData.flightController.relVelocity, this.stackGroup.userData.flightController.angularVelocity, this.getStackCOM(), altitude).divideScalar(this.getStackMOIPitch()));
+                            this.stackGroup.userData.flightController.angularAcceleration.add(this.superHeavy.getDragRollTorque(this.stackGroup.userData.flightController.rotation, this.stackGroup.userData.flightController.relVelocity, this.stackGroup.userData.flightController.angularVelocity, altitude).divideScalar(this.getStackMOIRoll()));
                             // drag ss
-                            this.stackGroup.userData.flightController.angularAcceleration.add(this.starship.getDragPitchTorque(this.stackGroup.userData.flightController.rotation, this.stackGroup.userData.flightController.relVelocity, this.getStackCOM(), altitude).divideScalar(this.getStackMOIPitch()));
-                            this.stackGroup.userData.flightController.angularAcceleration.add(this.starship.getDragRollTorque(this.stackGroup.userData.flightController.rotation, this.stackGroup.userData.flightController.relVelocity, altitude).divideScalar(this.getStackMOIRoll()));
+                            this.stackGroup.userData.flightController.angularAcceleration.add(this.starship.getDragPitchTorque(this.stackGroup.userData.flightController.rotation, this.stackGroup.userData.flightController.relVelocity, this.stackGroup.userData.flightController.angularVelocity, this.getStackCOM(), altitude).divideScalar(this.getStackMOIPitch()));
+                            this.stackGroup.userData.flightController.angularAcceleration.add(this.starship.getDragRollTorque(this.stackGroup.userData.flightController.rotation, this.stackGroup.userData.flightController.relVelocity, this.stackGroup.userData.flightController.angularVelocity, altitude).divideScalar(this.getStackMOIRoll()));
 
                             // gravity
 
@@ -281,7 +286,19 @@ export class LaunchManager {
 
                             PRTransients.realRotations.stackGroupRotation = new Euler().setFromQuaternion(this.stackGroup.userData.flightController.rotation);
 
+                            PRTransients.realPositions.superHeavyVelPosition = this.stackGroup.userData.flightController.fakePosition.clone().add(this.getStackCOM().clone().applyQuaternion(this.stackGroup.userData.flightController.rotation)).divideScalar(CelestialConstants.REAL_SCALE);
+                            PRTransients.realPositions.superHeavyVelDirection = this.stackGroup.userData.flightController.relVelocity.clone().normalize();
+                            PRTransients.realPositions.starshipVelPosition = this.stackGroup.userData.flightController.fakePosition.clone().add(this.getStackCOM().clone().applyQuaternion(this.stackGroup.userData.flightController.rotation)).divideScalar(CelestialConstants.REAL_SCALE);
+                            PRTransients.realPositions.starshipVelDirection = this.stackGroup.userData.flightController.relVelocity.clone().normalize();
+
+                            if (this.stackGroup.userData.flightController.getAltitude() < 0) {
+                                this.starshipDisabled = true;
+                                this.superHeavyDisabled = true;
+                            }
+
                             telemetry.update((value) => {
+                                value.separated = this.separated;
+
                                 value.starshipSpeed = Math.round(this.stackGroup.userData.flightController.relVelocity.length() * 3.6);
                                 value.starshipAltitude = Math.round(this.stackGroup.userData.flightController.getAltitude() / 1000);
                                 value.starshipAngle = this.stackGroup.userData.flightController.getDisplayAngle();
@@ -317,11 +334,11 @@ export class LaunchManager {
                             this.superHeavy.flightController.angularAcceleration.add(this.superHeavy.getGridFinPitchTorque(this.superHeavy.flightController.rotation, this.superHeavy.flightController.relVelocity, this.superHeavy.getCOM(), shAltitude).divideScalar(this.superHeavy.getMOIPitch()));
                             this.superHeavy.flightController.angularAcceleration.add(this.superHeavy.getGridFinRollTorque(this.superHeavy.flightController.rotation, this.superHeavy.flightController.relVelocity, shAltitude).divideScalar(this.superHeavy.getMOIRoll()));
                             // drag sh
-                            this.superHeavy.flightController.angularAcceleration.add(this.superHeavy.getDragPitchTorque(this.superHeavy.flightController.rotation, this.superHeavy.flightController.relVelocity, this.superHeavy.getCOM(), shAltitude).divideScalar(this.superHeavy.getMOIPitch()));
-                            this.superHeavy.flightController.angularAcceleration.add(this.superHeavy.getDragRollTorque(this.superHeavy.flightController.rotation, this.superHeavy.flightController.relVelocity, ssAltitude).divideScalar(this.superHeavy.getMOIRoll()));
+                            this.superHeavy.flightController.angularAcceleration.add(this.superHeavy.getDragPitchTorque(this.superHeavy.flightController.rotation, this.superHeavy.flightController.relVelocity, this.superHeavy.flightController.angularVelocity, this.superHeavy.getCOM(), shAltitude).divideScalar(this.superHeavy.getMOIPitch()));
+                            this.superHeavy.flightController.angularAcceleration.add(this.superHeavy.getDragRollTorque(this.superHeavy.flightController.rotation, this.superHeavy.flightController.relVelocity, this.superHeavy.flightController.angularVelocity, ssAltitude).divideScalar(this.superHeavy.getMOIRoll()));
                             // drag ss
-                            this.starship.flightController.angularAcceleration.add(this.superHeavy.getDragPitchTorque(this.starship.flightController.rotation, this.starship.flightController.relVelocity, this.starship.getCOM(), shAltitude).divideScalar(this.starship.getMOIPitch()));
-                            this.starship.flightController.angularAcceleration.add(this.starship.getDragRollTorque(this.starship.flightController.rotation, this.starship.flightController.relVelocity, ssAltitude).divideScalar(this.starship.getMOIRoll()));
+                            this.starship.flightController.angularAcceleration.add(this.starship.getDragPitchTorque(this.starship.flightController.rotation, this.starship.flightController.relVelocity, this.starship.flightController.angularVelocity, this.starship.getCOM(), ssAltitude).divideScalar(this.starship.getMOIPitch()));
+                            this.starship.flightController.angularAcceleration.add(this.starship.getDragRollTorque(this.starship.flightController.rotation, this.starship.flightController.relVelocity, this.starship.flightController.angularVelocity, ssAltitude).divideScalar(this.starship.getMOIRoll()));
 
                             // gravity
 
@@ -340,7 +357,21 @@ export class LaunchManager {
                             PRTransients.realRotations.superHeavyRotation = new Euler().setFromQuaternion(this.superHeavy.flightController.rotation);
                             PRTransients.realRotations.starshipRotation = new Euler().setFromQuaternion(this.starship.flightController.rotation);
 
+                            PRTransients.realPositions.superHeavyVelPosition = this.superHeavy.flightController.fakePosition.clone().add(this.superHeavy.getCOM().clone().applyQuaternion(this.superHeavy.flightController.rotation)).divideScalar(CelestialConstants.REAL_SCALE);
+                            PRTransients.realPositions.superHeavyVelDirection = this.superHeavy.flightController.relVelocity.clone().normalize();
+                            PRTransients.realPositions.starshipVelPosition = this.starship.flightController.fakePosition.clone().add(this.starship.getCOM().clone().applyQuaternion(this.starship.flightController.rotation)).divideScalar(CelestialConstants.REAL_SCALE);
+                            PRTransients.realPositions.starshipVelDirection = this.starship.flightController.relVelocity.clone().normalize();
+
+                            if (this.superHeavy.flightController.getAltitude() < 0) {
+                                this.superHeavyDisabled = true;
+                            }
+                            if (this.starship.flightController.getAltitude() < 0) {
+                                this.starshipDisabled = true;
+                            }
+
                             telemetry.update((value) => {
+                                value.separated = this.separated;
+
                                 value.starshipSpeed = Math.round(this.starship.flightController.relVelocity.length() * 3.6);
                                 value.starshipAltitude = Math.round(this.starship.flightController.getAltitude() / 1000);
                                 value.starshipAngle = this.starship.flightController.getDisplayAngle();
@@ -490,14 +521,21 @@ export class LaunchManager {
                 this.group.position.copy(PRTransients.fakePositions.groupPosition);
                 this.group.rotation.copy(PRTransients.fakeRotations.groupRotation);
                 if (this.liftedOff) {
-                    this.stackGroup.position.copy(PRTransients.fakePositions.stackGroupPosition);
-                    this.stackGroup.rotation.copy(PRTransients.fakeRotations.stackGroupRotation);
                     if (this.separated && !this.justSeparated) {
                         this.starship.group.position.copy(PRTransients.fakePositions.starshipPosition);
                         this.starship.group.rotation.copy(PRTransients.fakeRotations.starshipRotation);
                         this.superHeavy.group.position.copy(PRTransients.fakePositions.superHeavyPosition);
                         this.superHeavy.group.rotation.copy(PRTransients.fakeRotations.superHeavyRotation);
                     }
+                    else {
+                        this.stackGroup.position.copy(PRTransients.fakePositions.stackGroupPosition);
+                        this.stackGroup.rotation.copy(PRTransients.fakeRotations.stackGroupRotation);
+                    }
+
+                    this.starshipVelArrow.position.copy(PRTransients.fakePositions.starshipVelPosition);
+                    this.superHeavyVelArrow.position.copy(PRTransients.fakePositions.superHeavyVelPosition);
+                    this.starshipVelArrow.setDirection(PRTransients.fakePositions.starshipVelDirection);
+                    this.superHeavyVelArrow.setDirection(PRTransients.fakePositions.superHeavyVelDirection);
                 }
             }
         }
@@ -574,7 +612,7 @@ export class LaunchManager {
     public getStackCOM(): Vector3 {
         let COM: Vector3 = new Vector3(0, 0, 0);
         COM.add(this.superHeavy.getCOM().clone().multiplyScalar(this.superHeavy.getMass()));
-        COM.add(this.starship.getCOM().clone().add(new Vector3(0, this.superHeavy.group.userData.aabb.getSize(new Vector3).y * LaunchConstants.REAL_LIFE_SCALE.y, 0)).multiplyScalar(this.starship.getMass()));
+        COM.add(this.starship.getCOM().clone().add(new Vector3(0, this.superHeavy.group.userData.aabb.getSize(new Vector3).y, 0)).multiplyScalar(this.starship.getMass()));
         COM.x = 0;
         COM.z = 0;
         return COM.divideScalar(this.getStackMass());
@@ -670,7 +708,6 @@ export class LaunchManager {
         }
         
         telemetry.update((value) => {
-            value.separated = this.separated;
             value.currEvent = this.currEvent;
             value.isEventEnabled = this.isEventEnabled;
             value.isEventClicked = this.isEventClicked;
