@@ -298,8 +298,8 @@ export class SuperHeavy {
         dot += 1;
         // basically it starts at 0 at the edges, and peaks at 1 in the middle
         let sideSA: number = Math.PI * SuperHeavyConstants.BOOSTER_RING_SCALE.x / 2 * this.options.boosterRingHeight; // 2 * pi * r * h / 2 since it is a cylinder and we are only looking at one side
-        let pitchForceScalar: number = LaunchHelper.getFrictionMultiplier(angVelPitch) * LaunchConstants.DRAG_FORCE_MULTIPLIER * (1 - LaunchHelper.getDragForceLoss(altitude)) * Math.pow(velocity.length(), 2) * sideSA * dot;
-        let yawForceScalar: number = LaunchHelper.getFrictionMultiplier(angVelYaw) * LaunchConstants.DRAG_FORCE_MULTIPLIER * (1 - LaunchHelper.getDragForceLoss(altitude)) * Math.pow(velocity.length(), 2) * sideSA * dot;
+        let pitchForceScalar: number = -LaunchHelper.getFrictionMultiplier(angVelPitch) * LaunchConstants.DRAG_FORCE_MULTIPLIER * (1 - LaunchHelper.getDragForceLoss(altitude)) * Math.pow(velocity.length(), 2) * sideSA * dot;
+        let yawForceScalar: number = -LaunchHelper.getFrictionMultiplier(angVelYaw) * LaunchConstants.DRAG_FORCE_MULTIPLIER * (1 - LaunchHelper.getDragForceLoss(altitude)) * Math.pow(velocity.length(), 2) * sideSA * dot;
         // return new Vector3(-pitchForceScalar * COM.length(), 0, -yawForceScalar * COM.length());
         return new Vector3();
     }
@@ -312,8 +312,7 @@ export class SuperHeavy {
         dot += 1;
         // basically it starts at 0 at the edges, and peaks at 1 in the middle
         let sideSA: number = Math.PI * SuperHeavyConstants.BOOSTER_RING_SCALE.x / 2 * this.options.boosterRingHeight; // 2 * pi * r * h / 2 since it is a cylinder and we are only looking at one side
-        let forceScalar: number = LaunchHelper.getFrictionMultiplier(angVelRoll) * LaunchConstants.DRAG_FORCE_MULTIPLIER * (1 - LaunchHelper.getDragForceLoss(altitude)) * Math.pow(velocity.length(), 2) * sideSA * dot;
-        console.log(forceScalar * SuperHeavyConstants.BOOSTER_RING_SCALE.x / 2, angVelRoll)
+        let forceScalar: number = -LaunchHelper.getFrictionMultiplier(angVelRoll) * LaunchConstants.DRAG_FORCE_MULTIPLIER * (1 - LaunchHelper.getDragForceLoss(altitude)) * Math.pow(velocity.length(), 2) * sideSA * dot;
         return new Vector3(0, forceScalar * SuperHeavyConstants.BOOSTER_RING_SCALE.x / 2, 0);
     }
 

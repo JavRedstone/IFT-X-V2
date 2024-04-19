@@ -7,5 +7,5 @@ export class GridFinConstants {
     public static readonly FORCE_MULTIPLIER: number = 5000;
 
     public static readonly FORCE_LOSS: number = 0.00001;
-    public static readonly MAX_FORCE_LOSS: number = 0.9;
+    public static readonly MAX_FORCE_LOSS: number = 0.95;
 }
