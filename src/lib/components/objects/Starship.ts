@@ -200,7 +200,7 @@ export class Starship {
         }
         COM.add(new Vector3(0, this.LOXFrost.position.y / StarshipConstants.STARSHIP_SCALE.y * LaunchConstants.REAL_LIFE_SCALE.y + this.options.shipRingHeight * StarshipConstants.LOX_PERCENTAGE / 2, 0).multiplyScalar(this.getLOXMass()));
         COM.add(new Vector3(0, this.CH4Frost.position.y / StarshipConstants.STARSHIP_SCALE.y * LaunchConstants.REAL_LIFE_SCALE.y + this.options.shipRingHeight * StarshipConstants.CH4_PERCENTAGE / 2, 0).multiplyScalar(this.getCH4Mass()));
-        return COM.divide(LaunchConstants.REAL_LIFE_SCALE).divideScalar(this.getMass());
+        return COM.divideScalar(this.getMass());
     }
 
     public getMOIRoll(): number {
@@ -232,7 +232,7 @@ export class Starship {
         return R.clone().cross(F);
     }
 
-    public getDragPitchTorque(rotation: Quaternion, velocity: Vector3, angVel: Vector3, COM: Vector3, altitude: number): Vector3 {
+    public getDragPitchYawTorque(rotation: Quaternion, velocity: Vector3, angVel: Vector3, COM: Vector3, altitude: number): Vector3 {
         let orientation: Vector3 = new Vector3(0, 1, 0).applyQuaternion(rotation);
         let T: Vector3 = new Vector3(0, 0, 0);
         return T;

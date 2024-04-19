@@ -222,7 +222,7 @@ export class SuperHeavy {
         }
         COM.add(new Vector3(0, this.LOXFrost.position.y / SuperHeavyConstants.SUPER_HEAVY_SCALE.y * LaunchConstants.REAL_LIFE_SCALE.y + this.options.boosterRingHeight * SuperHeavyConstants.LOX_PERCENTAGE / 2, 0).multiplyScalar(this.getLOXMass()));
         COM.add(new Vector3(0, this.CH4Frost.position.y / SuperHeavyConstants.SUPER_HEAVY_SCALE.y * LaunchConstants.REAL_LIFE_SCALE.y + this.options.boosterRingHeight * SuperHeavyConstants.CH4_PERCENTAGE / 2, 0).multiplyScalar(this.getCH4Mass()));
-        return COM.divide(LaunchConstants.REAL_LIFE_SCALE).divideScalar(this.getMass());
+        return COM.divideScalar(this.getMass());
     }
 
     public getMOIRoll(): number {
@@ -262,8 +262,7 @@ export class SuperHeavy {
         return R.clone().cross(F);
     }
 
-    public getGridFinPitchTorque(rotation: Quaternion, velocity: Vector3, COM: Vector3, altitude: number): Vector3 {
-        let orientation: Vector3 = new Vector3(0, 1, 0).applyQuaternion(rotation);
+    public getGridFinPitchYawTorque(velocity: Vector3, COM: Vector3, altitude: number): Vector3 {
         let generic_R = new Vector3(0, this.options.boosterRingHeight - SuperHeavyConstants.GRID_FIN_TOP_OFFSET * LaunchConstants.REAL_LIFE_SCALE.y, 0).sub(COM);
         let T: Vector3 = new Vector3(0, 0, 0);
         for (let gridFin of this.gridFins) {
@@ -272,17 +271,12 @@ export class SuperHeavy {
             let forceDirection: Euler = new Euler(0, gridFin.rotation.z, 0);
             let force: Vector3 = new Vector3(forceScalar, 0, 0).applyEuler(forceDirection);
             force.z = -force.z; // same issue with the gimbal for some reason
-            // if aligned, negative, if not, positive (removed because hard to control practically)
-            // if (orientation.dot(velocity.clone().normalize()) >= 0.5 || orientation.dot(velocity.clone().normalize()) >= -0.5) {
-            //     force.negate();
-            // }
             T.add(R.clone().cross(force));
         }
         return T;
     }
 
-    public getGridFinRollTorque(rotation: Quaternion, velocity: Vector3, altitude: number): Vector3 {
-        let orientation: Vector3 = new Vector3(0, 1, 0).applyQuaternion(rotation);
+    public getGridFinRollTorque(velocity: Vector3, altitude: number): Vector3 {
         let generic_R = new Vector3(0, 0, SuperHeavyConstants.GRID_FIN_SURFACE_RADIUS);
         let T: Vector3 = new Vector3(0, 0, 0);
         for (let gridFin of this.gridFins) {
@@ -290,31 +284,37 @@ export class SuperHeavy {
             let forceScalar: number = gridFin.userData.gridFin.angle * GridFinConstants.FORCE_MULTIPLIER * (1 - LaunchHelper.getGridFinForceLoss(altitude)) * velocity.length();
             let forceDirection: Euler = new Euler(0, gridFin.rotation.z, 0);
             let force: Vector3 = new Vector3(forceScalar, 0, 0).applyEuler(forceDirection);
-            // if aligned, negative, if not, positive (removed because hard to control practically)
-            // if (orientation.dot(velocity.clone().normalize()) >= 0.5 || orientation.dot(velocity.clone().normalize()) >= -0.5) {
-            //     force.negate();
-            // }
             T.add(R.clone().cross(force));
         }
         return T;
     }
 
-    public getDragPitchTorque(rotation: Quaternion, velocity: Vector3, angVel: Vector3, COM: Vector3, altitude: number): Vector3 {
+    public getDragPitchYawTorque(rotation: Quaternion, velocity: Vector3, angVel: Vector3, COM: Vector3, altitude: number): Vector3 {
         let orientation: Vector3 = new Vector3(0, 1, 0).applyQuaternion(rotation);
-        let T: Vector3 = new Vector3(0, 0, 0);
-        let currentAngVelPitch: number = angVel.x;
-        let currentAngVelYaw: number = angVel.z;
-        return T;
+        let angVelPitch: number = angVel.x;
+        let angVelYaw: number = angVel.z;
+        let dot: number = orientation.normalize().dot(velocity.clone().normalize());
+        if (dot > 0) dot = -dot;
+        dot += 1;
+        // basically it starts at 0 at the edges, and peaks at 1 in the middle
+        let sideSA: number = Math.PI * SuperHeavyConstants.BOOSTER_RING_SCALE.x / 2 * this.options.boosterRingHeight; // 2 * pi * r * h / 2 since it is a cylinder and we are only looking at one side
+        let pitchForceScalar: number = LaunchHelper.getFrictionMultiplier(angVelPitch) * LaunchConstants.DRAG_FORCE_MULTIPLIER * (1 - LaunchHelper.getDragForceLoss(altitude)) * Math.pow(velocity.length(), 2) * sideSA * dot;
+        let yawForceScalar: number = LaunchHelper.getFrictionMultiplier(angVelYaw) * LaunchConstants.DRAG_FORCE_MULTIPLIER * (1 - LaunchHelper.getDragForceLoss(altitude)) * Math.pow(velocity.length(), 2) * sideSA * dot;
+        // return new Vector3(-pitchForceScalar * COM.length(), 0, -yawForceScalar * COM.length());
+        return new Vector3();
     }
 
     public getDragRollTorque(rotation: Quaternion, velocity: Vector3, angVel: Vector3, altitude: number): Vector3 {
         let orientation: Vector3 = new Vector3(0, 1, 0).applyQuaternion(rotation);
-        let T: Vector3 = new Vector3(0, 0, 0);
-        let currentAngVelRoll: number = angVel.y;
+        let angVelRoll: number = angVel.y;
         let dot: number = orientation.normalize().dot(velocity.clone().normalize());
-        if (dot < 0) dot = -dot;
-        // console.log(dot)
-        return T;
+        if (dot > 0) dot = -dot;
+        dot += 1;
+        // basically it starts at 0 at the edges, and peaks at 1 in the middle
+        let sideSA: number = Math.PI * SuperHeavyConstants.BOOSTER_RING_SCALE.x / 2 * this.options.boosterRingHeight; // 2 * pi * r * h / 2 since it is a cylinder and we are only looking at one side
+        let forceScalar: number = LaunchHelper.getFrictionMultiplier(angVelRoll) * LaunchConstants.DRAG_FORCE_MULTIPLIER * (1 - LaunchHelper.getDragForceLoss(altitude)) * Math.pow(velocity.length(), 2) * sideSA * dot;
+        console.log(forceScalar, angVelRoll)
+        return new Vector3(0, forceScalar * SuperHeavyConstants.BOOSTER_RING_SCALE.x / 2, 0);
     }
 
     public updateFuel(delta: number): void {

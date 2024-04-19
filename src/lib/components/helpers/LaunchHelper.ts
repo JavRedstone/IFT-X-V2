@@ -85,4 +85,8 @@ export class LaunchHelper {
     public static getAltitude(position: Vector3): number {
         return position.length() - CelestialConstants.EARTH_EFFECTIVE_RADIUS;
     }
+
+    public static getFrictionMultiplier(speed: number): number {
+        return 2 / Math.PI * Math.atan(speed / 0.1); // smooth curve from -1 to 1
+    }
 }
