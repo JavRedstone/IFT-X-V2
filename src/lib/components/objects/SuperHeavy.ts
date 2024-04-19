@@ -313,7 +313,7 @@ export class SuperHeavy {
         // basically it starts at 0 at the edges, and peaks at 1 in the middle
         let sideSA: number = Math.PI * SuperHeavyConstants.BOOSTER_RING_SCALE.x / 2 * this.options.boosterRingHeight; // 2 * pi * r * h / 2 since it is a cylinder and we are only looking at one side
         let forceScalar: number = LaunchHelper.getFrictionMultiplier(angVelRoll) * LaunchConstants.DRAG_FORCE_MULTIPLIER * (1 - LaunchHelper.getDragForceLoss(altitude)) * Math.pow(velocity.length(), 2) * sideSA * dot;
-        console.log(forceScalar, angVelRoll)
+        console.log(forceScalar * SuperHeavyConstants.BOOSTER_RING_SCALE.x / 2, angVelRoll)
         return new Vector3(0, forceScalar * SuperHeavyConstants.BOOSTER_RING_SCALE.x / 2, 0);
     }
 

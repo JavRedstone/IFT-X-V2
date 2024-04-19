@@ -12,7 +12,7 @@ export class LaunchConstants {
     public static readonly CH4_DENSITY: number = 422; //kg/m^3
     public static readonly FUELING_RATE: number = 0.75; //m^3/s
 
-    public static readonly DRAG_FORCE_MULTIPLIER: number = 0.5;
+    public static readonly DRAG_FORCE_MULTIPLIER: number = 0.01;
     public static readonly DRAG_FORCE_LOSS: number = 0.0001;
     public static readonly DRAG_MAX_FORCE_LOSS: number = 1000000;
 
