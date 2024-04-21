@@ -87,6 +87,6 @@ export class LaunchHelper {
     }
 
     public static getFrictionMultiplier(speed: number): number {
-        return 2 / Math.PI * Math.atan(speed / 0.01); // smooth curve from -1 to 1
+        return 2 / Math.PI * Math.atan(speed); // smooth curve from -1 to 1
     }
 }

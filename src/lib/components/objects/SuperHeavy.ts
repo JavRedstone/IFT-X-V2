@@ -291,17 +291,41 @@ export class SuperHeavy {
 
     public getDragPitchYawTorque(rotation: Quaternion, velocity: Vector3, angVel: Vector3, COM: Vector3, altitude: number): Vector3 {
         let orientation: Vector3 = new Vector3(0, 1, 0).applyQuaternion(rotation);
-        let angVelPitch: number = angVel.x;
-        let angVelYaw: number = angVel.z;
+        let angVelPitch: number = angVel.z;
+        let angVelYaw: number = angVel.x;
         let dot: number = orientation.normalize().dot(velocity.clone().normalize());
         if (dot > 0) dot = -dot;
         dot += 1;
         // basically it starts at 0 at the edges, and peaks at 1 in the middle
         let sideSA: number = Math.PI * SuperHeavyConstants.BOOSTER_RING_SCALE.x / 2 * this.options.boosterRingHeight; // 2 * pi * r * h / 2 since it is a cylinder and we are only looking at one side
-        let pitchForceScalar: number = -LaunchHelper.getFrictionMultiplier(angVelPitch) * LaunchConstants.DRAG_FORCE_MULTIPLIER * (1 - LaunchHelper.getDragForceLoss(altitude)) * Math.pow(velocity.length(), 2) * sideSA * dot;
-        let yawForceScalar: number = -LaunchHelper.getFrictionMultiplier(angVelYaw) * LaunchConstants.DRAG_FORCE_MULTIPLIER * (1 - LaunchHelper.getDragForceLoss(altitude)) * Math.pow(velocity.length(), 2) * sideSA * dot;
-        // return new Vector3(-pitchForceScalar * COM.length(), 0, -yawForceScalar * COM.length());
-        return new Vector3();
+        let pitchForceScalar: number = -LaunchHelper.getFrictionMultiplier(angVelPitch) * LaunchConstants.DRAG_PITCH_YAW_FORCE_MULTIPLIER * (1 - LaunchHelper.getDragForceLoss(altitude)) * velocity.lengthSq() * sideSA * dot;
+        let yawForceScalar: number = -LaunchHelper.getFrictionMultiplier(angVelYaw) * LaunchConstants.DRAG_PITCH_YAW_FORCE_MULTIPLIER * (1 - LaunchHelper.getDragForceLoss(altitude)) * velocity.lengthSq() * sideSA * dot;
+        
+        // // needs to align with airflow (i.e. align with direction of velocity)
+        // let rotEuler: Euler = new Euler(0, 0, 0).setFromQuaternion(rotation);
+        // let ifLessPitch: number = new Vector3(0, 1, 0).applyEuler(new Euler(rotEuler.x, rotEuler.y, rotEuler.z - LaunchConstants.DRAG_PITCH_YAW_STEP)).dot(velocity.clone().normalize());
+        // if (ifLessPitch > 0) ifLessPitch = -ifLessPitch; 
+        // ifLessPitch += 1;
+        // let ifMorePitch: number = new Vector3(0, 1, 0).applyEuler(new Euler(rotEuler.x, rotEuler.y, rotEuler.z + LaunchConstants.DRAG_PITCH_YAW_STEP)).dot(velocity.clone().normalize());
+        // if (ifMorePitch > 0) ifMorePitch = -ifMorePitch;
+        // ifMorePitch += 1;
+        // let pitchForceScalar: number = 0;
+        // if (Math.min(ifLessPitch, ifMorePitch) > LaunchConstants.DRAG_ACCEPTABLE_DIFF) {
+        //     pitchForceScalar = LaunchHelper.getFrictionMultiplier(ifLessPitch < ifMorePitch ? -ifLessPitch : ifMorePitch) * LaunchConstants.DRAG_PITCH_YAW_FORCE_MULTIPLIER * (1 - LaunchHelper.getDragForceLoss(altitude)) * sideSA;
+        // }
+
+        // let ifLessYaw: number = new Vector3(0, 1, 0).applyEuler(new Euler(rotEuler.x - LaunchConstants.DRAG_PITCH_YAW_STEP, rotEuler.y, rotEuler.z + LaunchConstants.DRAG_PITCH_YAW_STEP * (Math.min(ifLessPitch, ifMorePitch) > LaunchConstants.DRAG_ACCEPTABLE_DIFF ? (ifLessPitch < ifMorePitch ? -1 : 1) : 0))).dot(velocity.clone().normalize());
+        // if (ifLessYaw > 0) ifLessYaw = -ifLessYaw;
+        // ifLessYaw += 1;
+        // let ifMoreYaw: number = new Vector3(0, 1, 0).applyEuler(new Euler(rotEuler.x + LaunchConstants.DRAG_PITCH_YAW_STEP, rotEuler.y, rotEuler.z + LaunchConstants.DRAG_PITCH_YAW_STEP * (Math.min(ifLessPitch, ifMorePitch) > LaunchConstants.DRAG_ACCEPTABLE_DIFF ? (ifLessPitch < ifMorePitch ? -1 : 1) : 0))).dot(velocity.clone().normalize());
+        // if (ifMoreYaw > 0) ifMoreYaw = -ifMoreYaw;
+        // ifMoreYaw += 1;
+
+        // let yawForceScalar: number = 0;
+        // if (Math.min(ifLessYaw, ifMoreYaw) > LaunchConstants.DRAG_ACCEPTABLE_DIFF) {
+        //     yawForceScalar = LaunchHelper.getFrictionMultiplier(ifLessYaw < ifMoreYaw ? -ifLessYaw : ifMoreYaw) * LaunchConstants.DRAG_PITCH_YAW_FORCE_MULTIPLIER * (1 - LaunchHelper.getDragForceLoss(altitude)) * sideSA;
+        // }
+        return new Vector3(yawForceScalar * COM.length(), 0, pitchForceScalar * COM.length());
     }
 
     public getDragRollTorque(rotation: Quaternion, velocity: Vector3, angVel: Vector3, altitude: number): Vector3 {
@@ -312,7 +336,7 @@ export class SuperHeavy {
         dot += 1;
         // basically it starts at 0 at the edges, and peaks at 1 in the middle
         let sideSA: number = Math.PI * SuperHeavyConstants.BOOSTER_RING_SCALE.x / 2 * this.options.boosterRingHeight; // 2 * pi * r * h / 2 since it is a cylinder and we are only looking at one side
-        let forceScalar: number = -LaunchHelper.getFrictionMultiplier(angVelRoll) * LaunchConstants.DRAG_FORCE_MULTIPLIER * (1 - LaunchHelper.getDragForceLoss(altitude)) * Math.pow(velocity.length(), 2) * sideSA * dot;
+        let forceScalar: number = -LaunchHelper.getFrictionMultiplier(angVelRoll) * LaunchConstants.DRAG_ROLL_FORCE_MULTIPLIER * (1 - LaunchHelper.getDragForceLoss(altitude)) * velocity.lengthSq() * sideSA * dot;
         return new Vector3(0, forceScalar * SuperHeavyConstants.BOOSTER_RING_SCALE.x / 2, 0);
     }
 

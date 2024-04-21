@@ -12,9 +12,12 @@ export class LaunchConstants {
     public static readonly CH4_DENSITY: number = 422; //kg/m^3
     public static readonly FUELING_RATE: number = 0.75; //m^3/s
 
-    public static readonly DRAG_FORCE_MULTIPLIER: number = 0.2;
+    public static readonly DRAG_ROLL_FORCE_MULTIPLIER: number = 0.05;
+    public static readonly DRAG_PITCH_YAW_FORCE_MULTIPLIER: number = 0.5;
+    public static readonly DRAG_PITCH_YAW_STEP: number = 0.0001;
     public static readonly DRAG_FORCE_LOSS: number = 0.00001;
     public static readonly DRAG_MAX_FORCE_LOSS: number = 0.95;
+    // public static readonly DRAG_ACCEPTABLE_DIFF: number = 0.01;
 
     public static readonly SEPARATION_ANG_VEL: Vector3 = new Vector3(0, 0, 0.2);
 
