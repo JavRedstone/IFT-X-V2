@@ -232,16 +232,31 @@ export class Starship {
         return R.clone().cross(F);
     }
 
+
     public getDragPitchYawTorque(rotation: Quaternion, velocity: Vector3, angVel: Vector3, COM: Vector3, altitude: number): Vector3 {
         let orientation: Vector3 = new Vector3(0, 1, 0).applyQuaternion(rotation);
-        let T: Vector3 = new Vector3(0, 0, 0);
-        return T;
+        let angVelPitch: number = angVel.z;
+        let angVelYaw: number = angVel.x;
+        let dot: number = orientation.normalize().dot(velocity.clone().normalize());
+        if (dot > 0) dot = -dot;
+        dot += 1;
+        // basically it starts at 0 at the edges, and peaks at 1 in the middle
+        let sideSA: number = Math.PI * StarshipConstants.SHIP_RING_SCALE.x / 2 * this.options.shipRingHeight; // 2 * pi * r * h / 2 since it is a cylinder and we are only looking at one side
+        let pitchForceScalar: number = -LaunchHelper.getFrictionMultiplier(angVelPitch) * LaunchConstants.DRAG_PITCH_YAW_FORCE_MULTIPLIER * (1 - LaunchHelper.getDragForceLoss(altitude)) * velocity.lengthSq() * sideSA * dot;
+        let yawForceScalar: number = -LaunchHelper.getFrictionMultiplier(angVelYaw) * LaunchConstants.DRAG_PITCH_YAW_FORCE_MULTIPLIER * (1 - LaunchHelper.getDragForceLoss(altitude)) * velocity.lengthSq() * sideSA * dot;
+        return new Vector3(yawForceScalar * COM.length(), 0, pitchForceScalar * COM.length());
     }
 
     public getDragRollTorque(rotation: Quaternion, velocity: Vector3, angVel: Vector3, altitude: number): Vector3 {
         let orientation: Vector3 = new Vector3(0, 1, 0).applyQuaternion(rotation);
-        let T: Vector3 = new Vector3(0, 0, 0);
-        return T;
+        let angVelRoll: number = angVel.y;
+        let dot: number = orientation.normalize().dot(velocity.clone().normalize());
+        if (dot > 0) dot = -dot;
+        dot += 1;
+        // basically it starts at 0 at the edges, and peaks at 1 in the middle
+        let sideSA: number = Math.PI * StarshipConstants.SHIP_RING_SCALE.x / 2 * this.options.shipRingHeight; // 2 * pi * r * h / 2 since it is a cylinder and we are only looking at one side
+        let forceScalar: number = -LaunchHelper.getFrictionMultiplier(angVelRoll) * LaunchConstants.DRAG_ROLL_FORCE_MULTIPLIER * (1 - LaunchHelper.getDragForceLoss(altitude)) * velocity.lengthSq() * sideSA * dot;
+        return new Vector3(0, forceScalar * StarshipConstants.SHIP_RING_SCALE.x / 2, 0);
     }
 
     public updateFuel(delta: number): void {
