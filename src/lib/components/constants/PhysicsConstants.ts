@@ -1,4 +1,5 @@
-export class PhysicsConstants {
+export class    PhysicsConstants {
+    public static readonly AIR_DENSITY: number = 1.225; //kg/m^3
     public static readonly SPEED_OF_SOUND: number = 343; //m/s
     public static readonly SPEED_OF_LIGHT: number = 299792458; //m/s
     public static readonly GRAVITATIONAL_CONSTANT: number = 6.67430e-11; //m^3 kg^-1 s^-2

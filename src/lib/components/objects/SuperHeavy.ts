@@ -11,6 +11,7 @@ import { GridFinConstants } from "../constants/controls/GridFinConstants";
 import { LaunchHelper } from "../helpers/LaunchHelper";
 import { FlightController } from "../controllers/FlightController";
 import { CelestialConstants } from "../constants/CelestialConstants";
+import { PhysicsConstants } from "../constants/PhysicsConstants";
 
 export class SuperHeavy {
     public hsr: Group = new Group();
@@ -289,6 +290,21 @@ export class SuperHeavy {
         return T;
     }
 
+    public getDragVector(rotation: Quaternion, velocity: Vector3, altitude: number): Vector3 {
+        let orientation: Vector3 = new Vector3(0, 1, 0).applyQuaternion(rotation);
+        let dot: number = orientation.normalize().dot(velocity.clone().normalize());
+        if (dot > 0) dot = -dot;
+        dot += 1;
+        // basically it starts at 0 at the edges, and peaks at 1 in the middle
+        let topSA: number = Math.PI * Math.pow(SuperHeavyConstants.BOOSTER_RING_SCALE.x / 2, 2); // pi * r^2
+        let sideSA: number = Math.PI * SuperHeavyConstants.BOOSTER_RING_SCALE.x / 2 * this.options.boosterRingHeight; // 2 * pi * r * h / 2 since it is a cylinder and we are only looking at one side
+        dot *= sideSA - topSA;
+        dot += topSA;
+        let forceScalar: number = LaunchHelper.getDragForce(velocity, dot, velocity.length(), LaunchConstants.DRAG_FORCE_COEF, altitude);
+        console.log(velocity.clone().normalize().multiplyScalar(forceScalar), velocity)
+        return velocity.clone().normalize().multiplyScalar(forceScalar);
+    }
+
     public getDragPitchYawTorque(rotation: Quaternion, velocity: Vector3, angVel: Vector3, COM: Vector3, altitude: number): Vector3 {
         let orientation: Vector3 = new Vector3(0, 1, 0).applyQuaternion(rotation);
         let angVelPitch: number = angVel.z;
@@ -297,9 +313,12 @@ export class SuperHeavy {
         if (dot > 0) dot = -dot;
         dot += 1;
         // basically it starts at 0 at the edges, and peaks at 1 in the middle
+        let topSA: number = Math.PI * Math.pow(SuperHeavyConstants.BOOSTER_RING_SCALE.x / 2, 2); // pi * r^2
         let sideSA: number = Math.PI * SuperHeavyConstants.BOOSTER_RING_SCALE.x / 2 * this.options.boosterRingHeight; // 2 * pi * r * h / 2 since it is a cylinder and we are only looking at one side
-        let pitchForceScalar: number = -LaunchHelper.getFrictionMultiplier(angVelPitch) * LaunchConstants.DRAG_PITCH_YAW_FORCE_MULTIPLIER * (1 - LaunchHelper.getDragForceLoss(altitude)) * velocity.lengthSq() * sideSA * dot;
-        let yawForceScalar: number = -LaunchHelper.getFrictionMultiplier(angVelYaw) * LaunchConstants.DRAG_PITCH_YAW_FORCE_MULTIPLIER * (1 - LaunchHelper.getDragForceLoss(altitude)) * velocity.lengthSq() * sideSA * dot;
+        dot *= sideSA - topSA;
+        dot += topSA;
+        let pitchForceScalar: number = LaunchHelper.getDragForce(velocity, dot, angVelPitch, LaunchConstants.DRAG_PITCH_YAW_FORCE_COEF, altitude);
+        let yawForceScalar: number = LaunchHelper.getDragForce(velocity, dot, angVelYaw, LaunchConstants.DRAG_PITCH_YAW_FORCE_COEF, altitude);
         return new Vector3(yawForceScalar * COM.length(), 0, pitchForceScalar * COM.length());
     }
 
@@ -310,8 +329,11 @@ export class SuperHeavy {
         if (dot > 0) dot = -dot;
         dot += 1;
         // basically it starts at 0 at the edges, and peaks at 1 in the middle
+        let topSA: number = Math.PI * Math.pow(SuperHeavyConstants.BOOSTER_RING_SCALE.x / 2, 2); // pi * r^2
         let sideSA: number = Math.PI * SuperHeavyConstants.BOOSTER_RING_SCALE.x / 2 * this.options.boosterRingHeight; // 2 * pi * r * h / 2 since it is a cylinder and we are only looking at one side
-        let forceScalar: number = -LaunchHelper.getFrictionMultiplier(angVelRoll) * LaunchConstants.DRAG_ROLL_FORCE_MULTIPLIER * (1 - LaunchHelper.getDragForceLoss(altitude)) * velocity.lengthSq() * sideSA * dot;
+        dot *= sideSA - topSA;
+        dot += topSA;
+        let forceScalar: number = LaunchHelper.getDragForce(velocity, dot, angVelRoll, LaunchConstants.DRAG_ROLL_FORCE_COEF, altitude);
         return new Vector3(0, forceScalar * SuperHeavyConstants.BOOSTER_RING_SCALE.x / 2, 0);
     }
 
