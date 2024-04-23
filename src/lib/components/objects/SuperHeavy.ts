@@ -298,10 +298,8 @@ export class SuperHeavy {
         // basically it starts at 0 at the edges, and peaks at 1 in the middle
         let topSA: number = Math.PI * Math.pow(SuperHeavyConstants.BOOSTER_RING_SCALE.x / 2, 2); // pi * r^2
         let sideSA: number = Math.PI * SuperHeavyConstants.BOOSTER_RING_SCALE.x / 2 * this.options.boosterRingHeight; // 2 * pi * r * h / 2 since it is a cylinder and we are only looking at one side
-        dot *= sideSA - topSA;
-        dot += topSA;
-        let forceScalar: number = LaunchHelper.getDragForce(velocity, dot, velocity.length(), LaunchConstants.DRAG_FORCE_COEF, altitude);
-        console.log(velocity.clone().normalize().multiplyScalar(forceScalar), velocity)
+        let SA: number = dot * (sideSA - topSA) + topSA;
+        let forceScalar: number = -LaunchHelper.getDragForce(velocity, SA, velocity.length(), LaunchConstants.DRAG_FORCE_COEF, altitude);
         return velocity.clone().normalize().multiplyScalar(forceScalar);
     }
 
@@ -315,10 +313,9 @@ export class SuperHeavy {
         // basically it starts at 0 at the edges, and peaks at 1 in the middle
         let topSA: number = Math.PI * Math.pow(SuperHeavyConstants.BOOSTER_RING_SCALE.x / 2, 2); // pi * r^2
         let sideSA: number = Math.PI * SuperHeavyConstants.BOOSTER_RING_SCALE.x / 2 * this.options.boosterRingHeight; // 2 * pi * r * h / 2 since it is a cylinder and we are only looking at one side
-        dot *= sideSA - topSA;
-        dot += topSA;
-        let pitchForceScalar: number = LaunchHelper.getDragForce(velocity, dot, angVelPitch, LaunchConstants.DRAG_PITCH_YAW_FORCE_COEF, altitude);
-        let yawForceScalar: number = LaunchHelper.getDragForce(velocity, dot, angVelYaw, LaunchConstants.DRAG_PITCH_YAW_FORCE_COEF, altitude);
+        let SA: number = dot * (sideSA - topSA) + topSA;
+        let pitchForceScalar: number = -LaunchHelper.getDragForce(velocity, SA, angVelPitch, LaunchConstants.DRAG_PITCH_YAW_FORCE_COEF, altitude);
+        let yawForceScalar: number = -LaunchHelper.getDragForce(velocity, SA, angVelYaw, LaunchConstants.DRAG_PITCH_YAW_FORCE_COEF, altitude);
         return new Vector3(yawForceScalar * COM.length(), 0, pitchForceScalar * COM.length());
     }
 
@@ -331,9 +328,8 @@ export class SuperHeavy {
         // basically it starts at 0 at the edges, and peaks at 1 in the middle
         let topSA: number = Math.PI * Math.pow(SuperHeavyConstants.BOOSTER_RING_SCALE.x / 2, 2); // pi * r^2
         let sideSA: number = Math.PI * SuperHeavyConstants.BOOSTER_RING_SCALE.x / 2 * this.options.boosterRingHeight; // 2 * pi * r * h / 2 since it is a cylinder and we are only looking at one side
-        dot *= sideSA - topSA;
-        dot += topSA;
-        let forceScalar: number = LaunchHelper.getDragForce(velocity, dot, angVelRoll, LaunchConstants.DRAG_ROLL_FORCE_COEF, altitude);
+        let SA: number = dot * (sideSA - topSA) + topSA;
+        let forceScalar: number = -LaunchHelper.getDragForce(velocity, SA, angVelRoll, LaunchConstants.DRAG_ROLL_FORCE_COEF, altitude);
         return new Vector3(0, forceScalar * SuperHeavyConstants.BOOSTER_RING_SCALE.x / 2, 0);
     }
 

@@ -74,7 +74,7 @@ export class LaunchHelper {
     }
 
     public static getDragForce(velocity: Vector3, SA: number, scalar: number, coef: number, altitude: number): number {
-        return -1/2 * PhysicsConstants.AIR_DENSITY * velocity.length() ** 2 * SA * LaunchHelper.getFrictionMultiplier(scalar) * coef * (1 - LaunchHelper.getDragForceLoss(altitude));
+        return 1/2 * PhysicsConstants.AIR_DENSITY * velocity.length() ** 2 * SA * LaunchHelper.getFrictionMultiplier(scalar) * coef * (1 - LaunchHelper.getDragForceLoss(altitude));
     }
 
     public static getDragForceLoss(altitude: number): number {
