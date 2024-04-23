@@ -258,7 +258,17 @@ export class Starship {
         let SA: number = dot * (sideSA - topSA) + topSA;
         let pitchForceScalar: number = -LaunchHelper.getDragForce(velocity, SA, angVelPitch, LaunchConstants.DRAG_FORCE_COEF, altitude);
         let yawForceScalar: number = -LaunchHelper.getDragForce(velocity, dot, angVelYaw, LaunchConstants.DRAG_FORCE_COEF, altitude);
-        return new Vector3(yawForceScalar * COM.length(), 0, pitchForceScalar * COM.length());
+        let forwardLSA: number = FlapConstants.DEFAULT_FORWARD_SA * this.options.forwardLWidthScale * this.options.forwardLHeightScale;
+        let forwardRSA: number = FlapConstants.DEFAULT_FORWARD_SA * this.options.forwardRWidthScale * this.options.forwardRHeightScale;
+        let aftLSA: number = FlapConstants.DEFAULT_AFT_SA * this.options.aftLWidthScale * this.options.aftLHeightScale;
+        let aftRSA: number = FlapConstants.DEFAULT_AFT_SA * this.options.aftRWidthScale * this.options.aftRHeightScale;
+        let forwardLDrag: number = LaunchHelper.getDragForce(velocity, dot * forwardLSA, dot * forwardLSA, FlapConstants.DRAG_COEFFICIENT * (FlapConstants.MAX_ANGLE - this.forwardL.userData.flap.angle), altitude);
+        let forwardRDrag: number = LaunchHelper.getDragForce(velocity, dot * forwardRSA, dot * forwardRSA, FlapConstants.DRAG_COEFFICIENT * (FlapConstants.MAX_ANGLE - this.forwardR.userData.flap.angle), altitude);
+        let aftLDrag: number = -LaunchHelper.getDragForce(velocity, dot * aftLSA, dot * aftLSA, FlapConstants.DRAG_COEFFICIENT * (FlapConstants.MAX_ANGLE - this.aftL.userData.flap.angle), altitude);
+        let aftRDrag: number = -LaunchHelper.getDragForce(velocity, dot * aftRSA, dot * aftRSA, FlapConstants.DRAG_COEFFICIENT * (FlapConstants.MAX_ANGLE - this.aftR.userData.flap.angle), altitude);
+        let totalPitchDrag: number = pitchForceScalar * COM.length() + (forwardLDrag + forwardRDrag + aftLDrag + aftRDrag) * this.options.shipRingHeight / 2; //ik this isn't correct but it needs to be done since the COM is weird for the ship and booster
+        console.log(totalPitchDrag)
+        return new Vector3(yawForceScalar * COM.length(), 0, totalPitchDrag);
     }
 
     public getDragRollTorque(rotation: Quaternion, velocity: Vector3, angVel: Vector3, altitude: number): Vector3 {

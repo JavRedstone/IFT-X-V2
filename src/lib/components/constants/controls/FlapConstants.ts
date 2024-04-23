@@ -6,5 +6,5 @@ export class FlapConstants {
 
     public static readonly DRAG_COEFFICIENT: number = 5;
     public static readonly DEFAULT_FORWARD_SA: number = 2;
-    public static readonly DEFAULT_AFT_SA: number = 5;
+    public static readonly DEFAULT_AFT_SA: number = 2; // no diff (not realistic) however otherwise spin out of control
 }
