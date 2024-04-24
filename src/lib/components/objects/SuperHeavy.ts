@@ -223,7 +223,7 @@ export class SuperHeavy {
         }
         COM.add(new Vector3(0, this.LOXFrost.position.y / SuperHeavyConstants.SUPER_HEAVY_SCALE.y * LaunchConstants.REAL_LIFE_SCALE.y + this.options.boosterRingHeight * SuperHeavyConstants.LOX_PERCENTAGE / 2, 0).multiplyScalar(this.getLOXMass()));
         COM.add(new Vector3(0, this.CH4Frost.position.y / SuperHeavyConstants.SUPER_HEAVY_SCALE.y * LaunchConstants.REAL_LIFE_SCALE.y + this.options.boosterRingHeight * SuperHeavyConstants.CH4_PERCENTAGE / 2, 0).multiplyScalar(this.getCH4Mass()));
-        return COM.divideScalar(this.getMass());
+        return COM.divide(LaunchConstants.REAL_LIFE_SCALE).multiplyScalar(SuperHeavyConstants.SUPER_HEAVY_SCALE_VALUE).multiplyScalar(CelestialConstants.REAL_SCALE).divideScalar(this.getMass());
     }
 
     public getMOIRoll(): number {
