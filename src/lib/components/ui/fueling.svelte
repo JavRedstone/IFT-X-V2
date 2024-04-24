@@ -176,7 +176,7 @@
     <div class="fueling-bar-container" style="top: {imageTop + realHeight * 0.195}px; left: {imageLeft + realHeight * 0.039}px; width: {realHeight * 0.085}px; height: {realHeight * 0.08}px;">
         <div class="fueling-bar" style="background-color: rgba(255, 150, 150, 0.5); height: {telemetryValues.starshipCH4 * 100}%;"></div>
     </div>
-    <div class="fueling-bar-container" style="top: {imageTop + realHeight * 0.275}px; left: {imageLeft + realHeight * 0.039}px; width: {realHeight * 0.085}px; height: {realHeight * 0.0825}px;">
+    <div class="fueling-bar-container" style="top: {imageTop + realHeight * 0.275}px; left: {imageLeft + realHeight * 0.039}px; width: {realHeight * 0.085}px; height: {realHeight * 0.0875}px;">
         <div class="fueling-bar" style="background-color: rgba(150, 150, 255, 0.5); height: {telemetryValues.starshipLOX * 100}%;"></div>
     </div>
     <div class="fueling-bar-container" style="top: {imageTop + realHeight * 0.435}px; left: {imageLeft + realHeight * 0.039}px; width: {realHeight * 0.085}px; height: {realHeight * 0.23}px;">

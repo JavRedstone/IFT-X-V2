@@ -263,12 +263,15 @@ export class SuperHeavy {
         return R.clone().cross(F);
     }
 
-    public getGridFinPitchYawTorque(velocity: Vector3, COM: Vector3, altitude: number): Vector3 {
+    public getGridFinPitchYawTorque(rotation: Quaternion, velocity: Vector3, COM: Vector3, altitude: number): Vector3 {
+        let orientation: Vector3 = new Vector3(0, 1, 0).applyQuaternion(rotation);
+        let dot: number = orientation.normalize().dot(velocity.clone().normalize());
+        if (dot < 0) dot = -dot;
         let generic_R = new Vector3(0, this.options.boosterRingHeight - SuperHeavyConstants.GRID_FIN_TOP_OFFSET * LaunchConstants.REAL_LIFE_SCALE.y, 0).sub(COM);
         let T: Vector3 = new Vector3(0, 0, 0);
         for (let gridFin of this.gridFins) {
             let R: Vector3 = generic_R.clone().add(new Vector3(0, 0, SuperHeavyConstants.GRID_FIN_SURFACE_RADIUS).applyEuler(new Euler(0, gridFin.rotation.z, 0)));
-            let forceScalar: number = gridFin.userData.gridFin.angle * GridFinConstants.FORCE_MULTIPLIER * (1 - LaunchHelper.getGridFinForceLoss(altitude)) * velocity.length();
+            let forceScalar: number = dot * gridFin.userData.gridFin.angle * GridFinConstants.FORCE_MULTIPLIER * (1 - LaunchHelper.getGridFinForceLoss(altitude)) * velocity.length();
             let forceDirection: Euler = new Euler(0, gridFin.rotation.z, 0);
             let force: Vector3 = new Vector3(forceScalar, 0, 0).applyEuler(forceDirection);
             force.z = -force.z; // same issue with the gimbal for some reason
@@ -277,12 +280,15 @@ export class SuperHeavy {
         return T;
     }
 
-    public getGridFinRollTorque(velocity: Vector3, altitude: number): Vector3 {
+    public getGridFinRollTorque(rotation: Quaternion, velocity: Vector3, altitude: number): Vector3 {
+        let orientation: Vector3 = new Vector3(0, 1, 0).applyQuaternion(rotation);
+        let dot: number = orientation.normalize().dot(velocity.clone().normalize());
+        if (dot < 0) dot = -dot;
         let generic_R = new Vector3(0, 0, SuperHeavyConstants.GRID_FIN_SURFACE_RADIUS);
         let T: Vector3 = new Vector3(0, 0, 0);
         for (let gridFin of this.gridFins) {
             let R: Vector3 = generic_R.clone().applyEuler(new Euler(0, gridFin.rotation.z, 0));
-            let forceScalar: number = gridFin.userData.gridFin.angle * GridFinConstants.FORCE_MULTIPLIER * (1 - LaunchHelper.getGridFinForceLoss(altitude)) * velocity.length();
+            let forceScalar: number = dot * gridFin.userData.gridFin.angle * GridFinConstants.FORCE_MULTIPLIER * (1 - LaunchHelper.getGridFinForceLoss(altitude)) * velocity.length();
             let forceDirection: Euler = new Euler(0, gridFin.rotation.z, 0);
             let force: Vector3 = new Vector3(forceScalar, 0, 0).applyEuler(forceDirection);
             T.add(R.clone().cross(force));
@@ -329,7 +335,7 @@ export class SuperHeavy {
         let topSA: number = Math.PI * Math.pow(SuperHeavyConstants.BOOSTER_RING_SCALE.x / 2, 2); // pi * r^2
         let sideSA: number = Math.PI * SuperHeavyConstants.BOOSTER_RING_SCALE.x / 2 * this.options.boosterRingHeight; // 2 * pi * r * h / 2 since it is a cylinder and we are only looking at one side
         let SA: number = dot * (sideSA - topSA) + topSA;
-        let forceScalar: number = -LaunchHelper.getDragForce(velocity, SA, angVelRoll, LaunchConstants.DRAG_ROLL_FORCE_COEF, altitude);
+        let forceScalar: number = -LaunchHelper.getDragForce(velocity, SA, angVelRoll, LaunchConstants.DRAG_FORCE_COEF, altitude);
         return new Vector3(0, forceScalar * SuperHeavyConstants.BOOSTER_RING_SCALE.x / 2, 0);
     }
 

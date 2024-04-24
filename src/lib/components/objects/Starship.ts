@@ -232,6 +232,38 @@ export class Starship {
         return R.clone().cross(F);
     }
 
+    public getFlapPitchYawTorque(rotation: Quaternion, velocity: Vector3, altitude: number): Vector3 {
+        let orientation: Vector3 = new Vector3(0, 1, 0).applyQuaternion(rotation);
+        let dot: number = orientation.normalize().dot(velocity.clone().normalize());
+        if (dot > 0) dot = -dot;
+        dot += 1;
+        let forwardLSA: number = FlapConstants.DEFAULT_FORWARD_SA * this.options.forwardLWidthScale * this.options.forwardLHeightScale;
+        let forwardRSA: number = FlapConstants.DEFAULT_FORWARD_SA * this.options.forwardRWidthScale * this.options.forwardRHeightScale;
+        let aftLSA: number = FlapConstants.DEFAULT_AFT_SA * this.options.aftLWidthScale * this.options.aftLHeightScale;
+        let aftRSA: number = FlapConstants.DEFAULT_AFT_SA * this.options.aftRWidthScale * this.options.aftRHeightScale;
+        let forwardLDrag: number = -LaunchHelper.getDragForce(velocity, dot * forwardLSA, dot * forwardLSA, FlapConstants.DRAG_COEFFICIENT * (FlapConstants.MAX_ANGLE - this.forwardL.userData.flap.angle), altitude);
+        let forwardRDrag: number = -LaunchHelper.getDragForce(velocity, dot * forwardRSA, dot * forwardRSA, FlapConstants.DRAG_COEFFICIENT * (FlapConstants.MAX_ANGLE - this.forwardR.userData.flap.angle), altitude);
+        let aftLDrag: number = LaunchHelper.getDragForce(velocity, dot * aftLSA, dot * aftLSA, FlapConstants.DRAG_COEFFICIENT * (FlapConstants.MAX_ANGLE - this.aftL.userData.flap.angle), altitude);
+        let aftRDrag: number = LaunchHelper.getDragForce(velocity, dot * aftRSA, dot * aftRSA, FlapConstants.DRAG_COEFFICIENT * (FlapConstants.MAX_ANGLE - this.aftR.userData.flap.angle), altitude);
+        return new Vector3(0, (forwardLDrag + forwardRDrag + aftLDrag + aftRDrag) * this.options.shipRingHeight / 2, 0); //ik this isn't correct but it needs to be done since the COM is weird for the ship and booster
+    }
+
+    public getFlapRollTorque(rotation: Quaternion, velocity: Vector3, altitude: number): Vector3 {
+        let orientation: Vector3 = new Vector3(0, 1, 0).applyQuaternion(rotation);
+        let dot: number = orientation.normalize().dot(velocity.clone().normalize());
+        if (dot > 0) dot = -dot;
+        dot += 1;
+        let forwardLSA: number = FlapConstants.DEFAULT_FORWARD_SA * this.options.forwardLWidthScale * this.options.forwardLHeightScale;
+        let forwardRSA: number = FlapConstants.DEFAULT_FORWARD_SA * this.options.forwardRWidthScale * this.options.forwardRHeightScale;
+        let aftLSA: number = FlapConstants.DEFAULT_AFT_SA * this.options.aftLWidthScale * this.options.aftLHeightScale;
+        let aftRSA: number = FlapConstants.DEFAULT_AFT_SA * this.options.aftRWidthScale * this.options.aftRHeightScale;
+        let forwardLDrag: number = -LaunchHelper.getDragForce(velocity, dot * forwardLSA, dot * forwardLSA, FlapConstants.DRAG_COEFFICIENT * (FlapConstants.MAX_ANGLE - this.forwardL.userData.flap.angle), altitude);
+        let forwardRDrag: number = LaunchHelper.getDragForce(velocity, dot * forwardRSA, dot * forwardRSA, FlapConstants.DRAG_COEFFICIENT * (FlapConstants.MAX_ANGLE - this.forwardR.userData.flap.angle), altitude);
+        let aftLDrag: number = -LaunchHelper.getDragForce(velocity, dot * aftLSA, dot * aftLSA, FlapConstants.DRAG_COEFFICIENT * (FlapConstants.MAX_ANGLE - this.aftL.userData.flap.angle), altitude);
+        let aftRDrag: number = LaunchHelper.getDragForce(velocity, dot * aftRSA, dot * aftRSA, FlapConstants.DRAG_COEFFICIENT * (FlapConstants.MAX_ANGLE - this.aftR.userData.flap.angle), altitude);
+        return new Vector3(0, forwardLDrag * StarshipConstants.FORWARD_L_RADIUS + forwardRDrag * StarshipConstants.FORWARD_R_RADIUS + aftLDrag * StarshipConstants.AFT_L_RADIUS + aftRDrag * StarshipConstants.AFT_R_RADIUS, 0);
+    }
+
     public getDragVector(rotation: Quaternion, velocity: Vector3, altitude: number): Vector3 {
         let orientation: Vector3 = new Vector3(0, 1, 0).applyQuaternion(rotation);
         let dot: number = orientation.normalize().dot(velocity.clone().normalize());
@@ -258,17 +290,7 @@ export class Starship {
         let SA: number = dot * (sideSA - topSA) + topSA;
         let pitchForceScalar: number = -LaunchHelper.getDragForce(velocity, SA, angVelPitch, LaunchConstants.DRAG_FORCE_COEF, altitude);
         let yawForceScalar: number = -LaunchHelper.getDragForce(velocity, dot, angVelYaw, LaunchConstants.DRAG_FORCE_COEF, altitude);
-        let forwardLSA: number = FlapConstants.DEFAULT_FORWARD_SA * this.options.forwardLWidthScale * this.options.forwardLHeightScale;
-        let forwardRSA: number = FlapConstants.DEFAULT_FORWARD_SA * this.options.forwardRWidthScale * this.options.forwardRHeightScale;
-        let aftLSA: number = FlapConstants.DEFAULT_AFT_SA * this.options.aftLWidthScale * this.options.aftLHeightScale;
-        let aftRSA: number = FlapConstants.DEFAULT_AFT_SA * this.options.aftRWidthScale * this.options.aftRHeightScale;
-        let forwardLDrag: number = LaunchHelper.getDragForce(velocity, dot * forwardLSA, dot * forwardLSA, FlapConstants.DRAG_COEFFICIENT * (FlapConstants.MAX_ANGLE - this.forwardL.userData.flap.angle), altitude);
-        let forwardRDrag: number = LaunchHelper.getDragForce(velocity, dot * forwardRSA, dot * forwardRSA, FlapConstants.DRAG_COEFFICIENT * (FlapConstants.MAX_ANGLE - this.forwardR.userData.flap.angle), altitude);
-        let aftLDrag: number = -LaunchHelper.getDragForce(velocity, dot * aftLSA, dot * aftLSA, FlapConstants.DRAG_COEFFICIENT * (FlapConstants.MAX_ANGLE - this.aftL.userData.flap.angle), altitude);
-        let aftRDrag: number = -LaunchHelper.getDragForce(velocity, dot * aftRSA, dot * aftRSA, FlapConstants.DRAG_COEFFICIENT * (FlapConstants.MAX_ANGLE - this.aftR.userData.flap.angle), altitude);
-        let totalPitchDrag: number = pitchForceScalar * COM.length() + (forwardLDrag + forwardRDrag + aftLDrag + aftRDrag) * this.options.shipRingHeight / 2; //ik this isn't correct but it needs to be done since the COM is weird for the ship and booster
-        console.log(totalPitchDrag)
-        return new Vector3(yawForceScalar * COM.length(), 0, totalPitchDrag);
+        return new Vector3(yawForceScalar * COM.length(), 0, pitchForceScalar * COM.length());
     }
 
     public getDragRollTorque(rotation: Quaternion, velocity: Vector3, angVel: Vector3, altitude: number): Vector3 {
@@ -282,16 +304,7 @@ export class Starship {
         let sideSA: number = Math.PI * StarshipConstants.SHIP_RING_SCALE.x / 2 * this.options.shipRingHeight; // 2 * pi * r * h / 2 since it is a cylinder and we are only looking at one side
         let SA: number = dot * (sideSA - topSA) + topSA;
         let forceScalar: number = -LaunchHelper.getDragForce(velocity, SA, angVelRoll, LaunchConstants.DRAG_FORCE_COEF, altitude);
-        let forwardLSA: number = FlapConstants.DEFAULT_FORWARD_SA * this.options.forwardLWidthScale * this.options.forwardLHeightScale;
-        let forwardRSA: number = FlapConstants.DEFAULT_FORWARD_SA * this.options.forwardRWidthScale * this.options.forwardRHeightScale;
-        let aftLSA: number = FlapConstants.DEFAULT_AFT_SA * this.options.aftLWidthScale * this.options.aftLHeightScale;
-        let aftRSA: number = FlapConstants.DEFAULT_AFT_SA * this.options.aftRWidthScale * this.options.aftRHeightScale;
-        let forwardLDrag: number = -LaunchHelper.getDragForce(velocity, dot * forwardLSA, dot * forwardLSA, FlapConstants.DRAG_COEFFICIENT * (FlapConstants.MAX_ANGLE - this.forwardL.userData.flap.angle), altitude);
-        let forwardRDrag: number = LaunchHelper.getDragForce(velocity, dot * forwardRSA, dot * forwardRSA, FlapConstants.DRAG_COEFFICIENT * (FlapConstants.MAX_ANGLE - this.forwardR.userData.flap.angle), altitude);
-        let aftLDrag: number = -LaunchHelper.getDragForce(velocity, dot * aftLSA, dot * aftLSA, FlapConstants.DRAG_COEFFICIENT * (FlapConstants.MAX_ANGLE - this.aftL.userData.flap.angle), altitude);
-        let aftRDrag: number = LaunchHelper.getDragForce(velocity, dot * aftRSA, dot * aftRSA, FlapConstants.DRAG_COEFFICIENT * (FlapConstants.MAX_ANGLE - this.aftR.userData.flap.angle), altitude);
-        let totalRollDrag: number = forceScalar * StarshipConstants.SHIP_RING_SCALE.x / 2 + forwardLDrag * StarshipConstants.FORWARD_L_RADIUS + forwardRDrag * StarshipConstants.FORWARD_R_RADIUS + aftLDrag * StarshipConstants.AFT_L_RADIUS + aftRDrag * StarshipConstants.AFT_R_RADIUS;
-        return new Vector3(0, totalRollDrag, 0);
+        return new Vector3(0, forceScalar * StarshipConstants.SHIP_RING_SCALE.x / 2, 0);
     }
 
     public updateFuel(delta: number): void {
