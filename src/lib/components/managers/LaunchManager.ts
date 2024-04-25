@@ -265,7 +265,7 @@ export class LaunchManager {
 
                             this.stackGroup.userData.flightController.acceleration = new Vector3(0, 0, 0);
 
-                            this.stackGroup.userData.flightController.acceleration.add(new Vector3(0, this.superHeavy.getThrustVector(altitude).y / (this.superHeavy.getMass() + this.starship.getMass()), 0).applyQuaternion(this.stackGroup.userData.flightController.rotation));
+                            this.stackGroup.userData.flightController.acceleration.add(this.superHeavy.getThrustVector(altitude).clone().divideScalar((this.superHeavy.getMass() + this.starship.getMass())).applyQuaternion(this.stackGroup.userData.flightController.rotation));
 
                             // torque
                             this.stackGroup.userData.flightController.angularAcceleration = new Vector3(0, 0, 0);
@@ -336,8 +336,8 @@ export class LaunchManager {
                             this.superHeavy.flightController.acceleration = new Vector3(0, 0, 0);
                             this.starship.flightController.acceleration = new Vector3(0, 0, 0);
 
-                            this.superHeavy.flightController.acceleration.add(new Vector3(0, this.superHeavy.getThrustVector(shAltitude).y / this.superHeavy.getMass(), 0).applyQuaternion(this.superHeavy.flightController.rotation));
-                            this.starship.flightController.acceleration.add(new Vector3(0, this.starship.getThrustVector(ssAltitude).y / this.starship.getMass(), 0).applyQuaternion(this.starship.flightController.rotation));
+                            this.superHeavy.flightController.acceleration.add(this.superHeavy.getThrustVector(shAltitude).clone().divideScalar(this.superHeavy.getMass()).applyQuaternion(this.superHeavy.flightController.rotation));
+                            this.starship.flightController.acceleration.add(this.starship.getThrustVector(ssAltitude).clone().divideScalar(this.starship.getMass()).applyQuaternion(this.starship.flightController.rotation));
 
                             // torque
                             this.superHeavy.flightController.angularAcceleration = new Vector3(0, 0, 0);
