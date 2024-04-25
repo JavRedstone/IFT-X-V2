@@ -654,12 +654,12 @@ export class LaunchManager {
             this.isShipEventEnabled = true;
         }
 
-        if (this.superHeavy.LOX <= 0 || this.superHeavy.CH4 <= 0 || this.superHeavyDisabled) {
+        if (this.superHeavy.LOX <= 0 || this.superHeavy.CH4 <= 0) {
             this.superHeavy.runForceShutdown();
             this.currBoosterEvent = LaunchConstants.BOOSTER_LAUNCH_EVENTS.length; // hide
         }
 
-        if (this.starship.LOX <= 0 || this.starship.CH4 <= 0 || this.starshipDisabled) {
+        if (this.starship.LOX <= 0 || this.starship.CH4 <= 0) {
             this.starship.runForceShutdown();
             this.currShipEvent = LaunchConstants.SHIP_LAUNCH_EVENTS.length; // hide
         }
