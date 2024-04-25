@@ -9,8 +9,6 @@
     import s25b9 from "../images/s25b9.png";
     import { RaptorConstants } from "../constants/controls/RaptorConstants";
     import { LaunchHelper } from "../helpers/LaunchHelper";
-    import { StarshipConstants } from "../constants/objects/StarshipConstants";
-    import { SuperHeavyConstants } from "../constants/objects/SuperHeavyConstants";
     import { LaunchConstants } from "../constants/objects/LaunchConstants";
     import Keybinds from "./keybinds.svelte";
     import { SceneConstants } from "../constants/SceneConstants";
@@ -84,9 +82,13 @@
         separated: false,
     };
 
-    let currEvent: string = LaunchConstants.LAUNCH_EVENTS[0];
-    let isEventEnabled: boolean = false;
-    let nextEvent: string = LaunchConstants.LAUNCH_EVENTS[1];
+    let currBoosterEvent: string = LaunchConstants.BOOSTER_LAUNCH_EVENTS[0];
+    let isBoosterEventEnabled: boolean = false;
+    let nextBoosterEvent: string = LaunchConstants.BOOSTER_LAUNCH_EVENTS[1];
+
+    let currShipEvent: string = LaunchConstants.SHIP_LAUNCH_EVENTS[0];
+    let isShipEventEnabled: boolean = false;
+    let nextShipEvent: string = LaunchConstants.SHIP_LAUNCH_EVENTS[1];
 
     function setupUpdator() {
         starshipSettings.subscribe((value) => {
@@ -165,10 +167,14 @@
 
             telemetryValues.separated = value.separated;
 
-            currEvent = LaunchConstants.LAUNCH_EVENTS[value.currEvent];
-            isEventEnabled = value.isEventEnabled;
-            nextEvent = LaunchConstants.LAUNCH_EVENTS[value.currEvent + 1];
+            currBoosterEvent = LaunchConstants.BOOSTER_LAUNCH_EVENTS[value.currBoosterEvent];
+            isBoosterEventEnabled = value.isBoosterEventEnabled;
+            nextBoosterEvent = LaunchConstants.BOOSTER_LAUNCH_EVENTS[value.currBoosterEvent + 1];
             
+            currShipEvent = LaunchConstants.SHIP_LAUNCH_EVENTS[value.currShipEvent];
+            isShipEventEnabled = value.isShipEventEnabled;
+            nextShipEvent = LaunchConstants.SHIP_LAUNCH_EVENTS[value.currShipEvent + 1];
+
             updateThrottles();
             updateGimbals();
         });
@@ -272,10 +278,19 @@
         }
     }
 
-    function sendEvent(): void {
-        if (isEventEnabled) {
+    function sendBoosterEvent(): void {
+        if (isBoosterEventEnabled) {
             telemetry.update((value) => {
-                value.isEventClicked = true;
+                value.isBoosterEventClicked = true;
+                return value;
+            });
+        }
+    }
+
+    function sendShipEvent(): void {
+        if (isShipEventEnabled) {
+            telemetry.update((value) => {
+                value.isShipEventClicked = true;
                 return value;
             });
         }
@@ -383,7 +398,7 @@
                 });
             }
             if (event.key == "Enter") {
-                sendEvent();
+                sendBoosterEvent();
             }
             if (event.key == "-") {
                 speedUp -= SceneConstants.SPEEDUP_STEP;
@@ -615,7 +630,6 @@
     .telemetry-launchevents-container {
         position: fixed;
         top: 0;
-        left: 0;
         width: 300px;
         background-color: rgba(0, 0, 0, 0.5);
 
@@ -737,17 +751,32 @@
         animation: increaseOpacity 0.5s;
     }
 </style>
-{#if currEvent != null}
-    <div class="telemetry-launchevents-container" style="height: {nextEvent != null ? 100 : 72}px;">
-        <div class="telemetry-launchevents-title">Launch Events</div>
-        {#if isEventEnabled}
-            <button class="telemetry-launchevents-normal" on:click="{sendEvent}">{currEvent} &#9664; &#10003;</button>
+{#if currBoosterEvent != null}
+    <div class="telemetry-launchevents-container" style="left: 0; height: {nextBoosterEvent != null ? 100 : 72}px;">
+        <div class="telemetry-launchevents-title">Booster Events</div>
+        {#if isBoosterEventEnabled}
+            <button class="telemetry-launchevents-normal" on:click="{sendBoosterEvent}">{currBoosterEvent} &#9664; &#10003;</button>
         {:else}
-            <button class="telemetry-launchevents-disabled">{currEvent} &#9664; &#10007;</button>
+            <button class="telemetry-launchevents-disabled">{currBoosterEvent} &#9664; &#10007;</button>
         {/if}
-        {#if nextEvent != null}
+        {#if nextBoosterEvent != null}
             <div class="telemetry-launchevents-next">
-                <span class="telemetry-launchevents-next-text">Next: {nextEvent}</span>
+                <span class="telemetry-launchevents-next-text">Next: {nextBoosterEvent}</span>
+            </div>
+        {/if}
+    </div>
+{/if}
+{#if currShipEvent != null}
+    <div class="telemetry-launchevents-container" style="right: 0; height: {nextShipEvent != null ? 100 : 72}px;">
+        <div class="telemetry-launchevents-title">Ship Events</div>
+        {#if isShipEventEnabled}
+            <button class="telemetry-launchevents-normal" on:click="{sendShipEvent}">{currShipEvent} &#9664; &#10003;</button>
+        {:else}
+            <button class="telemetry-launchevents-disabled">{currShipEvent} &#9664; &#10007;</button>
+        {/if}
+        {#if nextShipEvent != null}
+            <div class="telemetry-launchevents-next">
+                <span class="telemetry-launchevents-next-text">Next: {nextShipEvent}</span>
             </div>
         {/if}
     </div>

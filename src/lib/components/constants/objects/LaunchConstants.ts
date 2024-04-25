@@ -34,16 +34,16 @@ export class LaunchConstants {
     public static readonly PAD_DT: number = 10; //s
     public static readonly MECO_DT: number = 10; //s
 
-    public static readonly LAUNCH_EVENTS: string[] = [
+    public static readonly BOOSTER_LAUNCH_EVENTS: string[] = [
         "Booster Engine Cutoff",
-        "Ship Engine Startup",
         "Boostback Startup",
         "Boostback Shutdown",
-        "Booster Main Landing Burn",
-        "Booster Secondary Landing Burn",
-        "Booster Landing Burn Shutdown",
+        "Booster Landing Burn",
+    ];
+
+    public static readonly SHIP_LAUNCH_EVENTS: string[] = [
+        "Ship Engine Startup",
         "Second Engine Cutoff",
-        "Ship Landing Burn Startup",
-        "Ship Landing Burn Shutdown",
+        "Ship Landing Burn",
     ];
 }

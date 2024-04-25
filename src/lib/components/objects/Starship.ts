@@ -46,6 +46,9 @@ export class Starship {
     public startStartupSequence: boolean = false;
     public endStartupSequence: boolean = false;
 
+    public startSECOSequence: boolean = false;
+    public endSECOSequence: boolean = false;
+
     public startLandingSequence: boolean = false;
     public endLandingSequence: boolean = false;
 
@@ -626,6 +629,34 @@ export class Starship {
         }
     }
 
+    public runSECOSequence(): void {
+        let areAllRVacReady: boolean = true;
+        for (let rVac of this.rVacs) {
+            if (rVac.userData.raptor != null) {
+                rVac.userData.raptor.setThrottleTarget(RaptorConstants.MAX_THROTTLE);
+            }
+            if (rVac.userData.raptor.throttle != 0) {
+                areAllRVacReady = false;
+            }
+        }
+        if (areAllRVacReady) {
+            let areAllRSeaReady: boolean = true;
+            for (let rSea of this.rSeas) {
+                if (rSea.userData.raptor != null) {
+                    rSea.userData.raptor.setThrottleTarget(RaptorConstants.MAX_THROTTLE);
+                }
+                if (rSea.userData.raptor.throttle != 0) {
+                    areAllRSeaReady = false;
+                }
+            }
+
+            if (areAllRSeaReady) {
+                this.startSECOSequence = false;
+                this.endSECOSequence = true;
+            }
+        }
+    }
+
     public runLandingSequence(): void {
         let areAllRSeaReady: boolean = true;
         for (let rSea of this.rSeas) {
@@ -866,6 +897,9 @@ export class Starship {
 
             if (this.startStartupSequence) {
                 this.runStartupSequence();
+            }
+            if (this.startSECOSequence) {
+                this.runSECOSequence();
             }
             if (this.startLandingSequence) {
                 this.runLandingSequence();

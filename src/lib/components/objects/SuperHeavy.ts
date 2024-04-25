@@ -56,8 +56,8 @@ export class SuperHeavy {
     public startBoostbackShutdownSequence: boolean = false;
     public endBoostbackShutdownSequence: boolean = false;
 
-    public startFirstLandingSequence: boolean = false;
-    public endFirstLandingSequence: boolean = false;
+    public startLandingSequence: boolean = false;
+    public endLandingSequence: boolean = false;
 
     public startSecondLandingSequence: boolean = false;
     public endSecondLandingSequence: boolean = false;
@@ -886,6 +886,7 @@ export class SuperHeavy {
             if (areAllRSea2Ready) {
                 if (this.options.hsrHeight > SuperHeavyConstants.MIN_HSR_HEIGHT * LaunchConstants.REAL_LIFE_SCALE.y) {
                     this.startMECOSequence = false;
+                    this.endMECOSequence = true;
                     this.startSepGridFinSequence = true;
                 }
                 else {
@@ -992,8 +993,8 @@ export class SuperHeavy {
                 }
             }
             if (areAllRSea2Ready) {
-                this.startFirstLandingSequence = false;
-                this.endFirstLandingSequence = true;
+                this.startLandingSequence = false;
+                this.endLandingSequence = true;
             }
         }
     }
@@ -1282,7 +1283,7 @@ export class SuperHeavy {
             else if (this.startBoostbackShutdownSequence) {
                 this.runBoostbackShutdownSequence();
             }
-            else if (this.startFirstLandingSequence) {
+            else if (this.startLandingSequence) {
                 this.runFirstLandingSequence();
             }
             else if (this.startSecondLandingSequence) {

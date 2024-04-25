@@ -48,9 +48,13 @@ export class LaunchManager {
     public hasStartedFueling: boolean = false;
     public isLaunching: boolean = false;
 
-    public currEvent: number = 0;
-    public isEventEnabled: boolean = false;
-    public isEventClicked: boolean = false;
+    public currBoosterEvent: number = 0;
+    public isBoosterEventEnabled: boolean = false;
+    public isBoosterEventClicked: boolean = false;
+
+    public currShipEvent: number = 0;
+    public isShipEventEnabled: boolean = false;
+    public isShipEventClicked: boolean = false;
 
     public canLiftOff: boolean = false;
     public liftedOff: boolean = false;
@@ -89,8 +93,9 @@ export class LaunchManager {
         });
         telemetry.subscribe((value) => {
             this.isCameraOnStarship = value.isCameraOnStarship;
-            this.isEventClicked = value.isEventClicked;
-            if (this.isEventClicked) {
+            this.isBoosterEventClicked = value.isBoosterEventClicked;
+            this.isShipEventClicked = value.isShipEventClicked;
+            if (this.isBoosterEventClicked || this.isShipEventClicked) {
                 this.handleEventClick();
             }
         });
@@ -406,7 +411,7 @@ export class LaunchManager {
                     else {
                         if (this.dt - LaunchConstants.STARTUP_DT >= LaunchConstants.PAD_DT) {
                             telemetry.update((value) => {
-                                value.currEvent = LaunchConstants.LAUNCH_EVENTS.length;
+                                value.currBoosterEvent = LaunchConstants.BOOSTER_LAUNCH_EVENTS.length;
                                 value.superHeavyDisabled = true;
                                 value.starshipDisabled = true;
                                 return value;
@@ -643,89 +648,91 @@ export class LaunchManager {
 
     public handleEventEnable(): void {
         if (this.dt >= LaunchConstants.MECO_DT) {
-            this.isEventEnabled = true;
+            this.isBoosterEventEnabled = true;
+        }
+        if ((this.currBoosterEvent == 1 && this.superHeavy.endMECOSequence) || this.currBoosterEvent > 1) {
+            this.isShipEventEnabled = true;
         }
 
-        if (this.superHeavy.LOX <= 0 || this.superHeavy.CH4 <= 0) {
+        if (this.superHeavy.LOX <= 0 || this.superHeavy.CH4 <= 0 || this.superHeavyDisabled) {
             this.superHeavy.runForceShutdown();
-            if (this.currEvent == 0) {
-                this.currEvent = 1;
-                this.isEventEnabled = true;
-            }
-            else if (this.currEvent >= 2 && this.currEvent <= 6) {
-                this.currEvent = 7;
-                this.isEventEnabled = true;
-            }
+            this.currBoosterEvent = LaunchConstants.BOOSTER_LAUNCH_EVENTS.length; // hide
         }
 
-        if (this.starship.LOX <= 0 || this.starship.CH4 <= 0) {
+        if (this.starship.LOX <= 0 || this.starship.CH4 <= 0 || this.starshipDisabled) {
             this.starship.runForceShutdown();
-            if (this.currEvent >= 7 && this.currEvent <= 9) {
-                this.currEvent = 10; // hide
-            }
+            this.currShipEvent = LaunchConstants.SHIP_LAUNCH_EVENTS.length; // hide
         }
 
         if (
-            (this.currEvent == 1 && this.superHeavy.startMECOSequence && !this.superHeavy.endMECOSequence) ||
-            (this.currEvent == 2 && this.starship.startStartupSequence && !this.starship.endStartupSequence) ||
-            (this.currEvent == 3 && this.superHeavy.startBoostbackSequence && !this.superHeavy.endBoostbackSequence) ||
-            (this.currEvent == 4 && this.superHeavy.startBoostbackShutdownSequence && !this.superHeavy.endBoostbackShutdownSequence) ||
-            (this.currEvent == 5 && this.superHeavy.startFirstLandingSequence && !this.superHeavy.endFirstLandingSequence) ||
-            (this.currEvent == 6 && this.superHeavy.startSecondLandingSequence && !this.superHeavy.endSecondLandingSequence) ||
-            (this.currEvent == 8 && this.starship.startLandingSequence && !this.starship.endLandingSequence)
+            (this.currBoosterEvent == 1 && this.superHeavy.startMECOSequence && !this.superHeavy.endMECOSequence) ||
+            (this.currBoosterEvent == 2 && this.starship.startStartupSequence && !this.starship.endStartupSequence) ||
+            (this.currBoosterEvent == 3 && this.superHeavy.startBoostbackSequence && !this.superHeavy.endBoostbackSequence) ||
+            (this.currBoosterEvent == 4 && this.superHeavy.startBoostbackShutdownSequence && !this.superHeavy.endBoostbackShutdownSequence)
         ) {
-            this.isEventEnabled = false;
+            this.isBoosterEventEnabled = false;
+        }
+
+        if (
+            this.currShipEvent == 1 && this.starship.startStartupSequence && !this.starship.endStartupSequence ||
+            this.currShipEvent == 2 && this.starship.startSECOSequence && !this.starship.endSECOSequence
+        ) {
+            this.isShipEventEnabled = false;
         }
         
         telemetry.update((value) => {
-            value.currEvent = this.currEvent;
-            value.isEventEnabled = this.isEventEnabled;
-            value.isEventClicked = this.isEventClicked;
+            value.currBoosterEvent = this.currBoosterEvent;
+            value.isBoosterEventEnabled = this.isBoosterEventEnabled;
+            value.isBoosterEventClicked = this.isBoosterEventClicked;
+
+            value.currShipEvent = this.currShipEvent;
+            value.isShipEventEnabled = this.isShipEventEnabled;
+            value.isShipEventClicked = this.isShipEventClicked;
             return value;
         });
     }
 
     public handleEventClick(): void {
-        this.isEventClicked = false;
-        if (this.isEventEnabled) {
-            this.isEventEnabled = false;
-            if (this.currEvent == 0) {
+        if (this.isBoosterEventClicked && this.isBoosterEventEnabled) {
+            this.isBoosterEventClicked = false;
+            this.isBoosterEventEnabled = false;
+            if (this.currBoosterEvent == 0) {
                 this.superHeavy.startMECOSequence = true;
             }
-            else if (this.currEvent == 1) {
-                this.starship.startStartupSequence = true;
-            }
-            else if (this.currEvent == 2) {
+            else if (this.currBoosterEvent == 1) {
                 this.superHeavy.startBoostbackSequence = true;
             }
-            else if (this.currEvent == 3) {
+            else if (this.currBoosterEvent == 2) {
                 this.superHeavy.startBoostbackShutdownSequence = true;
             }
-            else if (this.currEvent == 4) {
-                this.superHeavy.startFirstLandingSequence = true;
+            else if (this.currBoosterEvent == 3) {
+                this.superHeavy.startLandingSequence = true;
             }
-            else if (this.currEvent == 5) {
-                this.superHeavy.startSecondLandingSequence = true;
+            this.currBoosterEvent++;
+        }
+        if (this.isShipEventClicked && this.isShipEventEnabled) {
+            this.isShipEventClicked = false;
+            this.isShipEventEnabled = false;
+            if (this.currShipEvent == 0) {
+                this.starship.startStartupSequence = true;
             }
-            else if (this.currEvent == 6) {
-                this.superHeavy.runForceShutdown();
+            else if (this.currShipEvent == 1) {
+                this.starship.startSECOSequence = true;
             }
-            else if (this.currEvent == 7) {
-                this.starship.runForceShutdown();
-            }
-            else if (this.currEvent == 8) {
+            else if (this.currShipEvent == 2) {
                 this.starship.startLandingSequence = true;
             }
-            else if (this.currEvent == 9) {
-                this.starship.runForceShutdown();
-            }
-            this.currEvent++;
+            this.currShipEvent++;
         }
         
         telemetry.update((value) => {
-            value.currEvent = this.currEvent;
-            value.isEventEnabled = this.isEventEnabled;
-            value.isEventClicked = this.isEventClicked;
+            value.currBoosterEvent = this.currBoosterEvent;
+            value.isBoosterEventEnabled = this.isBoosterEventEnabled;
+            value.isBoosterEventClicked = this.isBoosterEventClicked;
+
+            value.currShipEvent = this.currShipEvent;
+            value.isShipEventEnabled = this.isShipEventEnabled;
+            value.isShipEventClicked = this.isShipEventClicked;
             return value;
         });
     }
