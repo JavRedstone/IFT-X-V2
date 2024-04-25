@@ -665,7 +665,7 @@ export class LaunchManager {
         }
 
         if (
-            (this.currBoosterEvent == 1 && this.superHeavy.startMECOSequence && !this.superHeavy.endMECOSequence) ||
+            (this.currBoosterEvent == 1 && (!this.separated || this.justSeparated)) ||
             (this.currBoosterEvent == 2 && this.starship.startStartupSequence && !this.starship.endStartupSequence) ||
             (this.currBoosterEvent == 3 && this.superHeavy.startBoostbackSequence && !this.superHeavy.endBoostbackSequence) ||
             (this.currBoosterEvent == 4 && this.superHeavy.startBoostbackShutdownSequence && !this.superHeavy.endBoostbackShutdownSequence)

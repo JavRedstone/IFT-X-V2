@@ -633,7 +633,7 @@ export class Starship {
         let areAllRVacReady: boolean = true;
         for (let rVac of this.rVacs) {
             if (rVac.userData.raptor != null) {
-                rVac.userData.raptor.setThrottleTarget(RaptorConstants.MAX_THROTTLE);
+                rVac.userData.raptor.setThrottleTarget(0);
             }
             if (rVac.userData.raptor.throttle != 0) {
                 areAllRVacReady = false;
@@ -643,7 +643,7 @@ export class Starship {
             let areAllRSeaReady: boolean = true;
             for (let rSea of this.rSeas) {
                 if (rSea.userData.raptor != null) {
-                    rSea.userData.raptor.setThrottleTarget(RaptorConstants.MAX_THROTTLE);
+                    rSea.userData.raptor.setThrottleTarget(0);
                 }
                 if (rSea.userData.raptor.throttle != 0) {
                     areAllRSeaReady = false;
