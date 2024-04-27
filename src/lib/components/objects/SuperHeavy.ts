@@ -61,8 +61,11 @@ export class SuperHeavy {
     
     public flightController: FlightController = null;
 
+    public doneLandingSetup: boolean = false;
+    public passedStableInner: boolean = false;
     public landingController: LandingController = null;
     public landingPosition: Vector3 = new Vector3(0, 0, 0);
+    public landingRotation: Quaternion = new Quaternion();
 
     public controls: any = {
         isWPressed: false,
@@ -230,7 +233,7 @@ export class SuperHeavy {
         return 1/2 * this.getMass() * Math.pow(SuperHeavyConstants.BOOSTER_RING_SCALE.x * LaunchConstants.REAL_LIFE_SCALE.x, 2);
     }
 
-    public getMOIPitch(): number {
+    public getMOIPitchYaw(): number {
         return 1/4 * this.getMass() * Math.pow(SuperHeavyConstants.BOOSTER_RING_SCALE.x * LaunchConstants.REAL_LIFE_SCALE.x, 2) + 1/12 * this.getMass() * Math.pow(this.options.boosterRingHeight * LaunchConstants.REAL_LIFE_SCALE.y, 2);
     }
 
@@ -274,7 +277,7 @@ export class SuperHeavy {
             let forceScalar: number = dot * gridFin.userData.gridFin.angle * GridFinConstants.FORCE_MULTIPLIER * (1 - LaunchHelper.getGridFinForceLoss(altitude)) * velocity.length();
             let forceDirection: Euler = new Euler(0, gridFin.rotation.z, 0);
             let force: Vector3 = new Vector3(forceScalar, 0, 0).applyEuler(forceDirection);
-            force.z = -force.z; // same issue with the gimbal for some reason
+            force.x = -force.x;
             T.add(R.clone().cross(force));
         }
         return T;
@@ -291,6 +294,7 @@ export class SuperHeavy {
             let forceScalar: number = dot * gridFin.userData.gridFin.angle * GridFinConstants.FORCE_MULTIPLIER * (1 - LaunchHelper.getGridFinForceLoss(altitude)) * velocity.length();
             let forceDirection: Euler = new Euler(0, gridFin.rotation.z, 0);
             let force: Vector3 = new Vector3(forceScalar, 0, 0).applyEuler(forceDirection);
+            force.negate();
             T.add(R.clone().cross(force));
         }
         return T;
@@ -311,8 +315,8 @@ export class SuperHeavy {
 
     public getDragPitchYawTorque(rotation: Quaternion, velocity: Vector3, angVel: Vector3, COM: Vector3, altitude: number): Vector3 {
         let orientation: Vector3 = new Vector3(0, 1, 0).applyQuaternion(rotation);
-        let angVelPitch: number = angVel.z;
-        let angVelYaw: number = angVel.x;
+        let angVelPitch: number = angVel.x;
+        let angVelYaw: number = angVel.z;
         let dot: number = orientation.normalize().dot(velocity.clone().normalize());
         if (dot > 0) dot = -dot;
         dot += 1;
@@ -322,7 +326,7 @@ export class SuperHeavy {
         let SA: number = dot * (sideSA - topSA) + topSA;
         let pitchForceScalar: number = -LaunchHelper.getDragForce(velocity, SA, angVelPitch, LaunchConstants.DRAG_PITCH_YAW_FORCE_COEF, altitude);
         let yawForceScalar: number = -LaunchHelper.getDragForce(velocity, SA, angVelYaw, LaunchConstants.DRAG_PITCH_YAW_FORCE_COEF, altitude);
-        return new Vector3(yawForceScalar * COM.length(), 0, pitchForceScalar * COM.length());
+        return new Vector3(pitchForceScalar * COM.length(), 0, yawForceScalar * COM.length());
     }
 
     public getDragRollTorque(rotation: Quaternion, velocity: Vector3, angVel: Vector3, altitude: number): Vector3 {
@@ -601,114 +605,114 @@ export class SuperHeavy {
         for (let gridFin of this.gridFins) {
             if (isWPressed) {
                 // if (this.separated) {
+                    // if (gridFin.rotation.z >= -45 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY && gridFin.rotation.z <= 45 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
+                    //     gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
+                    // }
+                    // else if (gridFin.rotation.z >= 135 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY || gridFin.rotation.z <= -135 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
+                    //     gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
+                    // }
+                    // else {
+                    //     gridFin.userData.gridFin.setTarget(GridFinConstants.NEUTRAL_ANGLE);
+                    // }
+                // }
+                // else {
                     if (gridFin.rotation.z >= -45 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY && gridFin.rotation.z <= 45 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
-                        gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
+                        gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
                     }
                     else if (gridFin.rotation.z >= 135 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY || gridFin.rotation.z <= -135 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
-                        gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
+                        gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
                     }
                     else {
                         gridFin.userData.gridFin.setTarget(GridFinConstants.NEUTRAL_ANGLE);
                     }
-                // }
-                // else {
-                //     if (gridFin.rotation.z >= -45 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY && gridFin.rotation.z <= 45 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
-                //         gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
-                //     }
-                //     else if (gridFin.rotation.z >= 135 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY || gridFin.rotation.z <= -135 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
-                //         gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
-                //     }
-                //     else {
-                //         gridFin.userData.gridFin.setTarget(GridFinConstants.NEUTRAL_ANGLE);
-                //     }
                 // }
             }
             else if (isSPressed) {
                 // if (this.separated) {
+                    // if (gridFin.rotation.z >= -45 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY && gridFin.rotation.z <= 45 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
+                    //     gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
+                    // }
+                    // else if (gridFin.rotation.z >= 135 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY || gridFin.rotation.z <= -135 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
+                    //     gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
+                    // }
+                    // else {
+                    //     gridFin.userData.gridFin.setTarget(GridFinConstants.NEUTRAL_ANGLE);
+                    // }
+                // }
+                // else {
                     if (gridFin.rotation.z >= -45 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY && gridFin.rotation.z <= 45 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
-                        gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
+                        gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
                     }
                     else if (gridFin.rotation.z >= 135 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY || gridFin.rotation.z <= -135 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
-                        gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
+                        gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
                     }
                     else {
                         gridFin.userData.gridFin.setTarget(GridFinConstants.NEUTRAL_ANGLE);
                     }
-                // }
-                // else {
-                //     if (gridFin.rotation.z >= -45 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY && gridFin.rotation.z <= 45 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
-                //         gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
-                //     }
-                //     else if (gridFin.rotation.z >= 135 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY || gridFin.rotation.z <= -135 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
-                //         gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
-                //     }
-                //     else {
-                //         gridFin.userData.gridFin.setTarget(GridFinConstants.NEUTRAL_ANGLE);
-                //     }
                 // }
             }
             else if (isAPressed) {
                 // if (this.separated) {
+                    // if (gridFin.rotation.z >= 45 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY && gridFin.rotation.z <= 135 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
+                    //     gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
+                    // }
+                    // else if (gridFin.rotation.z >= -135 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY && gridFin.rotation.z <= -45 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
+                    //     gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
+                    // }
+                    // else {
+                    //     gridFin.userData.gridFin.setTarget(GridFinConstants.NEUTRAL_ANGLE);
+                    // }
+                // }
+                // else {
                     if (gridFin.rotation.z >= 45 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY && gridFin.rotation.z <= 135 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
-                        gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
+                        gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
                     }
                     else if (gridFin.rotation.z >= -135 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY && gridFin.rotation.z <= -45 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
-                        gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
+                        gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
                     }
                     else {
                         gridFin.userData.gridFin.setTarget(GridFinConstants.NEUTRAL_ANGLE);
                     }
-                // }
-                // else {
-                //     if (gridFin.rotation.z >= 45 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY && gridFin.rotation.z <= 135 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
-                //         gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
-                //     }
-                //     else if (gridFin.rotation.z >= -135 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY && gridFin.rotation.z <= -45 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
-                //         gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
-                //     }
-                //     else {
-                //         gridFin.userData.gridFin.setTarget(GridFinConstants.NEUTRAL_ANGLE);
-                //     }
                 // }
             }
             else if (isDPressed) {
                 // if (this.separated) {
+                    // if (gridFin.rotation.z >= 45 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY && gridFin.rotation.z <= 135 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
+                    //     gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
+                    // }
+                    // else if (gridFin.rotation.z >= -135 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY && gridFin.rotation.z <= -45 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
+                    //     gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
+                    // }
+                    // else {
+                    //     gridFin.userData.gridFin.setTarget(GridFinConstants.NEUTRAL_ANGLE);
+                    // }
+                // }
+                // else {
                     if (gridFin.rotation.z >= 45 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY && gridFin.rotation.z <= 135 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
-                        gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
+                        gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
                     }
                     else if (gridFin.rotation.z >= -135 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY && gridFin.rotation.z <= -45 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
-                        gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
+                        gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
                     }
                     else {
                         gridFin.userData.gridFin.setTarget(GridFinConstants.NEUTRAL_ANGLE);
                     }
                 // }
-                // else {
-                //     if (gridFin.rotation.z >= 45 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY && gridFin.rotation.z <= 135 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
-                //         gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
-                //     }
-                //     else if (gridFin.rotation.z >= -135 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY && gridFin.rotation.z <= -45 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
-                //         gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
-                //     }
-                //     else {
-                //         gridFin.userData.gridFin.setTarget(GridFinConstants.NEUTRAL_ANGLE);
-                //     }
-                // }
             }
             else if (isQPressed) {
                 // if (this.separated) {
-                    gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
+                    // gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
                 // }
                 // else {
-                //     gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
+                    gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
                 // }
             }
             else if (isEPressed) {
                 // if (this.separated) {
-                    gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
+                    // gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
                 // }
                 // else {
-                //     gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
+                    gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
                 // }
             }
             else {
@@ -717,98 +721,98 @@ export class SuperHeavy {
             
             if (isWPressed && isAPressed) {
                 // if (this.separated) {
+                    // if (gridFin.rotation.z >= 0 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY && gridFin.rotation.z <= 90 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
+                    //     gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
+                    // }
+                    // else if (gridFin.rotation.z >= 180 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY || gridFin.rotation.z <= -90 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
+                    //     gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
+                    // }
+                    // else {
+                    //     gridFin.userData.gridFin.setTarget(GridFinConstants.NEUTRAL_ANGLE);
+                    // }
+                // }
+                // else {
                     if (gridFin.rotation.z >= 0 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY && gridFin.rotation.z <= 90 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
-                        gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
+                        gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
                     }
                     else if (gridFin.rotation.z >= 180 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY || gridFin.rotation.z <= -90 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
-                        gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
+                        gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
                     }
                     else {
                         gridFin.userData.gridFin.setTarget(GridFinConstants.NEUTRAL_ANGLE);
                     }
-                // }
-                // else {
-                //     if (gridFin.rotation.z >= 0 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY && gridFin.rotation.z <= 90 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
-                //         gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
-                //     }
-                //     else if (gridFin.rotation.z >= 180 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY || gridFin.rotation.z <= -90 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
-                //         gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
-                //     }
-                //     else {
-                //         gridFin.userData.gridFin.setTarget(GridFinConstants.NEUTRAL_ANGLE);
-                //     }
                 // }
             }
             else if (isSPressed && isDPressed) {
                 // if (this.separated) {
+                    // if (gridFin.rotation.z >= 0 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY && gridFin.rotation.z <= 90 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
+                    //     gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
+                    // }
+                    // else if (gridFin.rotation.z >= 180 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY || gridFin.rotation.z <= -90 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
+                    //     gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
+                    // }
+                    // else {
+                    //     gridFin.userData.gridFin.setTarget(GridFinConstants.NEUTRAL_ANGLE);
+                    // }
+                // }
+                // else {
                     if (gridFin.rotation.z >= 0 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY && gridFin.rotation.z <= 90 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
-                        gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
+                        gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
                     }
                     else if (gridFin.rotation.z >= 180 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY || gridFin.rotation.z <= -90 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
-                        gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
+                        gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
                     }
                     else {
                         gridFin.userData.gridFin.setTarget(GridFinConstants.NEUTRAL_ANGLE);
                     }
-                // }
-                // else {
-                //     if (gridFin.rotation.z >= 0 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY && gridFin.rotation.z <= 90 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
-                //         gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
-                //     }
-                //     else if (gridFin.rotation.z >= 180 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY || gridFin.rotation.z <= -90 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
-                //         gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
-                //     }
-                //     else {
-                //         gridFin.userData.gridFin.setTarget(GridFinConstants.NEUTRAL_ANGLE);
-                //     }
                 // }
             }
             else if (isWPressed && isDPressed) {
                 // if (this.separated) {
+                    // if (gridFin.rotation.z >= 90 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY || gridFin.rotation.z <= -180 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
+                    //     gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
+                    // }
+                    // else if (gridFin.rotation.z >= -90 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY && gridFin.rotation.z <= 0 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
+                    //     gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
+                    // }
+                    // else {
+                    //     gridFin.userData.gridFin.setTarget(GridFinConstants.NEUTRAL_ANGLE);
+                    // }
+                // }
+                // else {
                     if (gridFin.rotation.z >= 90 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY || gridFin.rotation.z <= -180 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
-                        gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
+                        gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
                     }
                     else if (gridFin.rotation.z >= -90 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY && gridFin.rotation.z <= 0 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
-                        gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
+                        gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
                     }
                     else {
                         gridFin.userData.gridFin.setTarget(GridFinConstants.NEUTRAL_ANGLE);
                     }
-                // }
-                // else {
-                //     if (gridFin.rotation.z >= 90 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY || gridFin.rotation.z <= -180 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
-                //         gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
-                //     }
-                //     else if (gridFin.rotation.z >= -90 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY && gridFin.rotation.z <= 0 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
-                //         gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
-                //     }
-                //     else {
-                //         gridFin.userData.gridFin.setTarget(GridFinConstants.NEUTRAL_ANGLE);
-                //     }
                 // }
             }
             else if (isSPressed && isAPressed) {
                 // if (this.separated) {
+                    // if (gridFin.rotation.z >= 90 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY || gridFin.rotation.z <= -180 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
+                    //     gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
+                    // }
+                    // else if (gridFin.rotation.z >= -90 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY && gridFin.rotation.z <= 0 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
+                    //     gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
+                    // }
+                    // else {
+                    //     gridFin.userData.gridFin.setTarget(GridFinConstants.NEUTRAL_ANGLE);
+                    // }
+                // }
+                // else {
                     if (gridFin.rotation.z >= 90 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY || gridFin.rotation.z <= -180 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
-                        gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
+                        gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
                     }
                     else if (gridFin.rotation.z >= -90 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY && gridFin.rotation.z <= 0 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
-                        gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
+                        gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
                     }
                     else {
                         gridFin.userData.gridFin.setTarget(GridFinConstants.NEUTRAL_ANGLE);
                     }
-                // }
-                // else {
-                //     if (gridFin.rotation.z >= 90 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY || gridFin.rotation.z <= -180 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
-                //         gridFin.userData.gridFin.setTarget(GridFinConstants.MAX_ANGLE);
-                //     }
-                //     else if (gridFin.rotation.z >= -90 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY && gridFin.rotation.z <= 0 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
-                //         gridFin.userData.gridFin.setTarget(GridFinConstants.MIN_ANGLE);
-                //     }
-                //     else {
-                //         gridFin.userData.gridFin.setTarget(GridFinConstants.NEUTRAL_ANGLE);
-                //     }
                 // }
             }
         }
@@ -889,7 +893,7 @@ export class SuperHeavy {
                 if (this.options.hsrHeight > SuperHeavyConstants.MIN_HSR_HEIGHT * LaunchConstants.REAL_LIFE_SCALE.y) {
                     this.startMECOSequence = false;
                     this.endMECOSequence = true;
-                    this.startSepGridFinSequence = true;
+                    // this.startSepGridFinSequence = true;
                 }
                 else {
                     let areAllRSea1Ready: boolean = true;
@@ -906,7 +910,7 @@ export class SuperHeavy {
                     if (areAllRSea1Ready) {
                         this.startMECOSequence = false;
                         this.endMECOSequence = true;
-                        this.startSepGridFinSequence = true;
+                        // this.startSepGridFinSequence = true;
                     }   
                 }
             }
@@ -972,36 +976,63 @@ export class SuperHeavy {
         }
     }
 
-    public runLandingSequence(): void {
-        let doneLandingSetup: boolean = false;
-        let areAllRSea1Ready: boolean = true;
-        for (let i = 0; i < this.options.numRSeas1; i++) {
-            let rSea = this.rSeas[i];
-            if (rSea.userData.raptor != null) {
-                rSea.userData.raptor.setThrottleTarget(RaptorConstants.MAX_THROTTLE);
-            }
-            if (rSea.userData.raptor.throttle != RaptorConstants.MAX_THROTTLE) {
-                areAllRSea1Ready = false;
-            }
+    public runLandingSequence(delta: number): void {
+        if (!this.doneLandingSetup) {
+            this.landingPosition = this.flightController.position.clone().normalize().multiplyScalar(CelestialConstants.EARTH_EFFECTIVE_RADIUS * CelestialConstants.REAL_SCALE);
+            this.landingRotation = MathHelper.getAngleBetweenVectors(this.landingPosition, new Vector3(0, 1, 0));
+            this.landingController = new LandingController(new Vector3(), new Vector3());
+            this.doneLandingSetup = true;
         }
-        if (areAllRSea1Ready) {
-            let areAllRSea2Ready: boolean = true;
-            for (let i = 0; i < this.options.numRSeas2; i++) {
-                let rSea = this.rSeas[i + this.options.numRSeas1];
-                if (rSea.userData.raptor != null) {
-                    rSea.userData.raptor.setThrottleTarget(RaptorConstants.MAX_THROTTLE);
+        else {
+            let relPosition: Vector3 = this.flightController.position.clone().sub(this.landingPosition.clone()).applyQuaternion(this.landingRotation);
+            this.landingController.update(relPosition, this.flightController.angularVelocity, this.getMass(), this.getMOIPitchYaw(), this.getMOIRoll(), delta);
+            let thrust: number = this.landingController.getThrust();
+            let rSea1Thrust: number = LaunchHelper.getThrust(true, this.options.rSeaType1)
+            let rSea2Thrust: number = (rSea1Thrust + LaunchHelper.getThrust(true, this.options.rSeaType2)) / 2;
+            let throttle1: number = (thrust / this.options.numRSeas1) / rSea1Thrust;
+            let throttle2: number = (thrust / (this.options.numRSeas1 + this.options.numRSeas2)) / rSea2Thrust;
+            throttle1 = MathHelper.clamp(throttle1, 0, 1);
+            throttle2 = MathHelper.clamp(throttle2, 0, 1);
+            // console.log(throttle1, throttle2)
+            if (thrust > rSea1Thrust * this.options.numRSeas1 && throttle2 >= RaptorConstants.MIN_THROTTLE && !this.passedStableInner) {
+                for (let i = 0; i < this.options.numRSeas1; i++) {
+                    let rSea = this.rSeas[i];
+                    if (rSea.userData.raptor != null) {
+                        rSea.userData.raptor.setThrottleTarget(throttle2);
+                    }
                 }
-                if (rSea.userData.raptor.throttle != RaptorConstants.MAX_THROTTLE) {
-                    areAllRSea2Ready = false;
+                for (let i = 0; i < this.options.numRSeas2; i++) {
+                    let rSea = this.rSeas[i + this.options.numRSeas1];
+                    if (rSea.userData.raptor != null) {
+                        rSea.userData.raptor.setThrottleTarget(throttle2);
+                    }
                 }
             }
-            if (areAllRSea2Ready) {
-                this.landingPosition = this.flightController.relPosition.clone();
-                this.landingController = new LandingController(this.landingPosition, new Vector3());
-                doneLandingSetup = true;
+            else {
+                for (let i = 0; i < this.options.numRSeas1; i++) {
+                    let rSea = this.rSeas[i];
+                    if (rSea.userData.raptor != null) {
+                        rSea.userData.raptor.setThrottleTarget(throttle1);
+                    }
+                }
+                if (throttle1 >= RaptorConstants.STABLE_THROTTLE) {
+                    this.passedStableInner = true;
+                    for (let i = 0; i < this.options.numRSeas2; i++) {
+                        let rSea = this.rSeas[i + this.options.numRSeas1];
+                        if (rSea.userData.raptor != null) {
+                            rSea.userData.raptor.setThrottleTarget(0);
+                        }
+                    }
+                }
+                else {
+                    for (let i = 0; i < this.options.numRSeas2; i++) {
+                        let rSea = this.rSeas[i + this.options.numRSeas1];
+                        if (rSea.userData.raptor != null) {
+                            rSea.userData.raptor.setThrottleTarget(throttle2);
+                        }
+                    }
+                }
             }
-        }
-        if (doneLandingSetup) {
         }
     }
 
@@ -1260,7 +1291,7 @@ export class SuperHeavy {
                 this.runBoostbackShutdownSequence();
             }
             else if (this.startLandingSequence) {
-                this.runLandingSequence();
+                this.runLandingSequence(delta);
             }
         }
         this.updateFuel(delta);

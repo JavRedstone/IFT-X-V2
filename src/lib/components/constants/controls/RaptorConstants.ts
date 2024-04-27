@@ -19,6 +19,7 @@ export class RaptorConstants {
 
     public static readonly MIN_THROTTLE: number = 0.4;
     public static readonly MAX_THROTTLE: number = 1;
+    public static readonly STABLE_THROTTLE: number = 0.8;
 
     public static readonly THRUST_LOSS: number = 0.00001;
     public static readonly MAX_THRUST_LOSS: number = 0.3;

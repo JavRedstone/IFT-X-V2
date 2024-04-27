@@ -1,4 +1,4 @@
-import { Euler, Quaternion, Vector3 } from "three";
+import { Euler, Matrix4, Quaternion, Vector3 } from "three";
 
 export class MathHelper {
     public static clamp(value: number, min: number, max: number): number {
@@ -46,14 +46,14 @@ export class MathHelper {
     public static isInRadiusOf(center: Vector3, radius: number, point: Vector3): boolean {
         return center.distanceTo(point) < radius;
     }
+
+    public static getVolumeofCylinder(radius: number, height: number): number {
+        return Math.PI * radius * radius * height;
+    }
     
     public static getAngleBetweenVectors(v1: Vector3, v2: Vector3): Quaternion {
         let angle = v1.angleTo(v2);
         let axis = new Vector3().crossVectors(v1, v2).normalize();
         return new Quaternion().setFromAxisAngle(axis, angle);
-    }
-
-    public static getVolumeofCylinder(radius: number, height: number): number {
-        return Math.PI * radius * radius * height;
     }
 }

@@ -211,7 +211,7 @@ export class Starship {
         return 1/2 * this.getMass() * Math.pow(StarshipConstants.SHIP_RING_SCALE.x * LaunchConstants.REAL_LIFE_SCALE.x, 2);
     }
 
-    public getMOIPitch(): number {
+    public getMOIPitchYaw(): number {
         return 1/4 * this.getMass() * Math.pow(StarshipConstants.SHIP_RING_SCALE.x * LaunchConstants.REAL_LIFE_SCALE.x, 2) + 1/12 * this.getMass() * Math.pow(this.options.shipRingHeight * LaunchConstants.REAL_LIFE_SCALE.y, 2);
     }
 
@@ -291,8 +291,8 @@ export class Starship {
 
     public getDragPitchYawTorque(rotation: Quaternion, velocity: Vector3, angVel: Vector3, COM: Vector3, altitude: number): Vector3 {
         let orientation: Vector3 = new Vector3(0, 1, 0).applyQuaternion(rotation);
-        let angVelPitch: number = angVel.z;
-        let angVelYaw: number = angVel.x;
+        let angVelPitch: number = angVel.x;
+        let angVelYaw: number = angVel.z;
         let dot: number = orientation.normalize().dot(velocity.clone().normalize());
         if (dot > 0) dot = -dot;
         dot += 1;
@@ -302,7 +302,7 @@ export class Starship {
         let SA: number = dot * (sideSA - topSA) + topSA;
         let pitchForceScalar: number = -LaunchHelper.getDragForce(velocity, SA, angVelPitch, LaunchConstants.DRAG_FORCE_COEF, altitude);
         let yawForceScalar: number = -LaunchHelper.getDragForce(velocity, dot, angVelYaw, LaunchConstants.DRAG_FORCE_COEF, altitude);
-        return new Vector3(yawForceScalar * COM.length(), 0, pitchForceScalar * COM.length());
+        return new Vector3(pitchForceScalar * COM.length(), 0, yawForceScalar * COM.length());
     }
 
     public getDragRollTorque(rotation: Quaternion, velocity: Vector3, angVel: Vector3, altitude: number): Vector3 {

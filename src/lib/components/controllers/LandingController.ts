@@ -14,23 +14,25 @@ export class LandingController {
     public PDAngVelZ: PDController = null;
 
     public constructor(targetPosition: Vector3, targetAngVel: Vector3) {
-        this.PDCx = new PDController(targetPosition.x, LaunchConstants.KP_X, LaunchConstants.KD_X);
+        this.PDCx = new PDController(targetPosition.x, LaunchConstants.KP_X, LaunchConstants.KD_X)
         this.PDCy = new PDController(targetPosition.y, LaunchConstants.KP_Y, LaunchConstants.KD_Y);
-        this.PDCz = new PDController(targetPosition.z, LaunchConstants.KP_Z, LaunchConstants.KD_Z);
+        this.PDCz = new PDController(targetPosition.z, LaunchConstants.KP_Z, LaunchConstants.KD_Z)
 
         this.PDAngVelX = new PDController(targetAngVel.x, LaunchConstants.KP_ANG_VEL_X, LaunchConstants.KD_ANG_VEL_X);
         this.PDAngVelY = new PDController(targetAngVel.y, LaunchConstants.KP_ANG_VEL_Y, LaunchConstants.KD_ANG_VEL_Y);
         this.PDAngVelZ = new PDController(targetAngVel.z, LaunchConstants.KP_ANG_VEL_Z, LaunchConstants.KD_ANG_VEL_Z);
     }
 
-    public update(relPosition: Vector3, angVel: Vector3, delta: number): void {
-        this.PDCx.update(relPosition.x, delta);
-        this.PDCy.update(relPosition.y, delta);
-        this.PDCz.update(relPosition.z, delta);
+    public update(relPosition: Vector3, angVel: Vector3, mass: number, MOIPitchYaw: number, MOIRoll: number, delta: number): void {
+        this.PDCx.update(relPosition.x, mass, delta);
+        this.PDCy.update(relPosition.y, mass, delta);
+        this.PDCz.update(relPosition.z, mass, delta);
 
-        this.PDAngVelX.update(angVel.x, delta);
-        this.PDAngVelY.update(angVel.y, delta);
-        this.PDAngVelZ.update(angVel.z, delta);
+        this.PDAngVelX.update(angVel.x, MOIPitchYaw, delta);
+        this.PDAngVelY.update(angVel.y, MOIRoll, delta);
+        this.PDAngVelZ.update(angVel.z, MOIPitchYaw, delta);
+
+        // console.log(this.PDCy.output)
     }
 
     public getGimbalAngleTarget(): number {
@@ -42,7 +44,7 @@ export class LandingController {
     }
 
     public getThrust(): number {
-        return MathHelper.clamp(this.PDCy.output, 0, 1);
+        return this.PDCy.output;
     }
 
     public getGridFinXTarget(): number {

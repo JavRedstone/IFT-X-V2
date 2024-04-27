@@ -18,8 +18,10 @@ export class LaunchConstants {
     public static readonly DRAG_FORCE_LOSS: number = 0.00001;
     public static readonly DRAG_MAX_FORCE_LOSS: number = 0.95;
 
-    public static readonly SEPARATION_ANG_VEL: Vector3 = new Vector3(0, 0, 0.2);
+    public static readonly SEPARATION_ANG_VEL: Vector3 = new Vector3(0, 0, 0); // 0.2
 
+    public static readonly OLIT_ARROW_LENGTH: number = 100;
+    public static readonly OLIT_ARROW_COLOR: number = 0x0000ff;
     public static readonly VEL_ARROW_LENGTH: number = 0.005;
     public static readonly VEL_ARROW_COLOR: number = 0x00ff00;
 
@@ -36,8 +38,8 @@ export class LaunchConstants {
 
     public static readonly KP_X: number = 0.1;
     public static readonly KD_X: number = 0.01;
-    public static readonly KP_Y: number = 0.1;
-    public static readonly KD_Y: number = 0.01;
+    public static readonly KP_Y: number = 1e-4;
+    public static readonly KD_Y: number = 200;
     public static readonly KP_Z: number = 0.1;
     public static readonly KD_Z: number = 0.01;
 
