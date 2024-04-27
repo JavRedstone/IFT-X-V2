@@ -993,7 +993,12 @@ export class SuperHeavy {
             let throttle2: number = (thrust / (this.options.numRSeas1 + this.options.numRSeas2)) / rSea2Thrust;
             throttle1 = MathHelper.clamp(throttle1, 0, 1);
             throttle2 = MathHelper.clamp(throttle2, 0, 1);
-            // console.log(throttle1, throttle2)
+            if (this.passedStableInner) {
+                if (throttle2 >= RaptorConstants.MIN_THROTTLE) {
+                    this.passedStableInner = false;
+                }
+            }
+            // console.log(relPosition.y, this.landingController.getThrust(), throttle1, throttle2);
             if (thrust > rSea1Thrust * this.options.numRSeas1 && throttle2 >= RaptorConstants.MIN_THROTTLE && !this.passedStableInner) {
                 for (let i = 0; i < this.options.numRSeas1; i++) {
                     let rSea = this.rSeas[i];

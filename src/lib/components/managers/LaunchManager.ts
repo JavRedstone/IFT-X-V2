@@ -177,7 +177,7 @@ export class LaunchManager {
                 }
                 
                 if (this.OLIT.hasUpdatedAABB && !this.liftedOff) {
-                    this.stackGroup.position.copy(this.OLIT.group.position.clone().add(this.OLIT.olm.position.clone().add(new Vector3(0, this.OLIT.olm.userData.aabb.getSize(new Vector3).y - OLITConstants.OLM_RING_HEIGHT * OLITConstants.OLM_SCALE.y * OLITConstants.OLIT_SCALE.y, 0))));
+                    this.stackGroup.position.copy(this.OLIT.group.position.clone().add(this.OLIT.olm.position.clone().add(new Vector3(0, this.OLIT.olm.userData.aabb.getSize(new Vector3).y - OLITConstants.OLM_RING_HEIGHT * OLITConstants.OLM_SCALE.y * OLITConstants.OLIT_SCALE.y, 0))).applyEuler(this.OLIT.group.rotation));
                     this.starship.group.position.copy(this.superHeavy.group.position.clone().add(new Vector3(0, this.superHeavy.boosterRing.userData.aabb.getSize(new Vector3).y + this.superHeavy.hsr.userData.aabb.getSize(new Vector3).y - this.superHeavy.hsr.userData.aabb.getSize(new Vector3).y * SuperHeavyConstants.HSR_OFFSET, 0)));
                     this.stackGroup.rotation.copy(OLITConstants.STACK_ROTATION);
 
@@ -296,7 +296,22 @@ export class LaunchManager {
 
                             // update flight controller
 
-                            this.stackGroup.userData.flightController.update(delta, this.getStackCOM());
+                            if (this.stackGroup.userData.flightController.getAltitude() <= 0) {
+                                this.starshipDisabled = true;
+                                this.superHeavyDisabled = true;
+
+                                this.stackGroup.userData.flightController.acceleration = new Vector3(0, 0, 0);
+                                this.stackGroup.userData.flightController.velocity = new Vector3(0, 0, 0);
+                                this.stackGroup.userData.flightController.relVelocity = new Vector3(0, 0, 0);
+                                this.stackGroup.userData.flightController.angularAcceleration = new Vector3(0, 0, 0);
+                                this.stackGroup.userData.flightController.angularVelocity = new Vector3(0, 0, 0);
+                                
+                                this.superHeavy.runForceShutdown();
+                                this.starship.runForceShutdown();
+                            }
+                            else {
+                                this.stackGroup.userData.flightController.update(delta, this.getStackCOM());
+                            }
 
                             // update real positions and rotations
                             PRTransients.realPositions.stackGroupPosition = this.stackGroup.userData.flightController.position.clone().divideScalar(CelestialConstants.REAL_SCALE);
@@ -307,11 +322,6 @@ export class LaunchManager {
                             PRTransients.realPositions.superHeavyVelDirection = this.stackGroup.userData.flightController.relVelocity.clone().normalize();
                             PRTransients.realPositions.starshipVelPosition = this.stackGroup.userData.flightController.position.clone().add(this.getStackCOM().clone().applyQuaternion(this.stackGroup.userData.flightController.rotation)).divideScalar(CelestialConstants.REAL_SCALE);
                             PRTransients.realPositions.starshipVelDirection = this.stackGroup.userData.flightController.relVelocity.clone().normalize();
-
-                            if (this.stackGroup.userData.flightController.getAltitude() < 0) {
-                                this.starshipDisabled = true;
-                                this.superHeavyDisabled = true;
-                            }
 
                             telemetry.update((value) => {
                                 value.separated = this.separated;
@@ -371,8 +381,34 @@ export class LaunchManager {
 
                             // update flight controller
 
-                            this.superHeavy.flightController.update(delta, this.superHeavy.getCOM());
-                            this.starship.flightController.update(delta, this.starship.getCOM());
+                            if (this.superHeavy.flightController.getAltitude() <= 0) {
+                                this.superHeavyDisabled = true;
+
+                                this.superHeavy.flightController.acceleration = new Vector3(0, 0, 0);
+                                this.superHeavy.flightController.velocity = new Vector3(0, 0, 0);
+                                this.superHeavy.flightController.relVelocity = new Vector3(0, 0, 0);
+                                this.superHeavy.flightController.angularAcceleration = new Vector3(0, 0, 0);
+                                this.superHeavy.flightController.angularVelocity = new Vector3(0, 0, 0);
+
+                                this.superHeavy.runForceShutdown();
+                            }
+                            else {
+                                this.superHeavy.flightController.update(delta, this.superHeavy.getCOM());
+                            }
+                            if (this.starship.flightController.getAltitude() <= 0) {
+                                this.starshipDisabled = true;
+
+                                this.starship.flightController.acceleration = new Vector3(0, 0, 0);
+                                this.starship.flightController.velocity = new Vector3(0, 0, 0);
+                                this.starship.flightController.relVelocity = new Vector3(0, 0, 0);
+                                this.starship.flightController.angularAcceleration = new Vector3(0, 0, 0);
+                                this.starship.flightController.angularVelocity = new Vector3(0, 0, 0);
+
+                                this.starship.runForceShutdown();
+                            }
+                            else {
+                                this.starship.flightController.update(delta, this.starship.getCOM());
+                            }
 
                             // update real positions and rotations
                             PRTransients.realPositions.superHeavyPosition = this.superHeavy.flightController.position.clone().divideScalar(CelestialConstants.REAL_SCALE);
@@ -385,13 +421,6 @@ export class LaunchManager {
                             PRTransients.realPositions.superHeavyVelDirection = this.superHeavy.flightController.relVelocity.clone().normalize();
                             PRTransients.realPositions.starshipVelPosition = this.starship.flightController.position.clone().add(this.starship.getCOM().clone().applyQuaternion(this.starship.flightController.rotation)).divideScalar(CelestialConstants.REAL_SCALE);
                             PRTransients.realPositions.starshipVelDirection = this.starship.flightController.relVelocity.clone().normalize();
-
-                            if (this.superHeavy.flightController.getAltitude() < 0) {
-                                this.superHeavyDisabled = true;
-                            }
-                            if (this.starship.flightController.getAltitude() < 0) {
-                                this.starshipDisabled = true;
-                            }
 
                             telemetry.update((value) => {
                                 value.separated = this.separated;
@@ -561,7 +590,7 @@ export class LaunchManager {
                     this.starshipVelArrow.setDirection(PRTransients.fakePositions.starshipVelDirection);
                     this.superHeavyVelArrow.setDirection(PRTransients.fakePositions.superHeavyVelDirection);
 
-                    this.OLITArrow.position.copy(PRTransients.fakePositions.groupPosition);
+                    this.OLITArrow.position.copy(PRTransients.fakePositions.groupPosition.clone().add(this.OLIT.olm.position.clone().applyEuler(PRTransients.fakeRotations.groupRotation)));
                     this.OLITArrow.setDirection(new Vector3(0, 1, 0).applyEuler(PRTransients.fakeRotations.groupRotation));
                 }
             }
@@ -670,7 +699,7 @@ export class LaunchManager {
             this.superHeavy.endBoostbackSequence = true;
             this.superHeavy.endBoostbackShutdownSequence = true;
             this.superHeavy.endLandingSequence = true;
-            
+
             this.superHeavy.runForceShutdown();
             this.currBoosterEvent = LaunchConstants.BOOSTER_LAUNCH_EVENTS.length; // hide
         }
@@ -690,9 +719,8 @@ export class LaunchManager {
 
         if (
             (this.currBoosterEvent == 1 && (!this.separated || this.justSeparated)) ||
-            (this.currBoosterEvent == 2 && this.starship.startStartupSequence && !this.starship.endStartupSequence) ||
-            (this.currBoosterEvent == 3 && this.superHeavy.startBoostbackSequence && !this.superHeavy.endBoostbackSequence) ||
-            (this.currBoosterEvent == 4 && this.superHeavy.startBoostbackShutdownSequence && !this.superHeavy.endBoostbackShutdownSequence)
+            (this.currBoosterEvent == 2 && this.superHeavy.startBoostbackSequence && !this.superHeavy.endBoostbackSequence) ||
+            (this.currBoosterEvent == 3 && this.superHeavy.startBoostbackShutdownSequence && !this.superHeavy.endBoostbackShutdownSequence)
         ) {
             this.isBoosterEventEnabled = false;
         }
