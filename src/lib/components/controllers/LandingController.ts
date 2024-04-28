@@ -36,11 +36,11 @@ export class LandingController {
     }
 
     public getGimbalAngleTarget(): number {
-        return new Vector2(this.PDCx.output, this.PDCz.output).length();
+        return new Vector2(-this.PDCx.output, this.PDCz.output).length();
     }
 
     public getGimbalYTarget(): number {
-        return new Vector2(this.PDCx.output, this.PDCz.output).angle();
+        return new Vector2(-this.PDCx.output, this.PDCz.output).angle();
     }
 
     public getThrust(): number {

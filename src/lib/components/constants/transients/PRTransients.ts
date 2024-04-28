@@ -14,6 +14,8 @@ export class PRTransients {
         superHeavyPosition: new Vector3(0, 0, 0),
         superHeavyVelPosition: new Vector3(0, 0, 0),
         superHeavyVelDirection: new Vector3(0, 0, 0),
+        landingArrowPosition: new Vector3(0, 0, 0),
+        landingArrowDirection: new Vector3(0, 0, 0),
         cameraPosition: new Vector3(0, 0, 0),
         orbitControlsPosition: new Vector3(0, 0, 0)
     };
@@ -42,6 +44,8 @@ export class PRTransients {
         superHeavyPosition: new Vector3(0, 0, 0),
         superHeavyVelPosition: new Vector3(0, 0, 0),
         superHeavyVelDirection: new Vector3(0, 0, 0),
+        landingArrowPosition: new Vector3(0, 0, 0),
+        landingArrowDirection: new Vector3(0, 0, 0),
         cameraPosition: new Vector3(0, 0, 0),
         orbitControlsPosition: new Vector3(0, 0, 0)
     };

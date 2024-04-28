@@ -31,12 +31,12 @@ export class FlightController {
         this.rotation = new Quaternion().setFromEuler(initialRotation);
     }
 
-    public setInitials(COM: Vector3, velocity: Vector3, rotation: Euler, fakeRotation: Vector3, angularVelocity: Vector3): void {
+    public setInitials(COM: Vector3, velocity: Vector3, rotation: Quaternion, relRotation: Quaternion, fakeRotation: Vector3, angularVelocity: Vector3): void {
         this.velocity = velocity.clone().multiplyScalar(CelestialConstants.REAL_SCALE);
         this.relVelocity = velocity.clone().multiplyScalar(CelestialConstants.REAL_SCALE);
 
-        this.rotation = new Quaternion().setFromEuler(rotation);
-        this.relRotation = new Quaternion().setFromEuler(rotation);
+        this.rotation = rotation.clone();
+        this.relRotation = relRotation.clone();
         this.fakeRotation = fakeRotation.clone();
 
         this.angularVelocity = angularVelocity.clone();

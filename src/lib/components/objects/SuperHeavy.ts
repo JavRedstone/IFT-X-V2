@@ -12,6 +12,7 @@ import { LaunchHelper } from "../helpers/LaunchHelper";
 import { FlightController } from "../controllers/FlightController";
 import { CelestialConstants } from "../constants/CelestialConstants";
 import { LandingController } from "../controllers/LandingController";
+import { OLITConstants } from "../constants/objects/OLITConstants";
 
 export class SuperHeavy {
     public hsr: Group = new Group();
@@ -984,7 +985,8 @@ export class SuperHeavy {
             this.doneLandingSetup = true;
         }
         else {
-            let relPosition: Vector3 = this.flightController.position.clone().sub(this.landingPosition.clone()).applyQuaternion(this.landingRotation);
+            let relPosition: Vector3 = this.flightController.position.clone().sub(this.landingPosition.clone()).applyQuaternion(this.landingRotation).applyAxisAngle(new Vector3(0, 1, 0), -OLITConstants.STACK_ROTATION.y - this.flightController.relRotation.y);
+            console.log(relPosition)
             this.landingController.update(relPosition, this.flightController.angularVelocity, delta);
             let thrust: number = this.landingController.getThrust();
             let rSea1Thrust: number = LaunchHelper.getThrust(true, this.options.rSeaType1)
@@ -993,16 +995,9 @@ export class SuperHeavy {
             let throttle2: number = (thrust / (this.options.numRSeas1 + this.options.numRSeas2)) / rSea2Thrust;
             throttle1 = MathHelper.clamp(throttle1, 0, 1);
             throttle2 = MathHelper.clamp(throttle2, 0, 1);
-            // let gimbalAngle: number = MathHelper.clamp(this.landingController.getGimbalAngleTarget(), 0, 1) * RaptorConstants.R_SEA_GIMBAL_MAX_ANGLE;
-            // let gimbalY: number = this.landingController.getGimbalYTarget();
-            let gimbalAngle = 0;
-            let gimbalY = 0;
-            if (this.passedStableInner) {
-                if (throttle2 >= RaptorConstants.MIN_THROTTLE) {
-                    this.passedStableInner = false;
-                }
-            }
-            if (thrust > rSea1Thrust * this.options.numRSeas1 && throttle2 >= RaptorConstants.MIN_THROTTLE && !this.passedStableInner) {
+            let gimbalAngle: number = MathHelper.clamp(this.landingController.getGimbalAngleTarget(), 0, 1) * RaptorConstants.R_SEA_GIMBAL_MAX_ANGLE;
+            let gimbalY: number = this.landingController.getGimbalYTarget();
+            if (thrust > rSea1Thrust * this.options.numRSeas1 && throttle2 >= RaptorConstants.MIN_THROTTLE) {
                 for (let i = 0; i < this.options.numRSeas1; i++) {
                     let rSea = this.rSeas[i];
                     if (rSea.userData.raptor != null) {
@@ -1035,28 +1030,13 @@ export class SuperHeavy {
                         }
                     }
                 }
-                if (throttle1 >= RaptorConstants.STABLE_THROTTLE) {
-                    this.passedStableInner = true;
-                    for (let i = 0; i < this.options.numRSeas2; i++) {
-                        let rSea = this.rSeas[i + this.options.numRSeas1];
-                        if (rSea.userData.raptor != null) {
-                            rSea.userData.raptor.setThrottleTarget(0);
+                for (let i = 0; i < this.options.numRSeas2; i++) {
+                    let rSea = this.rSeas[i + this.options.numRSeas1];
+                    if (rSea.userData.raptor != null) {
+                        rSea.userData.raptor.setThrottleTarget(0);
 
-                            if (this.options.canRSea2Gimbal) {
-                                rSea.userData.raptor.setGimbalTarget(0, 0);
-                            }
-                        }
-                    }
-                }
-                else {
-                    for (let i = 0; i < this.options.numRSeas2; i++) {
-                        let rSea = this.rSeas[i + this.options.numRSeas1];
-                        if (rSea.userData.raptor != null) {
-                            rSea.userData.raptor.setThrottleTarget(throttle2);
-
-                            if (this.options.canRSea2Gimbal) {
-                                rSea.userData.raptor.setGimbalTarget(gimbalAngle, gimbalY);
-                            }
+                        if (this.options.canRSea2Gimbal) {
+                            rSea.userData.raptor.setGimbalTarget(0, 0);
                         }
                     }
                 }
