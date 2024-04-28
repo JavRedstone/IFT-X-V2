@@ -37,11 +37,11 @@ export class LaunchConstants {
     public static readonly MECO_DT: number = 10; //s
 
     public static readonly KP_X: number = 0.1;
-    public static readonly KD_X: number = 0.01;
-    public static readonly KP_Y: number = 0.1;
-    public static readonly KD_Y: number = 10;
+    public static readonly KD_X: number = 10;
+    public static readonly KP_Y: number = 5e4;
+    public static readonly KD_Y: number = 5e6;
     public static readonly KP_Z: number = 0.1;
-    public static readonly KD_Z: number = 0.01;
+    public static readonly KD_Z: number = 10;
 
     public static readonly KP_ANG_VEL_X: number = 0.1;
     public static readonly KD_ANG_VEL_X: number = 0.01;

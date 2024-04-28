@@ -12,11 +12,12 @@ export class PDController {
         this.KD = KD;
     }
 
-    public update(current: number, multiplier: number, delta: number): void {
-        let actualKP = this.KP * multiplier;
-        let actualKD = this.KD * multiplier;
+    public update(current: number, delta: number): void {
+        if (delta === 0) {
+            return;
+        }
         this.error = this.target - current;
-        this.output = actualKP * this.error + actualKD * (this.error - this.prevError) / delta;
+        this.output = this.KP * this.error + this.KD * (this.error - this.prevError) / delta;
         this.prevError = this.error;
     }
 }

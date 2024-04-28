@@ -23,20 +23,20 @@ export class LandingController {
         this.PDAngVelZ = new PDController(targetAngVel.z, LaunchConstants.KP_ANG_VEL_Z, LaunchConstants.KD_ANG_VEL_Z);
     }
 
-    public update(relPosition: Vector3, angVel: Vector3, mass: number, MOIPitchYaw: number, MOIRoll: number, delta: number): void {
-        this.PDCx.update(relPosition.x, mass, delta);
-        this.PDCy.update(relPosition.y, mass, delta);
-        this.PDCz.update(relPosition.z, mass, delta);
+    public update(relPosition: Vector3, angVel: Vector3, delta: number): void {
+        this.PDCx.update(relPosition.x, delta);
+        this.PDCy.update(relPosition.y, delta);
+        this.PDCz.update(relPosition.z, delta);
 
-        this.PDAngVelX.update(angVel.x, MOIPitchYaw, delta);
-        this.PDAngVelY.update(angVel.y, MOIRoll, delta);
-        this.PDAngVelZ.update(angVel.z, MOIPitchYaw, delta);
+        this.PDAngVelX.update(angVel.x, delta);
+        this.PDAngVelY.update(angVel.y, delta);
+        this.PDAngVelZ.update(angVel.z, delta);
 
-        // console.log(this.PDCy.output)
+        console.log(relPosition.x, this.PDCx.output, relPosition.z, this.PDCz.output)
     }
 
     public getGimbalAngleTarget(): number {
-        return new Vector2(this.PDCx.output, this.PDCz.output).normalize().length();
+        return new Vector2(this.PDCx.output, this.PDCz.output).length();
     }
 
     public getGimbalYTarget(): number {

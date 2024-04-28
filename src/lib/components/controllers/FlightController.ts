@@ -6,6 +6,7 @@ export class FlightController {
     public initialPosition: Vector3 = new Vector3(0, 0, 0);
     public position: Vector3 = new Vector3(0, 0, 0);
     public relPosition: Vector3 = new Vector3(0, 0, 0);
+    public fakePosition: Vector3 = new Vector3();
 
     public initialVelocity: Vector3 = new Vector3(0, 0, 0);
     public velocity: Vector3 = new Vector3(0, 0, 0);
@@ -30,7 +31,7 @@ export class FlightController {
         this.rotation = new Quaternion().setFromEuler(initialRotation);
     }
 
-    public setInitials(velocity: Vector3, rotation: Euler, fakeRotation: Vector3, angularVelocity: Vector3): void {
+    public setInitials(COM: Vector3, velocity: Vector3, rotation: Euler, fakeRotation: Vector3, angularVelocity: Vector3): void {
         this.velocity = velocity.clone().multiplyScalar(CelestialConstants.REAL_SCALE);
         this.relVelocity = velocity.clone().multiplyScalar(CelestialConstants.REAL_SCALE);
 
@@ -39,6 +40,13 @@ export class FlightController {
         this.fakeRotation = fakeRotation.clone();
 
         this.angularVelocity = angularVelocity.clone();
+
+        let fakePosition = this.position.clone();
+        let iRotatedCOM: Vector3 = COM.clone().applyQuaternion(this.initialRotation.clone());
+        let iActualCOM: Vector3 = fakePosition.clone().add(iRotatedCOM);
+        let rotatedCOM: Vector3 = COM.clone().applyQuaternion(this.rotation.clone());
+        let actualCOM: Vector3 = fakePosition.clone().add(rotatedCOM);
+        this.position = fakePosition.clone().sub(iActualCOM).add(actualCOM); // this works
     }
 
     public update(delta: number, COM: Vector3): void {
@@ -64,11 +72,11 @@ export class FlightController {
         this.relRotation.multiply(angVelQuat);
         this.fakeRotation.add(this.angularVelocity.clone().multiplyScalar(delta));
 
-        // let iRotatedCOM: Vector3 = COM.clone().applyQuaternion(this.initialRotation.clone());
-        // let iActualCOM: Vector3 = this.position.clone().add(iRotatedCOM);
-        // let rotatedCOM: Vector3 = COM.clone().applyQuaternion(this.rotation.clone());
-        // let actualCOM: Vector3 = this.position.clone().add(rotatedCOM);
-        // this.fakePosition = this.position.clone().sub(actualCOM).add(iActualCOM); // this works
+        let iRotatedCOM: Vector3 = COM.clone().applyQuaternion(this.initialRotation.clone());
+        let iActualCOM: Vector3 = this.position.clone().add(iRotatedCOM);
+        let rotatedCOM: Vector3 = COM.clone().applyQuaternion(this.rotation.clone());
+        let actualCOM: Vector3 = this.position.clone().add(rotatedCOM);
+        this.fakePosition = this.position.clone().sub(actualCOM).add(iActualCOM); // this works
     }
 
     public getDisplayAngle(): number {
@@ -77,5 +85,15 @@ export class FlightController {
 
     public getAltitude(): number {
         return this.position.clone().length() - PhysicsConstants.RADIUS_EARTH * CelestialConstants.EARTH_EFFECTIVE_MULTIPLIER;
+    }
+
+    public reset(): void {
+        this.position = this.position.clone().normalize().multiplyScalar(CelestialConstants.EARTH_EFFECTIVE_RADIUS * CelestialConstants.REAL_SCALE);
+        this.velocity = new Vector3(0, 0, 0);
+        this.relVelocity = new Vector3(0, 0, 0);
+        this.acceleration = new Vector3(0, 0, 0);
+
+        this.angularVelocity = new Vector3(0, 0, 0);
+        this.angularAcceleration = new Vector3(0, 0, 0);
     }
 }
