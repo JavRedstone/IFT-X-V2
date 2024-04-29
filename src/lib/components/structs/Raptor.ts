@@ -73,6 +73,7 @@ export class Raptor {
         }
         if (this.angleY != this.tAngleY) {
             let diff = this.tAngleY - this.angleY;
+            diff %= Math.PI * 2;
             if (diff > Math.PI) {
                 diff -= Math.PI * 2;
             }
