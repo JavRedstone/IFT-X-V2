@@ -985,8 +985,7 @@ export class SuperHeavy {
             this.doneLandingSetup = true;
         }
         else {
-            let relPosition: Vector3 = this.flightController.position.clone().sub(this.landingPosition.clone()).applyQuaternion(this.landingRotation).applyAxisAngle(new Vector3(0, 1, 0), -OLITConstants.STACK_ROTATION.y - this.flightController.relRotation.y);
-            console.log(relPosition)
+            let relPosition: Vector3 = this.flightController.position.clone().sub(this.landingPosition.clone()).applyQuaternion(this.landingRotation).applyAxisAngle(new Vector3(0, 1, 0), -OLITConstants.STACK_ROTATION.y);
             this.landingController.update(relPosition, this.flightController.angularVelocity, delta);
             let thrust: number = this.landingController.getThrust();
             let rSea1Thrust: number = LaunchHelper.getThrust(true, this.options.rSeaType1)
@@ -996,7 +995,7 @@ export class SuperHeavy {
             throttle1 = MathHelper.clamp(throttle1, 0, 1);
             throttle2 = MathHelper.clamp(throttle2, 0, 1);
             let gimbalAngle: number = MathHelper.clamp(this.landingController.getGimbalAngleTarget(), 0, 1) * RaptorConstants.R_SEA_GIMBAL_MAX_ANGLE;
-            let gimbalY: number = this.landingController.getGimbalYTarget();
+            let gimbalY: number = this.landingController.getGimbalYTarget() - new Euler().setFromQuaternion(this.flightController.relRotation).y;
             if (thrust > rSea1Thrust * this.options.numRSeas1 && throttle2 >= RaptorConstants.MIN_THROTTLE) {
                 for (let i = 0; i < this.options.numRSeas1; i++) {
                     let rSea = this.rSeas[i];

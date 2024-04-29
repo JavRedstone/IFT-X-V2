@@ -31,8 +31,6 @@ export class LandingController {
         this.PDAngVelX.update(angVel.x, delta);
         this.PDAngVelY.update(angVel.y, delta);
         this.PDAngVelZ.update(angVel.z, delta);
-
-        console.log(relPosition.x, this.PDCx.output, relPosition.z, this.PDCz.output)
     }
 
     public getGimbalAngleTarget(): number {

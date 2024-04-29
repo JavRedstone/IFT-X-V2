@@ -40,8 +40,8 @@ export class LaunchConstants {
 
     public static readonly KP_X: number = 0.1;
     public static readonly KD_X: number = 1;
-    public static readonly KP_Y: number = 5e4;
-    public static readonly KD_Y: number = 5e6;
+    public static readonly KP_Y: number = 1e4;
+    public static readonly KD_Y: number = 1e6;
     public static readonly KP_Z: number = 0.1;
     public static readonly KD_Z: number = 1;
 
