@@ -63,7 +63,6 @@ export class SuperHeavy {
     public flightController: FlightController = null;
 
     public doneLandingSetup: boolean = false;
-    public passedStableInner: boolean = false;
     public landingController: LandingController = null;
     public landingPosition: Vector3 = new Vector3(0, 0, 0);
     public landingRotation: Quaternion = new Quaternion();
@@ -994,8 +993,30 @@ export class SuperHeavy {
             let throttle2: number = (thrust / (this.options.numRSeas1 + this.options.numRSeas2)) / rSea2Thrust;
             throttle1 = MathHelper.clamp(throttle1, 0, 1);
             throttle2 = MathHelper.clamp(throttle2, 0, 1);
-            let gimbalAngle: number = MathHelper.clamp(this.landingController.getGimbalAngleTarget(), 0, 1) * RaptorConstants.R_SEA_GIMBAL_MAX_ANGLE;
+            let gimbalAngle: number = this.landingController.getGimbalAngleTarget() * RaptorConstants.R_SEA_GIMBAL_MAX_ANGLE;
             let gimbalY: number = this.landingController.getGimbalYTarget() - new Euler().setFromQuaternion(this.flightController.relRotation).y;
+            let gridFinX: number = this.landingController.getGridFinXTarget()
+            let gridFinY: number = this.landingController.getGridFinFlapYTarget();
+            let gridFinZ: number = this.landingController.getGridFinFlapZTarget();
+            if (!this.controls.isWPressed && !this.controls.isSPressed && !this.controls.isAPressed && !this.controls.isDPressed && !this.controls.isQPressed && !this.controls.isEPressed) {
+                for (let gridFin of this.gridFins) {
+                    let targetZ: number = 0;
+                    if (gridFin.rotation.z >= 45 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY && gridFin.rotation.z <= 135 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
+                        targetZ += gridFinX * GridFinConstants.MIN_ANGLE;
+                    }
+                    if (gridFin.rotation.z >= -135 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY && gridFin.rotation.z <= -45 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
+                        targetZ += gridFinX * GridFinConstants.MAX_ANGLE;
+                    }
+                    if (gridFin.rotation.z >= -45 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY && gridFin.rotation.z <= 45 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
+                        targetZ += gridFinZ * GridFinConstants.MAX_ANGLE;
+                    }
+                    if (gridFin.rotation.z >= 135 * Math.PI / 180 - SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY || gridFin.rotation.z <= -135 * Math.PI / 180 + SuperHeavyConstants.GRID_FIN_ANGLE_LEEWAY) {
+                        targetZ += gridFinZ * GridFinConstants.MIN_ANGLE;
+                    }
+                    targetZ -= gridFinY;
+                    gridFin.userData.gridFin.setTarget(targetZ);
+                }
+            }
             if (thrust > rSea1Thrust * this.options.numRSeas1 && throttle2 >= RaptorConstants.MIN_THROTTLE) {
                 for (let i = 0; i < this.options.numRSeas1; i++) {
                     let rSea = this.rSeas[i];

@@ -12,6 +12,8 @@ import { FlapConstants } from "../constants/controls/FlapConstants";
 import { FlightController } from "../controllers/FlightController";
 import { CelestialConstants } from "../constants/CelestialConstants";
 import { SuperHeavyConstants } from "../constants/objects/SuperHeavyConstants";
+import { LandingController } from "../controllers/LandingController";
+import { OLITConstants } from "../constants/objects/OLITConstants";
 
 export class Starship {
     public nosecone: Group = new Group();
@@ -53,6 +55,11 @@ export class Starship {
     public endLandingSequence: boolean = false;
 
     public flightController: FlightController = null;
+    
+    public doneLandingSetup: boolean = false;
+    public landingController: LandingController = null;
+    public landingPosition: Vector3 = new Vector3(0, 0, 0);
+    public landingRotation: Quaternion = new Quaternion();
 
     public options: any = {
         rSeaAngularOffset: StarshipConstants.R_SEA_ANGULAR_OFFSET,
@@ -657,20 +664,37 @@ export class Starship {
         }
     }
 
-    public runLandingSequence(): void {
-        let areAllRSeaReady: boolean = true;
-        for (let rSea of this.rSeas) {
-            if (rSea.userData.raptor != null) {
-                rSea.userData.raptor.setThrottleTarget(RaptorConstants.MAX_THROTTLE);
-            }
-            if (rSea.userData.raptor.throttle != RaptorConstants.MAX_THROTTLE) {
-                areAllRSeaReady = false;
-            }
+    public runLandingSequence(delta: number): void {
+        if (!this.doneLandingSetup) {
+            this.landingPosition = this.flightController.position.clone().normalize().multiplyScalar(CelestialConstants.EARTH_EFFECTIVE_RADIUS * CelestialConstants.REAL_SCALE);
+            this.landingRotation = MathHelper.getAngleBetweenVectors(this.landingPosition, new Vector3(0, 1, 0));
+            this.landingController = new LandingController(new Vector3(), new Vector3());
+            this.doneLandingSetup = true;
         }
+        else {
+            let relPosition: Vector3 = this.flightController.position.clone().sub(this.landingPosition.clone()).applyQuaternion(this.landingRotation).applyAxisAngle(new Vector3(0, 1, 0), -OLITConstants.STACK_ROTATION.y);
+            this.landingController.update(relPosition, this.flightController.angularVelocity, delta);
+            let thrust: number = this.landingController.getThrust();
+            let rSeaThrust: number = LaunchHelper.getThrust(true, this.options.rSeaType1)
+            let throttle: number = (thrust / this.options.numRSeas) / rSeaThrust;
+            throttle = MathHelper.clamp(throttle, 0, 1);
+            let gimbalAngle: number = this.landingController.getGimbalAngleTarget() * RaptorConstants.R_SEA_GIMBAL_MAX_ANGLE;
+            let gimbalY: number = this.landingController.getGimbalYTarget() - new Euler().setFromQuaternion(this.flightController.relRotation).y;
+            let flapY: number = this.landingController.getGridFinFlapYTarget();
+            let flapZ: number = this.landingController.getGridFinFlapZTarget();
+            if (!this.controls.isIPressed && !this.controls.isKPressed && !this.controls.isJPressed && !this.controls.isLPressed && !this.controls.isUPressed && !this.controls.isOPressed) {
+                
+            }
+            for (let i = 0; i < this.options.numRSeas; i++) {
+                let rSea = this.rSeas[i];
+                if (rSea.userData.raptor != null) {
+                    rSea.userData.raptor.setThrottleTarget(throttle);
 
-        if (areAllRSeaReady) {
-            this.startLandingSequence = false;
-            this.endLandingSequence = true;
+                    if (this.options.canRSeaGimbal) {
+                        rSea.userData.raptor.setGimbalTarget(gimbalAngle, gimbalY);
+                    }
+                }
+            }
         }
     }
 
@@ -902,7 +926,7 @@ export class Starship {
                 this.runSECOSequence();
             }
             if (this.startLandingSequence) {
-                this.runLandingSequence();
+                this.runLandingSequence(delta);
             }
         }
         this.updateFuel(delta);

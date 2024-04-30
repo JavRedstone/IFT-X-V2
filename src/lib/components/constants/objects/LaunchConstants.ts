@@ -14,11 +14,11 @@ export class LaunchConstants {
 
     public static readonly DRAG_ROLL_FORCE_COEF: number = 0.01;
     public static readonly DRAG_PITCH_YAW_FORCE_COEF: number = 0.5;
-    public static readonly DRAG_FORCE_COEF: number = 0.5;
+    public static readonly DRAG_FORCE_COEF: number = 10;
     public static readonly DRAG_FORCE_LOSS: number = 0.00001;
-    public static readonly DRAG_MAX_FORCE_LOSS: number = 0.95;
+    public static readonly DRAG_MAX_FORCE_LOSS: number = 0.99;
 
-    public static readonly SEPARATION_ANG_VEL: Vector3 = new Vector3(0, 0, 0); // 0.2
+    public static readonly SEPARATION_ANG_VEL: Vector3 = new Vector3(0, 0, 0.2); // 0.25
 
     public static readonly OLIT_ARROW_LENGTH: number = 100;
     public static readonly OLIT_ARROW_COLOR: number = 0x0000ff;
@@ -45,12 +45,9 @@ export class LaunchConstants {
     public static readonly KP_Z: number = 2e-2;
     public static readonly KD_Z: number = 1;
 
-    public static readonly KP_ANG_VEL_X: number = 0.1;
-    public static readonly KD_ANG_VEL_X: number = 0.01;
-    public static readonly KP_ANG_VEL_Y: number = 0.1;
-    public static readonly KD_ANG_VEL_Y: number = 0.01;
-    public static readonly KP_ANG_VEL_Z: number = 0.1;
-    public static readonly KD_ANG_VEL_Z: number = 0.01;
+    public static readonly KP_ANG_VEL_X: number = 1;
+    public static readonly KP_ANG_VEL_Y: number = 1;
+    public static readonly KP_ANG_VEL_Z: number = 1;
 
     public static readonly BOOSTER_LAUNCH_EVENTS: string[] = [
         "Booster Engine Cutoff",
