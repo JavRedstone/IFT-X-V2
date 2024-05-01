@@ -650,10 +650,10 @@ export class LaunchManager {
 
                     if (this.justSwitchedCamera) {
                         if (this.isCameraOnStarship) {
-                              this.camera.position.copy(this.camera.position.clone().sub(shPos.clone()).add(ssPos.clone()));
+                            this.camera.position.copy(this.camera.position.clone().sub(this.previousSHPos.clone()).add(this.previousSSPos.clone()));
                         }
                         else {
-                            this.camera.position.copy(this.camera.position.clone().sub(ssPos.clone()).add(shPos.clone()));
+                            this.camera.position.copy(this.camera.position.clone().sub(this.previousSSPos.clone()).add(this.previousSHPos.clone()));
                         }
                         this.justSwitchedCamera = false;
                     }
