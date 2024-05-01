@@ -39,6 +39,7 @@ export class LaunchManager {
     public targetPos: Vector3 = new Vector3(0, 0, 0);
 
     public isCameraOnStarship: boolean = true;
+    public justSwitchedCamera: boolean = false;
     public isGroundView: boolean = true;
 
     public dt: number = 0;
@@ -95,6 +96,9 @@ export class LaunchManager {
             this.isLaunching = value.isLaunching;
         });
         telemetry.subscribe((value) => {
+            if (value.isCameraOnStarship != this.isCameraOnStarship) {
+                this.justSwitchedCamera = true;
+            }
             this.isCameraOnStarship = value.isCameraOnStarship;
             this.isBoosterEventClicked = value.isBoosterEventClicked;
             this.isShipEventClicked = value.isShipEventClicked;
@@ -642,6 +646,16 @@ export class LaunchManager {
                     else {
                         shPos.copy(PRTransients.fakePositions.superHeavyPosition.clone().add(PRTransients.fakePositions.stackGroupPosition.clone()).add(PRTransients.fakePositions.groupPosition.clone()));
                         ssPos.copy(PRTransients.fakePositions.starshipPosition.clone().add(PRTransients.fakePositions.stackGroupPosition.clone()).add(PRTransients.fakePositions.groupPosition.clone()));
+                    }
+
+                    if (this.justSwitchedCamera) {
+                        if (this.isCameraOnStarship) {
+                              this.camera.position.copy(this.camera.position.clone().sub(shPos.clone()).add(ssPos.clone()));
+                        }
+                        else {
+                            this.camera.position.copy(this.camera.position.clone().sub(ssPos.clone()).add(shPos.clone()));
+                        }
+                        this.justSwitchedCamera = false;
                     }
 
                     if (this.isCameraOnStarship) {
