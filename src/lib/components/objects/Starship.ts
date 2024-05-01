@@ -683,7 +683,30 @@ export class Starship {
             let flapY: number = this.landingController.getGridFinFlapYTarget();
             let flapZ: number = this.landingController.getGridFinFlapZTarget();
             if (!this.controls.isIPressed && !this.controls.isKPressed && !this.controls.isJPressed && !this.controls.isLPressed && !this.controls.isUPressed && !this.controls.isOPressed) {
-                
+                let forwardLTarget: number = FlapConstants.NEUTRAL_ANGLE;
+                let forwardRTarget: number = FlapConstants.NEUTRAL_ANGLE;
+                let aftLTarget: number = FlapConstants.NEUTRAL_ANGLE;
+                let aftRTarget: number = FlapConstants.NEUTRAL_ANGLE;
+
+                forwardLTarget += flapY * FlapConstants.MAX_ANGLE;
+                forwardRTarget += flapY * FlapConstants.MIN_ANGLE;
+                aftLTarget += flapY * FlapConstants.MIN_ANGLE;
+                aftRTarget += flapY * FlapConstants.MIN_ANGLE;
+
+                forwardLTarget += flapZ * FlapConstants.MAX_ANGLE;
+                forwardRTarget += flapZ * FlapConstants.MAX_ANGLE;
+                aftLTarget += flapZ * FlapConstants.MIN_ANGLE;
+                aftRTarget += flapZ * FlapConstants.MIN_ANGLE;
+
+                forwardLTarget = MathHelper.clamp(forwardLTarget, FlapConstants.MIN_ANGLE, FlapConstants.MAX_ANGLE);
+                forwardRTarget = MathHelper.clamp(forwardRTarget, FlapConstants.MIN_ANGLE, FlapConstants.MAX_ANGLE);
+                aftLTarget = MathHelper.clamp(aftLTarget, FlapConstants.MIN_ANGLE, FlapConstants.MAX_ANGLE);
+                aftRTarget = MathHelper.clamp(aftRTarget, FlapConstants.MIN_ANGLE, FlapConstants.MAX_ANGLE);
+
+                this.forwardL.userData.flap.setTarget(forwardLTarget);
+                this.forwardR.userData.flap.setTarget(forwardRTarget);
+                this.aftL.userData.flap.setTarget(aftLTarget);
+                this.aftR.userData.flap.setTarget(aftRTarget);
             }
             for (let i = 0; i < this.options.numRSeas; i++) {
                 let rSea = this.rSeas[i];

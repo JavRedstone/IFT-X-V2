@@ -68,7 +68,8 @@ export class LaunchManager {
     public superHeavyDisabled: boolean = false;
 
     public OLITArrow: ArrowHelper = new ArrowHelper(new Vector3(0, 0, 0), new Vector3(0, 0, 0), LaunchConstants.OLIT_ARROW_LENGTH, LaunchConstants.OLIT_ARROW_COLOR);
-    public landingArrow: ArrowHelper = new ArrowHelper(new Vector3(0, 0, 0), new Vector3(0, 0, 0), LaunchConstants.LANDING_ARROW_LENGTH, LaunchConstants.LANDING_ARROW_COLOR);
+    public superHeavyLandingArrow: ArrowHelper = new ArrowHelper(new Vector3(0, 0, 0), new Vector3(0, 0, 0), LaunchConstants.SUPER_HEAVY_LANDING_ARROW_LENGTH, LaunchConstants.SUPER_HEAVY_LANDING_ARROW_COLOR);
+    public starshipLandingArrow: ArrowHelper = new ArrowHelper(new Vector3(0, 0, 0), new Vector3(0, 0, 0), LaunchConstants.STARSHIP_LANDING_ARROW_LENGTH, LaunchConstants.STARSHIP_LANDING_ARROW_COLOR);
     public starshipVelArrow: ArrowHelper = new ArrowHelper(new Vector3(0, 0, 0), new Vector3(0, 0, 0), LaunchConstants.VEL_ARROW_LENGTH, LaunchConstants.VEL_ARROW_COLOR);
     public superHeavyVelArrow: ArrowHelper = new ArrowHelper(new Vector3(0, 0, 0), new Vector3(0, 0, 0), LaunchConstants.VEL_ARROW_LENGTH, LaunchConstants.VEL_ARROW_COLOR);
 
@@ -217,7 +218,8 @@ export class LaunchManager {
                         this.stackGroup.userData.flightController = new FlightController(PRTransients.realPositions.stackGroupPosition, initialVelocity, PRTransients.realRotations.stackGroupRotation);
 
                         this.tc.scene.add(this.OLITArrow);
-                        this.tc.scene.add(this.landingArrow);
+                        this.tc.scene.add(this.superHeavyLandingArrow);
+                        this.tc.scene.add(this.starshipLandingArrow);
                         this.tc.scene.add(this.starshipVelArrow);
                         this.tc.scene.add(this.superHeavyVelArrow);
 
@@ -387,7 +389,9 @@ export class LaunchManager {
                                 // torque
                                 this.starship.flightController.angularAcceleration = new Vector3(0, 0, 0);
                                 // gimbal
-                                this.starship.flightController.angularAcceleration.add(this.starship.getThrustTorque(this.starship.getCOM(), ssAltitude).divideScalar(this.starship.getMOIPitchYaw()));
+                                if (!this.starship.startLandingSequence) {
+                                    this.starship.flightController.angularAcceleration.add(this.starship.getThrustTorque(this.starship.getCOM(), ssAltitude).divideScalar(this.starship.getMOIPitchYaw()));
+                                }
 
                                 // flaps
                                 this.starship.flightController.angularAcceleration.add(this.starship.getFlapPitchTorque(this.starship.flightController.rotation, this.starship.flightController.relVelocity, ssAltitude).divideScalar(this.starship.getMOIPitchYaw()));
@@ -419,8 +423,13 @@ export class LaunchManager {
                             PRTransients.realPositions.starshipVelDirection = this.starship.flightController.relVelocity.clone().normalize();
 
                             if (this.superHeavy.startLandingSequence) {
-                                PRTransients.realPositions.landingArrowPosition = this.superHeavy.landingPosition.clone().divideScalar(CelestialConstants.REAL_SCALE);
-                                PRTransients.realPositions.landingArrowDirection = this.superHeavy.landingPosition.clone().normalize();
+                                PRTransients.realPositions.superHeavyLandingArrowPosition = this.superHeavy.landingPosition.clone().divideScalar(CelestialConstants.REAL_SCALE);
+                                PRTransients.realPositions.superHeavyLandingArrowDirection = this.superHeavy.landingPosition.clone().normalize();
+                            }
+
+                            if (this.starship.startLandingSequence) {
+                                PRTransients.realPositions.starshipLandingArrowPosition = this.starship.landingPosition.clone().divideScalar(CelestialConstants.REAL_SCALE);
+                                PRTransients.realPositions.starshipLandingArrowDirection = this.starship.landingPosition.clone().normalize();
                             }
 
                             telemetry.update((value) => {
@@ -582,8 +591,12 @@ export class LaunchManager {
                         this.superHeavy.group.rotation.copy(PRTransients.fakeRotations.superHeavyRotation);
 
                         if (this.superHeavy.startLandingSequence) {
-                            this.landingArrow.position.copy(PRTransients.fakePositions.landingArrowPosition);
-                            this.landingArrow.setDirection(PRTransients.fakePositions.landingArrowDirection);
+                            this.superHeavyLandingArrow.position.copy(PRTransients.fakePositions.superHeavyLandingArrowPosition);
+                            this.superHeavyLandingArrow.setDirection(PRTransients.fakePositions.superHeavyLandingArrowDirection);
+                        }
+                        if (this.starship.startLandingSequence) {
+                            this.starshipLandingArrow.position.copy(PRTransients.fakePositions.starshipLandingArrowPosition);
+                            this.starshipLandingArrow.setDirection(PRTransients.fakePositions.starshipLandingArrowDirection);
                         }
                     }
                     else {

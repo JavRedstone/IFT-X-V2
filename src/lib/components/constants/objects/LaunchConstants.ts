@@ -14,7 +14,7 @@ export class LaunchConstants {
 
     public static readonly DRAG_ROLL_FORCE_COEF: number = 0.01;
     public static readonly DRAG_PITCH_YAW_FORCE_COEF: number = 0.5;
-    public static readonly DRAG_FORCE_COEF: number = 10;
+    public static readonly DRAG_FORCE_COEF: number = 5;
     public static readonly DRAG_FORCE_LOSS: number = 0.00001;
     public static readonly DRAG_MAX_FORCE_LOSS: number = 0.99;
 
@@ -22,8 +22,10 @@ export class LaunchConstants {
 
     public static readonly OLIT_ARROW_LENGTH: number = 100;
     public static readonly OLIT_ARROW_COLOR: number = 0x0000ff;
-    public static readonly LANDING_ARROW_LENGTH: number = 100;
-    public static readonly LANDING_ARROW_COLOR: number = 0xff0000;
+    public static readonly SUPER_HEAVY_LANDING_ARROW_LENGTH: number = 100;
+    public static readonly SUPER_HEAVY_LANDING_ARROW_COLOR: number = 0xff0000;
+    public static readonly STARSHIP_LANDING_ARROW_LENGTH: number = 100;
+    public static readonly STARSHIP_LANDING_ARROW_COLOR: number = 0xffff00;
     public static readonly VEL_ARROW_LENGTH: number = 0.005;
     public static readonly VEL_ARROW_COLOR: number = 0x00ff00;
 

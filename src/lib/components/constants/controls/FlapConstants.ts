@@ -5,6 +5,6 @@ export class FlapConstants {
     public static readonly MAX_ANGLE: number = 40 * Math.PI / 180;
 
     public static readonly DRAG_COEFFICIENT: number = 5;
-    public static readonly DEFAULT_FORWARD_SA: number = 2;
-    public static readonly DEFAULT_AFT_SA: number = 2; // no diff (not realistic) however otherwise spin out of control
+    public static readonly DEFAULT_FORWARD_SA: number = 10;
+    public static readonly DEFAULT_AFT_SA: number = 10; // no diff (not realistic) however otherwise spin out of control
 }

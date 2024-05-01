@@ -1014,6 +1014,7 @@ export class SuperHeavy {
                         targetZ += gridFinZ * GridFinConstants.MIN_ANGLE;
                     }
                     targetZ -= gridFinY;
+                    targetZ = MathHelper.clamp(targetZ, GridFinConstants.MIN_ANGLE, GridFinConstants.MAX_ANGLE);
                     gridFin.userData.gridFin.setTarget(targetZ);
                 }
             }
