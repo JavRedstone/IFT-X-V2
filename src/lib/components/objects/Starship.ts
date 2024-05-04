@@ -677,7 +677,7 @@ export class Starship {
             let throttle: number = (thrust / this.options.numRSeas) / rSeaThrust;
             throttle = MathHelper.clamp(throttle, 0, 1);
             let gimbalAngle: number = this.landingController.getGimbalAngleTarget() * RaptorConstants.R_SEA_GIMBAL_MAX_ANGLE;
-            let gimbalY: number = this.landingController.getGimbalYTarget() - new Euler().setFromQuaternion(this.flightController.relRotation).y;
+            let gimbalY: number = this.landingController.getGimbalYTarget() - this.flightController.fakeRotation.y;
             let flapY: number = this.landingController.getGridFinFlapYTarget();
             let flapZ: number = this.landingController.getGridFinFlapZTarget();
             if (!this.controls.isIPressed && !this.controls.isKPressed && !this.controls.isJPressed && !this.controls.isLPressed && !this.controls.isUPressed && !this.controls.isOPressed) {

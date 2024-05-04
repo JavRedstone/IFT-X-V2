@@ -1,5 +1,5 @@
 import { type ThrelteContext } from "@threlte/core";
-import { DirectionalLight, Spherical } from "three";
+import { DirectionalLight, Vector3, Spherical } from "three";
 import { MathHelper } from "../helpers/MathHelper";
 import { CelestialConstants } from "../constants/CelestialConstants";
 import { PRTransients } from "../constants/transients/PRTransients";
@@ -30,9 +30,10 @@ export class SkyManager {
         PRTransients.realPositions.sunPosition = CelestialConstants.SUN_POSITION;
     }
 
-    public updateScene(delta: number): void {
-        this.sun.position.copy(PRTransients.fakePositions.sunPosition);
-        let { azimuth, elevation } = MathHelper.getAzimuthElevationFromPos(PRTransients.fakePositions.sunPosition);
+    public updateScene(delta: number, altitude: number): void {
+        // console.log(altitude)
+        this.sun.position.copy(PRTransients.fakePositions.sunPosition.clone());
+        let { azimuth, elevation } = MathHelper.getAzimuthElevationFromPos(PRTransients.fakePositions.sunPosition.clone());
         this.azimuth = azimuth * 180 / Math.PI;
         this.elevation = elevation * 180 / Math.PI;
 

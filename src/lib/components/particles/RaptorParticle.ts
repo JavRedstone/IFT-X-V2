@@ -20,7 +20,7 @@ export class RaptorParticle {
                 "rate": {
                     "particlesMin": 1,
                     "particlesMax": 1,
-                    "perSecondMin": 0.1,
+                    "perSecondMin": 0.025,
                     "perSecondMax": 0.1
                 },
                 "position": {
@@ -66,8 +66,8 @@ export class RaptorParticle {
                         "id": "3ef1dd31-0995-11ef-883f-6fa390d4b039",
                         "type": "Radius",
                         "properties": {
-                            "width": 0.00005,
-                            "height": 0.00005,
+                            "width": 0.000075,
+                            "height": 0.000075,
                             "isEnabled": true,
                             "center": false
                         }
@@ -100,8 +100,8 @@ export class RaptorParticle {
                         "id": "3ef1dd34-0995-11ef-883f-6fa390d4b039",
                         "type": "Color",
                         "properties": {
-                            "colorA": "#e15fff",
-                            "colorB": "#ffa500",
+                            "colorA": "#8A2BE2",
+                            "colorB": "#ff4500",
                             "life": null,
                             "easing": "easeLinear"
                         }

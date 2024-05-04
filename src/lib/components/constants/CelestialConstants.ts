@@ -2,7 +2,7 @@ import { Vector3 } from "three";
 import { PhysicsConstants } from "./PhysicsConstants";
 
 export class CelestialConstants {
-    public static readonly SUN_POSITION: Vector3 = new Vector3(1, 0.5, 0);
+    public static readonly SUN_POSITION: Vector3 = new Vector3(1.6, 0.5, 0);
     public static readonly SUN_COLOR: number = 0xffffff;
     public static readonly SUN_INTENSITY: number = 3;
 
@@ -13,9 +13,8 @@ export class CelestialConstants {
     public static readonly EARTH_VIEW_RADIUS: number = CelestialConstants.EARTH_RADIUS * 1.1;
     public static readonly CLOUDS_RADIUS: number = CelestialConstants.EARTH_RADIUS * 1.0025;
     public static readonly ATMOSPHERE_RADIUS: number = CelestialConstants.EARTH_RADIUS * 1.075;
-    // public static readonly EARTH_ROTATION_SPEED: number = 0.0001;
     public static readonly EARTH_ROTATION_SPEED: number = 0;
-    public static readonly CLOUDS_ROTATION_SPEED: number = CelestialConstants.EARTH_ROTATION_SPEED * 100;
+    public static readonly CLOUDS_ROTATION_SPEED: number = 0.01;
 
     public static readonly EARTH_VERTICES: number = 360;
     public static readonly EARTH_BUMP_SCALE: number = 0.03;

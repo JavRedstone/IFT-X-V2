@@ -16,7 +16,6 @@ import { StarshipConstants } from "../constants/objects/StarshipConstants";
 import { FlightController } from "../controllers/FlightController";
 import { LaunchHelper } from "../helpers/LaunchHelper";
 import { RaptorParticle } from "../particles/RaptorParticle";
-import { RaptorConstants } from "../constants/controls/RaptorConstants";
 import { ParticleConstants } from "../constants/ParticleConstants";
 
 export class LaunchManager {
@@ -234,6 +233,8 @@ export class LaunchManager {
                         this.tc.scene.add(this.OLITArrow);
                         this.tc.scene.add(this.superHeavyLandingArrow);
                         this.tc.scene.add(this.starshipLandingArrow);
+                        this.superHeavyLandingArrow.visible = false;
+                        this.starshipLandingArrow.visible = false;
                         this.tc.scene.add(this.starshipVelArrow);
                         this.tc.scene.add(this.superHeavyVelArrow);
 
@@ -610,10 +611,12 @@ export class LaunchManager {
                         this.superHeavy.group.rotation.copy(PRTransients.fakeRotations.superHeavyRotation);
 
                         if (this.superHeavy.startLandingSequence) {
+                            this.superHeavyLandingArrow.visible = true;
                             this.superHeavyLandingArrow.position.copy(PRTransients.fakePositions.superHeavyLandingArrowPosition);
                             this.superHeavyLandingArrow.setDirection(PRTransients.fakePositions.superHeavyLandingArrowDirection);
                         }
                         if (this.starship.startLandingSequence) {
+                            this.starshipLandingArrow.visible = true;
                             this.starshipLandingArrow.position.copy(PRTransients.fakePositions.starshipLandingArrowPosition);
                             this.starshipLandingArrow.setDirection(PRTransients.fakePositions.starshipLandingArrowDirection);
                         }

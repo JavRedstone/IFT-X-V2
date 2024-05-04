@@ -43,8 +43,22 @@ export class SceneManager {
 
     public updateScene(delta: number): void {
         this.celestialManager.updateScene(delta);
-        this.skyManager.updateScene(delta);
         this.launchManager.updateScene(delta);
+        let altitude: number = 0;
+        if (this.launchManager.liftedOff) {
+            if (this.launchManager.separated && !this.launchManager.justSeparated) {
+                if (this.launchManager.isCameraOnStarship) {
+                    altitude = this.launchManager.starship.flightController.getAltitude();
+                }
+                else {
+                    altitude = this.launchManager.superHeavy.flightController.getAltitude();
+                }
+            }
+            else {
+                this.launchManager.stackGroup.userData.flightController.getAltitude();
+            }
+        }
+        this.skyManager.updateScene(delta, altitude);
     }
 
     public updateAll(delta: number): void {
