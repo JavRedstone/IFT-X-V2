@@ -33,6 +33,8 @@
   },
   "type": "module",
   "dependencies": {
+    "@babel/runtime": "^7.24.5",
+    "@types/three-nebula": "^10.0.4",
     "postprocessing": "^6.35.2",
     "three-nebula": "^10.0.3"
   }

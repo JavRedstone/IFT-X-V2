@@ -1,5 +1,5 @@
 import type { ThrelteContext } from "@threlte/core";
-import { ArrowHelper, Euler, Group, PerspectiveCamera, Quaternion, Vector3 } from "three";
+import { ArrowHelper, Euler, Group, Object3D, PerspectiveCamera, Quaternion, Vector3 } from "three";
 import { OLIT } from "../objects/OLIT";
 import { Starship } from "../objects/Starship";
 import { SuperHeavy } from "../objects/SuperHeavy";
@@ -15,6 +15,9 @@ import { LaunchConstants } from "../constants/objects/LaunchConstants";
 import { StarshipConstants } from "../constants/objects/StarshipConstants";
 import { FlightController } from "../controllers/FlightController";
 import { LaunchHelper } from "../helpers/LaunchHelper";
+import { RaptorParticle } from "../particles/RaptorParticle";
+import { RaptorConstants } from "../constants/controls/RaptorConstants";
+import { ParticleConstants } from "../constants/ParticleConstants";
 
 export class LaunchManager {
     public tc: ThrelteContext;
@@ -67,6 +70,9 @@ export class LaunchManager {
 
     public starshipDisabled: boolean = true;
     public superHeavyDisabled: boolean = false;
+
+    public starshipRPs: RaptorParticle[] = [];
+    public superHeavyRPs: RaptorParticle[] = [];
 
     public OLITArrow: ArrowHelper = new ArrowHelper(new Vector3(0, 0, 0), new Vector3(0, 0, 0), LaunchConstants.OLIT_ARROW_LENGTH, LaunchConstants.OLIT_ARROW_COLOR);
     public superHeavyLandingArrow: ArrowHelper = new ArrowHelper(new Vector3(0, 0, 0), new Vector3(0, 0, 0), LaunchConstants.SUPER_HEAVY_LANDING_ARROW_LENGTH, LaunchConstants.SUPER_HEAVY_LANDING_ARROW_COLOR);
@@ -199,6 +205,10 @@ export class LaunchManager {
                     this.OLIT.hasSetupSingle = false;
                 }
                 if (this.isLaunching) {
+                    if (this.starshipRPs.length == 0 && this.superHeavyRPs.length == 0) {
+                        this.createRPs();
+                    }
+                    this.updateRPs();
                     if (this.dt < LaunchConstants.COUNTDOWN_DT) {
                         this.dt += delta * LaunchConstants.COUNTDOWN_SPEEDUP;
                     }
@@ -558,7 +568,12 @@ export class LaunchManager {
         if (this.isGroundView) {
             let rot: Quaternion = MathHelper.getAngleBetweenVectors(PRTransients.realPositions.orbitControlsPosition.clone().sub(this.targetPos).normalize(), new Vector3(0, 1, 0));
             for (let key of Object.keys(PRTransients.realPositions)) {
-                PRTransients.fakePositions[key].copy(this.targetPos.clone().add(PRTransients.realPositions[key].clone().sub(this.targetPos).applyQuaternion(rot)));
+                if (key !== "sunPosition" && !key.includes("Direction")) {
+                    PRTransients.fakePositions[key].copy(this.targetPos.clone().add(PRTransients.realPositions[key].clone().sub(this.targetPos).sub(PRTransients.realPositions.orbitControlsPosition.clone()).applyQuaternion(rot)));
+                }
+                else {
+                    PRTransients.fakePositions[key].copy(this.targetPos.clone().add(PRTransients.realPositions[key].clone().sub(this.targetPos).applyQuaternion(rot)));
+                }
             }
             for (let key of Object.keys(PRTransients.realRotations)) {
                 PRTransients.fakeRotations[key].setFromQuaternion(rot.clone().multiply(new Quaternion().setFromEuler(PRTransients.realRotations[key])));
@@ -631,52 +646,6 @@ export class LaunchManager {
                 if (!this.isCameraInitialized) {
                     this.camera.position.copy(PRTransients.fakePositions.cameraPosition);
                     this.isCameraInitialized = true;
-                }
-                if (this.liftedOff) {
-                    let ssPos: Vector3 = new Vector3(0, 0, 0);
-                    let shPos: Vector3 = new Vector3(0, 0, 0);
-                    if (this.separated && !this.justSeparated) {
-                        shPos.copy(PRTransients.fakePositions.superHeavyPosition);
-                        ssPos.copy(PRTransients.fakePositions.starshipPosition);
-                    }
-                    else if (this.liftedOff) {
-                        shPos.copy(PRTransients.fakePositions.superHeavyPosition.clone().add(PRTransients.fakePositions.stackGroupPosition.clone()));
-                        ssPos.copy(PRTransients.fakePositions.starshipPosition.clone().add(PRTransients.fakePositions.stackGroupPosition.clone()));
-                    }
-                    else {
-                        shPos.copy(PRTransients.fakePositions.superHeavyPosition.clone().add(PRTransients.fakePositions.stackGroupPosition.clone()).add(PRTransients.fakePositions.groupPosition.clone()));
-                        ssPos.copy(PRTransients.fakePositions.starshipPosition.clone().add(PRTransients.fakePositions.stackGroupPosition.clone()).add(PRTransients.fakePositions.groupPosition.clone()));
-                    }
-
-                    if (this.justSwitchedCamera) {
-                        if (this.isCameraOnStarship) {
-                            this.camera.position.copy(this.camera.position.clone().sub(this.previousSHPos.clone()).add(this.previousSSPos.clone()));
-                        }
-                        else {
-                            this.camera.position.copy(this.camera.position.clone().sub(this.previousSSPos.clone()).add(this.previousSHPos.clone()));
-                        }
-                        this.justSwitchedCamera = false;
-                    }
-
-                    if (this.isCameraOnStarship) {
-                        this.camera.position.add(ssPos.clone().sub(this.previousSSPos));
-                    }
-                    else {
-                        this.camera.position.add(shPos.clone().sub(this.previousSHPos));
-                    }
-                }
-                
-                if (this.separated && !this.justSeparated) {
-                    this.previousSHPos.copy(PRTransients.fakePositions.superHeavyPosition);
-                    this.previousSSPos.copy(PRTransients.fakePositions.starshipPosition);
-                }
-                else if (this.liftedOff) {
-                    this.previousSHPos.copy(PRTransients.fakePositions.superHeavyPosition.clone().add(PRTransients.fakePositions.stackGroupPosition.clone()));
-                    this.previousSSPos.copy(PRTransients.fakePositions.starshipPosition.clone().add(PRTransients.fakePositions.stackGroupPosition.clone()));
-                }
-                else {
-                    this.previousSHPos.copy(PRTransients.fakePositions.superHeavyPosition.clone().add(PRTransients.fakePositions.stackGroupPosition.clone()).add(PRTransients.fakePositions.groupPosition.clone()));
-                    this.previousSSPos.copy(PRTransients.fakePositions.starshipPosition.clone().add(PRTransients.fakePositions.stackGroupPosition.clone()).add(PRTransients.fakePositions.groupPosition.clone()));
                 }
         }
     }
@@ -826,5 +795,53 @@ export class LaunchManager {
             value.isShipEventClicked = this.isShipEventClicked;
             return value;
         });
+    }
+
+    public createRPs(): void {
+        for (let i = 0; i < this.superHeavy.rSeas.length; i++) {
+            let rp: RaptorParticle = new RaptorParticle(this.tc);
+            this.superHeavyRPs.push(rp);
+        }
+        for (let i = 0; i < this.starship.rSeas.length; i++) {
+            let rp: RaptorParticle = new RaptorParticle(this.tc);
+            this.starshipRPs.push(rp);
+        }
+        for (let i = 0; i < this.starship.rVacs.length; i++) {
+            let rp: RaptorParticle = new RaptorParticle(this.tc);
+            this.starshipRPs.push(rp);
+        }
+    }
+
+    public updateRPs(): void {
+        for (let i = 0; i < this.superHeavy.rSeas.length; i++) {
+            let rSea: Object3D = this.superHeavy.rSeas[i];
+            let rSeaObj: Object3D = this.superHeavy.rSeaObjs[i];
+            let rp: RaptorParticle = this.superHeavyRPs[i];
+            if (rSea != null && rSeaObj != null && rp != null) {
+                let position: Vector3 = rSeaObj.getWorldPosition(new Vector3());
+                let rotation: Quaternion = rSeaObj.getWorldQuaternion(new Quaternion());
+                rp.update(position, rotation, rSea.userData.raptor.throttle);
+            }
+        }
+        for (let i = 0; i < this.starship.rSeas.length; i++) {
+            let rSea: Object3D = this.starship.rSeas[i];
+            let rSeaObj: Object3D = this.starship.rSeaObjs[i];
+            let rp: RaptorParticle = this.starshipRPs[i];
+            if (rSea != null && rSeaObj != null && rp != null) {
+                let position: Vector3 = rSeaObj.getWorldPosition(new Vector3());
+                let rotation: Quaternion = rSeaObj.getWorldQuaternion(new Quaternion());
+                rp.update(position, rotation, rSea.userData.raptor.throttle);
+            }
+        }
+        for (let i = 0; i < this.starship.rVacs.length; i++) {
+            let rVac: Object3D = this.starship.rVacs[i];
+            let rVacObj: Object3D = this.starship.rVacObjs[i];
+            let rp: RaptorParticle = this.starshipRPs[i + this.starship.rSeas.length];
+            if (rVac != null && rVacObj != null && rp != null) {
+                let position: Vector3 = rVacObj.getWorldPosition(new Vector3());
+                let rotation: Quaternion = rVacObj.getWorldQuaternion(new Quaternion());
+                rp.update(position, rotation, rVac.userData.raptor.throttle * ParticleConstants.RADIUS_SEA_TO_VAC);
+            }
+        }
     }
 }

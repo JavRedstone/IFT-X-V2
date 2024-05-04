@@ -13,6 +13,7 @@ import { FlightController } from "../controllers/FlightController";
 import { CelestialConstants } from "../constants/CelestialConstants";
 import { LandingController } from "../controllers/LandingController";
 import { OLITConstants } from "../constants/objects/OLITConstants";
+import { RaptorParticle } from "../particles/RaptorParticle";
 
 export class SuperHeavy {
     public hsr: Group = new Group();
@@ -66,6 +67,8 @@ export class SuperHeavy {
     public landingController: LandingController = null;
     public landingPosition: Vector3 = new Vector3(0, 0, 0);
     public landingRotation: Quaternion = new Quaternion();
+
+    public raptorParticles: RaptorParticle[] = [];
 
     public controls: any = {
         isWPressed: false,
@@ -1149,11 +1152,11 @@ export class SuperHeavy {
     }
 
     public setupGridFins(): void {
-        let gridFinPositions = MathHelper.getCircularPositions(this.options.numGridFins, SuperHeavyConstants.GRID_FIN_RADIUS * SuperHeavyConstants.SUPER_HEAVY_SCALE.x, this.options.gridFinAngularOffset * Math.PI / 180);
-        let gridFinRotations = MathHelper.getCircularRotations(this.options.numGridFins, this.options.gridFinAngularOffset * Math.PI / 180);
+        let gridFinPositions: Vector3[] = MathHelper.getCircularPositions(this.options.numGridFins, SuperHeavyConstants.GRID_FIN_RADIUS * SuperHeavyConstants.SUPER_HEAVY_SCALE.x, this.options.gridFinAngularOffset * Math.PI / 180);
+        let gridFinRotations: Euler[] = MathHelper.getCircularRotations(this.options.numGridFins, this.options.gridFinAngularOffset * Math.PI / 180);
 
         for (let i = 0; i < this.options.numGridFins; i++) {
-            let gridFin = new Object3D();
+            let gridFin: Object3D = new Object3D();
             gridFin.position.copy(gridFinPositions[i]);
             gridFin.rotation.copy(new Euler().setFromQuaternion(new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), SuperHeavyConstants.GRID_FIN_ROTATION.x).multiply(new Quaternion().setFromAxisAngle(new Vector3(0, 0, 1), gridFinRotations[i].y + SuperHeavyConstants.GRID_FIN_ROTATION.z))));
             gridFin.scale.copy(SuperHeavyConstants.GRID_FIN_SCALE.clone().multiply(SuperHeavyConstants.SUPER_HEAVY_SCALE).multiply(new Vector3(this.options.gridFinWidthScale, this.options.gridFinLengthScale, 1)));
@@ -1164,11 +1167,11 @@ export class SuperHeavy {
     }
 
     public setupChines(): void {
-        let chinePositions = MathHelper.getCircularPositions(this.options.numChines, SuperHeavyConstants.CHINE_RADIUS * SuperHeavyConstants.SUPER_HEAVY_SCALE.x, this.options.chineAngularOffset * Math.PI / 180);
-        let chineRotations = MathHelper.getCircularRotations(this.options.numChines, this.options.chineAngularOffset * Math.PI / 180);
+        let chinePositions: Vector3[] = MathHelper.getCircularPositions(this.options.numChines, SuperHeavyConstants.CHINE_RADIUS * SuperHeavyConstants.SUPER_HEAVY_SCALE.x, this.options.chineAngularOffset * Math.PI / 180);
+        let chineRotations: Euler[] = MathHelper.getCircularRotations(this.options.numChines, this.options.chineAngularOffset * Math.PI / 180);
 
         for (let i = 0; i < this.options.numChines; i++) {
-            let chine = new Object3D();
+            let chine: Object3D = new Object3D();
             chine.position.copy(chinePositions[i].clone().add(new Vector3(0, SuperHeavyConstants.CHINE_BOTTOM_OFFSET * SuperHeavyConstants.SUPER_HEAVY_SCALE.y, 0)));
             chine.rotation.copy(new Euler(0, -chineRotations[i].y + SuperHeavyConstants.CHINE_ROTATION.y, 0));
             chine.scale.copy(SuperHeavyConstants.CHINE_SCALE.clone().multiply(SuperHeavyConstants.SUPER_HEAVY_SCALE).multiply(new Vector3(1, this.options.chineHeightScale, 1)));
@@ -1177,11 +1180,11 @@ export class SuperHeavy {
     }
 
     public setupRSeas(): void {
-        let rSeaPositions1 = MathHelper.getCircularPositions(this.options.numRSeas1, this.options.rSeaRadius1 * SuperHeavyConstants.SUPER_HEAVY_SCALE.x / LaunchConstants.REAL_LIFE_SCALE.y, this.options.rSeaAngularOffset1 * Math.PI / 180);
-        let rSeaRotations1 = MathHelper.getCircularRotations(this.options.numRSeas1, this.options.rSeaAngularOffset1 * Math.PI / 180);
+        let rSeaPositions1: Vector3[] = MathHelper.getCircularPositions(this.options.numRSeas1, this.options.rSeaRadius1 * SuperHeavyConstants.SUPER_HEAVY_SCALE.x / LaunchConstants.REAL_LIFE_SCALE.y, this.options.rSeaAngularOffset1 * Math.PI / 180);
+        let rSeaRotations1: Euler[] = MathHelper.getCircularRotations(this.options.numRSeas1, this.options.rSeaAngularOffset1 * Math.PI / 180);
 
         for (let i = 0; i < this.options.numRSeas1; i++) {
-            let rSea = new Object3D();
+            let rSea: Object3D = new Object3D();
             rSea.position.copy(rSeaPositions1[i].clone().add(new Vector3(0, SuperHeavyConstants.R_HEIGHT * SuperHeavyConstants.SUPER_HEAVY_SCALE.y, 0)));
             rSea.rotation.copy(rSeaRotations1[i]);
             rSea.scale.copy(SuperHeavyConstants.R_SEA_SCALE.clone().multiply(SuperHeavyConstants.SUPER_HEAVY_SCALE));
@@ -1191,11 +1194,11 @@ export class SuperHeavy {
             this.rSeas = [...this.rSeas, rSea];
         }
 
-        let rSeaPositions2 = MathHelper.getCircularPositions(this.options.numRSeas2, this.options.rSeaRadius2 * SuperHeavyConstants.SUPER_HEAVY_SCALE.x / LaunchConstants.REAL_LIFE_SCALE.y, this.options.rSeaAngularOffset2 * Math.PI / 180);
-        let rSeaRotations2 = MathHelper.getCircularRotations(this.options.numRSeas2, this.options.rSeaAngularOffset2 * Math.PI / 180);
+        let rSeaPositions2: Vector3[] = MathHelper.getCircularPositions(this.options.numRSeas2, this.options.rSeaRadius2 * SuperHeavyConstants.SUPER_HEAVY_SCALE.x / LaunchConstants.REAL_LIFE_SCALE.y, this.options.rSeaAngularOffset2 * Math.PI / 180);
+        let rSeaRotations2: Euler[] = MathHelper.getCircularRotations(this.options.numRSeas2, this.options.rSeaAngularOffset2 * Math.PI / 180);
 
         for (let i = 0; i < this.options.numRSeas2; i++) {
-            let rSea = new Object3D();
+            let rSea: Object3D = new Object3D();
             rSea.position.copy(rSeaPositions2[i].clone().add(new Vector3(0, SuperHeavyConstants.R_HEIGHT * SuperHeavyConstants.SUPER_HEAVY_SCALE.y, 0)));
             rSea.rotation.copy(rSeaRotations2[i]);
             rSea.scale.copy(SuperHeavyConstants.R_SEA_SCALE.clone().multiply(SuperHeavyConstants.SUPER_HEAVY_SCALE));
@@ -1205,11 +1208,11 @@ export class SuperHeavy {
             this.rSeas = [...this.rSeas, rSea];
         }
 
-        let rSeaPositions3 = MathHelper.getCircularPositions(this.options.numRSeas3, this.options.rSeaRadius3 * SuperHeavyConstants.SUPER_HEAVY_SCALE.x / LaunchConstants.REAL_LIFE_SCALE.y, this.options.rSeaAngularOffset3 * Math.PI / 180);
-        let rSeaRotations3 = MathHelper.getCircularRotations(this.options.numRSeas3, this.options.rSeaAngularOffset3 * Math.PI / 180);
+        let rSeaPositions3: Vector3[] = MathHelper.getCircularPositions(this.options.numRSeas3, this.options.rSeaRadius3 * SuperHeavyConstants.SUPER_HEAVY_SCALE.x / LaunchConstants.REAL_LIFE_SCALE.y, this.options.rSeaAngularOffset3 * Math.PI / 180);
+        let rSeaRotations3: Euler[] = MathHelper.getCircularRotations(this.options.numRSeas3, this.options.rSeaAngularOffset3 * Math.PI / 180);
 
         for (let i = 0; i < this.options.numRSeas3; i++) {
-            let rSea = new Object3D();
+            let rSea: Object3D = new Object3D();
             rSea.position.copy(rSeaPositions3[i].clone().add(new Vector3(0, SuperHeavyConstants.R_HEIGHT * SuperHeavyConstants.SUPER_HEAVY_SCALE.y, 0)));
             rSea.rotation.copy(rSeaRotations3[i]);
             rSea.scale.copy(SuperHeavyConstants.R_SEA_SCALE.clone().multiply(SuperHeavyConstants.SUPER_HEAVY_SCALE));
@@ -1222,11 +1225,11 @@ export class SuperHeavy {
 
     public setupOuterCylinders(): void {
         if (this.options.rSeaRadius3 > SuperHeavyConstants.OUTER_CYLINDER_THRESHOLD) {
-            let outerCylinderPositions = MathHelper.getCircularPositions(this.options.numRSeas3, (this.options.rSeaRadius3 / LaunchConstants.REAL_LIFE_SCALE.y + SuperHeavyConstants.OUTER_CYLINDER_ADDITIONAL_RADIUS) * SuperHeavyConstants.SUPER_HEAVY_SCALE.x, this.options.rSeaAngularOffset3 * Math.PI / 180);
-            let outerCylinderRotations = MathHelper.getCircularRotations(this.options.numRSeas3, this.options.rSeaAngularOffset3 * Math.PI / 180);
+            let outerCylinderPositions: Vector3[] = MathHelper.getCircularPositions(this.options.numRSeas3, (this.options.rSeaRadius3 / LaunchConstants.REAL_LIFE_SCALE.y + SuperHeavyConstants.OUTER_CYLINDER_ADDITIONAL_RADIUS) * SuperHeavyConstants.SUPER_HEAVY_SCALE.x, this.options.rSeaAngularOffset3 * Math.PI / 180);
+            let outerCylinderRotations: Euler[] = MathHelper.getCircularRotations(this.options.numRSeas3, this.options.rSeaAngularOffset3 * Math.PI / 180);
             
             for (let i = 0; i < this.options.numRSeas3; i++) {
-                let outerCylinder = new Object3D();
+                let outerCylinder: Object3D = new Object3D();
                 outerCylinder.position.copy(outerCylinderPositions[i].clone().add(new Vector3(0, SuperHeavyConstants.R_HEIGHT * SuperHeavyConstants.SUPER_HEAVY_SCALE.y + SuperHeavyConstants.OUTER_CYLINDER_ADDITONAL_HEIGHT * SuperHeavyConstants.SUPER_HEAVY_SCALE.y, 0)));
                 outerCylinder.rotation.copy(outerCylinderRotations[i]);
                 outerCylinder.scale.copy(SuperHeavyConstants.OUTER_CYLINDER_SCALE.clone().multiply(SuperHeavyConstants.SUPER_HEAVY_SCALE));

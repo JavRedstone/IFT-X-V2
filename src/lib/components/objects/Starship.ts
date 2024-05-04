@@ -104,9 +104,7 @@ export class Starship {
 
     public setupMultiple(): void {
         this.rSeas = [];
-        this.rSeaObjs = [];
         this.rVacs = [];
-        this.rVacObjs = [];
         this.setupRSeas();
         this.setupRVacs();
     }
@@ -815,10 +813,10 @@ export class Starship {
     }
 
     public setupRSeas(): void {
-        let rSeaPositions = MathHelper.getCircularPositions(this.options.numRSeas, this.options.rSeaRadius * StarshipConstants.STARSHIP_SCALE.x / LaunchConstants.REAL_LIFE_SCALE.x, this.options.rSeaAngularOffset * Math.PI / 180);
+        let rSeaPositions: Vector3[] = MathHelper.getCircularPositions(this.options.numRSeas, this.options.rSeaRadius * StarshipConstants.STARSHIP_SCALE.x / LaunchConstants.REAL_LIFE_SCALE.x, this.options.rSeaAngularOffset * Math.PI / 180);
 
         for (let i = 0; i < this.options.numRSeas; i++) {
-            let rSea = new Object3D();
+            let rSea: Object3D = new Object3D();
             rSea.position.copy(rSeaPositions[i].clone().add(new Vector3(0, StarshipConstants.R_HEIGHT * StarshipConstants.STARSHIP_SCALE.y, 0)));
             rSea.scale.copy(StarshipConstants.R_SEA_SCALE.clone().multiply(StarshipConstants.STARSHIP_SCALE));
             rSea.userData.originalRotation = new Euler(0, 0, 0);
@@ -829,10 +827,10 @@ export class Starship {
     }
 
     public setupRVacs(): void {
-        let rVacPositions = MathHelper.getCircularPositions(this.options.numRVacs, this.options.rVacRadius * StarshipConstants.STARSHIP_SCALE.x / LaunchConstants.REAL_LIFE_SCALE.x, this.options.rVacAngularOffset * Math.PI / 180);
+        let rVacPositions: Vector3[] = MathHelper.getCircularPositions(this.options.numRVacs, this.options.rVacRadius * StarshipConstants.STARSHIP_SCALE.x / LaunchConstants.REAL_LIFE_SCALE.x, this.options.rVacAngularOffset * Math.PI / 180);
 
         for (let i = 0; i < this.options.numRVacs; i++) {
-            let rVac = new Object3D();
+            let rVac: Object3D = new Object3D();
             rVac.position.copy(rVacPositions[i].clone().add(new Vector3(0, StarshipConstants.R_HEIGHT * StarshipConstants.STARSHIP_SCALE.y, 0)));
             rVac.scale.copy(StarshipConstants.R_VAC_SCALE.clone().multiply(StarshipConstants.STARSHIP_SCALE));
             rVac.userData.originalRotation = new Euler(0, 0, 0);
