@@ -816,6 +816,18 @@ export class LaunchManager {
     }
 
     public updateRPs(): void {
+        let ssAltitude = 0;
+        let shAltitude = 0;
+        if (this.stackGroup != null && this.stackGroup.userData.flightController != null) {
+            if (this.separated && !this.justSeparated) {
+                ssAltitude = this.starship.flightController.getAltitude();
+                shAltitude = this.superHeavy.flightController.getAltitude();
+            }
+            else {
+                ssAltitude = this.stackGroup.userData.flightController.getAltitude();
+                shAltitude = this.stackGroup.userData.flightController.getAltitude();
+            }
+        }
         for (let i = 0; i < this.superHeavy.rSeas.length; i++) {
             let rSea: Object3D = this.superHeavy.rSeas[i];
             let rSeaObj: Object3D = this.superHeavy.rSeaObjs[i];
@@ -823,7 +835,7 @@ export class LaunchManager {
             if (rSea != null && rSeaObj != null && rp != null) {
                 let position: Vector3 = rSeaObj.getWorldPosition(new Vector3());
                 let rotation: Quaternion = rSeaObj.getWorldQuaternion(new Quaternion());
-                rp.update(position, rotation, rSea.userData.raptor.throttle);
+                rp.update(position, rotation, rSea.userData.raptor.throttle, shAltitude);
             }
         }
         for (let i = 0; i < this.starship.rSeas.length; i++) {
@@ -833,7 +845,7 @@ export class LaunchManager {
             if (rSea != null && rSeaObj != null && rp != null) {
                 let position: Vector3 = rSeaObj.getWorldPosition(new Vector3());
                 let rotation: Quaternion = rSeaObj.getWorldQuaternion(new Quaternion());
-                rp.update(position, rotation, rSea.userData.raptor.throttle);
+                rp.update(position, rotation, rSea.userData.raptor.throttle, ssAltitude);
             }
         }
         for (let i = 0; i < this.starship.rVacs.length; i++) {
@@ -843,7 +855,7 @@ export class LaunchManager {
             if (rVac != null && rVacObj != null && rp != null) {
                 let position: Vector3 = rVacObj.getWorldPosition(new Vector3());
                 let rotation: Quaternion = rVacObj.getWorldQuaternion(new Quaternion());
-                rp.update(position, rotation, rVac.userData.raptor.throttle * ParticleConstants.RADIUS_SEA_TO_VAC);
+                rp.update(position, rotation, rVac.userData.raptor.throttle * ParticleConstants.RADIUS_SEA_TO_VAC, ssAltitude);
             }
         }
     }

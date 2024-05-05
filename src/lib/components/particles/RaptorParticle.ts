@@ -76,11 +76,11 @@ export class RaptorParticle {
                         "id": "3ef1dd32-0995-11ef-883f-6fa390d4b039",
                         "type": "RadialVelocity",
                         "properties": {
-                            "radius": 0,
+                            "radius": 0.001,
                             "x": 0,
-                            "y": 0,
-                            "z": 1,
-                            "theta": 30,
+                            "y": -1,
+                            "z": 0,
+                            "theta": 0,
                             "isEnabled": true
                         }
                     }
@@ -223,13 +223,13 @@ export class RaptorParticle {
         })
     }
 
-    public update(position: Vector3, rotation: Quaternion, throttle: number): void {
+    public update(position: Vector3, rotation: Quaternion, throttle: number, altitude: number): void {
         if (this.system === undefined) return;
         this.position = position;
         this.rotation = new Euler().setFromQuaternion(rotation);
         for (let emitter of this.system.emitters) {
             emitter.setPosition(this.position);
-            // emitter.setRotation(this.rotation);
+            emitter.setRotation(this.rotation);
             for (let behaviour of emitter.behaviours) {
                 if (behaviour['type'] === 'Spring') {
                     behaviour['x'] = this.position.x;
@@ -258,6 +258,12 @@ export class RaptorParticle {
                 }
             }
             emitter.setBehaviours(emitter.behaviours);
+            for (let initializer of emitter['initializers']) {
+                if (initializer['type'] === 'RadialVelocity') {
+                    initializer['tha'] = altitude * ParticleConstants.RAPTOR_ALTITUDE_MULTIPLIER;
+                }
+            }
+            emitter.setInitializers(emitter['initializers']);
         }
         
         this.system.update();
