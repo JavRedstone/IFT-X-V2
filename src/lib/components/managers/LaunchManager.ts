@@ -467,14 +467,18 @@ export class LaunchManager {
                         }
                     }
                     else {
-                        if (this.dt - LaunchConstants.STARTUP_DT >= LaunchConstants.PAD_DT) {
+                        if (this.dt >= LaunchConstants.PAD_DT) {
+                            this.canLiftOff = false;
+                            this.OLIT.startQDSwing = false;
+                            this.superHeavy.runForceShutdown();
+                            this.starship.runForceShutdown();
                             telemetry.update((value) => {
                                 value.currBoosterEvent = LaunchConstants.BOOSTER_LAUNCH_EVENTS.length;
+                                value.currShipEvent = LaunchConstants.SHIP_LAUNCH_EVENTS.length;
                                 value.superHeavyDisabled = true;
                                 value.starshipDisabled = true;
                                 return value;
                             });
-                            this.superHeavy.runForceShutdown();
                         }
                         else {
                             let altitude: number = LaunchHelper.getAltitude(this.group.position.clone().add(this.stackGroup.position.clone().add(this.superHeavy.group.position)));
@@ -612,15 +616,21 @@ export class LaunchManager {
                         this.superHeavy.group.position.copy(PRTransients.fakePositions.superHeavyPosition);
                         this.superHeavy.group.rotation.copy(PRTransients.fakeRotations.superHeavyRotation);
 
+                        if (this.starship.startLandingSequence) {
+                            this.starshipLandingArrow.visible = true;
+                            this.starshipLandingArrow.position.copy(PRTransients.fakePositions.starshipLandingArrowPosition);
+                            this.starshipLandingArrow.setDirection(PRTransients.fakePositions.starshipLandingArrowDirection);
+                        }
+                        else {
+                            this.starshipLandingArrow.visible = false;
+                        }
                         if (this.superHeavy.startLandingSequence) {
                             this.superHeavyLandingArrow.visible = true;
                             this.superHeavyLandingArrow.position.copy(PRTransients.fakePositions.superHeavyLandingArrowPosition);
                             this.superHeavyLandingArrow.setDirection(PRTransients.fakePositions.superHeavyLandingArrowDirection);
                         }
-                        if (this.starship.startLandingSequence) {
-                            this.starshipLandingArrow.visible = true;
-                            this.starshipLandingArrow.position.copy(PRTransients.fakePositions.starshipLandingArrowPosition);
-                            this.starshipLandingArrow.setDirection(PRTransients.fakePositions.starshipLandingArrowDirection);
+                        else {
+                            this.superHeavyLandingArrow.visible = false;
                         }
                     }
                     else {
@@ -864,7 +874,7 @@ export class LaunchManager {
             }
         }
         if (this.dt >= LaunchConstants.DELUGE_START_DT) {
-            this.delugeP.update(this.OLIT.olm.getWorldPosition(new Vector3()), this.OLIT.olm.getWorldQuaternion(new Quaternion()), this.liftedOff && this.dt >= LaunchConstants.DELUGE_STOP_DT ? 0 : 1);
+            this.delugeP.update(this.OLIT.olm.getWorldPosition(new Vector3()), this.OLIT.olm.getWorldQuaternion(new Quaternion()), (this.liftedOff && this.dt >= LaunchConstants.DELUGE_STOP_DT) || (!this.liftedOff && this.dt >= LaunchConstants.PAD_DT) ? 0 : 1);
         }
     }
 }

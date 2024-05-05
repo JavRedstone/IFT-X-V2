@@ -896,7 +896,7 @@ export class SuperHeavy {
                 if (this.options.hsrHeight > SuperHeavyConstants.MIN_HSR_HEIGHT * LaunchConstants.REAL_LIFE_SCALE.y) {
                     this.startMECOSequence = false;
                     this.endMECOSequence = true;
-                    // this.startSepGridFinSequence = true;
+                    this.startSepGridFinSequence = true;
                 }
                 else {
                     let areAllRSea1Ready: boolean = true;
@@ -913,7 +913,7 @@ export class SuperHeavy {
                     if (areAllRSea1Ready) {
                         this.startMECOSequence = false;
                         this.endMECOSequence = true;
-                        // this.startSepGridFinSequence = true;
+                        this.startSepGridFinSequence = true;
                     }   
                 }
             }

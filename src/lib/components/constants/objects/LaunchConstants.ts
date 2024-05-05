@@ -36,8 +36,8 @@ export class LaunchConstants {
     public static readonly STOP_DT: number = -150; //s
     public static readonly HOLD_DT: number = -40; //s
     public static readonly COUNTDOWN_DT: number = -11; //s
-    public static readonly DELUGE_START_DT: number = -5; //s
-    public static readonly STARTUP_DT: number = -2; //s
+    public static readonly DELUGE_START_DT: number = -6; //s
+    public static readonly STARTUP_DT: number = -3; //s
     public static readonly DELUGE_STOP_DT: number = 2; //s
     public static readonly PAD_DT: number = 10; //s
     public static readonly MECO_DT: number = 10; //s
