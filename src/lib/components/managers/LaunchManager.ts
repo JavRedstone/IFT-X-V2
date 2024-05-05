@@ -17,6 +17,7 @@ import { FlightController } from "../controllers/FlightController";
 import { LaunchHelper } from "../helpers/LaunchHelper";
 import { RaptorParticle } from "../particles/RaptorParticle";
 import { ParticleConstants } from "../constants/ParticleConstants";
+import { DelugeParticle } from "../particles/DelugeParticle";
 
 export class LaunchManager {
     public tc: ThrelteContext;
@@ -72,6 +73,7 @@ export class LaunchManager {
 
     public starshipRPs: RaptorParticle[] = [];
     public superHeavyRPs: RaptorParticle[] = [];
+    public delugeP: DelugeParticle = null;
 
     public OLITArrow: ArrowHelper = new ArrowHelper(new Vector3(0, 0, 0), new Vector3(0, 0, 0), LaunchConstants.OLIT_ARROW_LENGTH, LaunchConstants.OLIT_ARROW_COLOR);
     public superHeavyLandingArrow: ArrowHelper = new ArrowHelper(new Vector3(0, 0, 0), new Vector3(0, 0, 0), LaunchConstants.SUPER_HEAVY_LANDING_ARROW_LENGTH, LaunchConstants.SUPER_HEAVY_LANDING_ARROW_COLOR);
@@ -205,9 +207,9 @@ export class LaunchManager {
                 }
                 if (this.isLaunching) {
                     if (this.starshipRPs.length == 0 && this.superHeavyRPs.length == 0) {
-                        this.createRPs();
+                        this.createPs();
                     }
-                    this.updateRPs();
+                    this.updatePs();
                     if (this.dt < LaunchConstants.COUNTDOWN_DT) {
                         this.dt += delta * LaunchConstants.COUNTDOWN_SPEEDUP;
                     }
@@ -800,7 +802,7 @@ export class LaunchManager {
         });
     }
 
-    public createRPs(): void {
+    public createPs(): void {
         for (let i = 0; i < this.superHeavy.rSeas.length; i++) {
             let rp: RaptorParticle = new RaptorParticle(this.tc);
             this.superHeavyRPs.push(rp);
@@ -813,50 +815,56 @@ export class LaunchManager {
             let rp: RaptorParticle = new RaptorParticle(this.tc);
             this.starshipRPs.push(rp);
         }
+        this.delugeP = new DelugeParticle(this.tc);
     }
 
-    public updateRPs(): void {
-        let ssAltitude = 0;
-        let shAltitude = 0;
-        if (this.stackGroup != null && this.stackGroup.userData.flightController != null) {
-            if (this.separated && !this.justSeparated) {
-                ssAltitude = this.starship.flightController.getAltitude();
-                shAltitude = this.superHeavy.flightController.getAltitude();
+    public updatePs(): void {
+        if (this.dt >= LaunchConstants.STARTUP_DT) {
+            let ssAltitude = 0;
+            let shAltitude = 0;
+            if (this.stackGroup != null && this.stackGroup.userData.flightController != null) {
+                if (this.separated && !this.justSeparated) {
+                    ssAltitude = this.starship.flightController.getAltitude();
+                    shAltitude = this.superHeavy.flightController.getAltitude();
+                }
+                else {
+                    ssAltitude = this.stackGroup.userData.flightController.getAltitude();
+                    shAltitude = this.stackGroup.userData.flightController.getAltitude();
+                }
             }
-            else {
-                ssAltitude = this.stackGroup.userData.flightController.getAltitude();
-                shAltitude = this.stackGroup.userData.flightController.getAltitude();
+            for (let i = 0; i < this.superHeavy.rSeas.length; i++) {
+                let rSea: Object3D = this.superHeavy.rSeas[i];
+                let rSeaObj: Object3D = this.superHeavy.rSeaObjs[i];
+                let rp: RaptorParticle = this.superHeavyRPs[i];
+                if (rSea != null && rSeaObj != null && rp != null) {
+                    let position: Vector3 = rSeaObj.getWorldPosition(new Vector3());
+                    let rotation: Quaternion = rSeaObj.getWorldQuaternion(new Quaternion());
+                    rp.update(position, rotation, rSea.userData.raptor.throttle, shAltitude);
+                }
+            }
+            for (let i = 0; i < this.starship.rSeas.length; i++) {
+                let rSea: Object3D = this.starship.rSeas[i];
+                let rSeaObj: Object3D = this.starship.rSeaObjs[i];
+                let rp: RaptorParticle = this.starshipRPs[i];
+                if (rSea != null && rSeaObj != null && rp != null) {
+                    let position: Vector3 = rSeaObj.getWorldPosition(new Vector3());
+                    let rotation: Quaternion = rSeaObj.getWorldQuaternion(new Quaternion());
+                    rp.update(position, rotation, rSea.userData.raptor.throttle, ssAltitude);
+                }
+            }
+            for (let i = 0; i < this.starship.rVacs.length; i++) {
+                let rVac: Object3D = this.starship.rVacs[i];
+                let rVacObj: Object3D = this.starship.rVacObjs[i];
+                let rp: RaptorParticle = this.starshipRPs[i + this.starship.rSeas.length];
+                if (rVac != null && rVacObj != null && rp != null) {
+                    let position: Vector3 = rVacObj.getWorldPosition(new Vector3());
+                    let rotation: Quaternion = rVacObj.getWorldQuaternion(new Quaternion());
+                    rp.update(position, rotation, rVac.userData.raptor.throttle * ParticleConstants.RAPTOR_SEA_TO_VAC, ssAltitude);
+                }
             }
         }
-        for (let i = 0; i < this.superHeavy.rSeas.length; i++) {
-            let rSea: Object3D = this.superHeavy.rSeas[i];
-            let rSeaObj: Object3D = this.superHeavy.rSeaObjs[i];
-            let rp: RaptorParticle = this.superHeavyRPs[i];
-            if (rSea != null && rSeaObj != null && rp != null) {
-                let position: Vector3 = rSeaObj.getWorldPosition(new Vector3());
-                let rotation: Quaternion = rSeaObj.getWorldQuaternion(new Quaternion());
-                rp.update(position, rotation, rSea.userData.raptor.throttle, shAltitude);
-            }
-        }
-        for (let i = 0; i < this.starship.rSeas.length; i++) {
-            let rSea: Object3D = this.starship.rSeas[i];
-            let rSeaObj: Object3D = this.starship.rSeaObjs[i];
-            let rp: RaptorParticle = this.starshipRPs[i];
-            if (rSea != null && rSeaObj != null && rp != null) {
-                let position: Vector3 = rSeaObj.getWorldPosition(new Vector3());
-                let rotation: Quaternion = rSeaObj.getWorldQuaternion(new Quaternion());
-                rp.update(position, rotation, rSea.userData.raptor.throttle, ssAltitude);
-            }
-        }
-        for (let i = 0; i < this.starship.rVacs.length; i++) {
-            let rVac: Object3D = this.starship.rVacs[i];
-            let rVacObj: Object3D = this.starship.rVacObjs[i];
-            let rp: RaptorParticle = this.starshipRPs[i + this.starship.rSeas.length];
-            if (rVac != null && rVacObj != null && rp != null) {
-                let position: Vector3 = rVacObj.getWorldPosition(new Vector3());
-                let rotation: Quaternion = rVacObj.getWorldQuaternion(new Quaternion());
-                rp.update(position, rotation, rVac.userData.raptor.throttle * ParticleConstants.RADIUS_SEA_TO_VAC, ssAltitude);
-            }
+        if (this.dt >= LaunchConstants.DELUGE_START_DT) {
+            this.delugeP.update(this.OLIT.olm.getWorldPosition(new Vector3()), this.OLIT.olm.getWorldQuaternion(new Quaternion()), this.liftedOff && this.dt >= LaunchConstants.DELUGE_STOP_DT ? 0 : 1);
         }
     }
 }
