@@ -2,7 +2,7 @@ import System, { SpriteRenderer } from 'three-nebula';
 import * as THREE from 'three';
 import { Vector3, Euler, Quaternion } from 'three';
 import { type ThrelteContext } from '@threlte/core';
-import { ParticleConstants } from '../constants/ParticleConstants';
+import { ParticleConstants } from '../../constants/ParticleConstants';
 
 export class DelugeParticle {
     public static readonly PARTICLE_SYSTEM: any = {

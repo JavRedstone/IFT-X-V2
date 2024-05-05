@@ -2,7 +2,7 @@ import System, { SpriteRenderer } from 'three-nebula';
 import * as THREE from 'three';
 import { Vector3, Euler, Quaternion } from 'three';
 import { type ThrelteContext } from '@threlte/core';
-import { ParticleConstants } from '../constants/ParticleConstants';
+import { ParticleConstants } from '../../constants/ParticleConstants';
 
 export class RaptorParticle {
     public static readonly PARTICLE_SYSTEM: any = {
@@ -241,7 +241,7 @@ export class RaptorParticle {
                     // otherwise this weird gravity pulling thing happens even though theres no gravity
                 }
                 if (behaviour['type'] === 'Force') {
-                    let forceVector: Vector3 = new Vector3(0, ParticleConstants.RAPTOR_FORCE * ParticleConstants.RAPTOR_FORCE_MULTIPLIER, 0);
+                    let forceVector: Vector3 = new Vector3(0, ParticleConstants.RAPTOR_FORCE * ParticleConstants.FORCE_MULT, 0);
                     let forceVectorRotated: Vector3 = forceVector.applyQuaternion(rotation);
                     behaviour['fx'] = forceVectorRotated.x;
                     behaviour['fy'] = forceVectorRotated.y;
@@ -260,7 +260,7 @@ export class RaptorParticle {
             emitter.setBehaviours(emitter.behaviours);
             for (let initializer of emitter['initializers']) {
                 if (initializer['type'] === 'RadialVelocity') {
-                    initializer['tha'] = altitude * ParticleConstants.RAPTOR_ALTITUDE_MULTIPLIER;
+                    initializer['tha'] = altitude * ParticleConstants.RAPTOR_THETA_ALTITUDE;
                 }
             }
             emitter.setInitializers(emitter['initializers']);

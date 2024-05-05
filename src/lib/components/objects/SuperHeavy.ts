@@ -13,7 +13,7 @@ import { FlightController } from "../controllers/FlightController";
 import { CelestialConstants } from "../constants/CelestialConstants";
 import { LandingController } from "../controllers/LandingController";
 import { OLITConstants } from "../constants/objects/OLITConstants";
-import { RaptorParticle } from "../particles/RaptorParticle";
+import { RaptorParticle } from "../particles/classes/RaptorParticle";
 
 export class SuperHeavy {
     public hsr: Group = new Group();

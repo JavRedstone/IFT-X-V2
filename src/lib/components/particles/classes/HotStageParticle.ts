@@ -2,7 +2,7 @@ import System, { SpriteRenderer } from 'three-nebula';
 import * as THREE from 'three';
 import { Vector3, Euler, Quaternion } from 'three';
 import { type ThrelteContext } from '@threlte/core';
-import { ParticleConstants } from '../constants/ParticleConstants';
+import { ParticleConstants } from '../../constants/ParticleConstants';
 
 export class HotStageParticle {
     public static readonly PARTICLE_SYSTEM: any = {
@@ -142,7 +142,7 @@ export class HotStageParticle {
                             "x": 0,
                             "y": 0,
                             "z": 0,
-                            "gravity": 0.004,
+                            "gravity": 0,
                             "life": null,
                             "easing": "easeLinear"
                         }
@@ -242,6 +242,16 @@ export class HotStageParticle {
                     behaviour['scaleA']['b'] = scale * ParticleConstants.HOT_STAGE_A_SCALE;
                     behaviour['scaleB']['a'] = scale * ParticleConstants.HOT_STAGE_B_SCALE;
                     behaviour['scaleB']['b'] = scale * ParticleConstants.HOT_STAGE_B_SCALE;
+                }
+                if (behaviour['type'] === 'Force') {
+                    let forceVector: Vector3 = new Vector3(0, ParticleConstants.HOT_STAGE_FORCE * ParticleConstants.FORCE_MULT, 0);
+                    let forceVectorRotated: Vector3 = forceVector.applyQuaternion(rotation);
+                    behaviour['fx'] = forceVectorRotated.x;
+                    behaviour['fy'] = forceVectorRotated.y;
+                    behaviour['fz'] = forceVectorRotated.z;
+                    behaviour['force']['x'] = forceVectorRotated.x;
+                    behaviour['force']['y'] = forceVectorRotated.y;
+                    behaviour['force']['z'] = forceVectorRotated.z;
                 }
             }
             emitter.setBehaviours(emitter.behaviours);

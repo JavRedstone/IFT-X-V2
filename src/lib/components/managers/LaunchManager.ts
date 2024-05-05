@@ -15,10 +15,10 @@ import { LaunchConstants } from "../constants/objects/LaunchConstants";
 import { StarshipConstants } from "../constants/objects/StarshipConstants";
 import { FlightController } from "../controllers/FlightController";
 import { LaunchHelper } from "../helpers/LaunchHelper";
-import { RaptorParticle } from "../particles/RaptorParticle";
+import { RaptorParticle } from "../particles/classes/RaptorParticle";
 import { ParticleConstants } from "../constants/ParticleConstants";
-import { DelugeParticle } from "../particles/DelugeParticle";
-import { HotStageParticle } from "../particles/HotStageParticle";
+import { DelugeParticle } from "../particles/classes/DelugeParticle";
+import { HotStageParticle } from "../particles/classes/HotStageParticle";
 
 export class LaunchManager {
     public tc: ThrelteContext;
