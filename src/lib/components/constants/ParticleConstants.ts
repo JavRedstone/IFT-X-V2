@@ -8,4 +8,7 @@ export class ParticleConstants {
 
     public static readonly DELUGE_A_SCALE: number = 1;
     public static readonly DELUGE_B_SCALE: number = 0.5;
+
+    public static readonly HOT_STAGE_A_SCALE: number = 1;
+    public static readonly HOT_STAGE_B_SCALE: number = 0.5;
 }

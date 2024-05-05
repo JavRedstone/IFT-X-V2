@@ -18,6 +18,7 @@ import { LaunchHelper } from "../helpers/LaunchHelper";
 import { RaptorParticle } from "../particles/RaptorParticle";
 import { ParticleConstants } from "../constants/ParticleConstants";
 import { DelugeParticle } from "../particles/DelugeParticle";
+import { HotStageParticle } from "../particles/HotStageParticle";
 
 export class LaunchManager {
     public tc: ThrelteContext;
@@ -74,6 +75,7 @@ export class LaunchManager {
     public starshipRPs: RaptorParticle[] = [];
     public superHeavyRPs: RaptorParticle[] = [];
     public delugeP: DelugeParticle = null;
+    public hotStageP: HotStageParticle = null;
 
     public OLITArrow: ArrowHelper = new ArrowHelper(new Vector3(0, 0, 0), new Vector3(0, 0, 0), LaunchConstants.OLIT_ARROW_LENGTH, LaunchConstants.OLIT_ARROW_COLOR);
     public superHeavyLandingArrow: ArrowHelper = new ArrowHelper(new Vector3(0, 0, 0), new Vector3(0, 0, 0), LaunchConstants.SUPER_HEAVY_LANDING_ARROW_LENGTH, LaunchConstants.SUPER_HEAVY_LANDING_ARROW_COLOR);
@@ -826,6 +828,7 @@ export class LaunchManager {
             this.starshipRPs.push(rp);
         }
         this.delugeP = new DelugeParticle(this.tc);
+        this.hotStageP = new HotStageParticle(this.tc);
     }
 
     public updatePs(): void {
@@ -875,6 +878,12 @@ export class LaunchManager {
         }
         if (this.dt >= LaunchConstants.DELUGE_START_DT) {
             this.delugeP.update(this.OLIT.olm.getWorldPosition(new Vector3()), this.OLIT.olm.getWorldQuaternion(new Quaternion()), (this.liftedOff && this.dt >= LaunchConstants.DELUGE_STOP_DT) || (!this.liftedOff && this.dt >= LaunchConstants.PAD_DT) ? 0 : 1);
+        }
+        if (this.starship.startStartupSequence && !this.separated) {
+            this.hotStageP.update(this.superHeavy.hsr.getWorldPosition(new Vector3()), this.superHeavy.hsr.getWorldQuaternion(new Quaternion()), 1);            
+        }
+        else {
+            this.hotStageP.update(this.superHeavy.hsr.getWorldPosition(new Vector3()), this.superHeavy.hsr.getWorldQuaternion(new Quaternion()), 0);
         }
     }
 }
