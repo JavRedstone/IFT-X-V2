@@ -1,21 +1,11 @@
-{
-    "headerState": {
-        "projectName": "Deluge",
-        "version": {
-            "loading": false,
-            "error": null,
-            "data": {
-                "version": "1.0.8-alpha"
-            }
-        },
-        "release": {
-            "loading": false,
-            "error": null,
-            "data": null
-        },
-        "shouldShowReleaseDownloadDialog": false
-    },
-    "particleSystemState": {
+import System, { SpriteRenderer } from 'three-nebula';
+import * as THREE from 'three';
+import { Vector3, Euler, Quaternion } from 'three';
+import { type ThrelteContext } from '@threlte/core';
+import { ParticleConstants } from '../constants/ParticleConstants';
+
+export class DelugeParticle {
+    public static readonly PARTICLE_SYSTEM: any = {
         "preParticles": 500,
         "integrationType": "EULER",
         "emitters": [
@@ -74,8 +64,8 @@
                         "id": "125c3864-0a80-11ef-aba2-27d52442715f",
                         "type": "Radius",
                         "properties": {
-                            "width": 1,
-                            "height": 1,
+                            "width": 0.0001,
+                            "height": 0.0001,
                             "isEnabled": true
                         }
                     },
@@ -83,7 +73,7 @@
                         "id": "125c3865-0a80-11ef-aba2-27d52442715f",
                         "type": "RadialVelocity",
                         "properties": {
-                            "radius": 5,
+                            "radius": 0.0005,
                             "x": 0,
                             "y": 1,
                             "z": 0,
@@ -97,7 +87,7 @@
                         "id": "125c3866-0a80-11ef-aba2-27d52442715f",
                         "type": "Alpha",
                         "properties": {
-                            "alphaA": 0.5,
+                            "alphaA": 0.3,
                             "alphaB": 0,
                             "life": null,
                             "easing": "easeLinear"
@@ -117,8 +107,8 @@
                         "id": "125c3868-0a80-11ef-aba2-27d52442715f",
                         "type": "Scale",
                         "properties": {
-                            "scaleA": 1,
-                            "scaleB": 1.5,
+                            "scaleA": ParticleConstants.DELUGE_A_SCALE,
+                            "scaleB": ParticleConstants.DELUGE_B_SCALE,
                             "life": null,
                             "easing": "easeLinear"
                         }
@@ -128,7 +118,7 @@
                         "type": "Force",
                         "properties": {
                             "fx": 0,
-                            "fy": 1,
+                            "fy": 0,
                             "fz": 0,
                             "life": null,
                             "easing": "easeLinear"
@@ -152,7 +142,7 @@
                             "x": 0,
                             "y": 0,
                             "z": 0,
-                            "gravity": 1,
+                            "gravity": 0,
                             "life": null,
                             "easing": "easeLinear"
                         }
@@ -198,5 +188,65 @@
                 ]
             }
         ]
+    };
+
+    public tc: ThrelteContext;
+    public system: System;
+    public position: Vector3 = new Vector3(0, 0, 0);
+    public rotation: Euler = new Euler(0, 0, 0);
+    public throttle: number;
+    
+    public constructor(tc: ThrelteContext) {
+        this.tc = tc;
+        this.createParticleSystem();
+    }
+
+    public createParticleSystem(): void {
+        System.fromJSONAsync(DelugeParticle.PARTICLE_SYSTEM, THREE).then(loaded => {
+            let systemRenderer: SpriteRenderer = new SpriteRenderer(this.tc.scene, THREE);
+            this.system = loaded.addRenderer(systemRenderer);
+
+            this.system.emit({
+                onStart() {
+                    // console.log('Start');
+                },
+                onUpdate() {
+                    // console.log('Update');
+                },
+                onEnd() {
+                    // console.log('End');
+                }
+            });
+        })
+    }
+
+    public update(position: Vector3, rotation: Quaternion, scale: number): void {
+        if (this.system === undefined) return;
+        this.position = position;
+        this.rotation = new Euler().setFromQuaternion(rotation);
+        for (let emitter of this.system.emitters) {
+            emitter.setPosition(this.position);
+            emitter.setRotation(this.rotation);
+            for (let behaviour of emitter.behaviours) {
+                if (behaviour['type'] === 'Spring') {
+                    behaviour['x'] = this.position.x;
+                    behaviour['y'] = this.position.y;
+                    behaviour['z'] = this.position.z;
+                    behaviour['pos']['x'] = this.position.x;
+                    behaviour['pos']['y'] = this.position.y;
+                    behaviour['pos']['z'] = this.position.z;
+                    // otherwise this weird gravity pulling thing happens even though theres no gravity
+                }
+                if (behaviour['type'] === 'Scale') {
+                    behaviour['scaleA']['a'] = scale * ParticleConstants.DELUGE_A_SCALE;
+                    behaviour['scaleA']['b'] = scale * ParticleConstants.DELUGE_A_SCALE;
+                    behaviour['scaleB']['a'] = scale * ParticleConstants.DELUGE_B_SCALE;
+                    behaviour['scaleB']['b'] = scale * ParticleConstants.DELUGE_B_SCALE;
+                }
+            }
+            emitter.setBehaviours(emitter.behaviours);
+        }
+        
+        this.system.update();
     }
 }

@@ -1,6 +1,6 @@
 {
     "headerState": {
-        "projectName": "Raptor",
+        "projectName": "Reentry",
         "version": {
             "loading": false,
             "error": null,
@@ -20,7 +20,7 @@
         "integrationType": "EULER",
         "emitters": [
             {
-                "id": "3ef1b620-0995-11ef-883f-6fa390d4b039",
+                "id": "125c3860-0a80-11ef-aba2-27d52442715f",
                 "totalEmitTimes": null,
                 "life": null,
                 "cache": {
@@ -28,10 +28,10 @@
                     "life": 0
                 },
                 "rate": {
-                    "particlesMin": 5,
-                    "particlesMax": 5,
-                    "perSecondMin": 0.0001,
-                    "perSecondMax": 0.0001
+                    "particlesMin": 10,
+                    "particlesMax": 20,
+                    "perSecondMin": 0.1,
+                    "perSecondMax": 0.1
                 },
                 "position": {
                     "x": 0,
@@ -45,27 +45,25 @@
                 },
                 "initializers": [
                     {
-                        "id": "3ef1b621-0995-11ef-883f-6fa390d4b039",
+                        "id": "125c3861-0a80-11ef-aba2-27d52442715f",
                         "type": "Mass",
                         "properties": {
-                            "min": 20,
-                            "max": 20,
-                            "isEnabled": true,
-                            "center": false
+                            "min": 30,
+                            "max": 10,
+                            "isEnabled": true
                         }
                     },
                     {
-                        "id": "3ef1b622-0995-11ef-883f-6fa390d4b039",
+                        "id": "125c3862-0a80-11ef-aba2-27d52442715f",
                         "type": "Life",
                         "properties": {
-                            "min": 0.5,
-                            "max": 1,
-                            "isEnabled": true,
-                            "center": false
+                            "min": 2,
+                            "max": 4,
+                            "isEnabled": true
                         }
                     },
                     {
-                        "id": "3ef1dd30-0995-11ef-883f-6fa390d4b039",
+                        "id": "125c3863-0a80-11ef-aba2-27d52442715f",
                         "type": "BodySprite",
                         "properties": {
                             "texture": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAJkSURBVHjaxJeJbusgEEW94S1L//83X18M2MSuLd2pbqc4wZGqRLrKBsyZhQHny7Jk73xVL8xpVhWrcmiB5lX+6GJ5YgQ2owbAm8oIwH1VgKZUmGcRqKGGPgtEQQAzGR8hQ59fAmhJHSAagigJ4E7GPWRXOYC6owAd1JM6wDQPADyMWUqZRMqmAojHp1Vn6EQQEgUNMJLnUjMyJsM49wygBkAPw9dVFwXRkncCIIW3GRgoTQUZn6HxCMAFEFd8TwEQ78X4rHbILoAUmeT+RFG4UhQ6MiIAE4W/UsYFjuVjAIa2nIY4q1R0GFtQWG3E84lqw2GO2QOoCKBVu0BAPgDSU0eUDjjQenNkV/AW/pWChhpMTelo1a64AOKM30vk18GzTHXCNtI/Knz3DFBgsUqBGIjTInXRY1yA9xkVoqW5tVq3pDR9A0hfF5BSARmVnh7RMDCaIdcNgbPBkgzn1Bu+SfIEFSpSBmkxyrMicb0fAEuCZrWnN89veA/4XcakrPcjBWzkTuLjlbfTQPOlBhz+HwkqqPXmPQDdrQItxE1moGof1S74j/8txk8EHhTQrAE8qlwfqS5yukm1x/rAJ9Jiaa6nyATqD78aUVBhFo8b1V4DdTXdCW+IxA1zB4JhiOhZMEWO1HqnvdoHZ4FAMIhV9REF8FiUm0jsYPEJx/Fm/N8OhH90HI9YRHesWbXXZwAShU8qThe7H8YAuJmw5yOd989uRINKRTJAhoF8jbqrHKfeCYdIISZfSq26bk/K+yO3YvfKrVgiwQBHnwt8ynPB25+M8hceTt/ybPhnryJ78+tLgAEAuCFyiQgQB30AAAAASUVORK5CYII=",
@@ -73,31 +71,30 @@
                         }
                     },
                     {
-                        "id": "3ef1dd31-0995-11ef-883f-6fa390d4b039",
+                        "id": "125c3864-0a80-11ef-aba2-27d52442715f",
                         "type": "Radius",
                         "properties": {
                             "width": 1,
                             "height": 1,
-                            "isEnabled": true,
-                            "center": false
+                            "isEnabled": true
                         }
                     },
                     {
-                        "id": "3ef1dd32-0995-11ef-883f-6fa390d4b039",
+                        "id": "125c3865-0a80-11ef-aba2-27d52442715f",
                         "type": "RadialVelocity",
                         "properties": {
-                            "radius": 0,
+                            "radius": 5,
                             "x": 0,
-                            "y": 0,
-                            "z": 1,
-                            "theta": 30,
+                            "y": 1,
+                            "z": 0,
+                            "theta": 90,
                             "isEnabled": true
                         }
                     }
                 ],
                 "behaviours": [
                     {
-                        "id": "3ef1dd33-0995-11ef-883f-6fa390d4b039",
+                        "id": "125c3866-0a80-11ef-aba2-27d52442715f",
                         "type": "Alpha",
                         "properties": {
                             "alphaA": 0.5,
@@ -107,17 +104,17 @@
                         }
                     },
                     {
-                        "id": "3ef1dd34-0995-11ef-883f-6fa390d4b039",
+                        "id": "125c3867-0a80-11ef-aba2-27d52442715f",
                         "type": "Color",
                         "properties": {
-                            "colorA": "#e15fff",
-                            "colorB": "#ff7e00",
+                            "colorA": "#ff0074",
+                            "colorB": "#ff4b00",
                             "life": null,
                             "easing": "easeLinear"
                         }
                     },
                     {
-                        "id": "3ef1dd35-0995-11ef-883f-6fa390d4b039",
+                        "id": "125c3868-0a80-11ef-aba2-27d52442715f",
                         "type": "Scale",
                         "properties": {
                             "scaleA": 1,
@@ -127,21 +124,21 @@
                         }
                     },
                     {
-                        "id": "3ef1dd36-0995-11ef-883f-6fa390d4b039",
+                        "id": "125c3869-0a80-11ef-aba2-27d52442715f",
                         "type": "Force",
                         "properties": {
                             "fx": 0,
-                            "fy": -25,
+                            "fy": 1,
                             "fz": 0,
                             "life": null,
                             "easing": "easeLinear"
                         }
                     },
                     {
-                        "id": "3ef1dd37-0995-11ef-883f-6fa390d4b039",
+                        "id": "125c386a-0a80-11ef-aba2-27d52442715f",
                         "type": "Rotate",
                         "properties": {
-                            "x": 0,
+                            "x": 1,
                             "y": 0,
                             "z": 0,
                             "life": null,
@@ -155,13 +152,13 @@
                             "x": 0,
                             "y": 0,
                             "z": 0,
-                            "gravity": 0,
+                            "gravity": 1,
                             "life": null,
                             "easing": "easeLinear"
                         }
                     },
                     {
-                        "id": "3ef1dd38-0995-11ef-883f-6fa390d4b039",
+                        "id": "125c386b-0a80-11ef-aba2-27d52442715f",
                         "type": "RandomDrift",
                         "properties": {
                             "driftX": 0,
@@ -173,7 +170,7 @@
                         }
                     },
                     {
-                        "id": "3ef1dd39-0995-11ef-883f-6fa390d4b039",
+                        "id": "125c386c-0a80-11ef-aba2-27d52442715f",
                         "type": "Spring",
                         "properties": {
                             "x": 0,
@@ -188,7 +185,7 @@
                 ],
                 "emitterBehaviours": [
                     {
-                        "id": "3ef1dd3a-0995-11ef-883f-6fa390d4b039",
+                        "id": "125c386d-0a80-11ef-aba2-27d52442715f",
                         "type": "Rotate",
                         "properties": {
                             "x": 0,
