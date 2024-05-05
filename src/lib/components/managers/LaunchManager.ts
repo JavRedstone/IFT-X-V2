@@ -19,6 +19,7 @@ import { RaptorParticle } from "../particles/classes/RaptorParticle";
 import { ParticleConstants } from "../constants/ParticleConstants";
 import { DelugeParticle } from "../particles/classes/DelugeParticle";
 import { HotStageParticle } from "../particles/classes/HotStageParticle";
+import { ReentryParticle } from "../particles/classes/ReentryParticle";
 
 export class LaunchManager {
     public tc: ThrelteContext;
@@ -76,6 +77,8 @@ export class LaunchManager {
     public superHeavyRPs: RaptorParticle[] = [];
     public delugeP: DelugeParticle = null;
     public hotStageP: HotStageParticle = null;
+    public starshipREP: ReentryParticle = null;
+    public superHeavyREP: ReentryParticle = null;
 
     public OLITArrow: ArrowHelper = new ArrowHelper(new Vector3(0, 0, 0), new Vector3(0, 0, 0), LaunchConstants.OLIT_ARROW_LENGTH, LaunchConstants.OLIT_ARROW_COLOR);
     public superHeavyLandingArrow: ArrowHelper = new ArrowHelper(new Vector3(0, 0, 0), new Vector3(0, 0, 0), LaunchConstants.SUPER_HEAVY_LANDING_ARROW_LENGTH, LaunchConstants.SUPER_HEAVY_LANDING_ARROW_COLOR);
@@ -829,6 +832,8 @@ export class LaunchManager {
         }
         this.delugeP = new DelugeParticle(this.tc);
         this.hotStageP = new HotStageParticle(this.tc);
+        this.starshipREP = new ReentryParticle(this.tc);
+        this.superHeavyREP = new ReentryParticle(this.tc);
     }
 
     public updatePs(): void {
@@ -879,11 +884,43 @@ export class LaunchManager {
         if (this.dt >= LaunchConstants.DELUGE_START_DT) {
             this.delugeP.update(this.OLIT.olm.getWorldPosition(new Vector3()), this.OLIT.olm.getWorldQuaternion(new Quaternion()), (this.liftedOff && this.dt >= LaunchConstants.DELUGE_STOP_DT) || (!this.liftedOff && this.dt >= LaunchConstants.PAD_DT) ? 0 : 1);
         }
+
         if (this.starship.startStartupSequence && !this.separated) {
             this.hotStageP.update(this.superHeavy.hsr.getWorldPosition(new Vector3()), this.superHeavy.hsr.getWorldQuaternion(new Quaternion()), 1);            
         }
         else {
             this.hotStageP.update(this.superHeavy.hsr.getWorldPosition(new Vector3()), this.superHeavy.hsr.getWorldQuaternion(new Quaternion()), 0);
+        }
+
+        let ssCenter = this.starship.group.getWorldPosition(new Vector3).add(this.starship.group.userData.aabb.getCenter(new Vector3).clone().applyQuaternion(this.starship.group.getWorldQuaternion(new Quaternion)));
+        let shCenter = this.superHeavy.group.getWorldPosition(new Vector3).add(this.superHeavy.group.userData.aabb.getCenter(new Vector3).clone().applyQuaternion(this.superHeavy.group.getWorldQuaternion(new Quaternion)));
+        let ssDrag: number = 0;
+        let shDrag: number = 0;
+        if (this.separated && !this.justSeparated && this.starship.flightController != null && this.superHeavy.flightController != null) {
+            ssDrag = this.starship.getDragVector(this.starship.flightController.rotation, this.starship.flightController.relVelocity, this.starship.flightController.getAltitude()).divideScalar(this.starship.getMass()).length();
+            shDrag = this.superHeavy.getDragVector(this.superHeavy.flightController.rotation, this.superHeavy.flightController.relVelocity, this.superHeavy.flightController.getAltitude()).divideScalar(this.superHeavy.getMass()).length();
+            ssDrag *= this.starship.flightController.relVelocity.length();
+            shDrag *= this.superHeavy.flightController.relVelocity.length();
+        }
+        else if (this.stackGroup != null && this.stackGroup.userData.flightController != null) {
+            ssDrag = this.starship.getDragVector(this.stackGroup.userData.flightController.rotation, this.stackGroup.userData.flightController.relVelocity, this.stackGroup.userData.flightController.getAltitude()).divideScalar(this.starship.getMass()).length();
+            shDrag = this.superHeavy.getDragVector(this.stackGroup.userData.flightController.rotation, this.stackGroup.userData.flightController.relVelocity, this.stackGroup.userData.flightController.getAltitude()).divideScalar(this.superHeavy.getMass()).length();
+            ssDrag *= this.stackGroup.userData.flightController.relVelocity.length();
+            shDrag *= this.stackGroup.userData.flightController.relVelocity.length();
+        }
+        console.log(ssDrag, shDrag);
+        if (ssDrag >= ParticleConstants.REENTRY_THRESHOLD) {
+            this.starshipREP.update(ssCenter, this.starshipVelArrow.quaternion, 1);
+        }
+        else {
+            this.starshipREP.update(ssCenter, this.starshipVelArrow.quaternion, 0);
+        }
+
+        if (shDrag >= ParticleConstants.REENTRY_THRESHOLD) {
+            this.superHeavyREP.update(shCenter, this.superHeavyVelArrow.quaternion, 1);
+        }
+        else {
+            this.superHeavyREP.update(shCenter, this.superHeavyVelArrow.quaternion, 0);
         }
     }
 }

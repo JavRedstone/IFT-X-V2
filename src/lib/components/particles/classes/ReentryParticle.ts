@@ -4,7 +4,7 @@ import { Vector3, Euler, Quaternion } from 'three';
 import { type ThrelteContext } from '@threlte/core';
 import { ParticleConstants } from '../../constants/ParticleConstants';
 
-export class DelugeParticle {
+export class ReentryParticle {
     public static readonly PARTICLE_SYSTEM: any = {
         "preParticles": 500,
         "integrationType": "EULER",
@@ -64,8 +64,8 @@ export class DelugeParticle {
                         "id": "125c3864-0a80-11ef-aba2-27d52442715f",
                         "type": "Radius",
                         "properties": {
-                            "width": 0.0001,
-                            "height": 0.0001,
+                            "width": 0.0005,
+                            "height": 0.0005,
                             "isEnabled": true
                         }
                     },
@@ -73,7 +73,7 @@ export class DelugeParticle {
                         "id": "125c3865-0a80-11ef-aba2-27d52442715f",
                         "type": "RadialVelocity",
                         "properties": {
-                            "radius": 0.0005,
+                            "radius": 0.003,
                             "x": 0,
                             "y": 1,
                             "z": 0,
@@ -202,7 +202,7 @@ export class DelugeParticle {
     }
 
     public createParticleSystem(): void {
-        System.fromJSONAsync(DelugeParticle.PARTICLE_SYSTEM, THREE).then(loaded => {
+        System.fromJSONAsync(ReentryParticle.PARTICLE_SYSTEM, THREE).then(loaded => {
             let systemRenderer: SpriteRenderer = new SpriteRenderer(this.tc.scene, THREE);
             this.system = loaded.addRenderer(systemRenderer);
 
@@ -242,6 +242,16 @@ export class DelugeParticle {
                     behaviour['scaleA']['b'] = scale * ParticleConstants.REENTRY_A_SCALE;
                     behaviour['scaleB']['a'] = scale * ParticleConstants.REENTRY_B_SCALE;
                     behaviour['scaleB']['b'] = scale * ParticleConstants.REENTRY_B_SCALE;
+                }
+                if (behaviour['type'] === 'Force') {
+                    let forceVector: Vector3 = new Vector3(0, ParticleConstants.REENTRY_FORCE * ParticleConstants.FORCE_MULT, 0);
+                    let forceVectorRotated: Vector3 = forceVector.applyQuaternion(rotation);
+                    behaviour['fx'] = forceVectorRotated.x;
+                    behaviour['fy'] = forceVectorRotated.y;
+                    behaviour['fz'] = forceVectorRotated.z;
+                    behaviour['force']['x'] = forceVectorRotated.x;
+                    behaviour['force']['y'] = forceVectorRotated.y;
+                    behaviour['force']['z'] = forceVectorRotated.z;
                 }
             }
             emitter.setBehaviours(emitter.behaviours);

@@ -16,7 +16,7 @@ export class LaunchConstants {
     public static readonly DRAG_PITCH_YAW_FORCE_COEF: number = 0.5;
     public static readonly DRAG_FORCE_COEF: number = 2;
     public static readonly DRAG_FORCE_LOSS: number = 0.00001;
-    public static readonly DRAG_MAX_FORCE_LOSS: number = 0.999;
+    public static readonly DRAG_MAX_FORCE_LOSS: number = 0.9999;
 
     public static readonly SEPARATION_ANG_VEL: Vector3 = new Vector3(0, 0, 0.2); // 0.25
 

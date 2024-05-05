@@ -1,6 +1,6 @@
 export class ParticleConstants {
     public static readonly FORCE_MULT: number = 100;
-    
+
     public static readonly RAPTOR_FORCE: number = -0.001;
     public static readonly RAPTOR_A_SCALE: number = 1;
     public static readonly RAPTOR_B_SCALE: number = 1.5;
@@ -14,6 +14,8 @@ export class ParticleConstants {
     public static readonly HOT_STAGE_A_SCALE: number = 1;
     public static readonly HOT_STAGE_B_SCALE: number = 0.5;
 
+    public static readonly REENTRY_FORCE: number = -0.002;
+    public static readonly REENTRY_THRESHOLD: number = 5e4;
     public static readonly REENTRY_A_SCALE: number = 1;
     public static readonly REENTRY_B_SCALE: number = 0.5;
 }
