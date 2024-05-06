@@ -45,8 +45,6 @@ export class LaunchManager {
     public targetPos: Vector3 = new Vector3(0, 0, 0);
 
     public isCameraOnStarship: boolean = true;
-    public justSwitchedCamera: boolean = false;
-    public isGroundView: boolean = true;
 
     public dt: number = 0;
     public ticks: number = 0;
@@ -116,9 +114,6 @@ export class LaunchManager {
             this.isLaunching = value.isLaunching;
         });
         telemetry.subscribe((value) => {
-            if (value.isCameraOnStarship != this.isCameraOnStarship) {
-                this.justSwitchedCamera = true;
-            }
             this.isCameraOnStarship = value.isCameraOnStarship;
             this.isBoosterEventClicked = value.isBoosterEventClicked;
             this.isShipEventClicked = value.isShipEventClicked;
@@ -605,34 +600,17 @@ export class LaunchManager {
     }
 
     public updateView(): void {
-        if (MathHelper.isInRadiusOf(PRTransients.fakePositions.earthPosition, CelestialConstants.EARTH_VIEW_RADIUS, this.orbitControls.target)) {
-            this.targetPos = PRTransients.realPositions.earthPosition;
-            this.isGroundView = true;
-        }
-        else if (MathHelper.isInRadiusOf(PRTransients.fakePositions.moonPosition, CelestialConstants.MOON_VIEW_RADIUS, this.orbitControls.target)) {
-            this.targetPos = PRTransients.realPositions.moonPosition;
-            this.isGroundView = true;
-        }
-
-        if (this.isGroundView) {
-            let rot: Quaternion = MathHelper.getAngleBetweenVectors(PRTransients.realPositions.orbitControlsPosition.clone().sub(this.targetPos).normalize(), new Vector3(0, 1, 0));
-            for (let key of Object.keys(PRTransients.realPositions)) {
-                if (key !== "sunPosition" && !key.includes("Direction")) {
-                    PRTransients.fakePositions[key].copy(this.targetPos.clone().add(PRTransients.realPositions[key].clone().sub(this.targetPos).sub(PRTransients.realPositions.orbitControlsPosition.clone()).applyQuaternion(rot)));
-                }
-                else {
-                    PRTransients.fakePositions[key].copy(this.targetPos.clone().add(PRTransients.realPositions[key].clone().sub(this.targetPos).applyQuaternion(rot)));
-                }
+        let rot: Quaternion = MathHelper.getAngleBetweenVectors(PRTransients.realPositions.orbitControlsPosition.clone().sub(this.targetPos).normalize(), new Vector3(0, 1, 0));
+        for (let key of Object.keys(PRTransients.realPositions)) {
+            if (key !== "sunPosition" && !key.includes("Direction")) {
+                PRTransients.fakePositions[key].copy(this.targetPos.clone().add(PRTransients.realPositions[key].clone().sub(this.targetPos).sub(PRTransients.realPositions.orbitControlsPosition.clone()).applyQuaternion(rot)));
             }
-            for (let key of Object.keys(PRTransients.realRotations)) {
-                PRTransients.fakeRotations[key].setFromQuaternion(rot.clone().multiply(new Quaternion().setFromEuler(PRTransients.realRotations[key])));
+            else {
+                PRTransients.fakePositions[key].copy(this.targetPos.clone().add(PRTransients.realPositions[key].clone().sub(this.targetPos).applyQuaternion(rot)));
             }
-            // for (let key of Object.keys(PRTransients.realPositions)) {
-            //     PRTransients.fakePositions[key].copy(this.targetPos.clone().add(PRTransients.realPositions[key].clone()));
-            // }
-            // for (let key of Object.keys(PRTransients.realRotations)) {
-            //     PRTransients.fakeRotations[key].copy(PRTransients.realRotations[key].clone());
-            // }
+        }
+        for (let key of Object.keys(PRTransients.realRotations)) {
+            PRTransients.fakeRotations[key].setFromQuaternion(rot.clone().multiply(new Quaternion().setFromEuler(PRTransients.realRotations[key])));
         }
     }
 
