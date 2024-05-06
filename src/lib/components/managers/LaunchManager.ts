@@ -20,6 +20,7 @@ import { ParticleConstants } from "../constants/ParticleConstants";
 import { DelugeParticle } from "../particles/classes/DelugeParticle";
 import { HotStageParticle } from "../particles/classes/HotStageParticle";
 import { ReentryParticle } from "../particles/classes/ReentryParticle";
+import { ExplosionParticle } from "../particles/classes/ExplosionParticle";
 
 export class LaunchManager {
     public tc: ThrelteContext;
@@ -79,6 +80,13 @@ export class LaunchManager {
     public hotStageP: HotStageParticle = null;
     public starshipREP: ReentryParticle = null;
     public superHeavyREP: ReentryParticle = null;
+    
+    public starshipEP: ExplosionParticle = null;
+    public superHeavyEP: ExplosionParticle = null;
+    public starshipEPCooldown: number = -1;
+    public superHeavyEPCooldown: number = -1;
+    public starshipLandedSafe: boolean = false;
+    public superHeavyLandedSafe: boolean = false;
 
     public OLITArrow: ArrowHelper = new ArrowHelper(new Vector3(0, 0, 0), new Vector3(0, 0, 0), LaunchConstants.OLIT_ARROW_LENGTH, LaunchConstants.OLIT_ARROW_COLOR);
     public superHeavyLandingArrow: ArrowHelper = new ArrowHelper(new Vector3(0, 0, 0), new Vector3(0, 0, 0), LaunchConstants.SUPER_HEAVY_LANDING_ARROW_LENGTH, LaunchConstants.SUPER_HEAVY_LANDING_ARROW_COLOR);
@@ -214,7 +222,6 @@ export class LaunchManager {
                     if (this.starshipRPs.length == 0 && this.superHeavyRPs.length == 0) {
                         this.createPs();
                     }
-                    this.updatePs();
                     if (this.dt < LaunchConstants.COUNTDOWN_DT) {
                         this.dt += delta * LaunchConstants.COUNTDOWN_SPEEDUP;
                     }
@@ -293,6 +300,17 @@ export class LaunchManager {
                                 this.starshipDisabled = true;
                                 this.superHeavyDisabled = true;
 
+                                let orientation: Vector3 = new Vector3(0, 1, 0).applyQuaternion(this.stackGroup.userData.flightController.rotation);
+                                let dot: number = orientation.dot(this.stackGroup.userData.flightController.position.clone().normalize());
+                                if (dot > 1 - LaunchConstants.LANDING_DOT_PRODUCT_ACCEPT && this.stackGroup.userData.flightController.relVelocity.length() < LaunchConstants.LANDING_VELOCITY_ACCEPT) {
+                                    this.starshipLandedSafe = true;
+                                    this.superHeavyLandedSafe = true;
+                                }
+                                else {
+                                    this.starshipLandedSafe = false;
+                                    this.superHeavyLandedSafe = false;
+                                }
+
                                 this.stackGroup.userData.flightController.reset();
                             }
                             else {
@@ -364,6 +382,15 @@ export class LaunchManager {
                             if (shAltitude <= 0) {
                                 this.superHeavyDisabled = true;
 
+                                let orientation: Vector3 = new Vector3(0, 1, 0).applyQuaternion(this.superHeavy.flightController.rotation);
+                                let dot: number = orientation.dot(this.superHeavy.flightController.position.clone().normalize());
+                                if (dot > 1 - LaunchConstants.LANDING_DOT_PRODUCT_ACCEPT && this.superHeavy.flightController.relVelocity.length() < LaunchConstants.LANDING_VELOCITY_ACCEPT) {
+                                    this.superHeavyLandedSafe = true;
+                                }
+                                else {
+                                    this.superHeavyLandedSafe = false;
+                                }
+
                                 this.superHeavy.flightController.reset();
                             }
                             else {
@@ -398,6 +425,15 @@ export class LaunchManager {
                             }
                             if (ssAltitude <= 0) {
                                 this.starshipDisabled = true;
+
+                                let orientation: Vector3 = new Vector3(0, 1, 0).applyQuaternion(this.starship.flightController.rotation);
+                                let dot: number = orientation.dot(this.starship.flightController.position.clone().normalize());
+                                if (dot > 1 - LaunchConstants.LANDING_DOT_PRODUCT_ACCEPT && this.starship.flightController.relVelocity.length() < LaunchConstants.LANDING_VELOCITY_ACCEPT) {
+                                    this.starshipLandedSafe = true;
+                                }
+                                else {
+                                    this.starshipLandedSafe = false;
+                                }
 
                                 this.starship.flightController.reset();
                             }
@@ -493,6 +529,7 @@ export class LaunchManager {
                             }
                         }
                     }
+                    this.updatePs(delta);
                 }
             }
             if (!this.hasSetInitialPosition) {
@@ -834,9 +871,11 @@ export class LaunchManager {
         this.hotStageP = new HotStageParticle(this.tc);
         this.starshipREP = new ReentryParticle(this.tc);
         this.superHeavyREP = new ReentryParticle(this.tc);
+        this.starshipEP = new ExplosionParticle(this.tc);
+        this.superHeavyEP = new ExplosionParticle(this.tc);
     }
 
-    public updatePs(): void {
+    public updatePs(delta: number): void {
         if (this.dt >= LaunchConstants.STARTUP_DT) {
             let ssAltitude = 0;
             let shAltitude = 0;
@@ -877,7 +916,7 @@ export class LaunchManager {
                 if (rVac != null && rVacObj != null && rp != null) {
                     let position: Vector3 = rVacObj.getWorldPosition(new Vector3());
                     let rotation: Quaternion = rVacObj.getWorldQuaternion(new Quaternion());
-                    rp.update(position, rotation, rVac.userData.raptor.throttle * ParticleConstants.RAPTOR_SEA_TO_VAC, ssAltitude);
+                    rp.update(position, rotation, rVac.userData.raptor.throttle * ParticleConstants.RAPTOR_RADIUS_SEA_TO_VAC, ssAltitude);
                 }
             }
         }
@@ -885,42 +924,71 @@ export class LaunchManager {
             this.delugeP.update(this.OLIT.olm.getWorldPosition(new Vector3()), this.OLIT.olm.getWorldQuaternion(new Quaternion()), (this.liftedOff && this.dt >= LaunchConstants.DELUGE_STOP_DT) || (!this.liftedOff && this.dt >= LaunchConstants.PAD_DT) ? 0 : 1);
         }
 
-        if (this.starship.startStartupSequence && !this.separated) {
-            this.hotStageP.update(this.superHeavy.hsr.getWorldPosition(new Vector3()), this.superHeavy.hsr.getWorldQuaternion(new Quaternion()), 1);            
-        }
-        else {
-            this.hotStageP.update(this.superHeavy.hsr.getWorldPosition(new Vector3()), this.superHeavy.hsr.getWorldQuaternion(new Quaternion()), 0);
-        }
+        if (this.liftedOff) {
+            if (this.starship.startStartupSequence && !this.separated) {
+                this.hotStageP.update(this.superHeavy.hsr.getWorldPosition(new Vector3()), this.superHeavy.hsr.getWorldQuaternion(new Quaternion()), 1);            
+            }
+            else {
+                this.hotStageP.update(this.superHeavy.hsr.getWorldPosition(new Vector3()), this.superHeavy.hsr.getWorldQuaternion(new Quaternion()), 0);
+            }
+    
+            let ssCenter = this.starship.group.getWorldPosition(new Vector3).add(this.starship.group.userData.aabb.getCenter(new Vector3).clone().applyQuaternion(this.starship.group.getWorldQuaternion(new Quaternion)));
+            let shCenter = this.superHeavy.group.getWorldPosition(new Vector3).add(this.superHeavy.group.userData.aabb.getCenter(new Vector3).clone().applyQuaternion(this.superHeavy.group.getWorldQuaternion(new Quaternion)));
+            let ssDrag: number = 0;
+            let shDrag: number = 0;
+            if (this.separated && !this.justSeparated && this.starship.flightController != null && this.superHeavy.flightController != null) {
+                ssDrag = this.starship.getDragVector(this.starship.flightController.rotation, this.starship.flightController.relVelocity, this.starship.flightController.getAltitude()).divideScalar(this.starship.getMass()).length();
+                shDrag = this.superHeavy.getDragVector(this.superHeavy.flightController.rotation, this.superHeavy.flightController.relVelocity, this.superHeavy.flightController.getAltitude()).divideScalar(this.superHeavy.getMass()).length();
+                ssDrag *= this.starship.flightController.relVelocity.length();
+                shDrag *= this.superHeavy.flightController.relVelocity.length();
+            }
+            else if (this.stackGroup != null && this.stackGroup.userData.flightController != null) {
+                ssDrag = this.starship.getDragVector(this.stackGroup.userData.flightController.rotation, this.stackGroup.userData.flightController.relVelocity, this.stackGroup.userData.flightController.getAltitude()).divideScalar(this.starship.getMass()).length();
+                shDrag = this.superHeavy.getDragVector(this.stackGroup.userData.flightController.rotation, this.stackGroup.userData.flightController.relVelocity, this.stackGroup.userData.flightController.getAltitude()).divideScalar(this.superHeavy.getMass()).length();
+                ssDrag *= this.stackGroup.userData.flightController.relVelocity.length();
+                shDrag *= this.stackGroup.userData.flightController.relVelocity.length();
+            }
+            if (ssDrag >= ParticleConstants.REENTRY_THRESHOLD) {
+                this.starshipREP.update(ssCenter, this.starshipVelArrow.quaternion, 1);
+            }
+            else {
+                this.starshipREP.update(ssCenter, this.starshipVelArrow.quaternion, 0);
+            }
+            if (shDrag >= ParticleConstants.REENTRY_THRESHOLD) {
+                this.superHeavyREP.update(shCenter, this.superHeavyVelArrow.quaternion, 1);
+            }
+            else {
+                this.superHeavyREP.update(shCenter, this.superHeavyVelArrow.quaternion, 0);
+            }
 
-        let ssCenter = this.starship.group.getWorldPosition(new Vector3).add(this.starship.group.userData.aabb.getCenter(new Vector3).clone().applyQuaternion(this.starship.group.getWorldQuaternion(new Quaternion)));
-        let shCenter = this.superHeavy.group.getWorldPosition(new Vector3).add(this.superHeavy.group.userData.aabb.getCenter(new Vector3).clone().applyQuaternion(this.superHeavy.group.getWorldQuaternion(new Quaternion)));
-        let ssDrag: number = 0;
-        let shDrag: number = 0;
-        if (this.separated && !this.justSeparated && this.starship.flightController != null && this.superHeavy.flightController != null) {
-            ssDrag = this.starship.getDragVector(this.starship.flightController.rotation, this.starship.flightController.relVelocity, this.starship.flightController.getAltitude()).divideScalar(this.starship.getMass()).length();
-            shDrag = this.superHeavy.getDragVector(this.superHeavy.flightController.rotation, this.superHeavy.flightController.relVelocity, this.superHeavy.flightController.getAltitude()).divideScalar(this.superHeavy.getMass()).length();
-            ssDrag *= this.starship.flightController.relVelocity.length();
-            shDrag *= this.superHeavy.flightController.relVelocity.length();
-        }
-        else if (this.stackGroup != null && this.stackGroup.userData.flightController != null) {
-            ssDrag = this.starship.getDragVector(this.stackGroup.userData.flightController.rotation, this.stackGroup.userData.flightController.relVelocity, this.stackGroup.userData.flightController.getAltitude()).divideScalar(this.starship.getMass()).length();
-            shDrag = this.superHeavy.getDragVector(this.stackGroup.userData.flightController.rotation, this.stackGroup.userData.flightController.relVelocity, this.stackGroup.userData.flightController.getAltitude()).divideScalar(this.superHeavy.getMass()).length();
-            ssDrag *= this.stackGroup.userData.flightController.relVelocity.length();
-            shDrag *= this.stackGroup.userData.flightController.relVelocity.length();
-        }
-        console.log(ssDrag, shDrag);
-        if (ssDrag >= ParticleConstants.REENTRY_THRESHOLD) {
-            this.starshipREP.update(ssCenter, this.starshipVelArrow.quaternion, 1);
-        }
-        else {
-            this.starshipREP.update(ssCenter, this.starshipVelArrow.quaternion, 0);
-        }
-
-        if (shDrag >= ParticleConstants.REENTRY_THRESHOLD) {
-            this.superHeavyREP.update(shCenter, this.superHeavyVelArrow.quaternion, 1);
-        }
-        else {
-            this.superHeavyREP.update(shCenter, this.superHeavyVelArrow.quaternion, 0);
+            if (this.separated && !this.justSeparated) {
+                if (this.starship.flightController != null && this.starship.flightController.getAltitude() <= 0 && !this.starshipLandedSafe && this.starshipEPCooldown == -1) {
+                    this.starshipEPCooldown = ParticleConstants.EXPLOSION_DURATION;
+                }
+                if (this.superHeavy.flightController != null && this.superHeavy.flightController.getAltitude() <= 0 && !this.superHeavyLandedSafe && this.superHeavyEPCooldown == -1) {
+                    this.superHeavyEPCooldown = ParticleConstants.EXPLOSION_DURATION;
+                }
+            }
+            else {
+                if (this.stackGroup.userData.flightController != null && this.stackGroup.userData.flightController.getAltitude() <= 0 && !this.starshipLandedSafe && !this.superHeavyLandedSafe) {
+                    this.starshipEPCooldown = ParticleConstants.EXPLOSION_DURATION;
+                    this.superHeavyEPCooldown = ParticleConstants.EXPLOSION_DURATION;
+                }
+            }
+            if (this.starshipEPCooldown > 0) {
+                this.starshipEPCooldown -= delta;
+                this.starshipEP.update(ssCenter, this.starship.group.getWorldQuaternion(new Quaternion()), 1);
+            }
+            else if (this.starshipEPCooldown != -1) {
+                this.starshipEP.update(ssCenter, this.starship.group.getWorldQuaternion(new Quaternion()), 0);
+            }
+            if (this.superHeavyEPCooldown > 0) {
+                this.superHeavyEPCooldown -= delta;
+                this.superHeavyEP.update(shCenter, this.superHeavy.group.getWorldQuaternion(new Quaternion()), 1);
+            }
+            else if (this.superHeavyEPCooldown != -1) {
+                this.superHeavyEP.update(shCenter, this.superHeavy.group.getWorldQuaternion(new Quaternion()), 0);
+            }
         }
     }
 }
