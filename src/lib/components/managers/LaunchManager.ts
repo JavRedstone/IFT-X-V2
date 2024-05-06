@@ -914,29 +914,46 @@ export class LaunchManager {
             let shCenter = this.superHeavy.group.getWorldPosition(new Vector3).add(this.superHeavy.group.userData.aabb.getCenter(new Vector3).clone().applyQuaternion(this.superHeavy.group.getWorldQuaternion(new Quaternion)));
             let ssDrag: number = 0;
             let shDrag: number = 0;
+            let ssAltitude: number = this.starship.flightController.getAltitude();
+            let shAltitude: number = this.superHeavy.flightController.getAltitude();
+            let stackAltitude: number = this.stackGroup.userData.flightController.getAltitude();
             if (this.separated && !this.justSeparated && this.starship.flightController != null && this.superHeavy.flightController != null) {
-                ssDrag = this.starship.getDragVector(this.starship.flightController.rotation, this.starship.flightController.relVelocity, this.starship.flightController.getAltitude()).divideScalar(this.starship.getMass()).length();
-                shDrag = this.superHeavy.getDragVector(this.superHeavy.flightController.rotation, this.superHeavy.flightController.relVelocity, this.superHeavy.flightController.getAltitude()).divideScalar(this.superHeavy.getMass()).length();
+                ssDrag = this.starship.getDragVector(this.starship.flightController.rotation, this.starship.flightController.relVelocity, ssAltitude).divideScalar(this.starship.getMass()).length();
+                shDrag = this.superHeavy.getDragVector(this.superHeavy.flightController.rotation, this.superHeavy.flightController.relVelocity, shAltitude).divideScalar(this.superHeavy.getMass()).length();
                 ssDrag *= this.starship.flightController.relVelocity.length();
                 shDrag *= this.superHeavy.flightController.relVelocity.length();
+                
+                if (ssDrag >= ParticleConstants.REENTRY_THRESHOLD && ParticleConstants.REENTRY_MIN_ALTITUDE <= ssAltitude && ssAltitude <= ParticleConstants.REENTRY_MAX_ALTITUDE) {
+                    this.starshipREP.update(ssCenter, this.starshipVelArrow.quaternion, 1);
+                }
+                else {
+                    this.starshipREP.update(ssCenter, this.starshipVelArrow.quaternion, 0);
+                }
+                if (shDrag >= ParticleConstants.REENTRY_THRESHOLD && ParticleConstants.REENTRY_MIN_ALTITUDE <= shAltitude && shAltitude <= ParticleConstants.REENTRY_MAX_ALTITUDE) {
+                    this.superHeavyREP.update(shCenter, this.superHeavyVelArrow.quaternion, 1);
+                }
+                else {
+                    this.superHeavyREP.update(shCenter, this.superHeavyVelArrow.quaternion, 0);
+                }
             }
             else if (this.stackGroup != null && this.stackGroup.userData.flightController != null) {
-                ssDrag = this.starship.getDragVector(this.stackGroup.userData.flightController.rotation, this.stackGroup.userData.flightController.relVelocity, this.stackGroup.userData.flightController.getAltitude()).divideScalar(this.starship.getMass()).length();
-                shDrag = this.superHeavy.getDragVector(this.stackGroup.userData.flightController.rotation, this.stackGroup.userData.flightController.relVelocity, this.stackGroup.userData.flightController.getAltitude()).divideScalar(this.superHeavy.getMass()).length();
+                ssDrag = this.starship.getDragVector(this.stackGroup.userData.flightController.rotation, this.stackGroup.userData.flightController.relVelocity, stackAltitude).divideScalar(this.starship.getMass()).length();
+                shDrag = this.superHeavy.getDragVector(this.stackGroup.userData.flightController.rotation, this.stackGroup.userData.flightController.relVelocity, stackAltitude).divideScalar(this.superHeavy.getMass()).length();
                 ssDrag *= this.stackGroup.userData.flightController.relVelocity.length();
                 shDrag *= this.stackGroup.userData.flightController.relVelocity.length();
-            }
-            if (ssDrag >= ParticleConstants.REENTRY_THRESHOLD) {
-                this.starshipREP.update(ssCenter, this.starshipVelArrow.quaternion, 1);
-            }
-            else {
-                this.starshipREP.update(ssCenter, this.starshipVelArrow.quaternion, 0);
-            }
-            if (shDrag >= ParticleConstants.REENTRY_THRESHOLD) {
-                this.superHeavyREP.update(shCenter, this.superHeavyVelArrow.quaternion, 1);
-            }
-            else {
-                this.superHeavyREP.update(shCenter, this.superHeavyVelArrow.quaternion, 0);
+                
+                if (ssDrag >= ParticleConstants.REENTRY_THRESHOLD && ParticleConstants.REENTRY_MIN_ALTITUDE <= stackAltitude && stackAltitude <= ParticleConstants.REENTRY_MAX_ALTITUDE) {
+                    this.starshipREP.update(ssCenter, this.starshipVelArrow.quaternion, 1);
+                }
+                else {
+                    this.starshipREP.update(ssCenter, this.starshipVelArrow.quaternion, 0);
+                }
+                if (shDrag >= ParticleConstants.REENTRY_THRESHOLD && ParticleConstants.REENTRY_MIN_ALTITUDE <= stackAltitude && stackAltitude <= ParticleConstants.REENTRY_MAX_ALTITUDE) {
+                    this.superHeavyREP.update(shCenter, this.superHeavyVelArrow.quaternion, 1);
+                }
+                else {
+                    this.superHeavyREP.update(shCenter, this.superHeavyVelArrow.quaternion, 0);
+                }
             }
 
             if (this.separated && !this.justSeparated) {
