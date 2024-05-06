@@ -1082,6 +1082,9 @@
     function startFueling(): void {
         validate();
         if (starshipValidated && superHeavyValidated) {
+            localStorage.setItem('starshipSettings', JSON.stringify(starshipOptions));
+            localStorage.setItem('superHeavySettings', JSON.stringify(superHeavyOptions));
+
             toggles.update((value) => {
                 value.isEditing = false;
                 value.isEditingStarship = false;
@@ -1093,6 +1096,10 @@
     }
 
     onMount(() => {
+        localStorage.getItem('starshipSettings') ? starshipOptions = JSON.parse(localStorage.getItem('starshipSettings')) : resetStarship();
+        localStorage.getItem('superHeavySettings') ? superHeavyOptions = JSON.parse(localStorage.getItem('superHeavySettings')) : resetSuperHeavy();
+        validate();
+
         setupUpdator();
         setupKeybinds();
     });
