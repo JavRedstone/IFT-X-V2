@@ -2,9 +2,9 @@ import { Vector3 } from "three";
 import { PhysicsConstants } from "./PhysicsConstants";
 
 export class CelestialConstants {
-    public static readonly SUN_POSITION: Vector3 = new Vector3(1.6, 0.5, 0);
+    public static readonly SUN_POSITION: Vector3 = new Vector3(1.25, 0.5, 0);
     public static readonly SUN_COLOR: number = 0xffffff;
-    public static readonly SUN_INTENSITY: number = 3;
+    public static readonly SUN_INTENSITY: number = 50;
 
     public static readonly EARTH_RADIUS: number = 360;
     public static readonly REAL_SCALE: number = PhysicsConstants.RADIUS_EARTH / CelestialConstants.EARTH_RADIUS;
@@ -35,4 +35,20 @@ export class CelestialConstants {
     public static readonly MOON_BUMP_SCALE: number = 0.01;
     public static readonly MOON_METALNESS: number = 0.25;
     public static readonly MOON_ROUGHNESS: number = 1;
+
+    public static readonly DEFAULT_TURBIDITY: number = 10;
+    public static readonly TURBIDITY_MIN: number = 0;
+    public static readonly TURBIDITY_RATE: number = 5e-4;
+
+    public static readonly DEFAULT_RAYLEIGH: number = 1.5;
+    public static readonly RAYLEIGH_MIN: number = 0;
+    public static readonly RAYLEIGH_RATE: number = 1e-5;
+
+    public static readonly DEFAULT_MIE_COEFFICIENT: number = 0.005;
+    public static readonly MIE_COEFFICIENT_MIN: number = 0.0001;
+    public static readonly MIE_COEFFICIENT_RATE: number = 0;
+
+    public static readonly DEFAULT_MIE_DIRECTIONAL_G: number = 0.8;
+    public static readonly MIE_DIRECTIONAL_G_MIN: number = 0.1;
+    public static readonly MIE_DIRECTIONAL_G_RATE: number = 0;
 }

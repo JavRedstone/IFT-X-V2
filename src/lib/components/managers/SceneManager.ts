@@ -55,7 +55,7 @@ export class SceneManager {
                 }
             }
             else {
-                this.launchManager.stackGroup.userData.flightController.getAltitude();
+                altitude = this.launchManager.stackGroup.userData.flightController.getAltitude();
             }
         }
         this.skyManager.updateScene(delta, altitude);

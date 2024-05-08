@@ -21,7 +21,7 @@
                         value.isEditing = true;
                         return value;
                     });
-                }, 250);
+                }, 100);
             }
         });
     }

@@ -1,8 +1,8 @@
 import { Euler, Vector3 } from "three";
 
 export class LaunchConstants {
-    public static readonly AABB_REQUEST_AMOUNT: number = 2;
-    public static readonly AABB_REQUEST_MAX: number = 8;
+    public static readonly AABB_REQUEST_AMOUNT: number = 1;
+    public static readonly AABB_REQUEST_MAX: number = 3;
 
     public static readonly ROTATION_GROUP: Euler = new Euler(0, -90 * Math.PI / 180, 0, "XYZ");
     

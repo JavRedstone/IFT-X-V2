@@ -1,7 +1,7 @@
-import { useTask, type ThrelteContext, type Size } from "@threlte/core";
+import { type ThrelteContext, type Size } from "@threlte/core";
 import { BlendFunction, BloomEffect, EffectComposer, EffectPass, KernelSize, RenderPass } from 'postprocessing';
-import { PerspectiveCamera, type Camera } from "three";
-import { Postprocessing } from "../constants/PostprocessingConstants";
+import { type Camera } from "three";
+import { PostprocessingConstants } from "../constants/PostprocessingConstants";
 
 export class PostprocessingManager {
     public tc: ThrelteContext;
@@ -45,10 +45,10 @@ export class PostprocessingManager {
         if (this.isBloomEnabled) {
             const bloomEffect: BloomEffect = new BloomEffect({
                 blendFunction: BlendFunction.SCREEN,
-                luminanceThreshold: Postprocessing.BLOOM_LUMINANCE_THRESHOLD,
-                luminanceSmoothing: Postprocessing.BLOOM_LUMINANCE_SMOOTHING,
-                intensity: Postprocessing.BLOOM_INTENSITY,
-                kernelSize: KernelSize.SMALL,
+                luminanceThreshold: PostprocessingConstants.BLOOM_LUMINANCE_THRESHOLD,
+                luminanceSmoothing: PostprocessingConstants.BLOOM_LUMINANCE_SMOOTHING,
+                intensity: PostprocessingConstants.BLOOM_INTENSITY,
+                kernelSize: KernelSize.VERY_SMALL,
             });
             let bloomEffectPass: EffectPass = new EffectPass(camera, bloomEffect);
             bloomEffectPass.renderToScreen = true;
