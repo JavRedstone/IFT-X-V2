@@ -30,5 +30,9 @@
     :global(::-webkit-scrollbar-thumb:hover) {
         background-color: #ffffff80
     }
+    
+    :global(a) {
+        color: white;
+    }
 </style>
 <slot></slot>

@@ -54,7 +54,7 @@ export class LaunchConstants {
     public static readonly KP_ANG_VEL_Z: number = 2;
 
     public static readonly LANDING_DOT_PRODUCT_ACCEPT: number = 0.25;
-    public static readonly LANDING_VELOCITY_ACCEPT: number = 15;
+    public static readonly LANDING_VELOCITY_ACCEPT: number = 20;
 
     public static readonly BOOSTER_LAUNCH_EVENTS: string[] = [
         "Booster Engine Cutoff",

@@ -1,19 +1,16 @@
 <script lang="ts">
-    import { toggles } from "$lib/components/stores/ui-store";
+    import { uiSwitches } from "$lib/components/stores/ui-store";
     import liftoff from "../../videos/liftoff.mp4";
 
     function startEditing() {
-        toggles.update((value) => {
-            value.isEditing = true;
+        uiSwitches.update((value) => {
+            value.start = false;
+            value.loading = true;
             return value;
         });
     }
 </script>
 <style>
-    a {
-        color: white;
-    }
-
     .start-video {
         position: absolute;
         left: 50%;
@@ -78,7 +75,7 @@
         }
     }
 </style>
-<video src={liftoff} autoplay loop muted class="start-video"></video>
+<video src={liftoff} autoplay loop muted disablePictureInPicture class="start-video"></video>
 <div class="start-credit"><b>Video credit:</b> <a href="https://twitter.com/SpaceX/status/1768747417716101402" target="_blank">SpaceX</a></div>
 <h1 class="start-title">IFT-X</h1>
 <p class="start-abbreviation">Integrated Flight Test X</p>

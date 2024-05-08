@@ -4,9 +4,22 @@ import { SuperHeavyConstants } from "../constants/objects/SuperHeavyConstants";
 import { LaunchConstants } from "../constants/objects/LaunchConstants";
 
 export const uiSwitches = writable({
-    paused: false,
+    start: true,
+    loading: false,
     settings: false,
     credits: false,
+    playing: false,
+});
+
+export const gameSettings = writable({
+    textureResolution: 1,
+    volume: 1,
+    muted: false,
+    speedUp: 1,
+});
+
+export const uiMessages = writable({
+    numTexturesLoaded: 0,
 });
 
 export const toggles = writable({
@@ -142,11 +155,4 @@ export const keyPresses = writable({
     isLPressed: false,
     isUPressed: false,
     isOPressed: false,
-});
-
-export const gameSettings = writable({
-    textureResolution: 1,
-    volume: 1,
-    muted: false,
-    speedUp: 1,
 });

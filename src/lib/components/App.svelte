@@ -5,19 +5,33 @@
   import Customize from './ui/flight/customize.svelte';
   import Fueling from './ui/flight/fueling.svelte';
   import { onMount } from 'svelte';
-  import { toggles } from './stores/ui-store';
+  import { toggles, uiSwitches } from './stores/ui-store';
   import Start from './ui/main/start.svelte';
+  import Loading from './ui/main/loading.svelte';
 
-  let initialized: boolean = false;
+  let uiValues: any = {
+    start: true,
+    loading: false,
+    settings: false,
+    credits: false,
+    playing: false,
+  };
   let toggleValues: any = {
     isEditing: false,
     isFueling: false,
     isLaunching: false,
-  }
+  };
 
   function setupUpdator(): void {
+    uiSwitches.subscribe((value) => {
+      uiValues.start = value.start;
+      uiValues.loading = value.loading;
+      uiValues.settings = value.settings;
+      uiValues.credits = value.credits;
+      uiValues.playing = value.playing;
+    });
+
     toggles.subscribe((value) => {
-      initialized = true;
       toggleValues.isEditing = value.isEditing;
       toggleValues.isFueling = value.isFueling;
       toggleValues.isLaunching = value.isLaunching;
@@ -49,21 +63,23 @@
   }
 </style>
 
-{#if initialized}
-  {#if toggleValues.isEditing || toggleValues.isFueling || toggleValues.isLaunching}
-    <div class="page">
-      <Canvas>
-        <Scene />
-      </Canvas>
-    </div>
-  {:else}
-    <Start />
-  {/if}
-  {#if toggleValues.isEditing}
-    <Customize />
-  {:else if toggleValues.isFueling}
-    <Fueling />
-  {:else if toggleValues.isLaunching}
-    <Telemetry />
+{#if uiValues.start}
+  <Start />
+{:else}
+  <div class="page" style="visibility: {uiValues.loading ? 'hidden' : 'visible'}">
+    <Canvas>
+      <Scene />
+    </Canvas>
+  </div>
+  {#if uiValues.loading}
+    <Loading />
+  {:else if uiValues.playing}
+    {#if toggleValues.isEditing}
+      <Customize />
+    {:else if toggleValues.isFueling}
+      <Fueling />
+    {:else if toggleValues.isLaunching}
+      <Telemetry />
+    {/if}
   {/if}
 {/if}
