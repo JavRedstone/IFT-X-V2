@@ -6,6 +6,7 @@
   import Fueling from './ui/flight/fueling.svelte';
   import { onMount } from 'svelte';
   import { toggles } from './stores/ui-store';
+  import Start from './ui/main/start.svelte';
 
   let initialized: boolean = false;
   let toggleValues: any = {
@@ -49,11 +50,15 @@
 </style>
 
 {#if initialized}
-  <div class="page">
-    <Canvas>
-      <Scene />
-    </Canvas>
-  </div>
+  {#if toggleValues.isEditing || toggleValues.isFueling || toggleValues.isLaunching}
+    <div class="page">
+      <Canvas>
+        <Scene />
+      </Canvas>
+    </div>
+  {:else}
+    <Start />
+  {/if}
   {#if toggleValues.isEditing}
     <Customize />
   {:else if toggleValues.isFueling}
