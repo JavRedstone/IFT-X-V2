@@ -914,10 +914,9 @@ export class LaunchManager {
             let shCenter = this.superHeavy.group.getWorldPosition(new Vector3).add(this.superHeavy.group.userData.aabb.getCenter(new Vector3).clone().applyQuaternion(this.superHeavy.group.getWorldQuaternion(new Quaternion)));
             let ssDrag: number = 0;
             let shDrag: number = 0;
-            let ssAltitude: number = this.starship.flightController.getAltitude();
-            let shAltitude: number = this.superHeavy.flightController.getAltitude();
-            let stackAltitude: number = this.stackGroup.userData.flightController.getAltitude();
             if (this.separated && !this.justSeparated && this.starship.flightController != null && this.superHeavy.flightController != null) {
+                let ssAltitude: number = this.starship.flightController.getAltitude();
+                let shAltitude: number = this.superHeavy.flightController.getAltitude();
                 ssDrag = this.starship.getDragVector(this.starship.flightController.rotation, this.starship.flightController.relVelocity, ssAltitude).divideScalar(this.starship.getMass()).length();
                 shDrag = this.superHeavy.getDragVector(this.superHeavy.flightController.rotation, this.superHeavy.flightController.relVelocity, shAltitude).divideScalar(this.superHeavy.getMass()).length();
                 ssDrag *= this.starship.flightController.relVelocity.length();
@@ -937,6 +936,7 @@ export class LaunchManager {
                 }
             }
             else if (this.stackGroup != null && this.stackGroup.userData.flightController != null) {
+                let stackAltitude: number = this.stackGroup.userData.flightController.getAltitude();
                 ssDrag = this.starship.getDragVector(this.stackGroup.userData.flightController.rotation, this.stackGroup.userData.flightController.relVelocity, stackAltitude).divideScalar(this.starship.getMass()).length();
                 shDrag = this.superHeavy.getDragVector(this.stackGroup.userData.flightController.rotation, this.stackGroup.userData.flightController.relVelocity, stackAltitude).divideScalar(this.superHeavy.getMass()).length();
                 ssDrag *= this.stackGroup.userData.flightController.relVelocity.length();
