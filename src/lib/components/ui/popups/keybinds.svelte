@@ -1,6 +1,6 @@
 <script lang="ts">
     import { onMount } from "svelte";
-  import { toggles } from "../stores/ui-store";
+  import { toggles } from "../../stores/ui-store";
 
     let isEditing: boolean = false;
     let isLaunching: boolean = false;

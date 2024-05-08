@@ -1,8 +1,8 @@
 <script lang="ts">
     import { onMount } from "svelte";
-    import s25b9 from "../images/s25b9.png";
-    import { telemetry, toggles } from "../stores/ui-store";
-    import { LaunchHelper } from "../helpers/LaunchHelper";
+    import s25b9 from "../../images/s25b9.png";
+    import { telemetry, toggles } from "../../stores/ui-store";
+    import { LaunchHelper } from "../../helpers/LaunchHelper";
 
     const imageTop: number = 84;
     const imageBottom: number = 16;

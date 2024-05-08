@@ -1,9 +1,9 @@
 <script lang="ts">
   import { Canvas } from '@threlte/core'
   import Scene from './Scene.svelte'
-  import Telemetry from './ui/telemetry.svelte';
-  import Customize from './ui/customize.svelte';
-  import Fueling from './ui/fueling.svelte';
+  import Telemetry from './ui/flight/telemetry.svelte';
+  import Customize from './ui/flight/customize.svelte';
+  import Fueling from './ui/flight/fueling.svelte';
   import { onMount } from 'svelte';
   import { toggles } from './stores/ui-store';
 

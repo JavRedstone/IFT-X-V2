@@ -1,17 +1,17 @@
     <script lang="ts">
     import { onMount } from "svelte";
     import { Vector2, type Vector3 } from "three";
-    import { RaptorUI } from "../structs/ui/RaptorUI";
-    import { gameSettings, keyPresses, starshipSettings, superHeavySettings, telemetry } from "../stores/ui-store";
-    import { MathHelper } from "../helpers/MathHelper";
-    import s25 from "../images/s25.png";
-    import b9 from "../images/b9.png";
-    import s25b9 from "../images/s25b9.png";
-    import { RaptorConstants } from "../constants/controls/RaptorConstants";
-    import { LaunchHelper } from "../helpers/LaunchHelper";
-    import { LaunchConstants } from "../constants/objects/LaunchConstants";
-    import Keybinds from "./keybinds.svelte";
-    import { SceneConstants } from "../constants/SceneConstants";
+    import { RaptorUI } from "../../structs/ui/RaptorUI";
+    import { gameSettings, keyPresses, starshipSettings, superHeavySettings, telemetry } from "../../stores/ui-store";
+    import { MathHelper } from "../../helpers/MathHelper";
+    import s25 from "../../images/s25.png";
+    import b9 from "../../images/b9.png";
+    import s25b9 from "../../images/s25b9.png";
+    import { RaptorConstants } from "../../constants/controls/RaptorConstants";
+    import { LaunchHelper } from "../../helpers/LaunchHelper";
+    import { LaunchConstants } from "../../constants/objects/LaunchConstants";
+    import Keybinds from "./../popups/keybinds.svelte";
+    import { SceneConstants } from "../../constants/SceneConstants";
 
     let starshipRaptors: RaptorUI[] = [];
     let superHeavyRaptors: RaptorUI[] = [];
