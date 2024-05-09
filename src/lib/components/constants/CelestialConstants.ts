@@ -38,11 +38,11 @@ export class CelestialConstants {
 
     public static readonly DEFAULT_TURBIDITY: number = 10;
     public static readonly TURBIDITY_MIN: number = 0;
-    public static readonly TURBIDITY_RATE: number = 5e-4;
+    public static readonly TURBIDITY_RATE: number = 1.5e-4;
 
     public static readonly DEFAULT_RAYLEIGH: number = 1.5;
     public static readonly RAYLEIGH_MIN: number = 0;
-    public static readonly RAYLEIGH_RATE: number = 1e-5;
+    public static readonly RAYLEIGH_RATE: number = 1.5e-5;
 
     public static readonly DEFAULT_MIE_COEFFICIENT: number = 0.005;
     public static readonly MIE_COEFFICIENT_MIN: number = 0.0001;
