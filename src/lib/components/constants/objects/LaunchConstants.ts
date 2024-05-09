@@ -18,7 +18,7 @@ export class LaunchConstants {
     public static readonly DRAG_FORCE_LOSS: number = 0.00001;
     public static readonly DRAG_MAX_FORCE_LOSS: number = 0.9999;
 
-    public static readonly SEPARATION_ANG_VEL: Vector3 = new Vector3(0, 0, 0.2); // 0.2
+    public static readonly SEPARATION_ANG_VEL: Vector3 = new Vector3(0, 0, 0); // 0.2
 
     public static readonly OLIT_ARROW_LENGTH: number = 100;
     public static readonly OLIT_ARROW_COLOR: number = 0x0000ff;

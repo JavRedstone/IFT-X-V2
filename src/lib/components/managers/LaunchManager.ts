@@ -83,7 +83,10 @@ export class LaunchManager {
     public superHeavyEP: ExplosionParticle = null;
     public starshipEPCooldown: number = -1;
     public superHeavyEPCooldown: number = -1;
+
+    public starshipLanded: boolean = false;
     public starshipLandedSafe: boolean = false;
+    public superHeavyLanded: boolean = false;
     public superHeavyLandedSafe: boolean = false;
 
     public OLITArrow: ArrowHelper = new ArrowHelper(new Vector3(0, 0, 0), new Vector3(0, 0, 0), LaunchConstants.OLIT_ARROW_LENGTH, LaunchConstants.OLIT_ARROW_COLOR);
@@ -295,15 +298,19 @@ export class LaunchManager {
                                 this.starshipDisabled = true;
                                 this.superHeavyDisabled = true;
 
-                                let orientation: Vector3 = new Vector3(0, 1, 0).applyQuaternion(this.stackGroup.userData.flightController.rotation);
-                                let dot: number = orientation.dot(this.stackGroup.userData.flightController.position.clone().normalize());
-                                if (dot > 1 - LaunchConstants.LANDING_DOT_PRODUCT_ACCEPT && this.stackGroup.userData.flightController.relVelocity.length() < LaunchConstants.LANDING_VELOCITY_ACCEPT) {
-                                    this.starshipLandedSafe = true;
-                                    this.superHeavyLandedSafe = true;
-                                }
-                                else {
-                                    this.starshipLandedSafe = false;
-                                    this.superHeavyLandedSafe = false;
+                                if (!this.starshipLanded && !this.superHeavyLanded) {
+                                    let orientation: Vector3 = new Vector3(0, 1, 0).applyQuaternion(this.stackGroup.userData.flightController.rotation);
+                                    let dot: number = orientation.dot(this.stackGroup.userData.flightController.position.clone().normalize());
+                                    if (dot >= 1 - LaunchConstants.LANDING_DOT_PRODUCT_ACCEPT && this.stackGroup.userData.flightController.relVelocity.length() <= LaunchConstants.LANDING_VELOCITY_ACCEPT) {
+                                        this.starshipLandedSafe = true;
+                                        this.superHeavyLandedSafe = true;
+                                    }
+                                    else {
+                                        this.starshipLandedSafe = false;
+                                        this.superHeavyLandedSafe = false;
+                                    }
+                                    this.starshipLanded = true;
+                                    this.superHeavyLanded = true;
                                 }
 
                                 this.stackGroup.userData.flightController.reset();
@@ -377,13 +384,16 @@ export class LaunchManager {
                             if (shAltitude <= 0) {
                                 this.superHeavyDisabled = true;
 
-                                let orientation: Vector3 = new Vector3(0, 1, 0).applyQuaternion(this.superHeavy.flightController.rotation);
-                                let dot: number = orientation.dot(this.superHeavy.flightController.position.clone().normalize());
-                                if (dot > 1 - LaunchConstants.LANDING_DOT_PRODUCT_ACCEPT && this.superHeavy.flightController.relVelocity.length() < LaunchConstants.LANDING_VELOCITY_ACCEPT) {
-                                    this.superHeavyLandedSafe = true;
-                                }
-                                else {
-                                    this.superHeavyLandedSafe = false;
+                                if (!this.superHeavyLanded) {
+                                    let orientation: Vector3 = new Vector3(0, 1, 0).applyQuaternion(this.superHeavy.flightController.rotation);
+                                    let dot: number = orientation.dot(this.superHeavy.flightController.position.clone().normalize());
+                                    if (dot >= 1 - LaunchConstants.LANDING_DOT_PRODUCT_ACCEPT && this.superHeavy.flightController.relVelocity.length() <= LaunchConstants.LANDING_VELOCITY_ACCEPT) {
+                                        this.superHeavyLandedSafe = true;
+                                    }
+                                    else {
+                                        this.superHeavyLandedSafe = false;
+                                    }
+                                    this.superHeavyLanded = true;
                                 }
 
                                 this.superHeavy.flightController.reset();
@@ -421,13 +431,16 @@ export class LaunchManager {
                             if (ssAltitude <= 0) {
                                 this.starshipDisabled = true;
 
-                                let orientation: Vector3 = new Vector3(0, 1, 0).applyQuaternion(this.starship.flightController.rotation);
-                                let dot: number = orientation.dot(this.starship.flightController.position.clone().normalize());
-                                if (dot > 1 - LaunchConstants.LANDING_DOT_PRODUCT_ACCEPT && this.starship.flightController.relVelocity.length() < LaunchConstants.LANDING_VELOCITY_ACCEPT) {
-                                    this.starshipLandedSafe = true;
-                                }
-                                else {
-                                    this.starshipLandedSafe = false;
+                                if (!this.starshipLanded) {
+                                    let orientation: Vector3 = new Vector3(0, 1, 0).applyQuaternion(this.starship.flightController.rotation);
+                                    let dot: number = orientation.dot(this.starship.flightController.position.clone().normalize());
+                                    if (dot >= 1 - LaunchConstants.LANDING_DOT_PRODUCT_ACCEPT && this.starship.flightController.relVelocity.length() <= LaunchConstants.LANDING_VELOCITY_ACCEPT) {
+                                        this.starshipLandedSafe = true;
+                                    }
+                                    else {
+                                        this.starshipLandedSafe = false;
+                                    }
+                                    this.starshipLanded = true;
                                 }
 
                                 this.starship.flightController.reset();
@@ -957,15 +970,15 @@ export class LaunchManager {
             }
 
             if (this.separated && !this.justSeparated) {
-                if (this.starship.flightController != null && this.starship.flightController.getAltitude() <= 0 && !this.starshipLandedSafe && this.starshipEPCooldown == -1) {
+                if (this.starship.flightController != null && this.starshipLanded && !this.starshipLandedSafe && this.starshipEPCooldown == -1) {
                     this.starshipEPCooldown = ParticleConstants.EXPLOSION_DURATION;
                 }
-                if (this.superHeavy.flightController != null && this.superHeavy.flightController.getAltitude() <= 0 && !this.superHeavyLandedSafe && this.superHeavyEPCooldown == -1) {
+                if (this.superHeavy.flightController != null && this.superHeavyLanded && !this.superHeavyLandedSafe && this.superHeavyEPCooldown == -1) {
                     this.superHeavyEPCooldown = ParticleConstants.EXPLOSION_DURATION;
                 }
             }
             else {
-                if (this.stackGroup.userData.flightController != null && this.stackGroup.userData.flightController.getAltitude() <= 0 && !this.starshipLandedSafe && !this.superHeavyLandedSafe) {
+                if (this.stackGroup.userData.flightController != null && this.starshipLanded && this.superHeavyLanded && !this.starshipLandedSafe && !this.superHeavyLandedSafe) {
                     this.starshipEPCooldown = ParticleConstants.EXPLOSION_DURATION;
                     this.superHeavyEPCooldown = ParticleConstants.EXPLOSION_DURATION;
                 }
