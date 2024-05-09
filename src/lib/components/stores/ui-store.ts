@@ -19,7 +19,7 @@ export const gameSettings = writable({
 });
 
 export const uiMessages = writable({
-    numTexturesLoaded: 0,
+    numObjsLoaded: 0,
 });
 
 export const toggles = writable({

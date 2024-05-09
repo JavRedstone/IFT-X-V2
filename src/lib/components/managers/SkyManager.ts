@@ -36,8 +36,6 @@ export class SkyManager {
         this.azimuth = azimuth * 180 / Math.PI;
         this.elevation = elevation * 180 / Math.PI;
 
-        this.sun.intensity = lerp(0, CelestialConstants.SUN_INTENSITY, MathHelper.clamp(Math.sin(elevation), 0, 1));
-
         this.turbidity = CelestialConstants.DEFAULT_TURBIDITY - CelestialConstants.TURBIDITY_RATE * altitude;
         this.rayleigh = CelestialConstants.DEFAULT_RAYLEIGH - CelestialConstants.RAYLEIGH_RATE * altitude;
         this.mieCoefficient = CelestialConstants.DEFAULT_MIE_COEFFICIENT - CelestialConstants.MIE_COEFFICIENT_RATE * altitude;
@@ -48,9 +46,11 @@ export class SkyManager {
     
         if (this.turbidity <= CelestialConstants.TURBIDITY_MIN && this.rayleigh <= CelestialConstants.RAYLEIGH_MIN) {
             this.enabled = false;
+            this.sun.intensity = lerp(0, CelestialConstants.SUN_INTENSITY, MathHelper.clamp(Math.sin(elevation), 0, 1));
         }
         else {
             this.enabled = true;
+            this.sun.intensity = 0;
         }
     }
 }

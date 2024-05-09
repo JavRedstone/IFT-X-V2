@@ -1,14 +1,14 @@
 <script lang="ts">
-	import { TextureConstants } from './../../constants/TextureConstants';
 	import { toggles, uiMessages, uiSwitches } from './../../stores/ui-store';
     import { onMount } from 'svelte';
     import staging from '../../videos/staging.mp4';
+  import { TextureConstants } from '$lib/components/constants/TextureConstants';
 
     let loadingProgress: number = 0;
 
     function setupUpdator(): void {
         uiMessages.subscribe((value) => {
-            loadingProgress = value.numTexturesLoaded / TextureConstants.NUM_TEXTURES * 100;
+            loadingProgress = value.numObjsLoaded / TextureConstants.NUM_TEXTURES * 100;
 
             if (loadingProgress == 100) {
                 setTimeout(() => {
@@ -77,6 +77,7 @@
         transform: translate(-50%, -50%);
         width: 50%;
         height: 10px;
+        border: 1px solid white;
         border-radius: 5px;
         background-color: rgba(0, 0, 0, 0.75);
         animation: increaseOpacity 0.5s;

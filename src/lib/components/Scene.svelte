@@ -27,7 +27,7 @@
   import Olm from './models/olm.svelte';
   import OuterCylinder from './models/outer_cylinder.svelte';
   import { SceneConstants } from './constants/SceneConstants';
-  import type { Object3D, SphereGeometry } from 'three';
+  import type { Object3D } from 'three';
 
   const TC: ThrelteContext = useThrelte();  
   let sceneManager: SceneManager = new SceneManager(TC);

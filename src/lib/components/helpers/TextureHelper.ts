@@ -1,14 +1,9 @@
-import { Texture, TextureLoader } from "three";
-import { uiMessages } from "../stores/ui-store";
+import { LoadingManager, Texture, TextureLoader } from "three";
 
 export class TextureHelper {
-    public static loadTexture = (url: string) => {
+    public static loadTexture = (url: string, manager: LoadingManager) => {
         return new Promise<Texture>((resolve, reject) => {
-            new TextureLoader().load(url, resolve, undefined, reject);
-            uiMessages.update((value) => {
-                value.numTexturesLoaded++;
-                return value;
-            });
+            new TextureLoader(manager).load(url, resolve, undefined, reject);
         });
     };
 }

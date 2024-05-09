@@ -1,4 +1,4 @@
-import { Box3, Object3D, Vector3 } from 'three';
+import { Box3, Object3D } from 'three';
 import { OBB } from 'three/addons/math/OBB.js';
 
 export class ObjectHelper {

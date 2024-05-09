@@ -1,5 +1,5 @@
 import { type ThrelteContext } from "@threlte/core";
-import { AdditiveBlending, BackSide, DoubleSide, EquirectangularReflectionMapping, Group, Mesh, MeshStandardMaterial, RepeatWrapping, SRGBColorSpace, ShaderMaterial, SphereGeometry, Vector3 } from "three";
+import { AdditiveBlending, BackSide, DoubleSide, EquirectangularReflectionMapping, Group, LoadingManager, Mesh, MeshStandardMaterial, RepeatWrapping, SRGBColorSpace, ShaderMaterial, SphereGeometry, Vector3 } from "three";
 import { TextureHelper } from "../helpers/TextureHelper";
 import { CelestialConstants } from "../constants/CelestialConstants";
 import { TextureConstants } from "../constants/TextureConstants";
@@ -7,6 +7,7 @@ import { PRTransients } from "../constants/transients/PRTransients";
 
 export class CelestialManager {
     public tc: ThrelteContext;
+    public loadingManager: LoadingManager;
 
     public earthGroup: Group = new Group();
     public earth: Mesh = new Mesh();
@@ -16,8 +17,9 @@ export class CelestialManager {
     
     public moon: Mesh = new Mesh();
 
-    constructor(tc: ThrelteContext) {
+    constructor(tc: ThrelteContext, loadingManager: LoadingManager) {
         this.tc = tc;
+        this.loadingManager = loadingManager;
         this.setup();
     }
 
@@ -29,20 +31,20 @@ export class CelestialManager {
     }
 
     public async setBackground(): Promise<void> {
-        let envMap = await TextureHelper.loadTexture(TextureConstants.TEXTURE_URL + "stars.jpg");
+        let envMap = await TextureHelper.loadTexture(TextureConstants.TEXTURE_URL + "stars.jpg", this.loadingManager);
         envMap.mapping = EquirectangularReflectionMapping;
         this.tc.scene.background = envMap;
     }
 
     public async createEarth(): Promise<void> {
-        let map = await TextureHelper.loadTexture(TextureConstants.TEXTURE_URL + "map.jpg");
+        let map = await TextureHelper.loadTexture(TextureConstants.TEXTURE_URL + "map.jpg", this.loadingManager);
         map.colorSpace = SRGBColorSpace;
 
-        let bump = await TextureHelper.loadTexture(TextureConstants.TEXTURE_URL + "bump.jpg");
+        let bump = await TextureHelper.loadTexture(TextureConstants.TEXTURE_URL + "bump.jpg", this.loadingManager);
 
-        let spec = await TextureHelper.loadTexture(TextureConstants.TEXTURE_URL + "spec.jpg");
+        let spec = await TextureHelper.loadTexture(TextureConstants.TEXTURE_URL + "spec.jpg", this.loadingManager);
 
-        let lights = await TextureHelper.loadTexture(TextureConstants.TEXTURE_URL + "lights2.gif");
+        let lights = await TextureHelper.loadTexture(TextureConstants.TEXTURE_URL + "lights2.gif", this.loadingManager);
 
         this.earthGroup = new Group();
         // this.earthGroup.rotation.z = 23.5 / 360 * 2 * Math.PI;
@@ -63,7 +65,7 @@ export class CelestialManager {
         this.earth = new Mesh(Egeometry, Ematerial);
         this.earthGroup.add(this.earth);
         
-        let clouds = await TextureHelper.loadTexture(TextureConstants.TEXTURE_URL + "clouds.jpg");
+        let clouds = await TextureHelper.loadTexture(TextureConstants.TEXTURE_URL + "clouds.jpg", this.loadingManager);
         clouds.colorSpace = SRGBColorSpace;
 
         let Cgeometry = new SphereGeometry(CelestialConstants.CLOUDS_RADIUS, CelestialConstants.EARTH_VERTICES, CelestialConstants.EARTH_VERTICES);
@@ -208,10 +210,10 @@ export class CelestialManager {
     }
 
     public async createMoon(): Promise<void> {
-        let map = await TextureHelper.loadTexture(TextureConstants.TEXTURE_URL + "moon_map.jpg");
+        let map = await TextureHelper.loadTexture(TextureConstants.TEXTURE_URL + "moon_map.jpg", this.loadingManager);
         map.colorSpace = SRGBColorSpace;
 
-        let bump = await TextureHelper.loadTexture(TextureConstants.TEXTURE_URL + "moon_bump.jpg");
+        let bump = await TextureHelper.loadTexture(TextureConstants.TEXTURE_URL + "moon_bump.jpg", this.loadingManager);
 
         let Mgeometry = new SphereGeometry(CelestialConstants.MOON_RADIUS, CelestialConstants.MOON_VERTICES, CelestialConstants.MOON_VERTICES);
         let Mmaterial = new MeshStandardMaterial({
