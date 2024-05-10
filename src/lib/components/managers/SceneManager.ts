@@ -65,6 +65,7 @@ export class SceneManager {
     }
 
     public updateScene(delta: number): void {
+        this.launchManager.updateScene(delta);
         let altitude: number = 0;
         if (this.launchManager.liftedOff) {
             if (this.launchManager.separated && !this.launchManager.justSeparated) {
@@ -82,7 +83,6 @@ export class SceneManager {
         this.skyManager.updateScene(delta, altitude);
         this.celestialManager.skyEnabled = this.skyManager.enabled;
         this.celestialManager.updateScene(delta);
-        this.launchManager.updateScene(delta);
     }
 
     public updateAll(delta: number): void {

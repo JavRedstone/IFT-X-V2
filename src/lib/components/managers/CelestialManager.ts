@@ -21,6 +21,7 @@ export class CelestialManager {
     public textureResolution: number = TextureConstants.DEFAULT_TEXTURE_RESOLUTION;
 
     public skyEnabled: boolean = true;
+    public addedAtmosphere: boolean = true;
 
     constructor(tc: ThrelteContext, loadingManager: LoadingManager) {
         this.tc = tc;
@@ -133,7 +134,7 @@ export class CelestialManager {
             side: BackSide
         });
         this.atmosphere = new Mesh(Ageometry, Amaterial);
-        this.earthGroup.add(this.atmosphere);
+        // this.earthGroup.add(this.atmosphere);
 
         Ematerial.onBeforeCompile = (shader) => {
             // shader.uniforms.tClouds = { value: clouds };
@@ -196,7 +197,7 @@ export class CelestialManager {
 
                 // adding a small amount of atmospheric fresnel effect to make it more realistic
                 // fine tune the first constant below for stronger or weaker effect
-                float intensity = 1.4 - dot(vNormal, vec3( 0.0, 0.0, 1.0 ) );
+                float intensity = 1.0 - dot(vNormal, vec3( 0.0, 0.0, 1.0 ) ); // first constant was 1.4
                 vec3 atmosphere = vec3( 0.3, 0.6, 1.0 ) * pow(intensity, 5.0);
             
                 diffuseColor.rgb += atmosphere * fresnelFactor;
@@ -290,11 +291,9 @@ export class CelestialManager {
         //     shader.uniforms.uv_xOffset.value += offset % 1;
             if (this.skyEnabled) {
                 shader.uniforms.fresnelFactor.value = 0;
-                this.atmosphere.material['uniforms'].atmFactor.value = 0;
             }
             else {
                 shader.uniforms.fresnelFactor.value = 1;
-                this.atmosphere.material['uniforms'].atmFactor.value = 1;
             }
         }
     }
