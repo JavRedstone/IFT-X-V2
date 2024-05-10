@@ -62,7 +62,6 @@ export class CelestialManager {
         let Egeometry = new SphereGeometry(CelestialConstants.EARTH_RADIUS, CelestialConstants.EARTH_VERTICES, CelestialConstants.EARTH_VERTICES);
         let Ematerial = new MeshStandardMaterial({
             map: map,
-            bumpMap: bump,
             bumpScale: CelestialConstants.EARTH_BUMP_SCALE,
             roughnessMap: spec,
             roughness: CelestialConstants.EARTH_ROUGHNESS,

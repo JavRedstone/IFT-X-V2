@@ -46,7 +46,7 @@ export class SkyManager {
     
         if (this.turbidity <= CelestialConstants.TURBIDITY_MIN && this.rayleigh <= CelestialConstants.RAYLEIGH_MIN) {
             this.enabled = false;
-            this.sun.intensity = lerp(0, CelestialConstants.SUN_INTENSITY, MathHelper.clamp(Math.sin(elevation), 0, 1));
+            this.sun.intensity = 1;
         }
         else {
             this.enabled = true;
