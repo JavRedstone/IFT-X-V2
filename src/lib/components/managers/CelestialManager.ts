@@ -4,6 +4,7 @@ import { TextureHelper } from "../helpers/TextureHelper";
 import { CelestialConstants } from "../constants/CelestialConstants";
 import { TextureConstants } from "../constants/TextureConstants";
 import { PRTransients } from "../constants/transients/PRTransients";
+import { gameSettings } from "../stores/ui-store";
 
 export class CelestialManager {
     public tc: ThrelteContext;
@@ -17,6 +18,10 @@ export class CelestialManager {
     
     public moon: Mesh = new Mesh();
 
+    public textureResolution: number = TextureConstants.DEFAULT_TEXTURE_RESOLUTION;
+
+    public skyEnabled: boolean = true;
+
     constructor(tc: ThrelteContext, loadingManager: LoadingManager) {
         this.tc = tc;
         this.loadingManager = loadingManager;
@@ -24,6 +29,10 @@ export class CelestialManager {
     }
 
     public async setup(): Promise<void> {
+        gameSettings.subscribe((value) => {
+            this.textureResolution = value.textureResolution;
+        });
+        
         await this.setBackground();
         await this.createEarth();
         await this.createMoon();
@@ -31,20 +40,20 @@ export class CelestialManager {
     }
 
     public async setBackground(): Promise<void> {
-        let envMap = await TextureHelper.loadTexture(TextureConstants.TEXTURE_URL + "stars.jpg", this.loadingManager);
+        let envMap = await TextureHelper.loadTexture(TextureConstants.TEXTURE_URL + TextureConstants.TEXTURE_RESOLUTIONS[this.textureResolution] + "/stars.jpg", this.loadingManager);
         envMap.mapping = EquirectangularReflectionMapping;
         this.tc.scene.background = envMap;
     }
 
     public async createEarth(): Promise<void> {
-        let map = await TextureHelper.loadTexture(TextureConstants.TEXTURE_URL + "map.jpg", this.loadingManager);
+        let map = await TextureHelper.loadTexture(TextureConstants.TEXTURE_URL + TextureConstants.TEXTURE_RESOLUTIONS[this.textureResolution] + "/map.jpg", this.loadingManager);
         map.colorSpace = SRGBColorSpace;
 
-        let bump = await TextureHelper.loadTexture(TextureConstants.TEXTURE_URL + "bump.jpg", this.loadingManager);
+        let bump = await TextureHelper.loadTexture(TextureConstants.TEXTURE_URL + TextureConstants.TEXTURE_RESOLUTIONS[this.textureResolution] + "/bump.jpg", this.loadingManager);
 
-        let spec = await TextureHelper.loadTexture(TextureConstants.TEXTURE_URL + "spec.jpg", this.loadingManager);
+        let spec = await TextureHelper.loadTexture(TextureConstants.TEXTURE_URL + TextureConstants.TEXTURE_RESOLUTIONS[this.textureResolution] + "/spec.jpg", this.loadingManager);
 
-        let lights = await TextureHelper.loadTexture(TextureConstants.TEXTURE_URL + "lights2.gif", this.loadingManager);
+        let lights = await TextureHelper.loadTexture(TextureConstants.TEXTURE_URL + TextureConstants.TEXTURE_RESOLUTIONS[this.textureResolution] + "/lights2.gif", this.loadingManager);
 
         this.earthGroup = new Group();
         // this.earthGroup.rotation.z = 23.5 / 360 * 2 * Math.PI;
@@ -65,7 +74,7 @@ export class CelestialManager {
         this.earth = new Mesh(Egeometry, Ematerial);
         this.earthGroup.add(this.earth);
         
-        let clouds = await TextureHelper.loadTexture(TextureConstants.TEXTURE_URL + "clouds.jpg", this.loadingManager);
+        let clouds = await TextureHelper.loadTexture(TextureConstants.TEXTURE_URL + TextureConstants.TEXTURE_RESOLUTIONS[this.textureResolution] + "/clouds.jpg", this.loadingManager);
         clouds.colorSpace = SRGBColorSpace;
 
         let Cgeometry = new SphereGeometry(CelestialConstants.CLOUDS_RADIUS, CelestialConstants.EARTH_VERTICES, CelestialConstants.EARTH_VERTICES);
@@ -99,6 +108,7 @@ export class CelestialManager {
             uniform float atmOpacity;
             uniform float atmPowFactor;
             uniform float atmMultiplier;
+            uniform float atmFactor;
             
             void main() {
                 // Starting from the atmosphere edge, dotP would increase from 0 to 1
@@ -108,30 +118,33 @@ export class CelestialManager {
                 // Adding in a bit of dotP to the color to make it whiter while thickening
                 vec3 atmColor = vec3(0.35 + dotP/4.5, 0.35 + dotP/4.5, 1.0);
                 // use atmOpacity to control the overall intensity of the atmospheric color
-                gl_FragColor = vec4(atmColor, atmOpacity) * factor;
+                gl_FragColor = vec4(atmColor, atmOpacity) * factor * atmFactor;
             
                 // (optional) colorSpace conversion for output
-                // gl_FragColor = linearToOutputTexel( gl_FragColor );
+                gl_FragColor = linearToOutputTexel( gl_FragColor );
             }`,
             uniforms: {
                 atmOpacity: { value: CelestialConstants.ATMOSPHERIC_OPACITY },
                 atmPowFactor: { value: CelestialConstants.ATMOSPHERIC_POW_FACTOR },
-                atmMultiplier: { value: CelestialConstants.ATMOSPHERIC_MULTIPLIER }
+                atmMultiplier: { value: CelestialConstants.ATMOSPHERIC_MULTIPLIER },
+                atmFactor: { value: 0 }
             },
             blending: AdditiveBlending,
             side: BackSide
         });
         this.atmosphere = new Mesh(Ageometry, Amaterial);
-        // this.earth_group.add(this.atmosphere);
+        this.earthGroup.add(this.atmosphere);
 
         Ematerial.onBeforeCompile = (shader) => {
-            shader.uniforms.tClouds = { value: clouds };
-            shader.uniforms.tClouds.value.wrapS = RepeatWrapping;
-            shader.uniforms.uv_xOffset = { value: 0 };
+            // shader.uniforms.tClouds = { value: clouds };
+            // shader.uniforms.tClouds.value.wrapS = RepeatWrapping;
+            // shader.uniforms.uv_xOffset = { value: 0 };
+            shader.uniforms.fresnelFactor = { value: 0 };
             shader.fragmentShader = shader.fragmentShader.replace('#include <common>', `
                 #include <common>
-                uniform sampler2D tClouds;
-                uniform float uv_xOffset;
+                // uniform sampler2D tClouds;
+                // uniform float uv_xOffset;
+                uniform float fresnelFactor;
             `);
 
             // Adding cloud shadows to the Earth
@@ -155,6 +168,7 @@ export class CelestialManager {
 
                 #endif
 
+                /*
                 // Methodology explanation:
                 //
                 // Our goal here is to use a “negative light map” approach to cast cloud shadows,
@@ -178,13 +192,14 @@ export class CelestialManager {
                 // we also clamp the shadowValue to a minimum of 0.2 so it doesn't get too dark
                 
                 diffuseColor.rgb *= max(1.0 - cloudsMapValue, 0.2 );
+                */
 
                 // adding a small amount of atmospheric fresnel effect to make it more realistic
                 // fine tune the first constant below for stronger or weaker effect
-                // float intensity = 1.4 - dot(vNormal, vec3( 0.0, 0.0, 1.0 ) );
-                // vec3 atmosphere = vec3( 0.3, 0.6, 1.0 ) * pow(intensity, 5.0);
+                float intensity = 1.4 - dot(vNormal, vec3( 0.0, 0.0, 1.0 ) );
+                vec3 atmosphere = vec3( 0.3, 0.6, 1.0 ) * pow(intensity, 5.0);
             
-                // diffuseColor.rgb += atmosphere;
+                diffuseColor.rgb += atmosphere * fresnelFactor;
             `);
 
             // Reversing the roughness map because we provide the ocean map
@@ -210,10 +225,10 @@ export class CelestialManager {
     }
 
     public async createMoon(): Promise<void> {
-        let map = await TextureHelper.loadTexture(TextureConstants.TEXTURE_URL + "moon_map.jpg", this.loadingManager);
+        let map = await TextureHelper.loadTexture(TextureConstants.TEXTURE_URL + TextureConstants.TEXTURE_RESOLUTIONS[this.textureResolution] + "/moon_map.jpg", this.loadingManager);
         map.colorSpace = SRGBColorSpace;
 
-        let bump = await TextureHelper.loadTexture(TextureConstants.TEXTURE_URL + "moon_bump.jpg", this.loadingManager);
+        let bump = await TextureHelper.loadTexture(TextureConstants.TEXTURE_URL + TextureConstants.TEXTURE_RESOLUTIONS[this.textureResolution] + "/moon_bump.jpg", this.loadingManager);
 
         let Mgeometry = new SphereGeometry(CelestialConstants.MOON_RADIUS, CelestialConstants.MOON_VERTICES, CelestialConstants.MOON_VERTICES);
         let Mmaterial = new MeshStandardMaterial({
@@ -268,10 +283,19 @@ export class CelestialManager {
         // The offset n / 2π would be passed into the shader program via the uniform variable: uv_xOffset.
         // We do offset % 1 because the value of 1 for uv.x means full circle,
         // whenever uv_xOffset is larger than one, offsetting 2π radians is like no offset at all.
+
         let shader = this.earthMaterial.userData.shader;
         if (shader) {
-            let offset = (delta * (CelestialConstants.CLOUDS_ROTATION_SPEED - CelestialConstants.EARTH_ROTATION_SPEED)) / (2 * Math.PI)
-            shader.uniforms.uv_xOffset.value += offset % 1;
+        //     let offset = (delta * (CelestialConstants.CLOUDS_ROTATION_SPEED - CelestialConstants.EARTH_ROTATION_SPEED)) / (2 * Math.PI)
+        //     shader.uniforms.uv_xOffset.value += offset % 1;
+            if (this.skyEnabled) {
+                shader.uniforms.fresnelFactor.value = 0;
+                this.atmosphere.material['uniforms'].atmFactor.value = 0;
+            }
+            else {
+                shader.uniforms.fresnelFactor.value = 1;
+                this.atmosphere.material['uniforms'].atmFactor.value = 1;
+            }
         }
     }
 }

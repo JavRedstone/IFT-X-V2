@@ -22,9 +22,9 @@ export class CelestialConstants {
     public static readonly EARTH_ROUGHNESS: number = 1;
     public static readonly EARTH_EMISSIVE: number = 0xffff88;
     public static readonly EARTH_EMISSIVE_INTENSITY: number = 0.25;
-    public static readonly ATMOSPHERIC_OPACITY: number = 0.75;
-    public static readonly ATMOSPHERIC_POW_FACTOR: number = 2;
-    public static readonly ATMOSPHERIC_MULTIPLIER: number = 9.5;
+    public static readonly ATMOSPHERIC_OPACITY: number = 0.5;
+    public static readonly ATMOSPHERIC_POW_FACTOR: number = 1;
+    public static readonly ATMOSPHERIC_MULTIPLIER: number = 0.5;
 
     public static readonly MOON_RADIUS: number = CelestialConstants.EARTH_RADIUS * 0.27;
     public static readonly MOON_VIEW_RADIUS: number = CelestialConstants.MOON_RADIUS * 1.1;

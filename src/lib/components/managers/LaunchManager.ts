@@ -541,8 +541,7 @@ export class LaunchManager {
                 }
             }
             if (!this.hasSetInitialPosition) {
-                let rotation: Euler = new Euler(153.875 * Math.PI / 180, 96.65 * Math.PI / 180, 0);
-                PRTransients.realPositions.groupPosition = new Vector3(1, 0, 0).applyEuler(rotation).multiplyScalar(CelestialConstants.EARTH_EFFECTIVE_RADIUS);
+                PRTransients.realPositions.groupPosition = new Vector3(1, 0, 0).applyEuler(LaunchConstants.LAUNCHPAD_ROTATION).multiplyScalar(CelestialConstants.EARTH_EFFECTIVE_RADIUS);
                 this.hasSetInitialPosition = true;
             }
             PRTransients.realPositions.groupPosition.applyEuler(new Euler(0, CelestialConstants.EARTH_ROTATION_SPEED * delta, 0)); // this is normal

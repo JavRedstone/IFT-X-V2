@@ -6,8 +6,6 @@ import { LaunchConstants } from "../constants/objects/LaunchConstants";
 export const uiSwitches = writable({
     start: true,
     loading: false,
-    settings: false,
-    credits: false,
     playing: false,
 });
 

@@ -12,8 +12,6 @@
   let uiValues: any = {
     start: true,
     loading: false,
-    settings: false,
-    credits: false,
     playing: false,
   };
   let toggleValues: any = {
@@ -26,8 +24,6 @@
     uiSwitches.subscribe((value) => {
       uiValues.start = value.start;
       uiValues.loading = value.loading;
-      uiValues.settings = value.settings;
-      uiValues.credits = value.credits;
       uiValues.playing = value.playing;
     });
 

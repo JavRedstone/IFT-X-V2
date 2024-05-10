@@ -4,6 +4,7 @@ export class LaunchConstants {
     public static readonly AABB_REQUEST_AMOUNT: number = 1;
     public static readonly AABB_REQUEST_MAX: number = 3;
 
+    public static readonly LAUNCHPAD_ROTATION: Euler = new Euler(153.875 * Math.PI / 180, 96.65 * Math.PI / 180, 0);
     public static readonly ROTATION_GROUP: Euler = new Euler(0, -90 * Math.PI / 180, 0, "XYZ");
     
     public static readonly REAL_LIFE_SCALE: Vector3 = new Vector3(4.5, 4.5, 4.5);
