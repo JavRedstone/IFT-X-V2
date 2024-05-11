@@ -24,5 +24,5 @@ Go to [iftx.pages.dev/](https://iftx.pages.dev/)
 
 ## Video Credits
 
-Start screen video: [Starship ascending through the clouds](https://twitter.com/SpaceX/status/1768747417716101402) by SpaceX
-Loading screen video: [Starship Third Flight Test](https://www.youtube.com/watch?v=ApMrILhTulI) by SpaceX
+- Start screen video: [Starship ascending through the clouds](https://twitter.com/SpaceX/status/1768747417716101402) by SpaceX
+- Loading screen video: [Starship Third Flight Test](https://www.youtube.com/watch?v=ApMrILhTulI) by SpaceX
