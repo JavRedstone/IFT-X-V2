@@ -8,6 +8,13 @@
     let isOpen: boolean = false;
 
     function setupUpdator(): void {
+        localStorage.getItem("volume") && (volume = parseFloat(localStorage.getItem("volume") as string));
+        localStorage.getItem("particles") && (particles = localStorage.getItem("particles") === "true");
+        gameSettings.update((settings) => {
+            settings.volume = volume;
+            settings.particles = particles;
+            return settings;
+        });
         gameSettings.subscribe((settings) => {
             volume = settings.volume;
             particles = settings.particles;
@@ -16,6 +23,8 @@
 
     function save(): void {
         isOpen = false;
+        localStorage.setItem("volume", volume.toString());
+        localStorage.setItem("particles", particles.toString());
         gameSettings.update((settings) => {
             settings.volume = volume;
             settings.particles = particles;

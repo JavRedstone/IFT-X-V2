@@ -4,7 +4,7 @@ import { PhysicsConstants } from "./PhysicsConstants";
 export class CelestialConstants {
     public static readonly SUN_POSITION: Vector3 = new Vector3(1.25, 0.5, 0);
     public static readonly SUN_COLOR: number = 0xffffff;
-    public static readonly SUN_INTENSITY: number = 40;
+    public static readonly SUN_INTENSITY: number = 100;
 
     public static readonly EARTH_RADIUS: number = 360;
     public static readonly REAL_SCALE: number = PhysicsConstants.RADIUS_EARTH / CelestialConstants.EARTH_RADIUS;
