@@ -9,9 +9,23 @@ Go to [iftx.pages.dev/](https://iftx.pages.dev/)
 1. Customize your Starship and SuperHeavy
 2. Launch the Starship and SuperHeavy
 3. Use keybinds (listed in keybinds popup) to control the Starship and SuperHeavy
+
+# Features
+
+- Includes full customizability of Starship and SuperHeavy, from the number of engines to the size of the flaps
 - Includes stage separation (hot staging)
 - Includes automated landing burn
-- Includes reentry effects
+- Includes particle effects, specifically
+    - Deluge system
+    - Engine exhaust
+    - Hot staging
+    - Reentry
+
+# How to run locally
+
+1. Clone the repository
+2. Run `npm install`
+3. Run `npm run dev`
 
 # Credits
 
