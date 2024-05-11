@@ -12,3 +12,17 @@ Go to [iftx.pages.dev/](https://iftx.pages.dev/)
 - Includes stage separation (hot staging)
 - Includes automated landing burn
 - Includes reentry effects
+
+# Credits
+
+## General Credits
+
+- [ThreeJS](https://threejs.org/)
+- [Three Nebula](https://three-nebula.org/)
+- [SpaceX](https://www.spacex.com/)
+- [SpaceX Starship](https://www.spacex.com/vehicles/starship/)
+
+## Video Credits
+
+Start screen video: [Starship ascending through the clouds](https://twitter.com/SpaceX/status/1768747417716101402) by SpaceX
+Loading screen video: [Starship Third Flight Test](https://www.youtube.com/watch?v=ApMrILhTulI) by SpaceX
