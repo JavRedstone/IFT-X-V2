@@ -4,16 +4,16 @@ import { SuperHeavyConstants } from "../constants/objects/SuperHeavyConstants";
 import { LaunchConstants } from "../constants/objects/LaunchConstants";
 
 export const uiSwitches = writable({
-    start: true,
+    start: false,
     loading: false,
-    playing: false,
+    playing: true,
 });
 
 export const gameSettings = writable({
     textureResolution: 1,
     volume: 1,
-    muted: false,
     speedUp: 1,
+    particles: true,
 });
 
 export const uiMessages = writable({
@@ -24,7 +24,7 @@ export const toggles = writable({
     isEditing: false,
     isEditingStarship: false,
     isEditingSuperHeavy: false,
-    isFueling: false,
+    isFueling: true,
     hasStartedFueling: false,
     doneFueling: false,
     isLaunching: false,

@@ -12,6 +12,7 @@
     import { LaunchConstants } from "../../constants/objects/LaunchConstants";
     import Keybinds from "./../popups/keybinds.svelte";
     import { SceneConstants } from "../../constants/SceneConstants";
+  import Settings from "../popups/settings.svelte";
 
     let starshipRaptors: RaptorUI[] = [];
     let superHeavyRaptors: RaptorUI[] = [];
@@ -719,11 +720,22 @@
         border: 1px solid white;
     }
 
-    .telemetry-speedup-slider {
-        -webkit-appearance: none;
+    .telemetry-speedup-container {
         position: absolute;
         bottom: 120px;
         right: 8px;
+        width: 140px;
+        height: 10px;
+        padding: 8px;
+        background-color: rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+    }
+
+    .telemetry-speedup-slider {
+        -webkit-appearance: none;
+        position: absolute;
+        right: 8px;
+        top: 6px;
         width: 100px;
         height: 10px;
         background: rgba(255, 255, 255, 0.5);
@@ -742,9 +754,9 @@
     }
 
     .telemetry-speedup-number {
-        position: fixed;
-        right: 115px;
-        bottom: 118px;
+        position: absolute;
+        left: 8px;
+        top: 3px;
         color: white;
         font-size: 16px;
 
@@ -862,5 +874,10 @@
 <div style="position:fixed; left: 8px; bottom: 136px;">
     <Keybinds />
 </div>
-<input type="range" class="telemetry-speedup-slider" min={SceneConstants.SPEEDUP_MIN} max={SceneConstants.SPEEDUP_MAX} step={SceneConstants.SPEEDUP_STEP} bind:value={speedUp} on:input={setSpeedUp}>
-<div class="telemetry-speedup-number">{speedUp}X</div>
+<div style="position:fixed; left: 76px; bottom: 136px;">
+    <Settings />
+</div>
+<div class="telemetry-speedup-container">
+    <input type="range" class="telemetry-speedup-slider" min={SceneConstants.SPEEDUP_MIN} max={SceneConstants.SPEEDUP_MAX} step={SceneConstants.SPEEDUP_STEP} bind:value={speedUp} on:input={setSpeedUp}>
+    <div class="telemetry-speedup-number">{speedUp}X</div>    
+</div>

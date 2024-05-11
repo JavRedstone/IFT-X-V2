@@ -259,4 +259,20 @@ export class HotStageParticle {
         
         this.system.update();
     }
+
+    public remove(): void {
+        for (let emitter of this.system.emitters) {
+            for (let behaviour of emitter.behaviours) {
+                if (behaviour['type'] === 'Scale') {
+                    behaviour['scaleA']['a'] = 0;
+                    behaviour['scaleA']['b'] = 0;
+                    behaviour['scaleB']['a'] = 0;
+                    behaviour['scaleB']['b'] = 0;
+                }
+            }
+            emitter.setBehaviours(emitter.behaviours);
+            emitter.removeAllParticles();
+        }
+        this.system.update();
+    }
 }

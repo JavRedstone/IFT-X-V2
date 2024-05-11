@@ -10,7 +10,7 @@ import { CelestialConstants } from "../constants/CelestialConstants";
 import { MathHelper } from "../helpers/MathHelper";
 import { PRTransients } from "../constants/transients/PRTransients";
 import { SuperHeavyConstants } from "../constants/objects/SuperHeavyConstants";
-import { starshipSettings, superHeavySettings, telemetry, toggles } from "../stores/ui-store";
+import { gameSettings, starshipSettings, superHeavySettings, telemetry, toggles } from "../stores/ui-store";
 import { LaunchConstants } from "../constants/objects/LaunchConstants";
 import { StarshipConstants } from "../constants/objects/StarshipConstants";
 import { FlightController } from "../controllers/FlightController";
@@ -79,6 +79,7 @@ export class LaunchManager {
     public starshipREP: ReentryParticle = null;
     public superHeavyREP: ReentryParticle = null;
     
+    public particles: boolean = true;
     public starshipEP: ExplosionParticle = null;
     public superHeavyEP: ExplosionParticle = null;
     public starshipEPCooldown: number = -1;
@@ -123,6 +124,15 @@ export class LaunchManager {
             if (this.isBoosterEventClicked || this.isShipEventClicked) {
                 this.handleEventClick();
             }
+        });
+        gameSettings.subscribe((value) => {
+            if (!this.particles && value.particles) {
+                this.createPs();
+            }
+            else if (this.particles && !value.particles) {
+                this.removePs();
+            }
+            this.particles = value.particles;
         });
         starshipSettings.subscribe((value) => {
             this.AABBUpdateRequests += LaunchConstants.AABB_REQUEST_AMOUNT;
@@ -217,7 +227,7 @@ export class LaunchManager {
                     this.OLIT.hasSetupSingle = false;
                 }
                 if (this.isLaunching) {
-                    if (this.starshipRPs.length == 0 && this.superHeavyRPs.length == 0) {
+                    if (this.starshipRPs.length == 0 && this.superHeavyRPs.length == 0 && this.particles) {
                         this.createPs();
                     }
                     if (this.dt < LaunchConstants.COUNTDOWN_DT) {
@@ -537,7 +547,9 @@ export class LaunchManager {
                             }
                         }
                     }
-                    this.updatePs(delta);
+                    if (this.particles) {
+                        this.updatePs(delta);
+                    }
                 }
             }
             if (!this.hasSetInitialPosition) {
@@ -865,6 +877,33 @@ export class LaunchManager {
         this.superHeavyEP = new ExplosionParticle(this.tc);
     }
 
+    public removePs(): void {
+        for (let i = 0; i < this.superHeavyRPs.length; i++) {
+            this.superHeavyRPs[i].remove();
+        }
+        for (let i = 0; i < this.starshipRPs.length; i++) {
+            this.starshipRPs[i].remove();
+        }
+        if (this.delugeP != null) {
+            this.delugeP.remove();
+        }
+        if (this.hotStageP != null) {
+            this.hotStageP.remove();
+        }
+        if (this.starshipREP != null) {
+            this.starshipREP.remove();
+        }
+        if (this.superHeavyREP != null) {
+            this.superHeavyREP.remove();
+        }
+        if (this.starshipEP != null) {
+            this.starshipEP.remove();
+        }
+        if (this.superHeavyEP != null) {
+            this.superHeavyEP.remove();
+        }
+    }
+
     public updatePs(delta: number): void {
         if (this.dt >= LaunchConstants.STARTUP_DT) {
             let ssAltitude = 0;
@@ -911,7 +950,12 @@ export class LaunchManager {
             }
         }
         if (this.dt >= LaunchConstants.DELUGE_START_DT) {
-            this.delugeP.update(this.OLIT.olm.getWorldPosition(new Vector3()), this.OLIT.olm.getWorldQuaternion(new Quaternion()), (this.liftedOff && this.dt >= LaunchConstants.DELUGE_STOP_DT) || (!this.liftedOff && this.dt >= LaunchConstants.PAD_DT) ? 0 : 1);
+            if ((this.liftedOff && this.dt >= LaunchConstants.DELUGE_STOP_DT) || (!this.liftedOff && this.dt >= LaunchConstants.PAD_DT)) {
+                this.delugeP.update(this.OLIT.olm.getWorldPosition(new Vector3()), this.OLIT.olm.getWorldQuaternion(new Quaternion()), 0);
+            }
+            else {
+                this.delugeP.update(this.OLIT.olm.getWorldPosition(new Vector3()), this.OLIT.olm.getWorldQuaternion(new Quaternion()), 1);
+            }
         }
 
         if (this.liftedOff) {

@@ -1,6 +1,6 @@
 <script lang="ts">
     import { onMount } from "svelte";
-  import { toggles } from "../../stores/ui-store";
+    import { toggles } from "../../stores/ui-store";
 
     let isEditing: boolean = false;
     let isLaunching: boolean = false;
@@ -109,7 +109,7 @@
         font-size: 14px;
     }
 
-    .keybind-exit {
+    .keybinds-exit {
         position: absolute;
         left:0;
         bottom:0;
@@ -208,6 +208,6 @@
                 <p class="keybind-text">Starship Roll Right</p>
             {/if}
         </div>
-        <button class="keybind-exit" on:click={() => isOpen = false}>Exit</button>
+        <button class="keybinds-exit" on:click={() => isOpen = false}>Exit</button>
     </div>
 {/if}
