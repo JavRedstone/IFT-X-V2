@@ -13,6 +13,7 @@
     import Keybinds from "./../popups/keybinds.svelte";
     import { SceneConstants } from "../../constants/SceneConstants";
   import Settings from "../popups/settings.svelte";
+  import Restart from "../popups/restart.svelte";
 
     let starshipRaptors: RaptorUI[] = [];
     let superHeavyRaptors: RaptorUI[] = [];
@@ -881,3 +882,4 @@
     <input type="range" class="telemetry-speedup-slider" min={SceneConstants.SPEEDUP_MIN} max={SceneConstants.SPEEDUP_MAX} step={SceneConstants.SPEEDUP_STEP} bind:value={speedUp} on:input={setSpeedUp}>
     <div class="telemetry-speedup-number">{speedUp}X</div>    
 </div>
+<Restart />

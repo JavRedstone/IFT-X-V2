@@ -4,9 +4,10 @@ import { SuperHeavyConstants } from "../constants/objects/SuperHeavyConstants";
 import { LaunchConstants } from "../constants/objects/LaunchConstants";
 
 export const uiSwitches = writable({
-    start: false,
+    start: true,
     loading: false,
-    playing: true,
+    playing: false,
+    landed: false,
 });
 
 export const gameSettings = writable({
@@ -21,10 +22,10 @@ export const uiMessages = writable({
 });
 
 export const toggles = writable({
-    isEditing: false,
+    isEditing: true,
     isEditingStarship: false,
     isEditingSuperHeavy: false,
-    isFueling: true,
+    isFueling: false,
     hasStartedFueling: false,
     doneFueling: false,
     isLaunching: false,

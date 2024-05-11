@@ -10,7 +10,7 @@ import { CelestialConstants } from "../constants/CelestialConstants";
 import { MathHelper } from "../helpers/MathHelper";
 import { PRTransients } from "../constants/transients/PRTransients";
 import { SuperHeavyConstants } from "../constants/objects/SuperHeavyConstants";
-import { gameSettings, starshipSettings, superHeavySettings, telemetry, toggles } from "../stores/ui-store";
+import { gameSettings, starshipSettings, superHeavySettings, telemetry, toggles, uiSwitches } from "../stores/ui-store";
 import { LaunchConstants } from "../constants/objects/LaunchConstants";
 import { StarshipConstants } from "../constants/objects/StarshipConstants";
 import { FlightController } from "../controllers/FlightController";
@@ -524,6 +524,13 @@ export class LaunchManager {
                                 return value;
                             });
                         }
+                        
+                        if (this.starshipLanded && this.superHeavyLanded) {
+                            uiSwitches.update((value) => {
+                                value.landed = true;
+                                return value;
+                            });
+                        }
                     }
                     else {
                         if (this.dt >= LaunchConstants.PAD_DT) {
@@ -536,6 +543,11 @@ export class LaunchManager {
                                 value.currShipEvent = LaunchConstants.SHIP_LAUNCH_EVENTS.length;
                                 value.superHeavyDisabled = true;
                                 value.starshipDisabled = true;
+                                return value;
+                            });
+                            
+                            uiSwitches.update((value) => {
+                                value.landed = true;
                                 return value;
                             });
                         }
