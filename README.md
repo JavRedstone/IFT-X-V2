@@ -1,6 +1,6 @@
 # What is it
 
-A fun simulation game of the SpaceX Starship. Mostly physically accurate. Built with no physics engine nor game engine (only ThreeJS renderer and Three Nebula particle system).
+A fun simulation game of the SpaceX Starship. Mostly physically accurate. Built with no physics engine nor game engine (only ThreeJS renderer through Threlte and Three Nebula particle system).
 
 # How to play
 
@@ -32,6 +32,7 @@ Go to [iftx.pages.dev/](https://iftx.pages.dev/)
 ## General Credits
 
 - [ThreeJS](https://threejs.org/)
+- [Threlte](https://threlte.xyz/)
 - [Three Nebula](https://three-nebula.org/)
 - [SpaceX](https://www.spacex.com/)
 - [SpaceX Starship](https://www.spacex.com/vehicles/starship/)
