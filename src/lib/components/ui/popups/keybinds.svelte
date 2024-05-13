@@ -1,6 +1,7 @@
 <script lang="ts">
     import { onMount } from "svelte";
     import { toggles } from "../../stores/ui-store";
+    import { fly } from "svelte/transition";
 
     let isEditing: boolean = false;
     let isLaunching: boolean = false;
@@ -19,22 +20,6 @@
     });
 </script>
 <style>
-    @keyframes increaseOpacity {
-        from {
-            opacity: 0;
-        }
-        to {
-            opacity: 1;
-        }
-    }
-    @keyframes slideUp {
-        from {
-            transform: translate(-50%, 100%);
-        }
-        to {
-            transform: translate(-50%, -50%);
-        }
-    }
     .keybinds-toggle {
         position: fixed;
         height: 18px;
@@ -74,8 +59,6 @@
         padding: 10px;
         
         user-select: none;
-
-        animation: slideUp 0.5s, increaseOpacity 1s;
     }
 
     .keybinds-useable {
@@ -126,7 +109,6 @@
         font-family: "M PLUS Code Latin", monospace;
 
         transition: background-color 0.2s, color 0.2s;
-        animation: increaseOpacity 0.5s;
 
         &:hover {
             background-color: rgba(255, 255, 255, 0.5);
@@ -137,7 +119,7 @@
 </style>
 <button class="keybinds-toggle" on:click={() => isOpen = !isOpen}>Keybinds</button>
 {#if isOpen}
-    <div class="keybinds-container">
+    <div class="keybinds-container" transition:fly={{ y: 100, duration: 300 }}>
         {#if isEditing}
             <div class="keybinds-title">Keybinds for Editing</div>
         {:else if isLaunching}

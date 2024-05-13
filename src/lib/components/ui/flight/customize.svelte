@@ -19,6 +19,7 @@
     import { LaunchConstants } from '../../constants/objects/LaunchConstants';
     import { LaunchHelper } from '../../helpers/LaunchHelper';
     import Keybinds from './../popups/keybinds.svelte';
+    import { fly } from 'svelte/transition';
 
     let starshipRaptors: RaptorUI[] = [];
     let superHeavyRaptors: RaptorUI[] = [];
@@ -1139,7 +1140,7 @@
         height: 100vh;
         background-color: rgba(0, 0, 0, 0.5);
 
-        animation: increaseOpacity 0.5s;
+        /* animation: increaseOpacity 0.5s; */
 
         user-select: none;
     }
@@ -1319,7 +1320,7 @@
 </style>
 
 {#if hasLeftBar}
-    <div class="customize-container" style="width: 390px; left: 0px;">
+    <div class="customize-container" style="width: 390px; left: 0px;" transition:fly={{ x: -390, duration: 300 }}>
         <div class="customize-subtitle" style="left:16px; top:16px;">Vertical Height</div>
         <div class="customize-stats" style="left:16px;">Ship: {shipHeight}m | Booster: {boosterHeight}m | Stack: {stackHeight}m</div>
         <img class="customize-image" src={starshipValidated && superHeavyValidated ? s25b9 : starshipValidated ? s25b9sh : superHeavyValidated ? s25b9ss : s25b9sssh} alt="stack">
@@ -1372,7 +1373,7 @@
     </div>
 {/if}
 {#if hasRightBar}
-    <div class="customize-container" style="width: 340px; right: 0px;">
+    <div class="customize-container" style="width: 340px; right: 0px;" transition:fly={{ x: 340, duration: 300 }}>
         <div class="customize-subtitle" style="right:16px; top:16px;">Thrust to Weight Ratio (Sea Level)</div>
         <div class="customize-stats" style="right:16px;">Ship: {shipTWR}:1 | Booster: {boosterTWR}:1 | Stack: {stackTWR}:1</div>
         <div class="customize-body" style="border-width: {border}px; width: {2 * (sizeMult - border)}px; height: {2 * (sizeMult - border)}px; right: {rightOffsetSS + border}px; top: {topOffset + border}px;"></div>

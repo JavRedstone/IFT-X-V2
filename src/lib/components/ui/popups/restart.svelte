@@ -1,6 +1,7 @@
 <script lang="ts">
     import { uiSwitches } from "$lib/components/stores/ui-store";
     import { onMount } from "svelte";
+    import { fly } from "svelte/transition";
 
     let isOpen: boolean = false;
 
@@ -21,23 +22,6 @@
     });
 </script>
 <style>
-    @keyframes increaseOpacity {
-        from {
-            opacity: 0;
-        }
-        to {
-            opacity: 1;
-        }
-    }
-    @keyframes slideUp {
-        from {
-            transform: translate(-50%, 100%);
-        }
-        to {
-            transform: translate(-50%, -50%);
-        }
-    }
-
     .restart-container {
         position: fixed;
         top: 50%;
@@ -54,8 +38,6 @@
         padding: 10px;
         
         user-select: none;
-
-        animation: slideUp 0.5s, increaseOpacity 1s;
     }
 
     .restart-title {
@@ -82,7 +64,6 @@
         font-family: "M PLUS Code Latin", monospace;
 
         transition: background-color 0.2s, color 0.2s;
-        animation: increaseOpacity 0.5s;
 
         &:hover {
             background-color: rgba(255, 255, 255, 0.5);
@@ -92,7 +73,7 @@
     }
 </style>
 {#if isOpen}
-    <div class="restart-container">
+    <div class="restart-container" transition:fly={{ y: 100, duration: 300 }}>
         <div class="restart-title">Flight Test Over</div>
         <button class="restart-action" on:click={restart}>Restart</button>
     </div>

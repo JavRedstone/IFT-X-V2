@@ -1,6 +1,7 @@
 <script lang="ts">
   import { gameSettings } from "$lib/components/stores/ui-store";
     import { onMount } from "svelte";
+    import { fly } from "svelte/transition";
 
     let volume: number = 1;
     let particles: boolean = true;
@@ -177,7 +178,7 @@
 </style>
 <button class="settings-toggle" on:click={() => isOpen = !isOpen}>Settings</button>
 {#if isOpen}
-    <div class="settings-container">
+    <div class="settings-container" transition:fly={{ y: 100, duration: 300 }}>
         <div class="settings-title">Settings</div>
         <div class="setting-container">
             <div class="setting-title">Volume</div>

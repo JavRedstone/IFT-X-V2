@@ -3,6 +3,7 @@
     import s25b9 from "../../images/s25b9.png";
     import { telemetry, toggles } from "../../stores/ui-store";
     import { LaunchHelper } from "../../helpers/LaunchHelper";
+    import { fly } from "svelte/transition";
 
     const imageTop: number = 84;
     const imageBottom: number = 16;
@@ -92,8 +93,6 @@
         width: 225px;
         background-color: rgba(0, 0, 0, 0.5);
 
-        animation: increaseOpacity 0.5s;
-
         user-select: none;
     }
 
@@ -163,7 +162,7 @@
         }
     }
 </style>
-<div class="fueling-container">
+<div class="fueling-container" transition:fly={{ x: -225, duration: 300 }}>
     {#if hasStartedFueling}
         <div class="fueling-time">{ LaunchHelper.getTString(telemetryValues.dt) }</div>
         <div class="fueling-event">INTEGRATED FLIGHT TEST X</div>
