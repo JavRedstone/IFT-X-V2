@@ -1,13 +1,17 @@
 <script lang="ts">
-  import { Canvas } from '@threlte/core'
-  import Scene from './Scene.svelte'
+  import { Canvas } from '@threlte/core';
+  import Scene from './Scene.svelte';
   import Telemetry from './ui/flight/telemetry.svelte';
   import Customize from './ui/flight/customize.svelte';
   import Fueling from './ui/flight/fueling.svelte';
   import { onMount } from 'svelte';
-  import { toggles, uiSwitches } from './stores/ui-store';
+  import { gameSettings, toggles, uiSwitches } from './stores/ui-store';
   import Start from './ui/main/start.svelte';
   import Loading from './ui/main/loading.svelte';
+  
+  import UltrabySavfk from '$lib/components/music/ultra_by_savfk.mp3';
+
+  let audio: HTMLAudioElement;
 
   let uiValues: any = {
     start: true,
@@ -19,6 +23,12 @@
     isFueling: false,
     isLaunching: false,
   };
+
+  function setupAudio(): void {
+    document.body.addEventListener('click', () => {
+      audio.play();
+    });
+  }
 
   function setupUpdator(): void {
     uiSwitches.subscribe((value) => {
@@ -32,9 +42,15 @@
       toggleValues.isFueling = value.isFueling;
       toggleValues.isLaunching = value.isLaunching;
     });
+
+    gameSettings.subscribe((value) => {
+      audio.volume = value.volume;
+      audio.muted = value.volume === 0;
+    });
   }
 
   onMount(() => {
+    setupAudio();
     setupUpdator();
   });
 </script>
@@ -58,6 +74,10 @@
     animation: increaseOpacity 1s;
   }
 </style>
+
+<audio bind:this={audio} loop={true} autoplay={true}>
+  <source src={UltrabySavfk} type="audio/mpeg" />
+</audio>
 
 {#if uiValues.start}
   <Start />

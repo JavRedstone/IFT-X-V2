@@ -36,7 +36,15 @@
         filter: brightness(0.5) blur(6px);
     }
 
-    .start-credit {
+    .start-credit-spacex {
+        position: absolute;
+        bottom: 32px;
+        right: 16px;
+        font-size: 12px;
+        color: white;
+    }
+
+    .start-credit-savfk {
         position: absolute;
         bottom: 16px;
         right: 16px;
@@ -120,7 +128,8 @@
     }
 </style>
 <video src={liftoff} autoplay loop muted disablePictureInPicture class="start-video"></video>
-<div class="start-credit"><b>Video credit:</b> <a href="https://twitter.com/SpaceX/status/1768747417716101402" target="_blank">SpaceX</a></div>
+<div class="start-credit-spacex"><b>Video credit:</b> <a href="https://twitter.com/SpaceX/status/1768747417716101402" target="_blank">SpaceX</a></div>
+<div class="start-credit-savfk"><b>Music credit:</b> <a href="https://www.youtube.com/watch?v=MCscTvpQ7po" target="_blank">Savfk</a></div>
 <h1 class="start-title">IFT-X</h1>
 <p class="start-abbreviation">Integrated Flight Test X</p>
 <h3 class="start-description">A fun simulation game of the <a href="https://www.spacex.com/vehicles/starship/" target="_blank">SpaceX Starship</a></h3>
