@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { gameSettings } from "$lib/components/stores/ui-store";
+    import { gameSettings } from "$lib/components/stores/ui-store";
     import { onMount } from "svelte";
     import { fly } from "svelte/transition";
 

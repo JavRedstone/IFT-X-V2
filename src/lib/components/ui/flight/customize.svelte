@@ -415,6 +415,21 @@
 
     function validateStarship(): void {
         starshipValidated = true;
+
+        if (Math.round(starshipOptions.rVacType) != starshipOptions.rVacType || starshipOptions.rVacType < 0 || starshipOptions.rVacType > 3) {
+            validatedStarship.rVacType = false;
+            starshipValidated = false;
+        } else {
+            validatedStarship.rVacType = true;
+        }
+
+        if (Math.round(starshipOptions.rSeaType) != starshipOptions.rSeaType || starshipOptions.rSeaType < 0 || starshipOptions.rSeaType > 3) {
+            validatedStarship.rSeaType = false;
+            starshipValidated = false;
+        } else {
+            validatedStarship.rSeaType = true;
+        }
+        
         if (!unregulated) {
             if (starshipOptions.shipRingHeight < StarshipConstants.MIN_SHIP_RING_HEIGHT * LaunchConstants.REAL_LIFE_SCALE.y || starshipOptions.shipRingHeight > StarshipConstants.MAX_SHIP_RING_HEIGHT * LaunchConstants.REAL_LIFE_SCALE.y) {
                 validatedStarship.shipRingHeight = false;
@@ -525,13 +540,6 @@
                 validatedStarship.rSeaAngularOffset = true;
             }
 
-            if (Math.round(starshipOptions.rSeaType) != starshipOptions.rSeaType || starshipOptions.rSeaType < 0 || starshipOptions.rSeaType > 3) {
-                validatedStarship.rSeaType = false;
-                starshipValidated = false;
-            } else {
-                validatedStarship.rSeaType = true;
-            }
-
             if (starshipOptions.rVacRadius < 0 || (starshipOptions.numRVacs > 1 && starshipOptions.rVacRadius < RaptorConstants.R_VAC_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.PACKING_RADIUS_PERC)) {
                 validatedStarship.rVacRadius = false;
                 starshipValidated = false;
@@ -587,13 +595,6 @@
             } else {
                 validatedStarship.rVacAngularOffset = true;
             }
-
-            if (Math.round(starshipOptions.rVacType) != starshipOptions.rVacType || starshipOptions.rVacType < 0 || starshipOptions.rVacType > 3) {
-                validatedStarship.rVacType = false;
-                starshipValidated = false;
-            } else {
-                validatedStarship.rVacType = true;
-            }
         }
         else {
             validatedStarship.shipRingHeight = true;
@@ -608,11 +609,9 @@
             validatedStarship.rSeaRadius = true;
             validatedStarship.numRSeas = true;
             validatedStarship.rSeaAngularOffset = true;
-            validatedStarship.rSeaType = true;
             validatedStarship.rVacRadius = true;
             validatedStarship.numRVacs = true;
             validatedStarship.rVacAngularOffset = true;
-            validatedStarship.rVacType = true;
         }
 
         if (starshipValidated) {
@@ -683,6 +682,27 @@
 
     function validateSuperHeavy(): void {
         superHeavyValidated = true;
+
+        if (Math.round(superHeavyOptions.rSeaType1) != superHeavyOptions.rSeaType1 || superHeavyOptions.rSeaType1 < 0 || superHeavyOptions.rSeaType1 > 3) {
+            validatedSuperHeavy.rSeaType1 = false;
+            superHeavyValidated = false;
+        } else {
+            validatedSuperHeavy.rSeaType1 = true;
+        }
+
+        if (Math.round(superHeavyOptions.rSeaType2) != superHeavyOptions.rSeaType2 || superHeavyOptions.rSeaType2 < 0 || superHeavyOptions.rSeaType2 > 3) {
+            validatedSuperHeavy.rSeaType2 = false;
+            superHeavyValidated = false;
+        } else {
+            validatedSuperHeavy.rSeaType2 = true;
+        }
+
+        if (Math.round(superHeavyOptions.rSeaType3) != superHeavyOptions.rSeaType3 || superHeavyOptions.rSeaType3 < 0 || superHeavyOptions.rSeaType3 > 3) {
+            validatedSuperHeavy.rSeaType3 = false;
+            superHeavyValidated = false;
+        } else {
+            validatedSuperHeavy.rSeaType3 = true;
+        }
 
         if (!unregulated) {
             if (superHeavyOptions.hsrHeight < 0 || superHeavyOptions.hsrHeight > SuperHeavyConstants.MAX_HSR_HEIGHT * LaunchConstants.REAL_LIFE_SCALE.y) {
@@ -800,13 +820,6 @@
             } else {
                 validatedSuperHeavy.rSeaAngularOffset1 = true;
             }
-
-            if (Math.round(superHeavyOptions.rSeaType1) != superHeavyOptions.rSeaType1 || superHeavyOptions.rSeaType1 < 0 || superHeavyOptions.rSeaType1 > 3) {
-                validatedSuperHeavy.rSeaType1 = false;
-                superHeavyValidated = false;
-            } else {
-                validatedSuperHeavy.rSeaType1 = true;
-            }
             
             if (superHeavyOptions.rSeaRadius2 < 0 || (superHeavyOptions.numRSeas2 > 1 && superHeavyOptions.rSeaRadius2 < RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.PACKING_RADIUS_PERC)) {
                 validatedSuperHeavy.rSeaRadius2 = false;
@@ -884,13 +897,6 @@
                 validatedSuperHeavy.rSeaAngularOffset2 = true;
             }
 
-            if (Math.round(superHeavyOptions.rSeaType2) != superHeavyOptions.rSeaType2 || superHeavyOptions.rSeaType2 < 0 || superHeavyOptions.rSeaType2 > 3) {
-                validatedSuperHeavy.rSeaType2 = false;
-                superHeavyValidated = false;
-            } else {
-                validatedSuperHeavy.rSeaType2 = true;
-            }
-
             if (superHeavyOptions.rSeaRadius3 < 0 || (superHeavyOptions.numRSeas3 > 1 && superHeavyOptions.rSeaRadius3 < RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.PACKING_RADIUS_PERC)) {
                 validatedSuperHeavy.rSeaRadius3 = false;
                 superHeavyValidated = false;
@@ -943,13 +949,6 @@
             } else {
                 validatedSuperHeavy.rSeaAngularOffset3 = true;
             }
-
-            if (Math.round(superHeavyOptions.rSeaType3) != superHeavyOptions.rSeaType3 || superHeavyOptions.rSeaType3 < 0 || superHeavyOptions.rSeaType3 > 3) {
-                validatedSuperHeavy.rSeaType3 = false;
-                superHeavyValidated = false;
-            } else {
-                validatedSuperHeavy.rSeaType3 = true;
-            }
         }
         else {
             validatedSuperHeavy.hsrHeight = true;
@@ -964,15 +963,12 @@
             validatedSuperHeavy.rSeaRadius1 = true;
             validatedSuperHeavy.numRSeas1 = true;
             validatedSuperHeavy.rSeaAngularOffset1 = true;
-            validatedSuperHeavy.rSeaType1 = true;
             validatedSuperHeavy.rSeaRadius2 = true;
             validatedSuperHeavy.numRSeas2 = true;
             validatedSuperHeavy.rSeaAngularOffset2 = true;
-            validatedSuperHeavy.rSeaType2 = true;
             validatedSuperHeavy.rSeaRadius3 = true;
             validatedSuperHeavy.numRSeas3 = true;
             validatedSuperHeavy.rSeaAngularOffset3 = true;
-            validatedSuperHeavy.rSeaType3 = true;
         }
 
         if (superHeavyValidated) {
@@ -1246,14 +1242,19 @@
         font-weight: bold;
     }
 
-    .customize-option-title {
-        margin-top: 8px;
-    }
-
     .customize-option {
         padding: 6px;
         text-align: center;
         font-size: 14px;
+    }
+
+    .customize-option-title {
+        margin-top: 8px;
+    }
+
+    .customize-option-type {
+        margin-top: 8px;
+        font-weight: bold;
     }
 
     .customize-option-input {
@@ -1278,6 +1279,26 @@
         accent-color: black;
         outline: none;
         border: none;
+    }
+
+    .customize-option-slider {
+        -webkit-appearance: none;
+        width: 80%;
+        height: 24px;
+        margin-top: 8px;
+        background: rgba(255, 255, 255, 0.5);
+        outline: none;
+
+        transition: background 0.2s;
+
+        &::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            background: white;
+            cursor: pointer;
+        }
     }
 
     .customize-raptor {
@@ -1409,31 +1430,27 @@
         <div class="customize-options" style="right:16px; top: 154px; height: calc(100vh - 186px);">
             {#each Object.keys(superHeavyOptions) as option}
                 {#if !convertToCustomize(option).includes('Raptor') && option != "isEditing"}
-                    {#if option != 'hasHsr'}
-                        {#if option === 'hsrHeight'}
-                            {#if superHeavyOptions.hasHsr}
-                                <div class="customize-option">
+                    <div class="customize-option">
+                        {#if option != 'hasHsr'}
+                            {#if option === 'hsrHeight'}
+                                {#if superHeavyOptions.hasHsr}
                                     <div class="customize-option-title">{convertToCustomize(option)}</div>
                                     <input class="customize-option-input" type="number" style="background-color: {validatedSuperHeavy[option] ? "rgba(0, 0, 0, 0.5)" : "#ff450080"};" bind:value={superHeavyOptions[option]} on:input={updateHsr} on:focus={()=>{setIsEditing('SH')}} on:focusout={()=>{setIsEditing('')}}>
-                                </div>
+                                {:else}
+                                    <div style="opacity: 0.5;">
+                                        <div class="customize-option-title">{convertToCustomize(option)}</div>
+                                        <input class="customize-option-input" type="number" value="0" disabled>
+                                    </div>
+                                {/if}
                             {:else}
-                                <div class="customize-option" style="opacity: 0.5;">
-                                    <div class="customize-option-title">{convertToCustomize(option)}</div>
-                                    <input class="customize-option-input" type="number" value="0" disabled>
-                                </div>
-                            {/if}
-                        {:else}
-                            <div class="customize-option">
                                 <div class="customize-option-title">{convertToCustomize(option)}</div>
                                 <input class="customize-option-input" type="number" style="background-color: {validatedSuperHeavy[option] ? "rgba(0, 0, 0, 0.5)" : "#ff450080"};" bind:value={superHeavyOptions[option]} on:focusin={()=>{setIsEditing('SH')}} on:focusout={()=>{setIsEditing('')}}>
-                            </div>
-                        {/if}
-                    {:else}
-                        <div class="customize-option">
+                            {/if}
+                        {:else}
                             <div class="customize-option-title">{convertToCustomize(option)}</div>
                             <input class="customize-option-checkbox" type="checkbox" bind:checked={superHeavyOptions[option]} on:input={updateHsr} on:focusin={()=>{setIsEditing('SH')}} on:focusout={()=>{setIsEditing('')}}>
-                        </div>
-                    {/if}
+                        {/if}
+                    </div>
                 {/if}
             {/each}
         </div>
@@ -1460,17 +1477,19 @@
         <div class="customize-options" style="right:170px; top: 260px; height: calc(100vh - 292px);">
             {#each Object.keys(starshipOptions) as option}
                 {#if convertToCustomize(option).includes('Raptor') && option != "isEditing"}
-                    {#if typeof starshipOptions[option] === 'boolean'}
-                        <div class="customize-option">
+                    <div class="customize-option">
+                        {#if typeof starshipOptions[option] === 'boolean'}
                             <div class="customize-option-title">{convertToCustomize(option)}</div>
                             <input class="customize-option-checkbox" type="checkbox" bind:checked={starshipOptions[option]} on:focusin={()=>{setIsEditing('SS')}} on:focusout={()=>{setIsEditing('')}}>
-                        </div>
-                    {:else}
-                        <div class="customize-option">
+                        {:else if convertToCustomize(option).includes('Type')}
+                            <div class="customize-option-title">{convertToCustomize(option)}</div>
+                            <div class="customize-option-type">{starshipOptions[option]}</div>
+                            <input class="customize-option-slider" type="range" min="1" max="3" step="1" style="background: {validatedStarship[option] ? "rgba(255, 255, 255, 0.5)" : "#ff450080"};" bind:value={starshipOptions[option]} on:focusin={()=>{setIsEditing('SS')}} on:focusout={()=>{setIsEditing('')}}>
+                        {:else}
                             <div class="customize-option-title">{convertToCustomize(option)}</div>
                             <input class="customize-option-input" type="number" style="background-color: {validatedStarship[option] ? "rgba(0, 0, 0, 0.5)" : "#ff450080"};" bind:value={starshipOptions[option]} on:focusin={()=>{setIsEditing('SS')}} on:focusout={()=>{setIsEditing('')}}>
-                        </div>
-                    {/if}
+                        {/if}
+                    </div>
                 {/if}
             {/each}
         </div>
@@ -1478,17 +1497,19 @@
         <div class="customize-options" style="right:20px; top: 260px; height: calc(100vh - 292px);">
             {#each Object.keys(superHeavyOptions) as option}
                 {#if convertToCustomize(option).includes('Raptor') && option != "isEditing"}
-                    {#if typeof superHeavyOptions[option] === 'boolean'}
-                        <div class="customize-option">
+                    <div class="customize-option">
+                        {#if typeof superHeavyOptions[option] === 'boolean'}
                             <div class="customize-option-title">{convertToCustomize(option)}</div>
                             <input class="customize-option-checkbox" type="checkbox" bind:checked={superHeavyOptions[option]} on:focusin={()=>{setIsEditing('SH')}} on:focusout={()=>{setIsEditing('')}}>
-                        </div>
-                    {:else}
-                        <div class="customize-option">
+                        {:else if convertToCustomize(option).includes('Type')}
+                            <div class="customize-option-title">{convertToCustomize(option)}</div>
+                            <div class="customize-option-type">{superHeavyOptions[option]}</div>
+                            <input class="customize-option-slider" type="range" min="1" max="3" step="1" style="background: {validatedSuperHeavy[option] ? "rgba(255, 255, 255, 0.5)" : "#ff450080"};" bind:value={superHeavyOptions[option]} on:focusin={()=>{setIsEditing('SH')}} on:focusout={()=>{setIsEditing('')}}>
+                        {:else}
                             <div class="customize-option-title">{convertToCustomize(option)}</div>
                             <input class="customize-option-input" type="number" style="background-color: {validatedSuperHeavy[option] ? "rgba(0, 0, 0, 0.5)" : "#ff450080"};" bind:value={superHeavyOptions[option]} on:focusin={()=>{setIsEditing('SH')}} on:focusout={()=>{setIsEditing('')}}>
-                        </div>
-                    {/if}
+                        {/if}
+                    </div>
                 {/if}
             {/each}
         </div>
