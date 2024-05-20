@@ -43,14 +43,14 @@ export class StarshipConstants {
     public static readonly AFT_L_MAX_HEIGHT_PERC: number = 1/18;
     public static readonly AFT_L_MIN_WIDTH_SCALE: number = 0;
     public static readonly AFT_L_MAX_WIDTH_SCALE: number = 2;
-    public static readonly AFT_L_DRY_MASS: number = 1e4; // kg
+    public static readonly AFT_L_DRY_MASS: number = 5.2e3; // kg
     public static readonly AFT_L_RADIUS: number = 0.925;
 
     public static readonly AFT_R_SCALE: Vector3 = new Vector3(0.033610, 0.06, 0.033610);
     public static readonly AFT_R_MAX_HEIGHT_PERC: number = 1/18;
     public static readonly AFT_R_MIN_WIDTH_SCALE: number = 0;
     public static readonly AFT_R_MAX_WIDTH_SCALE: number = 2;
-    public static readonly AFT_R_DRY_MASS: number = 1e4; // kg
+    public static readonly AFT_R_DRY_MASS: number = 5.2e3; // kg
     public static readonly AFT_R_RADIUS: number = 0.925;
 
     public static readonly THRUST_PUCK_SCALE: Vector3 = new Vector3(0.99, 0.99, 0.99); // prevent z-fighting

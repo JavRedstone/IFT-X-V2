@@ -18,7 +18,7 @@ export class SuperHeavyConstants {
     public static readonly HSR_HEIGHT: number = 4/9;
     public static readonly MIN_HSR_HEIGHT: number = 0.025;
     public static readonly MAX_HSR_HEIGHT: number = 1;
-    public static readonly HSR_DRY_MASS: number = 1.25e4; // kg
+    public static readonly HSR_DRY_MASS: number = 7.1e3; // kg
 
     public static readonly BOOSTER_RING_SCALE: Vector3 = new Vector3(1, 1, 1);
     public static readonly BOOSTER_RING_HEIGHT: number = 15.25;
@@ -36,7 +36,7 @@ export class SuperHeavyConstants {
     public static readonly GRID_FIN_ANGULAR_OFFSET: number = 45 * Math.PI / 180;
     public static readonly GRID_FIN_TOP_OFFSET: number = 0.1;
     public static readonly NUM_GRID_FINS: number = 4;
-    public static readonly GRID_FIN_DRY_MASS: number = 3e3; // kg
+    public static readonly GRID_FIN_DRY_MASS: number = 5e3; // kg
     public static readonly GRID_FIN_ANGLE_LEEWAY: number = 5 * Math.PI / 180;
 
     public static readonly CHINE_SCALE: Vector3 = new Vector3(1, 1, 1);
@@ -48,7 +48,7 @@ export class SuperHeavyConstants {
     public static readonly CHINE_ANGULAR_OFFSET: number = 45 * Math.PI / 180;
     public static readonly CHINE_BOTTOM_OFFSET: number = 0.35;
     public static readonly NUM_CHINES: number = 4;
-    public static readonly CHINE_DRY_MASS: number = 2.1e4; // kg
+    public static readonly CHINE_DRY_MASS: number = 7.15e3; // kg
 
     public static readonly R_SEA_SCALE: Vector3 = new Vector3(0.045206, 0.045206, 0.045206);
     public static readonly R_SEA_RADIUS_1: number = 0.175;

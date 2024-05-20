@@ -35,6 +35,8 @@
     let starshipValidated: boolean = true;
     let superHeavyValidated: boolean = true;
 
+    let unregulated: boolean = false;
+
     const sizeMult = 66;
     const topOffset = 70;
     const rightOffsetSH = 28;
@@ -47,8 +49,6 @@
     const defaultThrottle = 1;
 
     let isEditing: boolean = false;
-    let isEditingStarship: boolean = false;
-    let isEditingSuperHeavy: boolean = false;
 
     let telemetryValues: any = {
         rSeaGimbalingAngles: [],
@@ -176,8 +176,6 @@
     function setupUpdator() {
         toggles.subscribe((value) => {
             isEditing = value.isEditing;
-            isEditingStarship = value.isEditingStarship;
-            isEditingSuperHeavy = value.isEditingSuperHeavy;
         });
         telemetry.subscribe((value) => {
             telemetryValues.rSeaGimbalingAngles = value.rSeaGimbalingAngles;
@@ -334,7 +332,7 @@
         let shipCH4Mass: number = LaunchHelper.getFuelMass(StarshipConstants.SHIP_RING_SCALE.x * LaunchConstants.REAL_LIFE_SCALE.x, shipUseableHeight * StarshipConstants.CH4_PERCENTAGE, LaunchConstants.CH4_DENSITY);
 
         // these dry masses are for the real life scaled
-        let shipDryMass: number = StarshipConstants.NOSECONE_DRY_MASS + StarshipConstants.SHIP_RING_DRY_MASS * starshipOptions.shipRingHeight / LaunchConstants.REAL_LIFE_SCALE.y + StarshipConstants.FORWARD_L_DRY_MASS * starshipOptions.forwardLHeightScale * starshipOptions.forwardLWidthScale + StarshipConstants.FORWARD_R_DRY_MASS * starshipOptions.forwardRHeightScale * starshipOptions.forwardRWidthScale + StarshipConstants.AFT_L_DRY_MASS * starshipOptions.aftLHeightScale * starshipOptions.aftLWidthScale + StarshipConstants.AFT_R_DRY_MASS * starshipOptions.aftRHeightScale * starshipOptions.aftRWidthScale + starshipRaptors.length * RaptorConstants.DRY_MASS;
+        let shipDryMass: number = StarshipConstants.NOSECONE_DRY_MASS + StarshipConstants.SHIP_RING_DRY_MASS * starshipOptions.shipRingHeight / LaunchConstants.REAL_LIFE_SCALE.y + StarshipConstants.FORWARD_L_DRY_MASS * starshipOptions.forwardLHeightScale * starshipOptions.forwardLWidthScale + StarshipConstants.FORWARD_R_DRY_MASS * starshipOptions.forwardRHeightScale * starshipOptions.forwardRWidthScale + StarshipConstants.AFT_L_DRY_MASS * starshipOptions.aftLHeightScale * starshipOptions.aftLWidthScale + StarshipConstants.AFT_R_DRY_MASS * starshipOptions.aftRHeightScale * starshipOptions.aftRWidthScale + (starshipOptions.numRSeas + starshipOptions.numRVacs) * RaptorConstants.DRY_MASS;
 
         let shipWetMass: number = shipLOXMass + shipCH4Mass + shipDryMass;
 
@@ -344,10 +342,12 @@
 
         let boosterLOXMass: number = LaunchHelper.getFuelMass(SuperHeavyConstants.BOOSTER_RING_SCALE.x * LaunchConstants.REAL_LIFE_SCALE.x, boosterUseableHeight * SuperHeavyConstants.LOX_PERCENTAGE, LaunchConstants.LOX_DENSITY);
         let boosterCH4Mass: number = LaunchHelper.getFuelMass(SuperHeavyConstants.BOOSTER_RING_SCALE.x * LaunchConstants.REAL_LIFE_SCALE.x, boosterUseableHeight * SuperHeavyConstants.CH4_PERCENTAGE, LaunchConstants.CH4_DENSITY);
-        let boosterDryMass: number = SuperHeavyConstants.HSR_DRY_MASS / (SuperHeavyConstants.HSR_HEIGHT * LaunchConstants.REAL_LIFE_SCALE.y) * superHeavyOptions.hsrHeight + SuperHeavyConstants.BOOSTER_RING_DRY_MASS * superHeavyOptions.boosterRingHeight / LaunchConstants.REAL_LIFE_SCALE.y + SuperHeavyConstants.GRID_FIN_DRY_MASS * superHeavyOptions.numGridFins * superHeavyOptions.gridFinLengthScale * superHeavyOptions.gridFinWidthScale + SuperHeavyConstants.CHINE_DRY_MASS * superHeavyOptions.numChines * superHeavyOptions.chineHeightScale + superHeavyRaptors.length * RaptorConstants.DRY_MASS;
+        let boosterDryMass: number = SuperHeavyConstants.HSR_DRY_MASS / (SuperHeavyConstants.HSR_HEIGHT * LaunchConstants.REAL_LIFE_SCALE.y) * superHeavyOptions.hsrHeight + SuperHeavyConstants.BOOSTER_RING_DRY_MASS * superHeavyOptions.boosterRingHeight / LaunchConstants.REAL_LIFE_SCALE.y + SuperHeavyConstants.GRID_FIN_DRY_MASS * superHeavyOptions.numGridFins * superHeavyOptions.gridFinLengthScale * superHeavyOptions.gridFinWidthScale + SuperHeavyConstants.CHINE_DRY_MASS * superHeavyOptions.numChines * superHeavyOptions.chineHeightScale + (superHeavyOptions.numRSeas1 + superHeavyOptions.numRSeas2 + superHeavyOptions.numRSeas3) * RaptorConstants.DRY_MASS;
         let boosterWetMass: number = boosterLOXMass + boosterCH4Mass + boosterDryMass;
 
         let boosterThrust: number = superHeavyOptions.numRSeas1 * LaunchHelper.getThrust(true, superHeavyOptions.rSeaType1) + superHeavyOptions.numRSeas2 * LaunchHelper.getThrust(true, superHeavyOptions.rSeaType2) + superHeavyOptions.numRSeas3 * LaunchHelper.getThrust(true, superHeavyOptions.rSeaType3);
+
+        console.log(shipDryMass, boosterDryMass)
         
         shipTWR = StringHelper.formatNumber(LaunchHelper.getTWR(shipThrust, shipWetMass, LaunchHelper.getGEarth(0)), 2);
         boosterTWR = StringHelper.formatNumber(LaunchHelper.getTWR(boosterThrust, boosterWetMass, LaunchHelper.getGEarth(0)), 2);
@@ -401,6 +401,13 @@
         validateSuperHeavy();
     }
 
+    function waitAndValidate(): void {
+        setTimeout(() => {
+            validate();
+        }, 0);
+        // html catch up
+    }
+
     function reset(): void {
         resetStarship();
         resetSuperHeavy();
@@ -408,184 +415,205 @@
 
     function validateStarship(): void {
         starshipValidated = true;
-        // if (starshipOptions.shipRingHeight < StarshipConstants.MIN_SHIP_RING_HEIGHT * LaunchConstants.REAL_LIFE_SCALE.y || starshipOptions.shipRingHeight > StarshipConstants.MAX_SHIP_RING_HEIGHT * LaunchConstants.REAL_LIFE_SCALE.y) {
-        //     validatedStarship.shipRingHeight = false;
-        //     starshipValidated = false;
-        // } else {
-        //     validatedStarship.shipRingHeight = true;
-        // }
+        if (!unregulated) {
+            if (starshipOptions.shipRingHeight < StarshipConstants.MIN_SHIP_RING_HEIGHT * LaunchConstants.REAL_LIFE_SCALE.y || starshipOptions.shipRingHeight > StarshipConstants.MAX_SHIP_RING_HEIGHT * LaunchConstants.REAL_LIFE_SCALE.y) {
+                validatedStarship.shipRingHeight = false;
+                starshipValidated = false;
+            } else {
+                validatedStarship.shipRingHeight = true;
+            }
 
-        // if (starshipOptions.forwardLHeightScale < 0 || starshipOptions.forwardLHeightScale > StarshipConstants.FORWARD_L_MAX_HEIGHT_SCALE) {
-        //     validatedStarship.forwardLHeightScale = false;
-        //     starshipValidated = false;
-        // } else {
-        //     validatedStarship.forwardLHeightScale = true;
-        // }
-        // if (starshipOptions.forwardLWidthScale < StarshipConstants.FORWARD_L_MIN_WIDTH_SCALE || starshipOptions.forwardLWidthScale > StarshipConstants.FORWARD_L_MAX_WIDTH_SCALE) {
-        //     validatedStarship.forwardLWidthScale = false;
-        //     starshipValidated = false;
-        // } else {
-        //     validatedStarship.forwardLWidthScale = true;
-        // }
-        // if (starshipOptions.forwardRHeightScale < 0 || starshipOptions.forwardRHeightScale > StarshipConstants.FORWARD_R_MAX_HEIGHT_SCALE) {
-        //     validatedStarship.forwardRHeightScale = false;
-        //     starshipValidated = false;
-        // } else {
-        //     validatedStarship.forwardRHeightScale = true;
-        // }
-        // if (starshipOptions.forwardRWidthScale < StarshipConstants.FORWARD_R_MIN_WIDTH_SCALE || starshipOptions.forwardRWidthScale > StarshipConstants.FORWARD_R_MAX_WIDTH_SCALE) {
-        //     validatedStarship.forwardRWidthScale = false;
-        //     starshipValidated = false;
-        // } else {
-        //     validatedStarship.forwardRWidthScale = true;
-        // }
-        // if (starshipOptions.aftLHeightScale < 0 * starshipOptions.shipRingHeight || starshipOptions.aftLHeightScale > StarshipConstants.AFT_L_MAX_HEIGHT_PERC * starshipOptions.shipRingHeight) {
-        //     validatedStarship.aftLHeightScale = false;
-        //     starshipValidated = false;
-        // } else {
-        //     validatedStarship.aftLHeightScale = true;
-        // }
-        // if (starshipOptions.aftLWidthScale < StarshipConstants.AFT_L_MIN_WIDTH_SCALE || starshipOptions.aftLWidthScale > StarshipConstants.AFT_L_MAX_WIDTH_SCALE) {
-        //     validatedStarship.aftLWidthScale = false;
-        //     starshipValidated = false;
-        // } else {
-        //     validatedStarship.aftLWidthScale = true;
-        // }
-        // if (starshipOptions.aftRHeightScale < 0 * starshipOptions.shipRingHeight || starshipOptions.aftRHeightScale > StarshipConstants.AFT_R_MAX_HEIGHT_PERC * starshipOptions.shipRingHeight) {
-        //     validatedStarship.aftRHeightScale = false;
-        //     starshipValidated = false;
-        // } else {
-        //     validatedStarship.aftRHeightScale = true;
-        // }
-        // if (starshipOptions.aftRWidthScale < StarshipConstants.AFT_R_MIN_WIDTH_SCALE || starshipOptions.aftRWidthScale > StarshipConstants.AFT_R_MAX_WIDTH_SCALE) {
-        //     validatedStarship.aftRWidthScale = false;
-        //     starshipValidated = false;
-        // } else {
-        //     validatedStarship.aftRWidthScale = true;
-        // }
+            if (starshipOptions.forwardLHeightScale < 0 || starshipOptions.forwardLHeightScale > StarshipConstants.FORWARD_L_MAX_HEIGHT_SCALE) {
+                validatedStarship.forwardLHeightScale = false;
+                starshipValidated = false;
+            } else {
+                validatedStarship.forwardLHeightScale = true;
+            }
+            if (starshipOptions.forwardLWidthScale < StarshipConstants.FORWARD_L_MIN_WIDTH_SCALE || starshipOptions.forwardLWidthScale > StarshipConstants.FORWARD_L_MAX_WIDTH_SCALE) {
+                validatedStarship.forwardLWidthScale = false;
+                starshipValidated = false;
+            } else {
+                validatedStarship.forwardLWidthScale = true;
+            }
+            if (starshipOptions.forwardRHeightScale < 0 || starshipOptions.forwardRHeightScale > StarshipConstants.FORWARD_R_MAX_HEIGHT_SCALE) {
+                validatedStarship.forwardRHeightScale = false;
+                starshipValidated = false;
+            } else {
+                validatedStarship.forwardRHeightScale = true;
+            }
+            if (starshipOptions.forwardRWidthScale < StarshipConstants.FORWARD_R_MIN_WIDTH_SCALE || starshipOptions.forwardRWidthScale > StarshipConstants.FORWARD_R_MAX_WIDTH_SCALE) {
+                validatedStarship.forwardRWidthScale = false;
+                starshipValidated = false;
+            } else {
+                validatedStarship.forwardRWidthScale = true;
+            }
+            if (starshipOptions.aftLHeightScale < 0 * starshipOptions.shipRingHeight || starshipOptions.aftLHeightScale > StarshipConstants.AFT_L_MAX_HEIGHT_PERC * starshipOptions.shipRingHeight) {
+                validatedStarship.aftLHeightScale = false;
+                starshipValidated = false;
+            } else {
+                validatedStarship.aftLHeightScale = true;
+            }
+            if (starshipOptions.aftLWidthScale < StarshipConstants.AFT_L_MIN_WIDTH_SCALE || starshipOptions.aftLWidthScale > StarshipConstants.AFT_L_MAX_WIDTH_SCALE) {
+                validatedStarship.aftLWidthScale = false;
+                starshipValidated = false;
+            } else {
+                validatedStarship.aftLWidthScale = true;
+            }
+            if (starshipOptions.aftRHeightScale < 0 * starshipOptions.shipRingHeight || starshipOptions.aftRHeightScale > StarshipConstants.AFT_R_MAX_HEIGHT_PERC * starshipOptions.shipRingHeight) {
+                validatedStarship.aftRHeightScale = false;
+                starshipValidated = false;
+            } else {
+                validatedStarship.aftRHeightScale = true;
+            }
+            if (starshipOptions.aftRWidthScale < StarshipConstants.AFT_R_MIN_WIDTH_SCALE || starshipOptions.aftRWidthScale > StarshipConstants.AFT_R_MAX_WIDTH_SCALE) {
+                validatedStarship.aftRWidthScale = false;
+                starshipValidated = false;
+            } else {
+                validatedStarship.aftRWidthScale = true;
+            }
 
-        // if (starshipOptions.rSeaRadius < 0 || (starshipOptions.numRSeas > 1 && starshipOptions.rSeaRadius < RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.PACKING_RADIUS_PERC)) {
-        //     validatedStarship.rSeaRadius = false;
-        //     starshipValidated = false;
-        // } else {
-        //     let outerRadius: number = 0;
-        //     if (starshipOptions.canRSeaGimbal) {
-        //         if (starshipOptions.numRVacs > 0) {
-        //             if (starshipOptions.canRVacGimbal) {
-        //                 outerRadius = starshipOptions.rVacRadius - RaptorConstants.R_VAC_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x - RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x;
-        //             }
-        //             else {
-        //                 outerRadius = starshipOptions.rVacRadius - RaptorConstants.R_VAC_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x - RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.R_SEA_GIMBAL_SPACE_PERC;
-        //             }
-        //         }
-        //         else {
-        //             outerRadius = LaunchConstants.REAL_LIFE_SCALE.x - RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.R_SEA_GIMBAL_SPACE_PERC;
-        //         }
-        //     }
-        //     else {
-        //         if (starshipOptions.numRVacs > 0) {
-        //             if (starshipOptions.canRVacGimbal) {
-        //                 outerRadius = starshipOptions.rVacRadius - RaptorConstants.R_VAC_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.R_VAC_GIMBAL_SPACE_PERC - RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x;
-        //             }
-        //             else {
-        //                 outerRadius = starshipOptions.rVacRadius - RaptorConstants.R_VAC_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x - RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x;
-        //             }
-        //         }
-        //         else {
-        //             outerRadius = LaunchConstants.REAL_LIFE_SCALE.x - RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x;
-        //         }
-        //     }
-        //     if (starshipOptions.rSeaRadius > outerRadius) {
-        //         validatedStarship.rSeaRadius = false;
-        //         starshipValidated = false;
-        //     } else {
-        //         validatedStarship.rSeaRadius = true;
-        //     }
-        // }
+            if (starshipOptions.rSeaRadius < 0 || (starshipOptions.numRSeas > 1 && starshipOptions.rSeaRadius < RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.PACKING_RADIUS_PERC)) {
+                validatedStarship.rSeaRadius = false;
+                starshipValidated = false;
+            } else {
+                let outerRadius: number = 0;
+                if (starshipOptions.canRSeaGimbal) {
+                    if (starshipOptions.numRVacs > 0) {
+                        if (starshipOptions.canRVacGimbal) {
+                            outerRadius = starshipOptions.rVacRadius - RaptorConstants.R_VAC_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x - RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x;
+                        }
+                        else {
+                            outerRadius = starshipOptions.rVacRadius - RaptorConstants.R_VAC_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x - RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.R_SEA_GIMBAL_SPACE_PERC;
+                        }
+                    }
+                    else {
+                        outerRadius = LaunchConstants.REAL_LIFE_SCALE.x - RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.R_SEA_GIMBAL_SPACE_PERC;
+                    }
+                }
+                else {
+                    if (starshipOptions.numRVacs > 0) {
+                        if (starshipOptions.canRVacGimbal) {
+                            outerRadius = starshipOptions.rVacRadius - RaptorConstants.R_VAC_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.R_VAC_GIMBAL_SPACE_PERC - RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x;
+                        }
+                        else {
+                            outerRadius = starshipOptions.rVacRadius - RaptorConstants.R_VAC_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x - RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x;
+                        }
+                    }
+                    else {
+                        outerRadius = LaunchConstants.REAL_LIFE_SCALE.x - RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x;
+                    }
+                }
+                if (starshipOptions.rSeaRadius > outerRadius) {
+                    validatedStarship.rSeaRadius = false;
+                    starshipValidated = false;
+                } else {
+                    validatedStarship.rSeaRadius = true;
+                }
+            }
 
-        // if (starshipOptions.numRSeas < 0 || (starshipOptions.numRSeas > 1 && (starshipOptions.numRSeas > MathHelper.getMaxCirclesAroundCircle(starshipOptions.rSeaRadius, RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.PACKING_RADIUS_PERC) || starshipOptions.rSeaRadius < RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.PACKING_RADIUS_PERC))) {
-        //     validatedStarship.numRSeas = false;
-        //     starshipValidated = false;
-        // } else {
-        //     validatedStarship.numRSeas = true;
-        // }
+            if (starshipOptions.numRSeas < 0 || (starshipOptions.numRSeas > 1 && (starshipOptions.numRSeas > MathHelper.getMaxCirclesAroundCircle(starshipOptions.rSeaRadius, RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.PACKING_RADIUS_PERC) || starshipOptions.rSeaRadius < RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.PACKING_RADIUS_PERC))) {
+                validatedStarship.numRSeas = false;
+                starshipValidated = false;
+            } else {
+                validatedStarship.numRSeas = true;
+            }
 
-        // if (starshipOptions.rSeaAngularOffset < 0 || starshipOptions.rSeaAngularOffset >= 360) {
-        //     validatedStarship.rSeaAngularOffset = false;
-        //     starshipValidated = false;
-        // } else {
-        //     validatedStarship.rSeaAngularOffset = true;
-        // }
+            if (starshipOptions.rSeaAngularOffset < 0 || starshipOptions.rSeaAngularOffset >= 360) {
+                validatedStarship.rSeaAngularOffset = false;
+                starshipValidated = false;
+            } else {
+                validatedStarship.rSeaAngularOffset = true;
+            }
 
-        // if (Math.round(starshipOptions.rSeaType) != starshipOptions.rSeaType || starshipOptions.rSeaType < 0 || starshipOptions.rSeaType > 3) {
-        //     validatedStarship.rSeaType = false;
-        //     starshipValidated = false;
-        // } else {
-        //     validatedStarship.rSeaType = true;
-        // }
+            if (Math.round(starshipOptions.rSeaType) != starshipOptions.rSeaType || starshipOptions.rSeaType < 0 || starshipOptions.rSeaType > 3) {
+                validatedStarship.rSeaType = false;
+                starshipValidated = false;
+            } else {
+                validatedStarship.rSeaType = true;
+            }
 
-        // if (starshipOptions.rVacRadius < 0 || (starshipOptions.numRVacs > 1 && starshipOptions.rVacRadius < RaptorConstants.R_VAC_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.PACKING_RADIUS_PERC)) {
-        //     validatedStarship.rVacRadius = false;
-        //     starshipValidated = false;
-        // } else {
-        //     let outerRadius: number = 0;
-        //     let innerRadius: number = 0;
-        //     if (starshipOptions.canRVacGimbal) {
-        //         outerRadius = LaunchConstants.REAL_LIFE_SCALE.x - RaptorConstants.R_VAC_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.R_VAC_GIMBAL_SPACE_PERC;
-        //         if (starshipOptions.numRSeas > 0) {
-        //             if (starshipOptions.canRSeaGimbal) {
-        //                 innerRadius = starshipOptions.rSeaRadius + RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x + RaptorConstants.R_VAC_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x;
-        //             }
-        //             else {
-        //                 innerRadius = starshipOptions.rSeaRadius + RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x + RaptorConstants.R_VAC_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.R_VAC_GIMBAL_SPACE_PERC;
-        //             }
-        //         }
-        //         else {
-        //             innerRadius = 0; // technically it is not, but the above if statement already covers it
-        //         }
-        //     }
-        //     else {
-        //         outerRadius = LaunchConstants.REAL_LIFE_SCALE.x - RaptorConstants.R_VAC_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x;
-        //         if (starshipOptions.numRSeas > 0) {
-        //             if (starshipOptions.canRSeaGimbal) {
-        //                 innerRadius = starshipOptions.rSeaRadius + RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.R_SEA_GIMBAL_SPACE_PERC + RaptorConstants.R_VAC_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x;
-        //             }
-        //             else {
-        //                 innerRadius = starshipOptions.rSeaRadius + RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x + RaptorConstants.R_VAC_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x;
-        //             }
-        //         }
-        //         else {
-        //             innerRadius = 0; // technically it is not, but the above if statement already covers it                    
-        //         }
-        //     }
-        //     if (starshipOptions.rVacRadius > outerRadius || starshipOptions.rVacRadius < innerRadius) {
-        //         validatedStarship.rVacRadius = false;
-        //         starshipValidated = false;
-        //     } else {
-        //         validatedStarship.rVacRadius = true;
-        //     }
-        // }
+            if (starshipOptions.rVacRadius < 0 || (starshipOptions.numRVacs > 1 && starshipOptions.rVacRadius < RaptorConstants.R_VAC_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.PACKING_RADIUS_PERC)) {
+                validatedStarship.rVacRadius = false;
+                starshipValidated = false;
+            } else {
+                let outerRadius: number = 0;
+                let innerRadius: number = 0;
+                if (starshipOptions.canRVacGimbal) {
+                    outerRadius = LaunchConstants.REAL_LIFE_SCALE.x - RaptorConstants.R_VAC_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.R_VAC_GIMBAL_SPACE_PERC;
+                    if (starshipOptions.numRSeas > 0) {
+                        if (starshipOptions.canRSeaGimbal) {
+                            innerRadius = starshipOptions.rSeaRadius + RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x + RaptorConstants.R_VAC_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x;
+                        }
+                        else {
+                            innerRadius = starshipOptions.rSeaRadius + RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x + RaptorConstants.R_VAC_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.R_VAC_GIMBAL_SPACE_PERC;
+                        }
+                    }
+                    else {
+                        innerRadius = 0; // technically it is not, but the above if statement already covers it
+                    }
+                }
+                else {
+                    outerRadius = LaunchConstants.REAL_LIFE_SCALE.x - RaptorConstants.R_VAC_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x;
+                    if (starshipOptions.numRSeas > 0) {
+                        if (starshipOptions.canRSeaGimbal) {
+                            innerRadius = starshipOptions.rSeaRadius + RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.R_SEA_GIMBAL_SPACE_PERC + RaptorConstants.R_VAC_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x;
+                        }
+                        else {
+                            innerRadius = starshipOptions.rSeaRadius + RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x + RaptorConstants.R_VAC_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x;
+                        }
+                    }
+                    else {
+                        innerRadius = 0; // technically it is not, but the above if statement already covers it                    
+                    }
+                }
+                if (starshipOptions.rVacRadius > outerRadius || starshipOptions.rVacRadius < innerRadius) {
+                    validatedStarship.rVacRadius = false;
+                    starshipValidated = false;
+                } else {
+                    validatedStarship.rVacRadius = true;
+                }
+            }
 
-        // if (starshipOptions.numRVacs < 0 || (starshipOptions.numRVacs > 1 && (starshipOptions.numRVacs > MathHelper.getMaxCirclesAroundCircle(starshipOptions.rVacRadius, RaptorConstants.R_VAC_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.PACKING_RADIUS_PERC) || starshipOptions.rVacRadius < RaptorConstants.R_VAC_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.PACKING_RADIUS_PERC))) {
-        //     validatedStarship.numRVacs = false;
-        //     starshipValidated = false;
-        // } else {
-        //     validatedStarship.numRVacs = true;
-        // }
+            if (starshipOptions.numRVacs < 0 || (starshipOptions.numRVacs > 1 && (starshipOptions.numRVacs > MathHelper.getMaxCirclesAroundCircle(starshipOptions.rVacRadius, RaptorConstants.R_VAC_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.PACKING_RADIUS_PERC) || starshipOptions.rVacRadius < RaptorConstants.R_VAC_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.PACKING_RADIUS_PERC))) {
+                validatedStarship.numRVacs = false;
+                starshipValidated = false;
+            } else {
+                validatedStarship.numRVacs = true;
+            }
 
-        // if (starshipOptions.rVacAngularOffset < 0 || starshipOptions.rVacAngularOffset >= 360) {
-        //     validatedStarship.rVacAngularOffset = false;
-        //     starshipValidated = false;
-        // } else {
-        //     validatedStarship.rVacAngularOffset = true;
-        // }
+            if (starshipOptions.rVacAngularOffset < 0 || starshipOptions.rVacAngularOffset >= 360) {
+                validatedStarship.rVacAngularOffset = false;
+                starshipValidated = false;
+            } else {
+                validatedStarship.rVacAngularOffset = true;
+            }
 
-        // if (Math.round(starshipOptions.rVacType) != starshipOptions.rVacType || starshipOptions.rVacType < 0 || starshipOptions.rVacType > 3) {
-        //     validatedStarship.rVacType = false;
-        //     starshipValidated = false;
-        // } else {
-        //     validatedStarship.rVacType = true;
-        // }
+            if (Math.round(starshipOptions.rVacType) != starshipOptions.rVacType || starshipOptions.rVacType < 0 || starshipOptions.rVacType > 3) {
+                validatedStarship.rVacType = false;
+                starshipValidated = false;
+            } else {
+                validatedStarship.rVacType = true;
+            }
+        }
+        else {
+            validatedStarship.shipRingHeight = true;
+            validatedStarship.forwardLHeightScale = true;
+            validatedStarship.forwardLWidthScale = true;
+            validatedStarship.forwardRHeightScale = true;
+            validatedStarship.forwardRWidthScale = true;
+            validatedStarship.aftLHeightScale = true;
+            validatedStarship.aftLWidthScale = true;
+            validatedStarship.aftRHeightScale = true;
+            validatedStarship.aftRWidthScale = true;
+            validatedStarship.rSeaRadius = true;
+            validatedStarship.numRSeas = true;
+            validatedStarship.rSeaAngularOffset = true;
+            validatedStarship.rSeaType = true;
+            validatedStarship.rVacRadius = true;
+            validatedStarship.numRVacs = true;
+            validatedStarship.rVacAngularOffset = true;
+            validatedStarship.rVacType = true;
+        }
 
         if (starshipValidated) {
             starshipSettings.update((value) => {
@@ -656,271 +684,296 @@
     function validateSuperHeavy(): void {
         superHeavyValidated = true;
 
-        // if (superHeavyOptions.hsrHeight < 0 || superHeavyOptions.hsrHeight > SuperHeavyConstants.MAX_HSR_HEIGHT * LaunchConstants.REAL_LIFE_SCALE.y) {
-        //     validatedSuperHeavy.hsrHeight = false;
-        //     superHeavyValidated = false;
-        // } else {
-        //     validatedSuperHeavy.hsrHeight = true;
-        // }
+        if (!unregulated) {
+            if (superHeavyOptions.hsrHeight < 0 || superHeavyOptions.hsrHeight > SuperHeavyConstants.MAX_HSR_HEIGHT * LaunchConstants.REAL_LIFE_SCALE.y) {
+                validatedSuperHeavy.hsrHeight = false;
+                superHeavyValidated = false;
+            } else {
+                validatedSuperHeavy.hsrHeight = true;
+            }
 
-        // if (superHeavyOptions.boosterRingHeight < SuperHeavyConstants.MIN_BOOSTER_RING_HEIGHT * LaunchConstants.REAL_LIFE_SCALE.y || superHeavyOptions.boosterRingHeight > SuperHeavyConstants.MAX_BOOSTER_RING_HEIGHT * LaunchConstants.REAL_LIFE_SCALE.y) {
-        //     validatedSuperHeavy.boosterRingHeight = false;
-        //     superHeavyValidated = false;
-        // } else {
-        //     validatedSuperHeavy.boosterRingHeight = true;
-        // }
+            if (superHeavyOptions.boosterRingHeight < SuperHeavyConstants.MIN_BOOSTER_RING_HEIGHT * LaunchConstants.REAL_LIFE_SCALE.y || superHeavyOptions.boosterRingHeight > SuperHeavyConstants.MAX_BOOSTER_RING_HEIGHT * LaunchConstants.REAL_LIFE_SCALE.y) {
+                validatedSuperHeavy.boosterRingHeight = false;
+                superHeavyValidated = false;
+            } else {
+                validatedSuperHeavy.boosterRingHeight = true;
+            }
 
-        // if (superHeavyOptions.numGridFins < 0 || Math.round(superHeavyOptions.numGridFins) != superHeavyOptions.numGridFins || superHeavyOptions.numGridFins > MathHelper.getMaxCirclesAroundCircle(SuperHeavyConstants.GRID_FIN_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x, superHeavyOptions.gridFinWidthScale * LaunchConstants.REAL_LIFE_SCALE.x * SuperHeavyConstants.GRID_FIN_WIDTH_PERC)) {
-        //     validatedSuperHeavy.numGridFins = false;
-        //     superHeavyValidated = false;
-        // } else {
-        //     validatedSuperHeavy.numGridFins = true;
-        // }
+            if (superHeavyOptions.numGridFins < 0 || Math.round(superHeavyOptions.numGridFins) != superHeavyOptions.numGridFins || superHeavyOptions.numGridFins > MathHelper.getMaxCirclesAroundCircle(SuperHeavyConstants.GRID_FIN_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x, superHeavyOptions.gridFinWidthScale * LaunchConstants.REAL_LIFE_SCALE.x * SuperHeavyConstants.GRID_FIN_WIDTH_PERC)) {
+                validatedSuperHeavy.numGridFins = false;
+                superHeavyValidated = false;
+            } else {
+                validatedSuperHeavy.numGridFins = true;
+            }
 
-        // if (superHeavyOptions.gridFinAngularOffset < 0 || superHeavyOptions.gridFinAngularOffset >= 360) {
-        //     validatedSuperHeavy.gridFinAngularOffset = false;
-        //     superHeavyValidated = false;
-        // } else {
-        //     validatedSuperHeavy.gridFinAngularOffset = true;
-        // }
+            if (superHeavyOptions.gridFinAngularOffset < 0 || superHeavyOptions.gridFinAngularOffset >= 360) {
+                validatedSuperHeavy.gridFinAngularOffset = false;
+                superHeavyValidated = false;
+            } else {
+                validatedSuperHeavy.gridFinAngularOffset = true;
+            }
 
-        // if (superHeavyOptions.gridFinLengthScale < 0 || superHeavyOptions.gridFinLengthScale > SuperHeavyConstants.GRID_FIN_MAX_LENGTH_SCALE) {
-        //     validatedSuperHeavy.gridFinLengthScale = false;
-        //     superHeavyValidated = false;
-        // } else {
-        //     validatedSuperHeavy.gridFinLengthScale = true;
-        // }
+            if (superHeavyOptions.gridFinLengthScale < 0 || superHeavyOptions.gridFinLengthScale > SuperHeavyConstants.GRID_FIN_MAX_LENGTH_SCALE) {
+                validatedSuperHeavy.gridFinLengthScale = false;
+                superHeavyValidated = false;
+            } else {
+                validatedSuperHeavy.gridFinLengthScale = true;
+            }
 
-        // if (superHeavyOptions.gridFinWidthScale < 0 || superHeavyOptions.gridFinWidthScale > SuperHeavyConstants.GRID_FIN_MAX_WIDTH_SCALE) {
-        //     validatedSuperHeavy.gridFinWidthScale = false;
-        //     superHeavyValidated = false;
-        // } else {
-        //     validatedSuperHeavy.gridFinWidthScale = true;
-        // }
+            if (superHeavyOptions.gridFinWidthScale < 0 || superHeavyOptions.gridFinWidthScale > SuperHeavyConstants.GRID_FIN_MAX_WIDTH_SCALE) {
+                validatedSuperHeavy.gridFinWidthScale = false;
+                superHeavyValidated = false;
+            } else {
+                validatedSuperHeavy.gridFinWidthScale = true;
+            }
 
-        // if (superHeavyOptions.numChines < 0 || Math.round(superHeavyOptions.numChines) != superHeavyOptions.numChines || superHeavyOptions.numChines > MathHelper.getMaxCirclesAroundCircle(SuperHeavyConstants.CHINE_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x, LaunchConstants.REAL_LIFE_SCALE.x * SuperHeavyConstants.CHINE_WIDTH_PERC)) {
-        //     validatedSuperHeavy.numChines = false;
-        //     superHeavyValidated = false;
-        // } else {
-        //     validatedSuperHeavy.numChines = true;
-        // }
+            if (superHeavyOptions.numChines < 0 || Math.round(superHeavyOptions.numChines) != superHeavyOptions.numChines || superHeavyOptions.numChines > MathHelper.getMaxCirclesAroundCircle(SuperHeavyConstants.CHINE_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x, LaunchConstants.REAL_LIFE_SCALE.x * SuperHeavyConstants.CHINE_WIDTH_PERC)) {
+                validatedSuperHeavy.numChines = false;
+                superHeavyValidated = false;
+            } else {
+                validatedSuperHeavy.numChines = true;
+            }
 
-        // if (superHeavyOptions.chineAngularOffset < 0 || superHeavyOptions.chineAngularOffset >= 360) {
-        //     validatedSuperHeavy.chineAngularOffset = false;
-        //     superHeavyValidated = false;
-        // } else {
-        //     validatedSuperHeavy.chineAngularOffset = true;
-        // }
+            if (superHeavyOptions.chineAngularOffset < 0 || superHeavyOptions.chineAngularOffset >= 360) {
+                validatedSuperHeavy.chineAngularOffset = false;
+                superHeavyValidated = false;
+            } else {
+                validatedSuperHeavy.chineAngularOffset = true;
+            }
 
-        // if (superHeavyOptions.chineHeightScale < 0 || superHeavyOptions.chineHeightScale > Math.min(SuperHeavyConstants.CHINE_MAX_HEIGHT_SCALE, SuperHeavyConstants.CHINE_MAX_HEIGHT_PERC * superHeavyOptions.boosterRingHeight)) {
-        //     validatedSuperHeavy.chineHeightScale = false;
-        //     superHeavyValidated = false;
-        // } else {
-        //     validatedSuperHeavy.chineHeightScale = true;
-        // }
+            if (superHeavyOptions.chineHeightScale < 0 || superHeavyOptions.chineHeightScale > Math.min(SuperHeavyConstants.CHINE_MAX_HEIGHT_SCALE, SuperHeavyConstants.CHINE_MAX_HEIGHT_PERC * superHeavyOptions.boosterRingHeight)) {
+                validatedSuperHeavy.chineHeightScale = false;
+                superHeavyValidated = false;
+            } else {
+                validatedSuperHeavy.chineHeightScale = true;
+            }
 
-        // if (superHeavyOptions.rSeaRadius1 < 0 || (superHeavyOptions.numRSeas1 > 1 && superHeavyOptions.rSeaRadius1 < RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.PACKING_RADIUS_PERC)) {
-        //     validatedSuperHeavy.rSeaRadius1 = false;
-        //     superHeavyValidated = false;
-        // } else {
-        //     let outerRadius: number = 0;
-        //     if (superHeavyOptions.canRSea1Gimbal) {
-        //         if (superHeavyOptions.numRSeas2 > 0) {
-        //             if (superHeavyOptions.canRSea2Gimbal) {
-        //                 outerRadius = superHeavyOptions.rSeaRadius2 - RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x - RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x;
-        //             }
-        //             else {
-        //                 outerRadius = superHeavyOptions.rSeaRadius2 - RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x - RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.R_SEA_GIMBAL_SPACE_PERC;
-        //             }
-        //         }
-        //         else {
-        //             outerRadius = LaunchConstants.REAL_LIFE_SCALE.x - RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.R_SEA_GIMBAL_SPACE_PERC;
-        //         }
-        //     }
-        //     else {
-        //         if (superHeavyOptions.numRSeas2 > 0) {
-        //             if (superHeavyOptions.canRSea2Gimbal) {
-        //                 outerRadius = superHeavyOptions.rSeaRadius2 - RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.R_SEA_GIMBAL_SPACE_PERC - RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x;
-        //             }
-        //             else {
-        //                 outerRadius = superHeavyOptions.rSeaRadius2 - RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x - RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x;
-        //             }
-        //         }
-        //         else {
-        //             outerRadius = LaunchConstants.REAL_LIFE_SCALE.x - RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x;
-        //         }
-        //     }
-        //     if (superHeavyOptions.rSeaRadius1 > outerRadius) {
-        //         validatedSuperHeavy.rSeaRadius1 = false;
-        //         superHeavyValidated = false;
-        //     } else {
-        //         validatedSuperHeavy.rSeaRadius1 = true;
-        //     }
-        // }
+            if (superHeavyOptions.rSeaRadius1 < 0 || (superHeavyOptions.numRSeas1 > 1 && superHeavyOptions.rSeaRadius1 < RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.PACKING_RADIUS_PERC)) {
+                validatedSuperHeavy.rSeaRadius1 = false;
+                superHeavyValidated = false;
+            } else {
+                let outerRadius: number = 0;
+                if (superHeavyOptions.canRSea1Gimbal) {
+                    if (superHeavyOptions.numRSeas2 > 0) {
+                        if (superHeavyOptions.canRSea2Gimbal) {
+                            outerRadius = superHeavyOptions.rSeaRadius2 - RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x - RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x;
+                        }
+                        else {
+                            outerRadius = superHeavyOptions.rSeaRadius2 - RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x - RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.R_SEA_GIMBAL_SPACE_PERC;
+                        }
+                    }
+                    else {
+                        outerRadius = LaunchConstants.REAL_LIFE_SCALE.x - RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.R_SEA_GIMBAL_SPACE_PERC;
+                    }
+                }
+                else {
+                    if (superHeavyOptions.numRSeas2 > 0) {
+                        if (superHeavyOptions.canRSea2Gimbal) {
+                            outerRadius = superHeavyOptions.rSeaRadius2 - RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.R_SEA_GIMBAL_SPACE_PERC - RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x;
+                        }
+                        else {
+                            outerRadius = superHeavyOptions.rSeaRadius2 - RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x - RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x;
+                        }
+                    }
+                    else {
+                        outerRadius = LaunchConstants.REAL_LIFE_SCALE.x - RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x;
+                    }
+                }
+                if (superHeavyOptions.rSeaRadius1 > outerRadius) {
+                    validatedSuperHeavy.rSeaRadius1 = false;
+                    superHeavyValidated = false;
+                } else {
+                    validatedSuperHeavy.rSeaRadius1 = true;
+                }
+            }
 
-        // if (superHeavyOptions.numRSeas1 < 0 || (superHeavyOptions.numRSeas1 > 1 && (superHeavyOptions.numRSeas1 > MathHelper.getMaxCirclesAroundCircle(superHeavyOptions.rSeaRadius1, RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.PACKING_RADIUS_PERC) || superHeavyOptions.rSeaRadius1 < RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.PACKING_RADIUS_PERC))) {
-        //     validatedSuperHeavy.numRSeas1 = false;
-        //     superHeavyValidated = false;
-        // } else {
-        //     validatedSuperHeavy.numRSeas1 = true;
-        // }
+            if (superHeavyOptions.numRSeas1 < 0 || (superHeavyOptions.numRSeas1 > 1 && (superHeavyOptions.numRSeas1 > MathHelper.getMaxCirclesAroundCircle(superHeavyOptions.rSeaRadius1, RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.PACKING_RADIUS_PERC) || superHeavyOptions.rSeaRadius1 < RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.PACKING_RADIUS_PERC))) {
+                validatedSuperHeavy.numRSeas1 = false;
+                superHeavyValidated = false;
+            } else {
+                validatedSuperHeavy.numRSeas1 = true;
+            }
 
-        // if (superHeavyOptions.rSeaAngularOffset1 < 0 || superHeavyOptions.rSeaAngularOffset1 >= 360) {
-        //     validatedSuperHeavy.rSeaAngularOffset1 = false;
-        //     superHeavyValidated = false;
-        // } else {
-        //     validatedSuperHeavy.rSeaAngularOffset1 = true;
-        // }
+            if (superHeavyOptions.rSeaAngularOffset1 < 0 || superHeavyOptions.rSeaAngularOffset1 >= 360) {
+                validatedSuperHeavy.rSeaAngularOffset1 = false;
+                superHeavyValidated = false;
+            } else {
+                validatedSuperHeavy.rSeaAngularOffset1 = true;
+            }
 
-        // if (Math.round(superHeavyOptions.rSeaType1) != superHeavyOptions.rSeaType1 || superHeavyOptions.rSeaType1 < 0 || superHeavyOptions.rSeaType1 > 3) {
-        //     validatedSuperHeavy.rSeaType1 = false;
-        //     superHeavyValidated = false;
-        // } else {
-        //     validatedSuperHeavy.rSeaType1 = true;
-        // }
-        
-        // if (superHeavyOptions.rSeaRadius2 < 0 || (superHeavyOptions.numRSeas2 > 1 && superHeavyOptions.rSeaRadius2 < RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.PACKING_RADIUS_PERC)) {
-        //     validatedSuperHeavy.rSeaRadius2 = false;
-        //     superHeavyValidated = false;
-        // } else {
-        //     let innerRadius: number = 0;
-        //     let outerRadius: number = 0;
-        //     if (superHeavyOptions.canRSea2Gimbal) {
-        //         if (superHeavyOptions.numRSeas1 > 0) {
-        //             if (superHeavyOptions.canRSea1Gimbal) {
-        //                 innerRadius = superHeavyOptions.rSeaRadius1 + RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x + RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x;
-        //             }
-        //             else {
-        //                 innerRadius = superHeavyOptions.rSeaRadius1 + RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x + RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.R_SEA_GIMBAL_SPACE_PERC;
-        //             }
-        //         }
-        //         else {
-        //             innerRadius = 0; // technically it is not, but the above if statement already covers it
-        //         }
-        //         if (superHeavyOptions.numRSeas3 > 0) {
-        //             if (superHeavyOptions.canRSea3Gimbal) {
-        //                 outerRadius = superHeavyOptions.rSeaRadius3 - RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x - RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x;
-        //             }
-        //             else {
-        //                 outerRadius = superHeavyOptions.rSeaRadius3 - RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x - RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.R_SEA_GIMBAL_SPACE_PERC;
-        //             }
-        //         }
-        //         else {
-        //             outerRadius = LaunchConstants.REAL_LIFE_SCALE.x - RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.R_SEA_GIMBAL_SPACE_PERC;
-        //         }
-        //     }
-        //     else {
-        //         if (superHeavyOptions.numRSeas1 > 0) {
-        //             if (superHeavyOptions.canRSea1Gimbal) {
-        //                 innerRadius = superHeavyOptions.rSeaRadius1 + RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.R_SEA_GIMBAL_SPACE_PERC + RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x;
-        //             }
-        //             else {
-        //                 innerRadius = superHeavyOptions.rSeaRadius1 + RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x + RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x;
-        //             }
-        //         }
-        //         else {
-        //             innerRadius = 0; // technically it is not, but the above if statement already covers it                    
-        //         }
-        //         if (superHeavyOptions.numRSeas3 > 0) {
-        //             if (superHeavyOptions.canRSea3Gimbal) {
-        //                 outerRadius = superHeavyOptions.rSeaRadius3 - RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.R_SEA_GIMBAL_SPACE_PERC - RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x;
-        //             }
-        //             else {
-        //                 outerRadius = superHeavyOptions.rSeaRadius3 - RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x - RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x;
-        //             }
-        //         }
-        //         else {
-        //             outerRadius = LaunchConstants.REAL_LIFE_SCALE.x - RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x;
-        //         }
-        //     }
-        //     if (superHeavyOptions.rSeaRadius2 > outerRadius || superHeavyOptions.rSeaRadius2 < innerRadius) {
-        //         validatedSuperHeavy.rSeaRadius2 = false;
-        //         superHeavyValidated = false;
-        //     } else {
-        //         validatedSuperHeavy.rSeaRadius2 = true;
-        //     }
-        // }
+            if (Math.round(superHeavyOptions.rSeaType1) != superHeavyOptions.rSeaType1 || superHeavyOptions.rSeaType1 < 0 || superHeavyOptions.rSeaType1 > 3) {
+                validatedSuperHeavy.rSeaType1 = false;
+                superHeavyValidated = false;
+            } else {
+                validatedSuperHeavy.rSeaType1 = true;
+            }
+            
+            if (superHeavyOptions.rSeaRadius2 < 0 || (superHeavyOptions.numRSeas2 > 1 && superHeavyOptions.rSeaRadius2 < RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.PACKING_RADIUS_PERC)) {
+                validatedSuperHeavy.rSeaRadius2 = false;
+                superHeavyValidated = false;
+            } else {
+                let innerRadius: number = 0;
+                let outerRadius: number = 0;
+                if (superHeavyOptions.canRSea2Gimbal) {
+                    if (superHeavyOptions.numRSeas1 > 0) {
+                        if (superHeavyOptions.canRSea1Gimbal) {
+                            innerRadius = superHeavyOptions.rSeaRadius1 + RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x + RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x;
+                        }
+                        else {
+                            innerRadius = superHeavyOptions.rSeaRadius1 + RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x + RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.R_SEA_GIMBAL_SPACE_PERC;
+                        }
+                    }
+                    else {
+                        innerRadius = 0; // technically it is not, but the above if statement already covers it
+                    }
+                    if (superHeavyOptions.numRSeas3 > 0) {
+                        if (superHeavyOptions.canRSea3Gimbal) {
+                            outerRadius = superHeavyOptions.rSeaRadius3 - RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x - RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x;
+                        }
+                        else {
+                            outerRadius = superHeavyOptions.rSeaRadius3 - RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x - RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.R_SEA_GIMBAL_SPACE_PERC;
+                        }
+                    }
+                    else {
+                        outerRadius = LaunchConstants.REAL_LIFE_SCALE.x - RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.R_SEA_GIMBAL_SPACE_PERC;
+                    }
+                }
+                else {
+                    if (superHeavyOptions.numRSeas1 > 0) {
+                        if (superHeavyOptions.canRSea1Gimbal) {
+                            innerRadius = superHeavyOptions.rSeaRadius1 + RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.R_SEA_GIMBAL_SPACE_PERC + RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x;
+                        }
+                        else {
+                            innerRadius = superHeavyOptions.rSeaRadius1 + RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x + RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x;
+                        }
+                    }
+                    else {
+                        innerRadius = 0; // technically it is not, but the above if statement already covers it                    
+                    }
+                    if (superHeavyOptions.numRSeas3 > 0) {
+                        if (superHeavyOptions.canRSea3Gimbal) {
+                            outerRadius = superHeavyOptions.rSeaRadius3 - RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.R_SEA_GIMBAL_SPACE_PERC - RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x;
+                        }
+                        else {
+                            outerRadius = superHeavyOptions.rSeaRadius3 - RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x - RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x;
+                        }
+                    }
+                    else {
+                        outerRadius = LaunchConstants.REAL_LIFE_SCALE.x - RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x;
+                    }
+                }
+                if (superHeavyOptions.rSeaRadius2 > outerRadius || superHeavyOptions.rSeaRadius2 < innerRadius) {
+                    validatedSuperHeavy.rSeaRadius2 = false;
+                    superHeavyValidated = false;
+                } else {
+                    validatedSuperHeavy.rSeaRadius2 = true;
+                }
+            }
 
-        // if (superHeavyOptions.numRSeas2 < 0 || (superHeavyOptions.numRSeas2 > 1 && (superHeavyOptions.numRSeas2 > MathHelper.getMaxCirclesAroundCircle(superHeavyOptions.rSeaRadius2, RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.PACKING_RADIUS_PERC) || superHeavyOptions.rSeaRadius2 < RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.PACKING_RADIUS_PERC))) {
-        //     validatedSuperHeavy.numRSeas2 = false;
-        //     superHeavyValidated = false;
-        // } else {
-        //     validatedSuperHeavy.numRSeas2 = true;
-        // }
+            if (superHeavyOptions.numRSeas2 < 0 || (superHeavyOptions.numRSeas2 > 1 && (superHeavyOptions.numRSeas2 > MathHelper.getMaxCirclesAroundCircle(superHeavyOptions.rSeaRadius2, RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.PACKING_RADIUS_PERC) || superHeavyOptions.rSeaRadius2 < RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.PACKING_RADIUS_PERC))) {
+                validatedSuperHeavy.numRSeas2 = false;
+                superHeavyValidated = false;
+            } else {
+                validatedSuperHeavy.numRSeas2 = true;
+            }
 
-        // if (superHeavyOptions.rSeaAngularOffset2 < 0 || superHeavyOptions.rSeaAngularOffset2 >= 360) {
-        //     validatedSuperHeavy.rSeaAngularOffset2 = false;
-        //     superHeavyValidated = false;
-        // } else {
-        //     validatedSuperHeavy.rSeaAngularOffset2 = true;
-        // }
+            if (superHeavyOptions.rSeaAngularOffset2 < 0 || superHeavyOptions.rSeaAngularOffset2 >= 360) {
+                validatedSuperHeavy.rSeaAngularOffset2 = false;
+                superHeavyValidated = false;
+            } else {
+                validatedSuperHeavy.rSeaAngularOffset2 = true;
+            }
 
-        // if (Math.round(superHeavyOptions.rSeaType2) != superHeavyOptions.rSeaType2 || superHeavyOptions.rSeaType2 < 0 || superHeavyOptions.rSeaType2 > 3) {
-        //     validatedSuperHeavy.rSeaType2 = false;
-        //     superHeavyValidated = false;
-        // } else {
-        //     validatedSuperHeavy.rSeaType2 = true;
-        // }
+            if (Math.round(superHeavyOptions.rSeaType2) != superHeavyOptions.rSeaType2 || superHeavyOptions.rSeaType2 < 0 || superHeavyOptions.rSeaType2 > 3) {
+                validatedSuperHeavy.rSeaType2 = false;
+                superHeavyValidated = false;
+            } else {
+                validatedSuperHeavy.rSeaType2 = true;
+            }
 
-        // if (superHeavyOptions.rSeaRadius3 < 0 || (superHeavyOptions.numRSeas3 > 1 && superHeavyOptions.rSeaRadius3 < RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.PACKING_RADIUS_PERC)) {
-        //     validatedSuperHeavy.rSeaRadius3 = false;
-        //     superHeavyValidated = false;
-        // } else {
-        //     let innerRadius: number = 0;
-        //     if (superHeavyOptions.canRSea3Gimbal) {
-        //         if (superHeavyOptions.numRSeas2 > 0) {
-        //             if (superHeavyOptions.canRSea2Gimbal) {
-        //                 innerRadius = superHeavyOptions.rSeaRadius2 + RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x + RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x;
-        //             }
-        //             else {
-        //                 innerRadius = superHeavyOptions.rSeaRadius2 + RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x + RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.R_SEA_GIMBAL_SPACE_PERC;
-        //             }
-        //         }
-        //         else {
-        //             innerRadius = 0; // technically it is not, but the above if statement already covers it
-        //         }
-        //     }
-        //     else {
-        //         if (superHeavyOptions.numRSeas2 > 0) {
-        //             if (superHeavyOptions.canRSea2Gimbal) {
-        //                 innerRadius = superHeavyOptions.rSeaRadius2 + RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.R_SEA_GIMBAL_SPACE_PERC + RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x;
-        //             }
-        //             else {
-        //                 innerRadius = superHeavyOptions.rSeaRadius2 + RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x + RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x;
-        //             }
-        //         }
-        //         else {
-        //             innerRadius = 0; // technically it is not, but the above if statement already covers it                    
-        //         }
-        //     }
-        //     if (superHeavyOptions.rSeaRadius3 > LaunchConstants.REAL_LIFE_SCALE.x || superHeavyOptions.rSeaRadius3 < innerRadius) {
-        //         validatedSuperHeavy.rSeaRadius3 = false;
-        //         superHeavyValidated = false;
-        //     } else {
-        //         validatedSuperHeavy.rSeaRadius3 = true;
-        //     }
-        // }
+            if (superHeavyOptions.rSeaRadius3 < 0 || (superHeavyOptions.numRSeas3 > 1 && superHeavyOptions.rSeaRadius3 < RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.PACKING_RADIUS_PERC)) {
+                validatedSuperHeavy.rSeaRadius3 = false;
+                superHeavyValidated = false;
+            } else {
+                let innerRadius: number = 0;
+                if (superHeavyOptions.canRSea3Gimbal) {
+                    if (superHeavyOptions.numRSeas2 > 0) {
+                        if (superHeavyOptions.canRSea2Gimbal) {
+                            innerRadius = superHeavyOptions.rSeaRadius2 + RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x + RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x;
+                        }
+                        else {
+                            innerRadius = superHeavyOptions.rSeaRadius2 + RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x + RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.R_SEA_GIMBAL_SPACE_PERC;
+                        }
+                    }
+                    else {
+                        innerRadius = 0; // technically it is not, but the above if statement already covers it
+                    }
+                }
+                else {
+                    if (superHeavyOptions.numRSeas2 > 0) {
+                        if (superHeavyOptions.canRSea2Gimbal) {
+                            innerRadius = superHeavyOptions.rSeaRadius2 + RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.R_SEA_GIMBAL_SPACE_PERC + RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x;
+                        }
+                        else {
+                            innerRadius = superHeavyOptions.rSeaRadius2 + RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x + RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x;
+                        }
+                    }
+                    else {
+                        innerRadius = 0; // technically it is not, but the above if statement already covers it                    
+                    }
+                }
+                if (superHeavyOptions.rSeaRadius3 > LaunchConstants.REAL_LIFE_SCALE.x || superHeavyOptions.rSeaRadius3 < innerRadius) {
+                    validatedSuperHeavy.rSeaRadius3 = false;
+                    superHeavyValidated = false;
+                } else {
+                    validatedSuperHeavy.rSeaRadius3 = true;
+                }
+            }
 
-        // if (superHeavyOptions.numRSeas3 < 0 || (superHeavyOptions.numRSeas3 > 1 && (superHeavyOptions.numRSeas3 > MathHelper.getMaxCirclesAroundCircle(superHeavyOptions.rSeaRadius3, RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.PACKING_RADIUS_PERC) || superHeavyOptions.rSeaRadius3 < RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.PACKING_RADIUS_PERC))) {
-        //     validatedSuperHeavy.numRSeas3 = false;
-        //     superHeavyValidated = false;
-        // } else {
-        //     validatedSuperHeavy.numRSeas3 = true;
-        // }
+            if (superHeavyOptions.numRSeas3 < 0 || (superHeavyOptions.numRSeas3 > 1 && (superHeavyOptions.numRSeas3 > MathHelper.getMaxCirclesAroundCircle(superHeavyOptions.rSeaRadius3, RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.PACKING_RADIUS_PERC) || superHeavyOptions.rSeaRadius3 < RaptorConstants.R_SEA_RADIUS * LaunchConstants.REAL_LIFE_SCALE.x * RaptorConstants.PACKING_RADIUS_PERC))) {
+                validatedSuperHeavy.numRSeas3 = false;
+                superHeavyValidated = false;
+            } else {
+                validatedSuperHeavy.numRSeas3 = true;
+            }
 
-        // if (superHeavyOptions.rSeaAngularOffset3 < 0 || superHeavyOptions.rSeaAngularOffset3 >= 360) {
-        //     validatedSuperHeavy.rSeaAngularOffset3 = false;
-        //     superHeavyValidated = false;
-        // } else {
-        //     validatedSuperHeavy.rSeaAngularOffset3 = true;
-        // }
+            if (superHeavyOptions.rSeaAngularOffset3 < 0 || superHeavyOptions.rSeaAngularOffset3 >= 360) {
+                validatedSuperHeavy.rSeaAngularOffset3 = false;
+                superHeavyValidated = false;
+            } else {
+                validatedSuperHeavy.rSeaAngularOffset3 = true;
+            }
 
-        // if (Math.round(superHeavyOptions.rSeaType3) != superHeavyOptions.rSeaType3 || superHeavyOptions.rSeaType3 < 0 || superHeavyOptions.rSeaType3 > 3) {
-        //     validatedSuperHeavy.rSeaType3 = false;
-        //     superHeavyValidated = false;
-        // } else {
-        //     validatedSuperHeavy.rSeaType3 = true;
-        // }
+            if (Math.round(superHeavyOptions.rSeaType3) != superHeavyOptions.rSeaType3 || superHeavyOptions.rSeaType3 < 0 || superHeavyOptions.rSeaType3 > 3) {
+                validatedSuperHeavy.rSeaType3 = false;
+                superHeavyValidated = false;
+            } else {
+                validatedSuperHeavy.rSeaType3 = true;
+            }
+        }
+        else {
+            validatedSuperHeavy.hsrHeight = true;
+            validatedSuperHeavy.boosterRingHeight = true;
+            validatedSuperHeavy.numGridFins = true;
+            validatedSuperHeavy.gridFinAngularOffset = true;
+            validatedSuperHeavy.gridFinLengthScale = true;
+            validatedSuperHeavy.gridFinWidthScale = true;
+            validatedSuperHeavy.numChines = true;
+            validatedSuperHeavy.chineAngularOffset = true;
+            validatedSuperHeavy.chineHeightScale = true;
+            validatedSuperHeavy.rSeaRadius1 = true;
+            validatedSuperHeavy.numRSeas1 = true;
+            validatedSuperHeavy.rSeaAngularOffset1 = true;
+            validatedSuperHeavy.rSeaType1 = true;
+            validatedSuperHeavy.rSeaRadius2 = true;
+            validatedSuperHeavy.numRSeas2 = true;
+            validatedSuperHeavy.rSeaAngularOffset2 = true;
+            validatedSuperHeavy.rSeaType2 = true;
+            validatedSuperHeavy.rSeaRadius3 = true;
+            validatedSuperHeavy.numRSeas3 = true;
+            validatedSuperHeavy.rSeaAngularOffset3 = true;
+            validatedSuperHeavy.rSeaType3 = true;
+        }
 
         if (superHeavyValidated) {
             superHeavySettings.update((value) => {
@@ -1084,6 +1137,7 @@
         if (starshipValidated && superHeavyValidated) {
             localStorage.setItem('starshipSettings', JSON.stringify(starshipOptions));
             localStorage.setItem('superHeavySettings', JSON.stringify(superHeavyOptions));
+            localStorage.setItem('unregulated', JSON.stringify(unregulated));
 
             toggles.update((value) => {
                 value.isEditing = false;
@@ -1098,6 +1152,7 @@
     onMount(() => {
         localStorage.getItem('starshipSettings') ? starshipOptions = JSON.parse(localStorage.getItem('starshipSettings')) : resetStarship();
         localStorage.getItem('superHeavySettings') ? superHeavyOptions = JSON.parse(localStorage.getItem('superHeavySettings')) : resetSuperHeavy();
+        localStorage.getItem('unregulated') ? unregulated = JSON.parse(localStorage.getItem('unregulated')) : unregulated = false;
         validate();
 
         setupUpdator();
@@ -1254,6 +1309,8 @@
         position: fixed;
         height: 32px;
         user-select: none;
+
+        transition: width 0.1s, left 0.1s;
     }
 
     .customize-action {
@@ -1272,6 +1329,17 @@
             background-color: rgba(255, 255, 255, 0.75);
             cursor: pointer;
         }
+    }
+
+    .customize-unregulated-container {
+        position: absolute;
+        top: -42px;
+        height: 42px;
+        background-color: rgba(0, 0, 0, 0.5);
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
     }
 
     .customize-fueling-action {
@@ -1427,7 +1495,7 @@
         <button class="customize-action" style="right: 0; bottom: 0; width: 100%; height: 32px;" on:click={hideShowRightBar}>Hide Right &#9654;</button>
     </div>
 {/if}
-<div class="customize-banner" style="top: 0; {hasLeftBar ? hasRightBar ? "left: 390px; width: calc(100vw - 390px - 340px);" : "left: 390px; width: calc(100vw - 390px);" : hasRightBar ? "left: 0; width: calc(100vw - 340px);" : "left: 0; width: 100vw;"}">
+<div class="customize-banner" style="top: 42px; {hasLeftBar ? hasRightBar ? "left: 390px; width: calc(100vw - 390px - 340px);" : "left: 390px; width: calc(100vw - 390px);" : hasRightBar ? "left: 0; width: calc(100vw - 340px);" : "left: 0; width: 100vw;"}">
     {#if !hasLeftBar}
         <button class="customize-action" style="left:0; top: 0; width: 25%; height: 100%; border-right: 1px solid white;" on:click={hideShowLeftBar}>&#9664; Show Left</button>
     {/if}
@@ -1436,6 +1504,10 @@
     {/if}
     <button class="customize-action" style="left:{hasLeftBar ? '0' : '25%'}; top: 0; width: {hasLeftBar && hasRightBar ? '50%' : !hasLeftBar && !hasRightBar ? '25%' : '37.5%'}; height: 100%; border-right: 1px solid white;" on:click={validate}>Test &#128504;</button>
     <button class="customize-action" style="right:{hasRightBar ? '0' : '25%'}; top: 0; width: {hasLeftBar && hasRightBar ? '50%' : !hasLeftBar && !hasRightBar ? '25%' : '37.5%'}; height: 100%;" on:click={reset}>Reset &#8634;</button>
+    <div class="customize-unregulated-container">
+        <input class="customize-option-checkbox" style="margin-right: 8px;" type="checkbox" bind:checked={unregulated} on:input={waitAndValidate}>
+        &#9888; Customize unregulated &#9888;
+    </div>
 </div>
 <div class="customize-banner" style="bottom: 0; {hasLeftBar ? hasRightBar ? "left: 390px; width: calc(100vw - 390px - 340px);" : "left: 390px; width: calc(100vw - 390px);" : hasRightBar ? "left: 0; width: calc(100vw - 340px);" : "left: 0; width: 100vw;"}">
     {#if starshipValidated && superHeavyValidated}
