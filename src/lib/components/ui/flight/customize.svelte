@@ -415,20 +415,6 @@
 
     function validateStarship(): void {
         starshipValidated = true;
-
-        if (Math.round(starshipOptions.rVacType) != starshipOptions.rVacType || starshipOptions.rVacType < 0 || starshipOptions.rVacType > 3) {
-            validatedStarship.rVacType = false;
-            starshipValidated = false;
-        } else {
-            validatedStarship.rVacType = true;
-        }
-
-        if (Math.round(starshipOptions.rSeaType) != starshipOptions.rSeaType || starshipOptions.rSeaType < 0 || starshipOptions.rSeaType > 3) {
-            validatedStarship.rSeaType = false;
-            starshipValidated = false;
-        } else {
-            validatedStarship.rSeaType = true;
-        }
         
         if (!unregulated) {
             if (starshipOptions.shipRingHeight < StarshipConstants.MIN_SHIP_RING_HEIGHT * LaunchConstants.REAL_LIFE_SCALE.y || starshipOptions.shipRingHeight > StarshipConstants.MAX_SHIP_RING_HEIGHT * LaunchConstants.REAL_LIFE_SCALE.y) {
@@ -614,6 +600,30 @@
             validatedStarship.rVacAngularOffset = true;
         }
 
+        if (Math.round(starshipOptions.numRSeas) != starshipOptions.numRSeas || starshipOptions.numRSeas < 0) {
+            validatedStarship.numRSeas = false;
+            starshipValidated = false;
+        }
+        
+        if (Math.round(starshipOptions.rSeaType) != starshipOptions.rSeaType || starshipOptions.rSeaType < 0 || starshipOptions.rSeaType > 3) {
+            validatedStarship.rSeaType = false;
+            starshipValidated = false;
+        } else {
+            validatedStarship.rSeaType = true;
+        }
+
+        if (Math.round(starshipOptions.numRVacs) != starshipOptions.numRVacs || starshipOptions.numRVacs < 0) {
+            validatedStarship.numRVacs = false;
+            starshipValidated = false;
+        }
+
+        if (Math.round(starshipOptions.rVacType) != starshipOptions.rVacType || starshipOptions.rVacType < 0 || starshipOptions.rVacType > 3) {
+            validatedStarship.rVacType = false;
+            starshipValidated = false;
+        } else {
+            validatedStarship.rVacType = true;
+        }
+
         if (starshipValidated) {
             starshipSettings.update((value) => {
                 value.rSeaAngularOffset = starshipOptions.rSeaAngularOffset;
@@ -682,27 +692,6 @@
 
     function validateSuperHeavy(): void {
         superHeavyValidated = true;
-
-        if (Math.round(superHeavyOptions.rSeaType1) != superHeavyOptions.rSeaType1 || superHeavyOptions.rSeaType1 < 0 || superHeavyOptions.rSeaType1 > 3) {
-            validatedSuperHeavy.rSeaType1 = false;
-            superHeavyValidated = false;
-        } else {
-            validatedSuperHeavy.rSeaType1 = true;
-        }
-
-        if (Math.round(superHeavyOptions.rSeaType2) != superHeavyOptions.rSeaType2 || superHeavyOptions.rSeaType2 < 0 || superHeavyOptions.rSeaType2 > 3) {
-            validatedSuperHeavy.rSeaType2 = false;
-            superHeavyValidated = false;
-        } else {
-            validatedSuperHeavy.rSeaType2 = true;
-        }
-
-        if (Math.round(superHeavyOptions.rSeaType3) != superHeavyOptions.rSeaType3 || superHeavyOptions.rSeaType3 < 0 || superHeavyOptions.rSeaType3 > 3) {
-            validatedSuperHeavy.rSeaType3 = false;
-            superHeavyValidated = false;
-        } else {
-            validatedSuperHeavy.rSeaType3 = true;
-        }
 
         if (!unregulated) {
             if (superHeavyOptions.hsrHeight < 0 || superHeavyOptions.hsrHeight > SuperHeavyConstants.MAX_HSR_HEIGHT * LaunchConstants.REAL_LIFE_SCALE.y) {
@@ -969,6 +958,42 @@
             validatedSuperHeavy.rSeaRadius3 = true;
             validatedSuperHeavy.numRSeas3 = true;
             validatedSuperHeavy.rSeaAngularOffset3 = true;
+        }
+
+        if (Math.round(superHeavyOptions.numRSeas1) != superHeavyOptions.numRSeas1 || superHeavyOptions.numRSeas1 < 0) {
+            validatedSuperHeavy.numRSeas1 = false;
+            superHeavyValidated = false;
+        }
+
+        if (Math.round(superHeavyOptions.rSeaType1) != superHeavyOptions.rSeaType1 || superHeavyOptions.rSeaType1 < 0 || superHeavyOptions.rSeaType1 > 3) {
+            validatedSuperHeavy.rSeaType1 = false;
+            superHeavyValidated = false;
+        } else {
+            validatedSuperHeavy.rSeaType1 = true;
+        }
+
+        if (Math.round(superHeavyOptions.numRSeas2) != superHeavyOptions.numRSeas2 || superHeavyOptions.numRSeas2 < 0) {
+            validatedSuperHeavy.numRSeas2 = false;
+            superHeavyValidated = false;
+        }
+
+        if (Math.round(superHeavyOptions.rSeaType2) != superHeavyOptions.rSeaType2 || superHeavyOptions.rSeaType2 < 0 || superHeavyOptions.rSeaType2 > 3) {
+            validatedSuperHeavy.rSeaType2 = false;
+            superHeavyValidated = false;
+        } else {
+            validatedSuperHeavy.rSeaType2 = true;
+        }
+
+        if (Math.round(superHeavyOptions.numRSeas3) != superHeavyOptions.numRSeas3 || superHeavyOptions.numRSeas3 < 0) {
+            validatedSuperHeavy.numRSeas3 = false;
+            superHeavyValidated = false;
+        }
+
+        if (Math.round(superHeavyOptions.rSeaType3) != superHeavyOptions.rSeaType3 || superHeavyOptions.rSeaType3 < 0 || superHeavyOptions.rSeaType3 > 3) {
+            validatedSuperHeavy.rSeaType3 = false;
+            superHeavyValidated = false;
+        } else {
+            validatedSuperHeavy.rSeaType3 = true;
         }
 
         if (superHeavyValidated) {
