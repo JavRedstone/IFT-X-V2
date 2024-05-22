@@ -46,14 +46,7 @@
             opacity: 1;
         }
     }
-    @keyframes slideUp {
-        from {
-            transform: translate(-50%, 100%);
-        }
-        to {
-            transform: translate(-50%, -50%);
-        }
-    }
+    
     .settings-toggle {
         position: fixed;
         height: 18px;
@@ -93,8 +86,6 @@
         padding: 10px;
         
         user-select: none;
-
-        animation: slideUp 0.5s, increaseOpacity 1s;
     }
 
     .settings-title {
@@ -178,7 +169,7 @@
 </style>
 <button class="settings-toggle" on:click={() => isOpen = !isOpen}>Settings</button>
 {#if isOpen}
-    <div class="settings-container" transition:fly={{ y: 100, duration: 300 }}>
+    <div class="settings-container" transition:fly={{ y: 25, duration: 300 }}>
         <div class="settings-title">Settings</div>
         <div class="setting-container">
             <div class="setting-title">Volume</div>
