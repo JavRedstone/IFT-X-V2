@@ -21,11 +21,12 @@ Go to [iftx.pages.dev/](https://iftx.pages.dev/)
     - Hot staging
     - Reentry
 
-# How to run locally
+# License
 
-1. Clone the repository
-2. Run `npm install`
-3. Run `npm run dev`
+This project is licensed under the GPL-3.0 license. See the `LICENSE` file for more information.
+
+- Do not use this project for commercial purposes without permission.
+- Do not call this project your own for any reason.
 
 # Credits
 
