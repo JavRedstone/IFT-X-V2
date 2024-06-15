@@ -12,8 +12,8 @@
     import { LaunchConstants } from "../../constants/objects/LaunchConstants";
     import Keybinds from "./../popups/keybinds.svelte";
     import { SceneConstants } from "../../constants/SceneConstants";
-  import Settings from "../popups/settings.svelte";
-  import Restart from "../popups/restart.svelte";
+    import Settings from "../popups/settings.svelte";
+    import Restart from "../popups/restart.svelte";
 
     let starshipRaptors: RaptorUI[] = [];
     let superHeavyRaptors: RaptorUI[] = [];
