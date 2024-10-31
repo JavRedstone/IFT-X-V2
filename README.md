@@ -23,8 +23,6 @@ Go to [iftx.pages.dev/](https://iftx.pages.dev/)
 
 # Detailed Instructions
 
-I made a **Starship simulator** that runs on the web, all without using a game engine / physics engine. Did this for about a month straight.
-**Features**
 1. Customize your starship + superheavy [you can change many different specs, such as the type of raptor engine (from 1-3), the length of the vehicles, size and number of grid fins, the height and presence of a HSR, etc.
     - *Your customizations will be saved on fueling (that means when you reload the page, it will still be there*
 2. Fuel them (this will be a "timelapse" and will last approx 5 seconds IRL)
@@ -34,13 +32,14 @@ I made a **Starship simulator** that runs on the web, all without using a game e
     - Stage sep (with hot staging)
     - Boostback startup & shutdown
     - Automatic landing for the most part (I tried my best on this one using PDcontrollers, and is not completely realistic, however you need to make sure that the booster is vertical in the first place)
-        - you need to time the landing well otherwise you will run out of fuel / crash
+        - *You need to time the landing well otherwise you will run out of fuel / crash*
     - SECO
     - As you reenter, there are reentry particle effects
     - The flaps do work, so you can choose to perform a ship landing in the same way as well
-        - you need to time the landing well otherwise you will run out of fuel / crash
-**Disclaimer**
-The physics are not perfect and some have been changed for playability (such as grid fins not caring about the direction of movement, or that the control surfaces have much more control than in real life). Gimbaling mechanics is not perfect due to my skill level in understanding Quaternions.
+        - *You need to time the landing well otherwise you will run out of fuel / crash*
+
+**Disclaimer:**
+The physics are not perfect and some have been changed for playability (such as grid fins not caring about the direction of movement, or that the control surfaces have much more control than in real life).
 
 # License
 
