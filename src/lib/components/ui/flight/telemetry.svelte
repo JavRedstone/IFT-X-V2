@@ -318,80 +318,88 @@
             return value;
         });
     }
+
+    let updInterval: number = setInterval(() => updateAll(), 1000 * SceneConstants.DELTA);
+
+    let isWPressed: boolean = false;
+    let isAPressed: boolean = false;
+    let isSPressed: boolean = false;
+    let isDPressed: boolean = false;
+    let isQPressed: boolean = false;
+    let isEPressed: boolean = false;
+    let isIPressed: boolean = false;
+    let isKPressed: boolean = false;
+    let isJPressed: boolean = false;
+    let isLPressed: boolean = false;
+    let isUPressed: boolean = false;
+    let isOPressed: boolean = false;
+    let isPlusPressed: boolean = false;
+    let isMinusPressed: boolean = false;
+
+    function updateAll(): void {
+        keyPresses.update((value) => {
+            value.isWPressed = isWPressed;
+            value.isAPressed = isAPressed;
+            value.isSPressed = isSPressed;
+            value.isDPressed = isDPressed;
+            value.isQPressed = isQPressed;
+            value.isEPressed = isEPressed;
+            value.isIPressed = isIPressed;
+            value.isKPressed = isKPressed;
+            value.isJPressed = isJPressed;
+            value.isLPressed = isLPressed;
+            value.isUPressed = isUPressed;
+            value.isOPressed = isOPressed;
+            return value;
+        });
+
+        if (isPlusPressed) {
+            speedUp += SceneConstants.SPEEDUP_STEP;
+            setSpeedUp();
+        }
+        if (isMinusPressed) {
+            speedUp -= SceneConstants.SPEEDUP_STEP;
+            setSpeedUp();
+        }
+    }
     
     function setupKeybinds(): void {
         window.addEventListener("keydown", (event) => {
             if (event.key == "w" || event.key == "W") {
-                keyPresses.update((value) => {
-                    value.isWPressed = true;
-                    return value;
-                });
+                isWPressed = true;
             }
             if (event.key == "a" || event.key == "A") {
-                keyPresses.update((value) => {
-                    value.isAPressed = true;
-                    return value;
-                });
+                isAPressed = true;
             }
             if (event.key == "s" || event.key == "S") {
-                keyPresses.update((value) => {
-                    value.isSPressed = true;
-                    return value;
-                });
+                isSPressed = true;
             }
             if (event.key == "d" || event.key == "D") {
-                keyPresses.update((value) => {
-                    value.isDPressed = true;
-                    return value;
-                });
+                isDPressed = true;
             }
             if (event.key == "q" || event.key == "Q") {
-                keyPresses.update((value) => {
-                    value.isQPressed = true;
-                    return value;
-                });
+                isQPressed = true;
             }
             if (event.key == "e" || event.key == "E") {
-                keyPresses.update((value) => {
-                    value.isEPressed = true;
-                    return value;
-                });
+                isEPressed = true;
             }
             if (event.key == "i" || event.key == "I") {
-                keyPresses.update((value) => {
-                    value.isIPressed = true;
-                    return value;
-                });
+                isIPressed = true;
             }
             if (event.key == "k" || event.key == "K") {
-                keyPresses.update((value) => {
-                    value.isKPressed = true;
-                    return value;
-                });
+                isKPressed = true;
             }
             if (event.key == "j" || event.key == "J") {
-                keyPresses.update((value) => {
-                    value.isJPressed = true;
-                    return value;
-                });
+                isJPressed = true;
             }
             if (event.key == "l" || event.key == "L") {
-                keyPresses.update((value) => {
-                    value.isLPressed = true;
-                    return value;
-                });
+                isLPressed = true;
             }
             if (event.key == "u" || event.key == "U") {
-                keyPresses.update((value) => {
-                    value.isUPressed = true;
-                    return value;
-                });
+                isUPressed = true;
             }
             if (event.key == "o" || event.key == "O") {
-                keyPresses.update((value) => {
-                    value.isOPressed = true;
-                    return value;
-                });
+                isOPressed = true;
             }
             if (event.key == "Shift") {
                 telemetry.update((value) => {
@@ -402,87 +410,55 @@
             if (event.key == "Enter") {
                 sendBoosterEvent();
             }
-            if (event.key == "-") {
-                speedUp -= SceneConstants.SPEEDUP_STEP;
-                setSpeedUp();
+            if (event.key == "-" || event.key == "_") {
+                isMinusPressed = true;
             }
-            if (event.key == "=") {
-                speedUp += SceneConstants.SPEEDUP_STEP;
-                setSpeedUp();
+            if (event.key == "=" || event.key == "+") {
+                isPlusPressed = true;
             }
         });
         window.addEventListener("keyup", (event) => {
             if (event.key == "w" || event.key == "W") {
-                keyPresses.update((value) => {
-                    value.isWPressed = false;
-                    return value;
-                });
+                isWPressed = false;
             }
             if (event.key == "a" || event.key == "A") {
-                keyPresses.update((value) => {
-                    value.isAPressed = false;
-                    return value;
-                });
+                isAPressed = false;
             }
             if (event.key == "s" || event.key == "S") {
-                keyPresses.update((value) => {
-                    value.isSPressed = false;
-                    return value;
-                });
+                isSPressed = false;
             }
             if (event.key == "d" || event.key == "D") {
-                keyPresses.update((value) => {
-                    value.isDPressed = false;
-                    return value;
-                });
+                isDPressed = false;
             }
             if (event.key == "q" || event.key == "Q") {
-                keyPresses.update((value) => {
-                    value.isQPressed = false;
-                    return value;
-                });
+                isQPressed = false;
             }
             if (event.key == "e" || event.key == "E") {
-                keyPresses.update((value) => {
-                    value.isEPressed = false;
-                    return value;
-                });
+                isEPressed = false;
             }
             if (event.key == "i" || event.key == "I") {
-                keyPresses.update((value) => {
-                    value.isIPressed = false;
-                    return value;
-                });
+                isIPressed = false;
             }
             if (event.key == "k" || event.key == "K") {
-                keyPresses.update((value) => {
-                    value.isKPressed = false;
-                    return value;
-                });
+                isKPressed = false;
             }
             if (event.key == "j" || event.key == "J") {
-                keyPresses.update((value) => {
-                    value.isJPressed = false;
-                    return value;
-                });
+                isJPressed = false;
             }
             if (event.key == "l" || event.key == "L") {
-                keyPresses.update((value) => {
-                    value.isLPressed = false;
-                    return value;
-                });
+                isLPressed = false;
             }
             if (event.key == "u" || event.key == "U") {
-                keyPresses.update((value) => {
-                    value.isUPressed = false;
-                    return value;
-                });
+                isUPressed = false;
             }
             if (event.key == "o" || event.key == "O") {
-                keyPresses.update((value) => {
-                    value.isOPressed = false;
-                    return value;
-                });
+                isOPressed = false;
+            }
+            if (event.key == "-" || event.key == "_") {
+                isMinusPressed = false;
+            }
+            if (event.key == "=" || event.key == "+") {
+                isPlusPressed = false;
             }
         });
     }
